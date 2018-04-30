@@ -1,24 +1,19 @@
-# README
+# Testing Google Tasks API
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+# To do:
+1. Test TaskManager
+2. Save TaskLists and Tasks to the db
+3. Methodically interact with tasks
+4. Assign tasks to another user (who is authenticated)
+4.1 Keep track of creator and assignee
+4.2 Keep track of subject
+5. Properties are TaskLists
+5.1 Relationship between Task and Property (1 property has many tasks)
+6. Get data from Google:
+6.1 On a cron job? x times per day
+6.2. On staff user login? Update just theirs or everyone's?
+6.3 A hybrid: cron 2x per day (6 am & )
+7. Create hybrid of this app and PropertyTracker
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## Remind myself
+1. rails secrets:edit
