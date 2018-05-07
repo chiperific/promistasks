@@ -1,29 +1,26 @@
-<div class="navbar navbar-default navbar-static-top">
-  <div class="container">
-    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-      <span class="icon-bar"></span>
-    </button>
-    <a class="navbar-brand" href="#">Promise Tasks</a>
-    <div class="navbar-collapse collapse navbar-responsive-collapse">
-      <ul class="nav navbar-nav right">
-        <% if current_user %>
+<div class="row" id="custom_nav">
+  <div class="col-xs-5 col-sm-3 col-md-2">
+    <a href="/">
+      <%= image_tag 'fpgr_logo.png', class: 'nav-logo' %>
+    </a>
+  </div>
+  <div class="col-xs-7 col-sm-9 col-md-10">
+    <ul class="nav nav-pills">
+      <li class="nav-title">
+        Tasks
+      </li>
+      <% if current_user %>
         <li>
           Signed in as <strong><%= current_user.name %></strong>
         </li>
         <li>
           <%= link_to "Sign out", signout_path, id: "sign_out" %>
         </li>
-        <% else %>
-          <li>
-            <%= link_to "Staff sign-in", user_google_oauth2_omniauth_authorize_path %>
-          </li>
-          <li>
-            <%= link_to "Client, volunteer, contractor sign-in", new_user_session_path %>
-          </li>
-        <% end %>
-      </ul>
-    </div>
+      <% else %>
+        <li>
+          <%= link_to "Sign in", new_user_session_path %>
+        </li>
+      <% end %>
+    </ul>
   </div>
 </div>
