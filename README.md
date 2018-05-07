@@ -1,7 +1,9 @@
 # Testing Google Tasks API
 
 # To do:
+1. Test Devise w/ Omniauth (can I signup staff thru google && others through email&pw?)
 1. Test TaskManager
+  - https://github.com/intridea/omniauth/wiki/Integration-Testing
 2. Save TaskLists and Tasks to the db
 3. Methodically interact with tasks
 4. Assign tasks to another user (who is authenticated)
