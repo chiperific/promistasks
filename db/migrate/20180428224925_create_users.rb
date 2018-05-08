@@ -8,12 +8,9 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.string :name, null: false
       t.string :title
       t.boolean :system_admin,  null: false, default: false
-      t.boolean :oauth_login,   null: false, default: false
       t.boolean :program_staff, null: false, default: false
       t.boolean :project_staff, null: false, default: false
       t.boolean :admin_staff,   null: false, default: false
-
-      t.boolean :system_login,  null: false, default: false
       t.boolean :client,        null: false, default: false
       t.boolean :volunteer,     null: false, default: false
       t.boolean :contractor,    null: false, default: false

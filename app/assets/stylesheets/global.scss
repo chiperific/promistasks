@@ -55,3 +55,14 @@ body {
     color: white;
   }
 }
+
+.btn.yellow {
+  color: white;
+  background-image: -webkit-linear-gradient($yellow, $light-yellow);
+  border: 1px solid $yellow;
+  &:hover {
+    background-image: -webkit-linear-gradient(lighten($yellow, 10%), lighten($light-yellow, 10%));
+    border: 1px solid darken($yellow, 10%);
+    color: white;
+  }
+}

@@ -1,4 +1,4 @@
-class CreateTasklists < ActiveRecord::Migration[5.1]
+class CreateProperties < ActiveRecord::Migration[5.1]
   def change
     create_table :properties do |t|
       t.string :name, null: false #tasklist title

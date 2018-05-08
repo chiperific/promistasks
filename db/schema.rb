@@ -38,11 +38,14 @@ ActiveRecord::Schema.define(version: 20180429183602) do
     t.datetime "completed"
     t.boolean "deleted"
     t.boolean "hidden"
+    t.string "position", null: false
     t.string "parent_id"
     t.string "previous_id"
+    t.bigint "property_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["google_id"], name: "index_tasks_on_google_id", unique: true
+    t.index ["property_id"], name: "index_tasks_on_property_id"
   end
 
   create_table "users", force: :cascade do |t|
