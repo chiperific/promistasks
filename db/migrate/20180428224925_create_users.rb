@@ -43,6 +43,7 @@ class CreateUsers < ActiveRecord::Migration[5.1]
 
       t.string :google_image_link
       t.string :oauth_token
+      t.string :oauth_refresh_token
       t.datetime :oauth_expires_at
       t.datetime :discarded_at
       t.timestamps

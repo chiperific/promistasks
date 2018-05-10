@@ -8,4 +8,6 @@ class HomeController < ApplicationController
       @tasklists = 'you\'re not signed in'
     end
   end
+
+  # binding.pry
 end

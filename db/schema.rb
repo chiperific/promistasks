@@ -54,11 +54,9 @@ ActiveRecord::Schema.define(version: 20180429183602) do
     t.string "name", null: false
     t.string "title"
     t.boolean "system_admin", default: false, null: false
-    t.boolean "oauth_login", default: false, null: false
     t.boolean "program_staff", default: false, null: false
     t.boolean "project_staff", default: false, null: false
     t.boolean "admin_staff", default: false, null: false
-    t.boolean "system_login", default: false, null: false
     t.boolean "client", default: false, null: false
     t.boolean "volunteer", default: false, null: false
     t.boolean "contractor", default: false, null: false
@@ -83,6 +81,7 @@ ActiveRecord::Schema.define(version: 20180429183602) do
     t.inet "last_sign_in_ip"
     t.string "google_image_link"
     t.string "oauth_token"
+    t.string "oauth_refresh_token"
     t.datetime "oauth_expires_at"
     t.datetime "discarded_at"
     t.datetime "created_at", null: false
