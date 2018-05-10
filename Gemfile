@@ -8,15 +8,22 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
+gem 'bootstrap-sass'
 gem 'coffee-rails', '~> 4.2'
+gem 'devise'
+gem 'discard', '~> 1.0'
+gem 'font-awesome-rails'
 gem 'google-api-client', '~> 0.20.1'
 gem 'httparty'
 gem 'jbuilder', '~> 2.5'
+gem 'jquery-rails'
+gem 'money-rails'
 gem 'omniauth-google-oauth2'
 gem 'pg'
 gem 'puma', '~> 3.7'
 gem 'rails', '~> 5.1.6'
 gem 'sass-rails', '~> 5.0'
+gem 'simple_form'
 gem 'therubyracer', platforms: :ruby
 gem 'turbolinks', '~> 5'
 gem 'twitter-bootstrap-rails'

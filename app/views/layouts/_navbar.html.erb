@@ -1,0 +1,26 @@
+<div class="row" id="custom_nav">
+  <div class="col-xs-5 col-sm-3 col-md-2">
+    <a href="/">
+      <%= image_tag 'fpgr_logo.png', class: 'nav-logo' %>
+    </a>
+  </div>
+  <div class="col-xs-7 col-sm-9 col-md-10">
+    <ul class="nav nav-pills">
+      <li class="nav-title">
+        Tasks
+      </li>
+      <% if current_user %>
+        <li>
+          Signed in as <strong><%= current_user.name %></strong>
+        </li>
+        <li>
+          <%= link_to "Sign out", destroy_user_session_path, id: "sign_out" %>
+        </li>
+      <% else %>
+        <li>
+          <%= link_to "Sign in", new_user_session_path %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
