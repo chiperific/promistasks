@@ -179,9 +179,6 @@ SimpleForm.setup do |config|
   # config.i18n_scope = 'simple_form'
 
   # Defines validation classes to the input_field. By default it's nil.
-  # config.input_field_valid_class = 'is-valid'
-  # config.input_field_error_class = 'is-invalid'
-
-  # Devise does not add the Bootstrap styles automatically.
-  config.form_class = 'simple_form form-horizontal'
+  config.input_field_valid_class = 'is-valid'
+  config.input_field_error_class = 'is-invalid'
 end

@@ -32,7 +32,7 @@ gem 'uglifier', '>= 1.3.0'
 group :development, :test do
   gem 'better_errors'
   gem 'binding_of_caller'
-  gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
+  gem 'byebug', platforms: %i[mri mingw x64_mingw]
   gem 'factory_bot_rails'
   gem 'foreman'
   gem 'pry-byebug'
