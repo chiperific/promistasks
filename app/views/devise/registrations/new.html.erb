@@ -4,9 +4,18 @@
   <%= f.error_notification %>
 
   <div class="form-inputs">
-    <%= f.input :email, required: true, autofocus: true %>
+    <%= f.input :name, required: true, autofocus: true %>
+    <%= f.input :email, required: true %>
     <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length) %>
     <%= f.input :password_confirmation, required: true %>
+    <div class="user-types">
+      <%= f.input :register_as, as: :radio_buttons, collection: Constant::USER_TYPES %>
+    </div>
+    <div id="hidden_booleans">
+      <%= f.input :client, as: :hidden %>
+      <%= f.input :volunteer, as: :hidden %>
+      <%= f.input :contractor, as: :hidden %>
+    </div>
   </div>
 
   <div class="form-actions">

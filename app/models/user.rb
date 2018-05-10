@@ -19,8 +19,6 @@ class User < ApplicationRecord
       user.google_image_link = auth.info.image
       user.oauth_expires_at = Time.at(auth.credentials.expires_at)
     end
-
-    binding.pry
     @user.update( oauth_token: auth.credentials.token, oauth_refresh_token: auth.credentials.refresh_token )
 
     @user
@@ -53,5 +51,8 @@ class User < ApplicationRecord
   def token_expired?
     expiry = Time.at(self.oauth_expires_at)
     expiry < Time.now ? true : false
+  end
+
+  def register_as
   end
 end
