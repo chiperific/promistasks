@@ -1,7 +1,7 @@
-# Testing Google Tasks API
+# Google Tasks API Extension for Family Promise GR
 
 # To do:
-1. Test Devise w/ Omniauth (can I signup staff thru google && others through email&pw?) -- nope, need name
+1. Setup Circle CI
 1. Test TaskManager
   - only getting lists is working
   - https://github.com/intridea/omniauth/wiki/Integration-Testing
@@ -17,6 +17,11 @@
 6.2. On staff user login? Update just theirs or everyone's?
 6.3 A hybrid: cron 2x per day (6 am & )
 7. Create hybrid of this app and PropertyTracker
+1. Destroy PropertyTracker
 
 ## Remind myself
 1. rails secrets:edit
+2. production backup / development restore-from production
+  - User.all.each do |u| u.update(password: "password", password_confirmation: "password") end
+3. "Your branch is n commits behind master" - git fetch origin
+4. git remote prune origin --dry-run
