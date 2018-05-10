@@ -11,6 +11,12 @@
 4.1 Keep track of creator and assignee
 4.2 Keep track of subject
 5. Properties are TaskLists
+  - Initialization Templates created when property created (default tasks)
+  - Initialization Templates need a "system user" for creator / owner
+  - Show a user two types of tasks:
+    - Those assigned to the user
+    - Those assigned to the "system" that match the user's type
+      - task.initialization_template? && task.owner_type (is contained in) user.type (array)
 5.1 Relationship between Task and Property (1 property has many tasks)
 6. Get data from Google:
 6.1 On a cron job? x times per day
@@ -25,3 +31,4 @@
   - User.all.each do |u| u.update(password: "password", password_confirmation: "password") end
 3. "Your branch is n commits behind master" - git fetch origin
 4. git remote prune origin --dry-run
+5. Tasks API: https://developers.google.com/tasks/v1/reference/

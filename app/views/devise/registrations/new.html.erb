@@ -9,7 +9,7 @@
     <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length) %>
     <%= f.input :password_confirmation, required: true %>
     <div class="user-types">
-      <%= f.input :register_as, as: :radio_buttons, collection: Constant::USER_TYPES %>
+      <%= f.input :register_as, as: :radio_buttons, collection: Constant::User::EXT_TYPES %>
     </div>
     <div id="hidden_booleans">
       <%= f.input :client, as: :hidden %>

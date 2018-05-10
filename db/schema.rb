@@ -10,42 +10,124 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180429183602) do
+ActiveRecord::Schema.define(version: 20180510150150) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
+  create_table "connections", force: :cascade do |t|
+    t.bigint "property_id", null: false
+    t.bigint "user_id", null: false
+    t.string "relationship", null: false
+    t.string "stage"
+    t.date "stage_date"
+    t.datetime "discarded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["property_id", "user_id"], name: "index_connections_on_property_id_and_user_id", unique: true
+    t.index ["property_id"], name: "index_connections_on_property_id"
+    t.index ["stage"], name: "index_connections_on_stage"
+    t.index ["user_id", "property_id"], name: "index_connections_on_user_id_and_property_id", unique: true
+    t.index ["user_id"], name: "index_connections_on_user_id"
+  end
+
   create_table "properties", force: :cascade do |t|
     t.string "name", null: false
-    t.string "google_id"
-    t.string "selflink"
-    t.string "title_number"
     t.string "address"
     t.string "city"
     t.string "state"
     t.string "postal_code"
+    t.text "description"
+    t.date "acquired_on"
+    t.integer "cost_cents"
+    t.string "cost_currency", default: "USD", null: false
+    t.integer "lot_rent_cents"
+    t.string "lot_rent_currency", default: "USD", null: false
+    t.integer "budget_cents"
+    t.string "budget_currency", default: "USD", null: false
+    t.string "certificate_number"
+    t.string "serial_number"
+    t.integer "year_manufacture"
+    t.string "manufacturer"
+    t.string "model"
+    t.string "certification_label1"
+    t.string "certification_label2"
+    t.datetime "discarded_at"
+    t.string "google_id"
+    t.string "selflink"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["acquired_on"], name: "index_properties_on_acquired_on"
+    t.index ["certificate_number"], name: "index_properties_on_certificate_number", unique: true
     t.index ["google_id"], name: "index_properties_on_google_id", unique: true
+  end
+
+  create_table "skill_tasks", force: :cascade do |t|
+    t.bigint "skill_id", null: false
+    t.bigint "task_id", null: false
+    t.datetime "discarded_at"
+    t.index ["discarded_at"], name: "index_skill_tasks_on_discarded_at"
+    t.index ["skill_id", "task_id"], name: "index_skill_tasks_on_skill_id_and_task_id", unique: true
+    t.index ["skill_id"], name: "index_skill_tasks_on_skill_id"
+    t.index ["task_id", "skill_id"], name: "index_skill_tasks_on_task_id_and_skill_id", unique: true
+    t.index ["task_id"], name: "index_skill_tasks_on_task_id"
+  end
+
+  create_table "skill_users", force: :cascade do |t|
+    t.bigint "skill_id", null: false
+    t.bigint "user_id", null: false
+    t.boolean "is_licensed", default: false, null: false
+    t.datetime "discarded_at"
+    t.index ["discarded_at"], name: "index_skill_users_on_discarded_at"
+    t.index ["skill_id", "user_id"], name: "index_skill_users_on_skill_id_and_user_id", unique: true
+    t.index ["skill_id"], name: "index_skill_users_on_skill_id"
+    t.index ["user_id", "skill_id"], name: "index_skill_users_on_user_id_and_skill_id", unique: true
+    t.index ["user_id"], name: "index_skill_users_on_user_id"
+  end
+
+  create_table "skills", force: :cascade do |t|
+    t.string "name", null: false
+    t.boolean "license_required", default: false, null: false
+    t.boolean "volunteerable", default: true, null: false
+    t.datetime "discarded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_skills_on_name", unique: true
   end
 
   create_table "tasks", force: :cascade do |t|
     t.string "title", null: false
     t.string "notes"
+    t.string "priority"
     t.string "status"
     t.string "google_id"
     t.datetime "due"
     t.datetime "completed"
+    t.datetime "discarded_at"
     t.boolean "deleted"
     t.boolean "hidden"
     t.string "position", null: false
     t.string "parent_id"
     t.string "previous_id"
+    t.bigint "creator_id", null: false
+    t.bigint "owner_id", null: false
+    t.bigint "subject_id"
     t.bigint "property_id"
+    t.boolean "license_required", default: false, null: false
+    t.integer "budget_cents"
+    t.string "budget_currency", default: "USD", null: false
+    t.integer "cost_cents"
+    t.string "cost_currency", default: "USD", null: false
+    t.boolean "visible_only_to_staff", default: true, null: false
+    t.boolean "initialization_template"
+    t.string "owner_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["creator_id"], name: "index_tasks_on_creator_id"
     t.index ["google_id"], name: "index_tasks_on_google_id", unique: true
+    t.index ["owner_id"], name: "index_tasks_on_owner_id"
     t.index ["property_id"], name: "index_tasks_on_property_id"
+    t.index ["subject_id"], name: "index_tasks_on_subject_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -53,7 +135,6 @@ ActiveRecord::Schema.define(version: 20180429183602) do
     t.string "uid"
     t.string "name", null: false
     t.string "title"
-    t.boolean "system_admin", default: false, null: false
     t.boolean "program_staff", default: false, null: false
     t.boolean "project_staff", default: false, null: false
     t.boolean "admin_staff", default: false, null: false
@@ -69,6 +150,8 @@ ActiveRecord::Schema.define(version: 20180429183602) do
     t.string "postal_code"
     t.integer "rate_cents", default: 0, null: false
     t.string "rate_currency", default: "USD", null: false
+    t.boolean "system_admin", default: false, null: false
+    t.boolean "deus_ex_machina", default: false, null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
@@ -91,4 +174,10 @@ ActiveRecord::Schema.define(version: 20180429183602) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "connections", "properties"
+  add_foreign_key "connections", "users"
+  add_foreign_key "skill_tasks", "skills"
+  add_foreign_key "skill_tasks", "tasks"
+  add_foreign_key "skill_users", "skills"
+  add_foreign_key "skill_users", "users"
 end
