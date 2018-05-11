@@ -12,6 +12,8 @@ module Constant
     PRIORITY = %w[urgent high medium low someday].freeze
     ALERTS = ['due soon', 'urgent priority', 'high priority', 'data entry'].freeze
     OWNER_TYPES = ['Program Staff', 'Project Staff', 'Admin Staff'].freeze
+    VISIBILITY = ['Staff', 'Public', 'Only associated people', 'Not clients'].freeze
+    VISIBILITY_ENUM = [[0, 'Staff'], [1, 'Everyone'], [2, 'Only associated people'], [3, 'Not clients']].freeze
   end
 
   class Connection

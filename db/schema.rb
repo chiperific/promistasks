@@ -99,27 +99,28 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.string "title", null: false
     t.string "notes"
     t.string "priority"
-    t.string "status"
-    t.string "google_id"
     t.datetime "due"
-    t.datetime "completed"
-    t.datetime "discarded_at"
-    t.boolean "deleted"
-    t.boolean "hidden"
-    t.string "position", null: false
-    t.string "parent_id"
-    t.string "previous_id"
     t.bigint "creator_id", null: false
     t.bigint "owner_id", null: false
     t.bigint "subject_id"
     t.bigint "property_id"
-    t.boolean "license_required", default: false, null: false
     t.integer "budget_cents"
     t.string "budget_currency", default: "USD", null: false
     t.integer "cost_cents"
     t.string "cost_currency", default: "USD", null: false
-    t.boolean "visible_only_to_staff", default: true, null: false
-    t.boolean "initialization_template"
+    t.integer "visibility", default: 0, null: false
+    t.boolean "license_required", default: false, null: false
+    t.boolean "needs_more_info", default: false, null: false
+    t.datetime "completed"
+    t.datetime "discarded_at"
+    t.string "status"
+    t.string "google_id"
+    t.boolean "deleted", default: false, null: false
+    t.boolean "hidden", default: false, null: false
+    t.string "position", null: false
+    t.string "parent_id"
+    t.string "previous_id"
+    t.boolean "initialization_template", default: false, null: false
     t.string "owner_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -128,6 +129,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.index ["owner_id"], name: "index_tasks_on_owner_id"
     t.index ["property_id"], name: "index_tasks_on_property_id"
     t.index ["subject_id"], name: "index_tasks_on_subject_id"
+    t.index ["visibility"], name: "index_tasks_on_visibility"
   end
 
   create_table "users", force: :cascade do |t|
