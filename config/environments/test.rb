@@ -40,4 +40,7 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # Devise needs access to the secret_key_base
+  config.read_encrypted_secrets = true
 end

@@ -7,7 +7,6 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.string :uid
       t.string :name, null: false
       t.string :title
-      t.boolean :system_admin,  null: false, default: false
       t.boolean :program_staff, null: false, default: false
       t.boolean :project_staff, null: false, default: false
       t.boolean :admin_staff,   null: false, default: false
@@ -22,6 +21,8 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.string :state, default: 'MI'
       t.string :postal_code
       t.monetize :rate, default: 0
+      t.boolean :system_admin, null: false, default: false
+      t.boolean :deus_ex_machina, null: false, default: false # One User must be the 'system' for generating initialization tasks
 
       ## Database authenticatable
       t.string :email,              null: false, default: ''
