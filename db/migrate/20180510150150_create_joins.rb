@@ -13,6 +13,7 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.index :stage
       t.index [:property_id, :user_id], unique: true
       t.index [:user_id, :property_id], unique: true
+      t.index :discarded_at
     end
   end
 

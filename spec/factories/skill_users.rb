@@ -2,6 +2,7 @@
 
 FactoryBot.define do
   factory :skill_user do
-
+    skill
+    user
   end
 end

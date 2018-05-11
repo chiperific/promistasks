@@ -2,6 +2,7 @@
 
 FactoryBot.define do
   factory :property do
-
+    sequence(:name) { |n| "Property #{n}" }
+    sequence(:address) { |n| "#{n} Alexander St" }
   end
 end

@@ -24,6 +24,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.datetime "discarded_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["discarded_at"], name: "index_connections_on_discarded_at"
     t.index ["property_id", "user_id"], name: "index_connections_on_property_id_and_user_id", unique: true
     t.index ["property_id"], name: "index_connections_on_property_id"
     t.index ["stage"], name: "index_connections_on_stage"
@@ -33,7 +34,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
 
   create_table "properties", force: :cascade do |t|
     t.string "name", null: false
-    t.string "address"
+    t.string "address", null: false
     t.string "city"
     t.string "state"
     t.string "postal_code"
@@ -58,8 +59,11 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["acquired_on"], name: "index_properties_on_acquired_on"
+    t.index ["address"], name: "index_properties_on_address", unique: true
     t.index ["certificate_number"], name: "index_properties_on_certificate_number", unique: true
     t.index ["google_id"], name: "index_properties_on_google_id", unique: true
+    t.index ["name"], name: "index_properties_on_name", unique: true
+    t.index ["serial_number"], name: "index_properties_on_serial_number", unique: true
   end
 
   create_table "skill_tasks", force: :cascade do |t|
@@ -111,13 +115,13 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.integer "visibility", default: 0, null: false
     t.boolean "license_required", default: false, null: false
     t.boolean "needs_more_info", default: false, null: false
-    t.datetime "completed"
+    t.datetime "completed", null: false
+    t.string "status", default: "needsAction", null: false
     t.datetime "discarded_at"
-    t.string "status"
     t.string "google_id"
     t.boolean "deleted", default: false, null: false
     t.boolean "hidden", default: false, null: false
-    t.string "position", null: false
+    t.string "position"
     t.string "parent_id"
     t.string "previous_id"
     t.boolean "initialization_template", default: false, null: false
@@ -127,8 +131,10 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.index ["creator_id"], name: "index_tasks_on_creator_id"
     t.index ["google_id"], name: "index_tasks_on_google_id", unique: true
     t.index ["owner_id"], name: "index_tasks_on_owner_id"
+    t.index ["position"], name: "index_tasks_on_position", unique: true
     t.index ["property_id"], name: "index_tasks_on_property_id"
     t.index ["subject_id"], name: "index_tasks_on_subject_id"
+    t.index ["title"], name: "index_tasks_on_title", unique: true
     t.index ["visibility"], name: "index_tasks_on_visibility"
   end
 
@@ -172,8 +178,10 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["name"], name: "index_users_on_name", unique: true
     t.index ["oauth_token"], name: "index_users_on_oauth_token", unique: true
-    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token"
+    t.index ["uid"], name: "index_users_on_uid", unique: true
   end
 
   add_foreign_key "connections", "properties"

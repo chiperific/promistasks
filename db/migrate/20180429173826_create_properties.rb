@@ -4,7 +4,7 @@ class CreateProperties < ActiveRecord::Migration[5.1]
   def change
     create_table :properties do |t|
       t.string :name, null: false # tasklist title
-      t.string :address
+      t.string :address, null: false
       t.string :city
       t.string :state
       t.string :postal_code
@@ -25,9 +25,12 @@ class CreateProperties < ActiveRecord::Migration[5.1]
       t.string :selflink # tasklist full URL
       t.timestamps
 
-      t.index :google_id, unique: true
-      t.index :acquired_on
+      t.index :google_id,          unique: true
+      t.index :name,               unique: true
+      t.index :address,            unique: true
       t.index :certificate_number, unique: true
+      t.index :serial_number,      unique: true
+      t.index :acquired_on
     end
   end
 end

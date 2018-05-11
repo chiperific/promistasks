@@ -42,16 +42,20 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.inet     :current_sign_in_ip
       t.inet     :last_sign_in_ip
 
+      ## Oauth / google_oauth2 fields
       t.string :google_image_link
       t.string :oauth_token
       t.string :oauth_refresh_token
       t.datetime :oauth_expires_at
       t.datetime :discarded_at
-      t.timestamps
-    end
 
-    add_index :users, :oauth_token,          unique: true
-    add_index :users, :email,                unique: true
-    add_index :users, :reset_password_token, unique: true
+      t.timestamps
+
+      t.index :oauth_token, unique: true
+      t.index :name,        unique: true
+      t.index :uid,         unique: true
+      t.index :email,       unique: true
+      t.index :reset_password_token
+    end
   end
 end

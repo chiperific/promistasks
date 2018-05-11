@@ -9,12 +9,16 @@ class Property < ApplicationRecord
 
   has_many :tasks, inverse_of: :property, dependent: :destroy
 
-  validates_presence_of :name
+  validates_presence_of :name, :address, unique: true
   validates_uniqueness_of :certificate_number, allow_nil: true
 
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
 
+  before_validation :name_and_address
   before_save :default_budget
+
+  # after_create :create_with_api
+  # after_update :update_with_api
 
   scope :needs_title, -> { where(certificate_number: nil) }
 
@@ -30,7 +34,31 @@ class Property < ApplicationRecord
     budget - tasks.map(&:cost).compact.sum
   end
 
+  private
+
+  def name_and_address
+    return true if name.present? && address.present?
+    if name.present? && address.blank?
+      self.address = name
+      true
+    elsif name.blank? && address.present?
+      self.name = address
+      true
+    else
+      false
+    end
+  end
+
   def default_budget
     self.budget = Money.new(7_500_00) if budget.blank?
+  end
+
+  def create_with_api
+    # for each User.staff
+  end
+
+  def update_with_api
+    # Handle update and delete(discard) in one method
+    # for each User.staff
   end
 end

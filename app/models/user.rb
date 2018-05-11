@@ -57,7 +57,7 @@ class User < ApplicationRecord
     @user = where(provider: auth.provider, email: auth.info.email).first_or_create.tap do |user|
       user.name = auth.info.name
       user.uid = auth.uid
-      user.password = Devise.friendly_token[0,20]
+      user.password = Devise.friendly_token[0, 20]
       user.google_image_link = auth.info.image
       user.oauth_expires_at = Time.at(auth.credentials.expires_at)
     end
@@ -68,7 +68,7 @@ class User < ApplicationRecord
 
   def self.new_with_session(params, session)
     super.tap do |user|
-      if data = session['devise.google_data'] && session['devise.google_data']['info']
+      if (data = session['devise.google_data']) && session['devise.google_data']['info']
         user.email = data['email'] if user.email.blank?
       end
     end
