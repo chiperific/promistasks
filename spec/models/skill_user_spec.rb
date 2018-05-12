@@ -30,7 +30,7 @@ RSpec.describe SkillUser, type: :model do
     expect { duplicate.save! }.to raise_error ActiveRecord::RecordNotUnique
   end
 
-  describe 'forces booleans into a state:' do
+  describe 'requires booleans be in a state:' do
     let(:bad_licensed) { build :skill_user, is_licensed: nil }
 
     it 'is_licensed' do
