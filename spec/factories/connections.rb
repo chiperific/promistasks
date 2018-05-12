@@ -3,13 +3,13 @@
 FactoryBot.define do
   factory :connection do
     property
-    association :user, factory: :contractor
+    association :user, factory: :contractor_user
     relationship 'contractor'
   end
 
   factory :connection_stage, class: Connection do
     property
-    association :contact, factory: :client
+    association :user, factory: :client_user
     relationship 'tennant'
     stage { Constant::Connection::STAGES.sample }
     stage_date { Date.today }

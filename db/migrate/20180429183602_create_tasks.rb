@@ -16,8 +16,8 @@ class CreateTasks < ActiveRecord::Migration[5.1]
       t.integer :visibility,       default: 0,     null: false # [[0, 'Staff'], [1, 'Everyone'], [2, 'Only associated people'], [3, 'Not clients']]
       t.boolean :license_required, default: false, null: false
       t.boolean :needs_more_info,  default: false, null: false
-      t.datetime :completed,                       null: false # google field
       t.string :status,                            null: false, default: 'needsAction' # google field: "needsAction" or "completed"
+      t.datetime :completed # google field
       t.datetime :discarded_at
       t.string :google_id # google field, Task ID
       t.boolean :deleted,          default: false, null: false # google field

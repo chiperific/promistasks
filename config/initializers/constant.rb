@@ -17,7 +17,7 @@ module Constant
   end
 
   class Connection
-    RELATIONSHIPS = ['tennant', 'landlord', 'staff contact', 'contractor', 'volunteer'].freeze
+    RELATIONSHIPS = ['tennant', 'staff contact', 'contractor', 'volunteer'].freeze
     STAGES = ['applied', 'approved', 'moved in'].freeze
   end
 end

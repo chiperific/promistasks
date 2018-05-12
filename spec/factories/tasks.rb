@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :task do
     sequence(:title) { |n| "Task #{n}" }
-    association :creator, factory: :staff
-    association :owner, factory: :staff
+    association :creator, factory: :user
+    association :owner, factory: :user
   end
 end

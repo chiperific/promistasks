@@ -9,8 +9,8 @@ class Property < ApplicationRecord
 
   has_many :tasks, inverse_of: :property, dependent: :destroy
 
-  validates_presence_of :name, :address, unique: true
-  validates_uniqueness_of :certificate_number, allow_nil: true
+  validates :name, :address, uniqueness: true, presence: true
+  validates_uniqueness_of :certificate_number, :google_id, :serial_number, allow_nil: true
 
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
 
@@ -18,7 +18,7 @@ class Property < ApplicationRecord
   before_save :default_budget
 
   # after_create :create_with_api
-  # after_update :update_with_api
+  # after_update :update_with_api, -> if: { name_changed? } # rails 5.2: { saved_change_to_name? }
 
   scope :needs_title, -> { where(certificate_number: nil) }
 
@@ -26,7 +26,7 @@ class Property < ApplicationRecord
     addr = address
     addr += ', ' + city unless city.blank?
     addr += ', ' + state unless city.blank?
-    addr += ', ' + postal_code
+    addr += ', ' + postal_code unless postal_code.blank?
     addr
   end
 

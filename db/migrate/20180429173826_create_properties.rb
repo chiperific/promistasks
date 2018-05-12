@@ -6,7 +6,7 @@ class CreateProperties < ActiveRecord::Migration[5.1]
       t.string :name, null: false # tasklist title
       t.string :address, null: false
       t.string :city
-      t.string :state
+      t.string :state, default: 'MI'
       t.string :postal_code
       t.text :description
       t.date :acquired_on

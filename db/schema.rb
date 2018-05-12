@@ -36,7 +36,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.string "name", null: false
     t.string "address", null: false
     t.string "city"
-    t.string "state"
+    t.string "state", default: "MI"
     t.string "postal_code"
     t.text "description"
     t.date "acquired_on"
@@ -115,8 +115,8 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.integer "visibility", default: 0, null: false
     t.boolean "license_required", default: false, null: false
     t.boolean "needs_more_info", default: false, null: false
-    t.datetime "completed", null: false
     t.string "status", default: "needsAction", null: false
+    t.datetime "completed"
     t.datetime "discarded_at"
     t.string "google_id"
     t.boolean "deleted", default: false, null: false

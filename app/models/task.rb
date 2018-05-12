@@ -24,7 +24,7 @@ class Task < ApplicationRecord
 
   monetize :budget_cents, :cost_cents, allow_nil: true
 
-  after_save :decide_completeness
+  before_save :decide_completeness
 
   scope :needs_more_info, -> { where(needs_more_info: true).where(initialization_template: false) }
   scope :in_process, -> { where(completed: nil).where(initialization_template: false) }
@@ -47,7 +47,7 @@ class Task < ApplicationRecord
   private
 
   def require_cost
-    return true if completed_at.nil?
+    return true if completed.nil?
     if budget.present? && cost.nil?
       errors.add(:cost, 'must be recorded, or you can delete the budget amount')
       false
@@ -57,7 +57,7 @@ class Task < ApplicationRecord
   end
 
   def due_cant_be_past
-    return true if due_by.nil?
+    return true if due.nil?
     if due.past?
       errors.add(:due, 'must be in the future')
       false
@@ -74,8 +74,7 @@ class Task < ApplicationRecord
     strikes += 2 if budget.nil?
     strikes += 1 if property_id.nil?
 
-    update(needs_more_info: strikes >= 4)
-
+    self.needs_more_info = strikes >= 4
     true
   end
 end
