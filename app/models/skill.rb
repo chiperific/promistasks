@@ -11,6 +11,6 @@ class Skill < ApplicationRecord
   has_many :users, through: :skill_users
   accepts_nested_attributes_for :skill_users, allow_destroy: true
 
-  validates_presence_of :name, unique: true
+  validates :name, uniqueness: true, presence: true
   validates_inclusion_of :volunteerable, :license_required, in: [true, false]
 end
