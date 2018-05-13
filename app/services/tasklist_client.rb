@@ -6,7 +6,7 @@ class TasklistClient
 
   BASE_URI = 'https://www.googleapis.com/tasks/v1/'
 
-  # https://web.archive.org/web/20160829225627/https://developers.google.com/google-apps/tasks/v1/reference/
+  # https://developers.google.com/tasks/v1/reference/
 
   def list_tasklists(user)
     # Returns all the authenticated user's task lists.

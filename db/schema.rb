@@ -116,7 +116,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.boolean "license_required", default: false, null: false
     t.boolean "needs_more_info", default: false, null: false
     t.string "status", default: "needsAction", null: false
-    t.datetime "completed"
+    t.datetime "completed_at"
     t.datetime "discarded_at"
     t.string "google_id"
     t.boolean "deleted", default: false, null: false
@@ -139,8 +139,6 @@ ActiveRecord::Schema.define(version: 20180510150150) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "provider"
-    t.string "uid"
     t.string "name", null: false
     t.string "title"
     t.boolean "program_staff", default: false, null: false
@@ -149,6 +147,8 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.boolean "client", default: false, null: false
     t.boolean "volunteer", default: false, null: false
     t.boolean "contractor", default: false, null: false
+    t.integer "rate_cents", default: 0, null: false
+    t.string "rate_currency", default: "USD", null: false
     t.string "phone1"
     t.string "phone2"
     t.string "address1"
@@ -156,12 +156,10 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.string "city"
     t.string "state", default: "MI"
     t.string "postal_code"
-    t.integer "rate_cents", default: 0, null: false
-    t.string "rate_currency", default: "USD", null: false
-    t.boolean "system_admin", default: false, null: false
-    t.boolean "deus_ex_machina", default: false, null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
+    t.boolean "system_admin", default: false, null: false
+    t.boolean "deus_ex_machina", default: false, null: false
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
@@ -170,18 +168,20 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.datetime "last_sign_in_at"
     t.inet "current_sign_in_ip"
     t.inet "last_sign_in_ip"
-    t.string "google_image_link"
+    t.string "oauth_provider"
+    t.string "oauth_id"
+    t.string "oauth_image_link"
     t.string "oauth_token"
     t.string "oauth_refresh_token"
     t.datetime "oauth_expires_at"
-    t.datetime "discarded_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "discarded_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["name"], name: "index_users_on_name", unique: true
+    t.index ["oauth_id"], name: "index_users_on_oauth_id", unique: true
     t.index ["oauth_token"], name: "index_users_on_oauth_token", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token"
-    t.index ["uid"], name: "index_users_on_uid", unique: true
   end
 
   add_foreign_key "connections", "properties"

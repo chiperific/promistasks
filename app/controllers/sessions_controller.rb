@@ -17,7 +17,7 @@ class SessionsController < ApplicationController
   private
 
   def updates_from_google
-    # This might not be the right place for this, do I really want this to trigger when the user
+    # This might not be the right place for this, do I really want this to trigger when the user signs in?
     # For each certified User, do the following:
     # * Fetch tasklists && update the DB (or is this bad since tasklists == properties)
     # * Fetch tasks (iterate over each tasklist/property) && update the DB

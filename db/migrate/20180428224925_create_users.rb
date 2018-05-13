@@ -3,8 +3,6 @@
 class CreateUsers < ActiveRecord::Migration[5.1]
   def change
     create_table :users do |t|
-      t.string :provider
-      t.string :uid
       t.string :name, null: false
       t.string :title
       t.boolean :program_staff, null: false, default: false
@@ -13,6 +11,7 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.boolean :client,        null: false, default: false
       t.boolean :volunteer,     null: false, default: false
       t.boolean :contractor,    null: false, default: false
+      t.monetize :rate, default: 0
       t.string :phone1
       t.string :phone2
       t.string :address1
@@ -20,13 +19,14 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.string :city
       t.string :state, default: 'MI'
       t.string :postal_code
-      t.monetize :rate, default: 0
-      t.boolean :system_admin, null: false, default: false
-      t.boolean :deus_ex_machina, null: false, default: false # One User must be the 'system' for generating initialization tasks
 
       ## Database authenticatable
       t.string :email,              null: false, default: ''
       t.string :encrypted_password, null: false, default: ''
+
+      ## System-level
+      t.boolean :system_admin, null: false, default: false
+      t.boolean :deus_ex_machina, null: false, default: false # One User must be the 'system' for generating initialization tasks
 
       ## Recoverable
       t.string   :reset_password_token
@@ -43,17 +43,19 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.inet     :last_sign_in_ip
 
       ## Oauth / google_oauth2 fields
-      t.string :google_image_link
+      t.string :oauth_provider
+      t.string :oauth_id
+      t.string :oauth_image_link
       t.string :oauth_token
       t.string :oauth_refresh_token
       t.datetime :oauth_expires_at
-      t.datetime :discarded_at
 
       t.timestamps
+      t.datetime :discarded_at
 
       t.index :oauth_token, unique: true
       t.index :name,        unique: true
-      t.index :uid,         unique: true
+      t.index :oauth_id,    unique: true
       t.index :email,       unique: true
       t.index :reset_password_token
     end

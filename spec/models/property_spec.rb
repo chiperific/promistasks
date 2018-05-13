@@ -33,6 +33,14 @@ RSpec.describe Property, type: :model do
     end
   end
 
+  describe 'limits records by scope' do
+    let(:no_title) { create :property }
+    it '#needs_title returns only records without a certificate_number' do
+      expect(Property.needs_title).not_to include property
+      expect(Property.needs_title).to include no_title
+    end
+  end
+
   describe '#full_address' do
     let(:big_addr) { create :property, address: 'addr1', city: 'city', postal_code: '12345' }
     let(:mid_addr) { create :property, address: 'addr2', postal_code: '12345' }

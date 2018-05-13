@@ -28,14 +28,14 @@ class Task < ApplicationRecord
   monetize :budget_cents, :cost_cents, allow_nil: true
 
   before_save :decide_completeness
-  before_save :sync_completed_fields, if: -> { completed || status == 'completed'}
+  before_save :sync_completed_fields, if: -> { completed_at.present? || status == 'completed'}
 
   # after_create :create_with_api
   # after_update :update_with_api, if: :api_fields_changed?
 
   scope :needs_more_info, -> { where(needs_more_info: true).where(initialization_template: false) }
-  scope :in_process, -> { where(completed: nil).where(initialization_template: false) }
-  scope :complete, -> { where.not(completed: nil).where(initialization_template: false) }
+  scope :in_process, -> { where(completed_at: nil).where(initialization_template: false) }
+  scope :complete, -> { where.not(completed_at: nil).where(initialization_template: false) }
 
   def budget_remaining
     return nil if budget.nil? && cost.nil?
@@ -55,7 +55,7 @@ class Task < ApplicationRecord
   private
 
   def require_cost
-    return true if completed.nil?
+    return true if completed_at.nil?
     if budget.present? && cost.nil?
       errors.add(:cost, 'must be recorded, or you can delete the budget amount')
       false
@@ -87,8 +87,8 @@ class Task < ApplicationRecord
   end
 
   def sync_completed_fields
-    return true if completed && status == 'completed'
-    self.completed = true
+    return true if completed_at.present? && status == 'completed'
+    self.completed_at = Time.now
     self.status = 'completed'
   end
 
@@ -97,7 +97,7 @@ class Task < ApplicationRecord
     title_changed? ||
       notes_changed? ||
       due_changed? ||
-      completed_changed? ||
+      completed_at_changed? ||
       deleted_changed? ||
       hidden_changed? ||
       position_changed? ||

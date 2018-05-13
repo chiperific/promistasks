@@ -9,6 +9,8 @@ RSpec.describe Task, type: :model do
   let(:no_creator) { build :task, creator_id: nil }
   let(:no_owner) { build :task, owner_id: nil }
 
+  let(:completed_task) { build :task, completed_at: Time.now - 1.hour }
+
   describe 'must be valid against the schema' do
     it 'in order to save' do
       expect(task.save!(validate: false)).to eq true
@@ -68,7 +70,7 @@ RSpec.describe Task, type: :model do
       expect { bad_license.save! }.to raise_error ActiveRecord::RecordInvalid
     end
 
-    it 'needs_more_info is protected by the model' do
+    it 'needs_more_info can\'t be stateless because of the model' do
       # before_save :decide_completeness potects the state
       expect { bad_needs_no_info.save!(validate: false) }.not_to raise_error
       expect { bad_needs_no_info.save! }.not_to raise_error
@@ -89,6 +91,41 @@ RSpec.describe Task, type: :model do
     it 'initialization_template' do
       expect { bad_initilization.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { bad_initilization.save! }.to raise_error ActiveRecord::RecordInvalid
+    end
+  end
+
+  describe 'limits records by scope' do
+    let(:initialization_template) { create :task, initialization_template: true }
+    let(:has_good_info) { create :task, due: Time.now + 3.days, priority: 'medium', budget: 500 }
+
+    it '#needs_more_info returns only non-initialization tasks where needs_more_info is false' do
+      task.save
+      has_good_info.save
+      initialization_template.save
+
+      expect(Task.needs_more_info).to include task
+      expect(Task.needs_more_info).not_to include has_good_info
+      expect(Task.needs_more_info).not_to include initialization_template
+    end
+
+    it '#in_process returns only non-initialization tasks where completed is nil' do
+      task.save
+      completed_task.save
+      initialization_template.save
+
+      expect(Task.in_process).to include task
+      expect(Task.in_process).not_to include completed_task
+      expect(Task.in_process).not_to include initialization_template
+    end
+
+    it '#complete returns only non-initialization tasks where completed is not nil' do
+      completed_task.save
+      task.save
+      initialization_template.save
+
+      expect(Task.complete).to include completed_task
+      expect(Task.complete).not_to include task
+      expect(Task.complete).not_to include initialization_template
     end
   end
 
@@ -115,9 +152,8 @@ RSpec.describe Task, type: :model do
   end
 
   describe '#require_cost' do
-    let(:completed_task) { build :task, completed: true }
-    let(:complete_w_budget) { build :task, completed: true, budget: 400 }
-    let(:complete_w_both) { build :task, completed: true, budget: 400, cost: 250 }
+    let(:complete_w_budget) { build :task, completed_at: Time.now, budget: 400 }
+    let(:complete_w_both) { build :task, completed_at: Time.now, budget: 400, cost: 250 }
 
     it 'ignores tasks that aren\'t complete' do
       task.save
@@ -131,7 +167,7 @@ RSpec.describe Task, type: :model do
 
     it 'adds an error if there\'s a budget but no cost' do
       complete_w_budget.save
-      expect(complete_w_budget.errors[:cost].empty?).to eq true
+      expect(complete_w_budget.errors[:cost].empty?).to eq false
     end
 
     it 'ignores tasks where budget and cost are present' do
