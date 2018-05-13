@@ -22,7 +22,8 @@ class User < ApplicationRecord
   has_many :skills, through: :skill_users
   accepts_nested_attributes_for :skill_users, allow_destroy: true
 
-  validates_presence_of :name, :email, unique: true
+  validates :name, :email, uniqueness: true, presence: true
+  validates :oauth_id, :oauth_token, uniqueness: true, allow_blank: true
   validates_inclusion_of  :program_staff, :project_staff, :admin_staff,
                           :client, :volunteer, :contractor,
                           :system_admin, :deus_ex_machina, in: [true, false]
@@ -32,9 +33,9 @@ class User < ApplicationRecord
 
   monetize :rate_cents, allow_nil: true
 
-  scope :staff, -> { where.not(uid: nil).where(deus_ex_machina: false) }
-  scope :not_staff, -> { where(uid: nil).where(deus_ex_machina: false) }
-  scope :deus_ex_machina, -> { where(deus_ex_machina: true).first }
+  scope :staff, -> { where.not(oauth_id: nil).where(deus_ex_machina: false) }
+  scope :not_staff, -> { where(oauth_id: nil).where(deus_ex_machina: false) }
+  scope :deus_ex_machina, -> { where(deus_ex_machina: true) }
 
   def type
     ary = []
@@ -54,11 +55,11 @@ class User < ApplicationRecord
   end
 
   def self.from_omniauth(auth)
-    @user = where(provider: auth.provider, email: auth.info.email).first_or_create.tap do |user|
+    @user = where(oauth_provider: auth.provider, email: auth.info.email).first_or_create.tap do |user|
       user.name = auth.info.name
-      user.uid = auth.uid
-      user.password = Devise.friendly_token[0,20]
-      user.google_image_link = auth.info.image
+      user.password = Devise.friendly_token[0, 20]
+      user.oauth_id = auth.uid
+      user.oauth_image_link = auth.info.image
       user.oauth_expires_at = Time.at(auth.credentials.expires_at)
     end
     @user.update(oauth_token: auth.credentials.token, oauth_refresh_token: auth.credentials.refresh_token)
@@ -66,9 +67,13 @@ class User < ApplicationRecord
     @user
   end
 
+  # Notice that Devise's RegistrationsController by default calls User.new_with_session
+  # before building a resource. This means that, if we need to copy data from session
+  # whenever a user is initialized before sign up, we just need to implement
+  # new_with_session in our model.
   def self.new_with_session(params, session)
     super.tap do |user|
-      if data = session['devise.google_data'] && session['devise.google_data']['info']
+      if (data = session['devise.google_data']) && session['devise.google_data']['info']
         user.email = data['email'] if user.email.blank?
       end
     end
@@ -112,7 +117,9 @@ class User < ApplicationRecord
 
   def only_one_deus_ex
     return true unless deus_ex_machina?
-    self.deus_ex_machina = User.deus_ex_machina.empty?
+
+    deus_ex_ary = User.deus_ex_machina
+    self.deus_ex_machina = deus_ex_ary.empty? || id == deus_ex_ary.first.id
     true
   end
 end

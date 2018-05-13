@@ -1,7 +1,7 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-1. Write the model tests til green
+1. Write the model tests till green
 2. Test TaskManager
   - only getting lists is working
   - https://github.com/intridea/omniauth/wiki/Integration-Testing

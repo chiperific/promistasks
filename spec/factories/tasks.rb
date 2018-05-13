@@ -1,10 +1,9 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :task do
-    title "MyString"
-    status "MyString"
-    kind "MyString"
-    google_id "MyString"
-    due "2018-04-29 14:36:02"
-    position "MyString"
+    sequence(:title) { |n| "Task #{n}" }
+    association :creator, factory: :user
+    association :owner, factory: :user
   end
 end
