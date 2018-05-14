@@ -28,6 +28,7 @@ gem 'therubyracer', platforms: :ruby
 gem 'turbolinks', '~> 5'
 gem 'twitter-bootstrap-rails'
 gem 'uglifier', '>= 1.3.0'
+gem 'webmock'
 
 group :development, :test do
   gem 'better_errors'

@@ -29,6 +29,7 @@ class User < ApplicationRecord
                           :system_admin, :deus_ex_machina, in: [true, false]
 
   validate :must_have_type
+  validate :clients_are_singular
   before_save :only_one_deus_ex
 
   monetize :rate_cents, allow_nil: true
@@ -67,7 +68,7 @@ class User < ApplicationRecord
     @user
   end
 
-  # Notice that Devise's RegistrationsController by default calls User.new_with_session
+  # Devise's RegistrationsController by default calls User.new_with_session
   # before building a resource. This means that, if we need to copy data from session
   # whenever a user is initialized before sign up, we just need to implement
   # new_with_session in our model.
@@ -87,7 +88,6 @@ class User < ApplicationRecord
       client_secret: Rails.application.secrets.google_client_secret,
       refresh_token: oauth_refresh_token
     }
-
     response = HTTParty.post('https://accounts.google.com/o/oauth2/token', { body: data.as_json })
     update(oauth_token: response['access_token'], oauth_expires_at: Time.now.utc + response['expires_in'].to_i.seconds) if response['access_token'].present?
   end
@@ -107,12 +107,20 @@ class User < ApplicationRecord
   private
 
   def must_have_type
+    # skip this if it's an oauth user
+    return true if oauth_id.present?
     if type.empty?
       errors.add(:register_as, ': Must have at least one type.')
       false
     else
       true
     end
+  end
+
+  def clients_are_singular
+    return true unless client?
+    errors.add(:register_as, ': Clients can\'t have another type') if type.count > 1
+    true
   end
 
   def only_one_deus_ex
