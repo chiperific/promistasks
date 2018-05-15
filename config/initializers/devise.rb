@@ -263,8 +263,8 @@ Devise.setup do |config|
                   image_aspect_ratio: 'square',
                   image_size: 50,
                   access_type: 'offline',
-                  approval_prompt: 'force',
-                  prompt: 'consent',
+                  # approval_prompt: 'force',
+                  # prompt: 'consent',
                   # Restrict logins just to a specific org domain:
                   # hd: Rails.application.secrets.org_domain,
                   client_options: {

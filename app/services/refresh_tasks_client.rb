@@ -4,16 +4,26 @@ class RefreshTasksClient
   def initialize(user, tasklist_gid)
     tasks = TaskClient.new.list_tasks(user, tasklist_gid)
 
-    tasks['items'].each do |task_json|
-      task = Task.where( google_id: task_json['id'] ).first_or_initialize
+    if tasks['items'].present?
+      tasks['items'].each do |task_json|
+        task = Task.where( google_id: task_json['id'] ).first_or_initialize
 
-      task.tap do |t|
-        t.title = task_json['title']
-        t.status = task_json['status']
-        t.position = task_json['position']
+        task.tap do |t|
+          t.title = task_json['title']
+          # t.notes = task_json['notes']
+          t.position = task_json['position']
+          t.status = task_json['status']
+          t.google_id = task_json['id']
+          t.google_updated = task_json['updated']
+          t.status = task_json['status']
+        end
+
+        task.creator = user if task.creator.nil?
+        task.owner = user if task.owner.nil?
+
+        binding.pry
+        task.save
       end
-
-      task.save
     end
   end
 end

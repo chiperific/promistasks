@@ -20,7 +20,7 @@ class Task < ApplicationRecord
   validates_inclusion_of :visibility, in: [0, 1, 2, 3]
 
   validates :title, uniqueness: true, presence: true
-  validates :google_id, :position, uniqueness: true, allow_blank: true
+  validates :google_id, uniqueness: true, allow_blank: true
 
   validate :require_cost
   validate :due_cant_be_past
