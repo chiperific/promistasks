@@ -13,8 +13,8 @@ RSpec.describe SkillUser, type: :model do
       expect(skill_user.save!).to eq true
 
       expect { no_skill.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { no_skill.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { no_user.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { no_skill.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { no_user.save! }.to raise_error ActiveRecord::RecordInvalid
     end
   end

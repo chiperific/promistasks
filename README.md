@@ -1,7 +1,6 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-1. Write the model tests till green
 2. Test TaskManager
   - only getting lists is working
   - https://github.com/intridea/omniauth/wiki/Integration-Testing
@@ -14,11 +13,14 @@
 5. Properties are TaskLists
   - Initialization Templates created when property created (default tasks)
   - Initialization Templates need a "system user" for creator / owner
-  - Show a user two types of tasks:
+  - Show a user these types of tasks:
     - Those assigned to the user
     - Those assigned to the "system" that match the user's type
       - task.initialization_template? && task.owner_type (is contained in) user.type (array)
-
+5.1 When a user deletes a Tasklist in Google:
+  - Catch that change and add a record to ExcludePropertyUser
+5.2 When a user deletes a Tasklist in this app:
+  - Provide the option to a record to ExcludePropertyUser (delete through API for current_user) || actually 'discard' for all (delete through API for all users)
 6. Get data from Google:
 6.1 On a cron job? x times per day
 6.2. On staff user login? Update just theirs or everyone's?
@@ -32,3 +34,4 @@
 3. "Your branch is n commits behind master" - git fetch origin
 4. git remote prune origin --dry-run
 5. Tasks API: https://developers.google.com/tasks/v1/reference/
+6. OAuth 2Developer Playground: https://developers.google.com/oauthplayground

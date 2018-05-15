@@ -13,7 +13,9 @@ class RefreshPropertiesClient
       end
 
       property.save
-      RefreshTasksClient.new(user, property.reload.google_id)
+      property.reload
+
+      RefreshTasksClient.new(user, property.google_id)
     end
   end
 end
