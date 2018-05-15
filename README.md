@@ -2,7 +2,7 @@
 
 # To do:
 2. Test TaskManager
-  - only getting lists is working
+  - only getting tasks/lists is working
   - https://github.com/intridea/omniauth/wiki/Integration-Testing
 3. Relationships between users, properties and tasks
   - Set policies
@@ -34,4 +34,4 @@
 3. "Your branch is n commits behind master" - git fetch origin
 4. git remote prune origin --dry-run
 5. Tasks API: https://developers.google.com/tasks/v1/reference/
-6. OAuth 2Developer Playground: https://developers.google.com/oauthplayground
+6. OAuth2 Developer Playground: https://developers.google.com/oauthplayground

@@ -127,11 +127,12 @@ ActiveRecord::Schema.define(version: 20180514194715) do
     t.boolean "license_required", default: false, null: false
     t.boolean "needs_more_info", default: false, null: false
     t.string "status", default: "needsAction", null: false
-    t.datetime "completed_at"
     t.datetime "discarded_at"
-    t.string "google_id"
     t.boolean "deleted", default: false, null: false
     t.boolean "hidden", default: false, null: false
+    t.datetime "completed_at"
+    t.datetime "google_updated"
+    t.string "google_id"
     t.string "position"
     t.string "parent_id"
     t.string "previous_id"
