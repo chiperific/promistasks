@@ -217,6 +217,25 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#tasklists' do
+    let(:prop1) { create :property }
+    let(:prop2) { create :property }
+
+    it 'returns all properties where a matching record isn\'t present in the join table' do
+      user
+      prop1
+      prop2
+
+      expect(user.tasklists).to include prop1
+      expect(user.tasklists).to include prop2
+
+      FactoryBot.create(:exclude_property_user, user: user, property: prop1)
+
+      expect(user.tasklists).not_to include prop1
+      expect(user.tasklists).to include prop2
+    end
+  end
+
   describe '#must_have_type' do
     let(:no_type) { build :user, program_staff: nil }
 

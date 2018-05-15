@@ -2,7 +2,7 @@
 
 class TaskClient
   include HTTParty
-  require 'google/apis/tasks_v1'
+  # require 'google/apis/tasks_v1'
 
   BASE_URI = 'https://www.googleapis.com/tasks/v1/'
 

@@ -9,6 +9,10 @@ class Property < ApplicationRecord
 
   has_many :tasks, inverse_of: :property, dependent: :destroy
 
+  has_many :exclude_property_users, inverse_of: :property, dependent: :destroy
+  has_many :excluded_users, class_name: :User, through: :exclude_property_users, source: :user
+  accepts_nested_attributes_for :exclude_property_users, allow_destroy: true
+
   validates :name, :address, uniqueness: true, presence: true
   validates_uniqueness_of :certificate_number, :google_id, :serial_number, allow_nil: true
 
@@ -32,6 +36,10 @@ class Property < ApplicationRecord
 
   def budget_remaining
     budget - tasks.map(&:cost).compact.sum
+  end
+
+  def tasklist_users
+    User.where.not(id: self.excluded_users.select(:user_id))
   end
 
   private

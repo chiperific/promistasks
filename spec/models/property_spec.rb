@@ -67,6 +67,25 @@ RSpec.describe Property, type: :model do
     end
   end
 
+  describe '#tasklist_users' do
+    let(:user1) { create :user }
+    let(:user2) { create :user }
+
+    fit 'returns all users where a matching record isn\'t present in the join table' do
+      property
+      user1
+      user2
+
+      expect(property.tasklist_users).to include user1
+      expect(property.tasklist_users).to include user2
+
+      FactoryBot.create(:exclude_property_user, user: user1, property: property)
+
+      expect(property.tasklist_users).not_to include user1
+      expect(property.tasklist_users).to include user2
+    end
+  end
+
   describe '#name_and_address' do
     let(:no_name) { build :property, name: nil }
     let(:no_address) { build :property, address: nil }
