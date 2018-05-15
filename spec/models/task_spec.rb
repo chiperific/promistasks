@@ -39,15 +39,6 @@ RSpec.describe Task, type: :model do
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
 
-    it 'on position' do
-      task.position = '00001234'
-      task.save
-      duplicate = FactoryBot.build(:task, position: task.position)
-
-      expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
-      expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
-
     it 'on title' do
       task.save
       duplicate = FactoryBot.build(:task, title: task.title)
