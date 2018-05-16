@@ -15,7 +15,7 @@ class TasklistClient
 
   def get(user, tasklist)
     # Returns the authenticated user's specified task list.
-    HTTParty.get(BASE_URI + '/' + tasklist.google_id, headers: headers(user))
+    HTTParty.get(BASE_URI + '/' + tasklist.google_id, headers: headers(user).as_json)
   end
 
   def insert(user, tasklist)
