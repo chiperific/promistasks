@@ -71,7 +71,7 @@ RSpec.describe Property, type: :model do
     let(:user1) { create :user }
     let(:user2) { create :user }
 
-    fit 'returns all users where a matching record isn\'t present in the join table' do
+    it 'returns all users where a matching record isn\'t present in the join table' do
       property
       user1
       user2
