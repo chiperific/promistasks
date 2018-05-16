@@ -4,6 +4,6 @@ class ApplicationController < ActionController::Base
   before_action :refresh_token
 
   def refresh_token
-    current_user.refresh_token_if_expired if current_user&.oauth_id.present?
+    current_user.refresh_token if current_user&.token_expired?
   end
 end

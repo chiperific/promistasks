@@ -84,7 +84,7 @@ class User < ApplicationRecord
     end
   end
 
-  def refresh_token_if_expired
+  def refresh_token
     return true unless token_expired?
     data = {
       grant_type: 'refresh_token',
@@ -97,6 +97,7 @@ class User < ApplicationRecord
   end
 
   def token_expired?
+    return 'not oauth' unless oauth_id.present?
     Time.at(oauth_expires_at) < Time.now
   end
 
