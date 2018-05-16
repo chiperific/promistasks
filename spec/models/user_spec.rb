@@ -179,15 +179,20 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#refresh_token_if_expired' do
-    it 'returns true if the token hasn\'t expired' do
-      expect(token_fresh.refresh_token_if_expired).to eq true
+  describe '#refresh_token' do
+    it 'returns false if the token hasn\'t expired' do
+      expect(token_fresh.refresh_token).to eq false
+    end
+
+    it 'returns false if the user isn\'t oauth' do
+      expect(user.refresh_token).to eq false
     end
 
     it 'contacts Google for a new token if it\'s expired' do
+      # WebMock to the rescue!
       stub_request(:post, 'https://accounts.google.com/o/oauth2/token').to_return(body: 'You did it!', status: 200)
 
-      token_expired.refresh_token_if_expired
+      token_expired.refresh_token
       expect(WebMock).to have_requested(:post, 'https://accounts.google.com/o/oauth2/token')
     end
 
@@ -200,7 +205,7 @@ RSpec.describe User, type: :model do
       stub_request(:post, 'https://accounts.google.com/o/oauth2/token').to_return(body: return_json.to_json, status: 200, headers: { 'Content-Type' => 'application/json' })
 
       old_token = token_expired.oauth_token
-      token_expired.refresh_token_if_expired
+      token_expired.refresh_token
 
       expect(token_expired.oauth_token).not_to eq old_token
       expect(token_expired.oauth_token).to eq return_json[:access_token]
@@ -208,6 +213,9 @@ RSpec.describe User, type: :model do
   end
 
   describe '#token_expired?' do
+    it 'returns nil if the user isn\'t an oauth' do
+      expect(user.token_expired?).to eq nil
+    end
     it 'returns true if oauth_expires_at is in the past' do
       expect(token_expired.token_expired?).to eq true
     end

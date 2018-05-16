@@ -85,7 +85,7 @@ class User < ApplicationRecord
   end
 
   def refresh_token
-    return true unless token_expired?
+    return false unless token_expired? && oauth_id.present?
     data = {
       grant_type: 'refresh_token',
       client_id: Rails.application.secrets.google_client_id,
@@ -97,7 +97,7 @@ class User < ApplicationRecord
   end
 
   def token_expired?
-    return 'not oauth' unless oauth_id.present?
+    return nil unless oauth_id.present?
     Time.at(oauth_expires_at) < Time.now
   end
 
