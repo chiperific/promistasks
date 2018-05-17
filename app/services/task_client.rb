@@ -21,9 +21,9 @@ class TaskClient
   def insert(user, tasklist_gid, task)
     # Creates a new task on the specified task list.
     body = {
-      status: task.status,
       title: task.title,
       notes: task.notes,
+      status: task.status,
       deleted: task.deleted
     }
 
@@ -37,9 +37,9 @@ class TaskClient
   def update(user, tasklist_gid, task)
     # Modify the specified task. This method supports patch semantics
     body = {
-      status: task.status,
       title: task.title,
       notes: task.notes,
+      status: task.status,
       deleted: task.deleted
     }
 
@@ -62,19 +62,19 @@ class TaskClient
     HTTParty.post(BASE_URI + 'lists/' + tasklist_gid + '/clear', headers: headers(user).as_json)
   end
 
-  def move(user, tasklist_gid, task_gid, parent_id, previous_id)
+  def move(user, tasklist_gid, task_gid, options={})
     # Moves the specified task to another position in the task list.
     # This can include putting it as a child task under a new parent
     # and/or move it to a different position among its sibling tasks.
 
     # .../move?parent=&previous=
-    # Omit parent if task is moved to top level
-    # Omit previous if task is move to first position among siblings
+    # Parent: make task a sub-task of the parent task, blank means directly in Tasklist
+    # Previous: make task come after the previous task, blank means top of list
 
-    uri = BASE_URI + 'lists/' + tasklist_gid + '/tasks/' + task_gid + '/move'
-    uri += '?' if parent_id.present? || previous_id.present?
-    uri += 'parent=' + parent_id if parent_id.present?
-    uri += 'previous=' + previous_id if previous_id.present?
+    uri = BASE_URI + 'lists/' + tasklist_gid + '/tasks/' + task_gid + '/move?'
+    uri += 'parent=' + options[:parent_id] if options[:parent_id].present?
+    uri += '&' if options[:parent_id].present? && options[:previous_id].present?
+    uri += 'previous=' + options[:previous_id] if options[:previous_id].present?
 
     HTTParty.post(uri, headers: headers(user).as_json)
   end

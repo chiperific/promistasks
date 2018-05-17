@@ -29,6 +29,7 @@ class Task < ApplicationRecord
 
   before_save :decide_completeness
   before_save :sync_completed_fields, if: -> { completed_at.present? || status == 'completed'}
+  before_save :copy_position_as_integer, if: -> { position.present? }
 
   # after_create :create_with_api
   # after_update :update_with_api, if: :api_fields_changed?
@@ -36,6 +37,8 @@ class Task < ApplicationRecord
   scope :needs_more_info, -> { where(needs_more_info: true).where(initialization_template: false) }
   scope :in_process, -> { where(completed_at: nil).where(initialization_template: false) }
   scope :complete, -> { where.not(completed_at: nil).where(initialization_template: false) }
+
+  scope :descending, -> { order(position_int: :desc) }
 
   def budget_remaining
     return nil if budget.nil? && cost.nil?
@@ -52,6 +55,19 @@ class Task < ApplicationRecord
     Constant::Task::OWNER_TYPES
   end
 
+  def assign_from_api_fields(task_json)
+    google_id = task_json['id']
+    title = task_json['title']
+    google_updated = task_json['updated']
+    parent_id = task_json['parent']
+    position = task_json['position']
+    notes = task_json['notes']
+    status = task_json['status']
+    due = task_json['due']
+    completed_at = task_json['completed']
+    deleted = task_json['deleted'] || false
+    hidden = task_json['hidden'] || false
+  end
   private
 
   def require_cost
@@ -92,16 +108,19 @@ class Task < ApplicationRecord
     self.status = 'completed'
   end
 
+  def copy_position_as_integer
+    position_int = position.to_i
+  end
+
   def api_fields_changed?
     # rails 5.2: { saved_change_to_title? || saved_change_to_notes? || saved_change_to_due? || saved_changed_to_completed? || saved_changed_to_deleted? || saved_changed_to_hidden? || saved_changed_to_position? || saved_changed_to_parent_id? }
     title_changed? ||
+      parent_id_changed? ||
       notes_changed? ||
+      status_changed? ||
       due_changed? ||
       completed_at_changed? ||
-      deleted_changed? ||
-      hidden_changed? ||
-      position_changed? ||
-      parent_id_changed?
+      deleted_changed?
   end
 
   def create_with_api

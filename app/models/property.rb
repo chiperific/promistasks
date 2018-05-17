@@ -42,6 +42,11 @@ class Property < ApplicationRecord
     User.where.not(id: self.excluded_users.select(:user_id))
   end
 
+  def assign_from_api_fields(tasklist_json)
+    name = tasklist['title']
+    selflink = tasklist['selfLink']
+  end
+
   private
 
   def name_and_address

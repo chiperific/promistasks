@@ -2,20 +2,18 @@
 
 class RefreshPropertiesClient
   def initialize(user)
-    tasklists = TasklistClient.new.list_tasklists(user)
+    user.refresh_token if user.token_expired?
 
-    tasklists['items'].each do |tasklist|
-      property = Property.where( google_id: tasklist['id'] ).first_or_initialize
+    tasklists = TasklistClient.new.list(user)
 
-      property.tap do |t|
-        t.name = tasklist['title']
-        t.selflink = tasklist['selfLink']
-      end
+    tasklists['items'].each do |tasklist_json|
+      property = Property.where( google_id: tasklist_json['id'] ).first_or_initialize
 
-      property.save
-      property.reload
+      property.assign_from_api_fields(tasklist_json)
 
-      RefreshTasksClient.new(user, property.google_id)
+      property.save.reload
+
+      RefreshTasksClient.new(user, property.google_id, property.id)
     end
   end
 end
