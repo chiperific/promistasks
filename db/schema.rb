@@ -134,6 +134,7 @@ ActiveRecord::Schema.define(version: 20180514194715) do
     t.datetime "google_updated"
     t.string "google_id"
     t.string "position"
+    t.integer "position_int", default: 0
     t.string "parent_id"
     t.string "previous_id"
     t.boolean "initialization_template", default: false, null: false
@@ -146,7 +147,7 @@ ActiveRecord::Schema.define(version: 20180514194715) do
     t.index ["position"], name: "index_tasks_on_position"
     t.index ["property_id"], name: "index_tasks_on_property_id"
     t.index ["subject_id"], name: "index_tasks_on_subject_id"
-    t.index ["title"], name: "index_tasks_on_title", unique: true
+    t.index ["title"], name: "index_tasks_on_title"
     t.index ["visibility"], name: "index_tasks_on_visibility"
   end
 

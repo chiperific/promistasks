@@ -2,8 +2,8 @@
 
 # To do:
 1. Finish TaskClient
-  - Test a move
   - create a relocate that HTTParty.delete() on former_list and HTTParty.insert() on new_list
+  - Finish pending task_specs
 2. How to viably test the Clients? Don't forget about WebMock `stub_request(:any, 'url').to_return(body: 'You did it!')`
 3. Relationships between users, properties and tasks
   - Set policies

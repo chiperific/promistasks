@@ -38,14 +38,6 @@ RSpec.describe Task, type: :model do
       expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
-
-    it 'on title' do
-      task.save
-      duplicate = FactoryBot.build(:task, title: task.title)
-
-      expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
-      expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
   end
 
   describe 'requires booleans be in a state:' do
@@ -89,6 +81,9 @@ RSpec.describe Task, type: :model do
     let(:initialization_template) { create :task, initialization_template: true }
     let(:has_good_info) { create :task, due: Time.now + 3.days, priority: 'medium', budget: 500 }
 
+    let(:small_int) { create :task, position: '00000000000000046641'}
+    let(:large_int) { create :task, position: '00000000091261646641'}
+
     it '#needs_more_info returns only non-initialization tasks where needs_more_info is false' do
       task.save
       has_good_info.save
@@ -117,6 +112,10 @@ RSpec.describe Task, type: :model do
       expect(Task.complete).to include completed_task
       expect(Task.complete).not_to include task
       expect(Task.complete).not_to include initialization_template
+    end
+
+    it '#descending returns all records ordered by position_int' do
+      expect(Task.descending).to eq [small_int, large_int]
     end
   end
 
@@ -233,6 +232,44 @@ RSpec.describe Task, type: :model do
       expect(one_strike.needs_more_info).to eq false
       expect(zero_strikes.needs_more_info).to eq false
     end
+  end
+
+  describe '#sync_completed_fields' do
+    let(:synced_not_complete) { create :task }
+    let(:synced_complete) { create :task, completed_at: Time.now, status: 'completed' }
+    let(:only_datetime) { build :task, completed_at: Time.now }
+    let(:only_status) { build :task, status: 'completed' }
+
+    it 'only fires when completed_at or status indicate completeness' do
+      expect(synced_not_complete).not_to receive(:sync_completed_fields)
+      synced_not_complete.save
+
+      expect(synced_complete).to receive(:sync_completed_fields)
+      synced_complete.save
+
+      expect(only_status).to receive(:sync_completed_fields)
+      only_status.save
+    end
+
+    it 'returns true if they are already in sync' do
+      expect(synced_complete.send(:sync_completed_fields)).to eq true
+    end
+
+    it 'sets both fields to indicate completeness' do
+      expect(only_status.completed_at).to eq nil
+      only_status.save
+      expect(only_status.completed_at).not_to eq nil
+
+      expect(only_datetime.status).to eq 'needsAction'
+      only_datetime.save
+      expect(only_datetime.status).to eq 'completed'
+    end
+  end
+
+  describe '#copy_position_as_integer' do
+    pending 'only fires if position is present'
+
+    pending 'sets position_int field based upon position'
   end
 
   describe '#api_fields_changed?' do
