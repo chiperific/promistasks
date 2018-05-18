@@ -37,8 +37,7 @@ class Task < ApplicationRecord
   scope :needs_more_info, -> { where(needs_more_info: true).where(initialization_template: false) }
   scope :in_process, -> { where(completed_at: nil).where(initialization_template: false) }
   scope :complete, -> { where.not(completed_at: nil).where(initialization_template: false) }
-
-  scope :descending, -> { order(position_int: :desc) }
+  scope :descending, -> { order(position_int: :asc) }
 
   def budget_remaining
     return nil if budget.nil? && cost.nil?
@@ -56,17 +55,17 @@ class Task < ApplicationRecord
   end
 
   def assign_from_api_fields(task_json)
-    google_id = task_json['id']
-    title = task_json['title']
-    google_updated = task_json['updated']
-    parent_id = task_json['parent']
-    position = task_json['position']
-    notes = task_json['notes']
-    status = task_json['status']
-    due = task_json['due']
-    completed_at = task_json['completed']
-    deleted = task_json['deleted'] || false
-    hidden = task_json['hidden'] || false
+    self.google_id = task_json['id']
+    self.title = task_json['title']
+    self.google_updated = task_json['updated']
+    self.parent_id = task_json['parent']
+    self.position = task_json['position']
+    self.notes = task_json['notes']
+    self.status = task_json['status']
+    self.due = task_json['due']
+    self.completed_at = task_json['completed']
+    self.deleted = task_json['deleted'] || false
+    self.hidden = task_json['hidden'] || false
   end
 
   private

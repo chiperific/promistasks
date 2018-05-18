@@ -81,8 +81,8 @@ RSpec.describe Task, type: :model do
     let(:initialization_template) { create :task, initialization_template: true }
     let(:has_good_info) { create :task, due: Time.now + 3.days, priority: 'medium', budget: 500 }
 
-    let(:small_int) { create :task, position: '00000000000000046641'}
     let(:large_int) { create :task, position: '00000000091261646641'}
+    let(:small_int) { create :task, position: '00000000000000046641'}
 
     it '#needs_more_info returns only non-initialization tasks where needs_more_info is false' do
       task.save
@@ -115,6 +115,8 @@ RSpec.describe Task, type: :model do
     end
 
     it '#descending returns all records ordered by position_int' do
+      large_int
+      small_int
       expect(Task.descending).to eq [small_int, large_int]
     end
   end
@@ -138,6 +140,33 @@ RSpec.describe Task, type: :model do
       expect(no_budget.budget_remaining).to eq Money.new(-250_00)
       expect(no_cost.budget_remaining).to eq Money.new(250_00)
       expect(both_moneys.budget_remaining).to eq Money.new(50_00)
+    end
+  end
+
+  describe '#assign_from_api_fields' do
+    it 'uses a json hash to assign record values' do
+      task = Task.new
+      task_json = JSON.parse(file_fixture('task_json_spec.json').read)
+
+      expect(task.google_id).to eq nil
+      expect(task.title).to eq nil
+      expect(task.google_updated).to eq nil
+      expect(task.parent_id).to eq nil
+      expect(task.position).to eq nil
+      expect(task.notes).to eq nil
+      expect(task.due).to eq nil
+      expect(task.completed_at).to eq nil
+
+      task.assign_from_api_fields(task_json)
+
+      expect(task.google_id).not_to eq nil
+      expect(task.title).not_to eq nil
+      expect(task.google_updated).not_to eq nil
+      expect(task.parent_id).not_to eq nil
+      expect(task.position).not_to eq nil
+      expect(task.notes).not_to eq nil
+      expect(task.due).not_to eq nil
+      expect(task.completed_at).not_to eq nil
     end
   end
 

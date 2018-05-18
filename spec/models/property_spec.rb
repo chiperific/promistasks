@@ -86,6 +86,21 @@ RSpec.describe Property, type: :model do
     end
   end
 
+  describe '#assign_from_api_fields' do
+    it 'uses a json hash to assign record values' do
+      property = Property.new
+      tasklist_json = JSON.parse(file_fixture('tasklist_json_spec.json').read)
+
+      expect(property.name).to eq nil
+      expect(property.selflink).to eq nil
+
+      property.assign_from_api_fields(tasklist_json)
+
+      expect(property.name).not_to eq nil
+      expect(property.selflink).not_to eq nil
+    end
+  end
+
   describe '#name_and_address' do
     let(:no_name) { build :property, name: nil }
     let(:no_address) { build :property, address: nil }
@@ -127,7 +142,7 @@ RSpec.describe Property, type: :model do
   end
 
   describe '#update_with_api' do
-    pending 'updates the Property as a Tasklist for all User.staff'
     pending 'should only fire if name is changed'
+    pending 'updates the Property as a Tasklist for all User.staff'
   end
 end

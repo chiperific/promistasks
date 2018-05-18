@@ -11,7 +11,8 @@ class RefreshPropertiesClient
 
       property.assign_from_api_fields(tasklist_json)
 
-      property.save.reload
+      property.save
+      property.reload
 
       RefreshTasksClient.new(user, property.google_id, property.id)
     end
