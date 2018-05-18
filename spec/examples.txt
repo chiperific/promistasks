@@ -63,8 +63,8 @@ example_id                                          | status  | run_time        
 ./spec/models/task_spec.rb[1:10:3]                  | passed  | 0.05064 seconds |
 ./spec/models/task_spec.rb[1:11:1]                  | passed  | 0.246 seconds   |
 ./spec/models/task_spec.rb[1:11:2]                  | passed  | 0.05856 seconds |
-./spec/models/task_spec.rb[1:12:1]                  | passed  | 0.11098 seconds |
-./spec/models/task_spec.rb[1:12:2]                  | passed  | 0.32559 seconds |
+./spec/models/task_spec.rb[1:12:1]                  | passed  | 0.26831 seconds |
+./spec/models/task_spec.rb[1:12:2]                  | passed  | 0.16811 seconds |
 ./spec/models/task_spec.rb[1:13:1]                  | pending | 0.00001 seconds |
 ./spec/models/task_spec.rb[1:14:1]                  | pending | 0.00001 seconds |
 ./spec/models/user_spec.rb[1:1:1]                   | passed  | 0.02252 seconds |

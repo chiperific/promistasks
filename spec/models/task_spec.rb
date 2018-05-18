@@ -288,7 +288,7 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  fdescribe '#api_fields_changed?' do
+  describe '#api_fields_changed?' do
     let(:no_api_change) { create :task }
     let(:title_change) { create :task }
     let(:notes_change) { create :task }
