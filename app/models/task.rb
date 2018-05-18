@@ -68,6 +68,7 @@ class Task < ApplicationRecord
     deleted = task_json['deleted'] || false
     hidden = task_json['hidden'] || false
   end
+
   private
 
   def require_cost
@@ -109,7 +110,7 @@ class Task < ApplicationRecord
   end
 
   def copy_position_as_integer
-    position_int = position.to_i
+    self.position_int = position.to_i
   end
 
   def api_fields_changed?

@@ -267,15 +267,74 @@ RSpec.describe Task, type: :model do
   end
 
   describe '#copy_position_as_integer' do
-    pending 'only fires if position is present'
+    let(:has_position) { build :task, position: '0000001234'}
 
-    pending 'sets position_int field based upon position'
+    it 'only fires if position is present' do
+      expect(task).not_to receive(:copy_position_as_integer)
+      task.save!
+
+      expect(has_position).to receive(:copy_position_as_integer)
+      has_position.save!
+    end
+
+    it 'sets position_int field based upon position' do
+      task.save!
+      expect(task.reload.position).to eq nil
+      expect(task.position_int).to eq 0
+
+      has_position.save!
+      expect(has_position.reload.position).to eq '0000001234'
+      expect(has_position.position_int).to eq 1234
+    end
   end
 
-  describe '#api_fields_changed?' do
-    pending 'returns false if no fields have changed'
+  fdescribe '#api_fields_changed?' do
+    let(:no_api_change) { create :task }
+    let(:title_change) { create :task }
+    let(:notes_change) { create :task }
+    let(:due_change) { create :task }
+    let(:status_change) { create :task }
+    let(:deleted_change) { create :task }
+    let(:completed_at_change) { create :task }
+    let(:parent_change) { create :task }
+    let(:new_user) { create :user }
+    let(:new_property) { create :property }
 
-    pending 'returns true if any API fields have changed'
+    it 'returns false if no fields have changed' do
+      no_api_change.priority = 'urgent'
+      no_api_change.creator = new_user
+      no_api_change.owner = new_user
+      no_api_change.subject = new_user
+      no_api_change.property = new_property
+      no_api_change.budget = 167
+      no_api_change.cost = 123
+      no_api_change.visibility = 1
+      no_api_change.license_required = true
+      no_api_change.needs_more_info = true
+      no_api_change.position = '00001234'
+      no_api_change.initialization_template = true
+      no_api_change.owner_type = 'Admin Staff'
+
+      expect(no_api_change.send(:api_fields_changed?)).to eq false
+    end
+
+    it 'returns true if any API fields have changed' do
+      title_change.title = 'New title'
+      notes_change.notes = 'New notes content'
+      due_change.due = Time.now + 2.weeks
+      status_change.status = 'complete'
+      deleted_change.deleted = true
+      completed_at_change.completed_at = Time.now - 3.minutes
+      parent_change.parent_id = 'sOmEReallyLongAndRandomString'
+
+      expect(title_change.send(:api_fields_changed?)).to eq true
+      expect(notes_change.send(:api_fields_changed?)).to eq true
+      expect(due_change.send(:api_fields_changed?)).to eq true
+      expect(status_change.send(:api_fields_changed?)).to eq true
+      expect(deleted_change.send(:api_fields_changed?)).to eq true
+      expect(completed_at_change.send(:api_fields_changed?)).to eq true
+      expect(parent_change.send(:api_fields_changed?)).to eq true
+    end
   end
 
   describe '#create_with_api' do
