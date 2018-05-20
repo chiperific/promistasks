@@ -1,12 +1,9 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-1. Finish TaskClient
-  - create a relocate that HTTParty.delete() on former_list and HTTParty.insert() on new_list
-  - Finish pending task_specs
-2. How to viably test the Clients? Don't forget about WebMock `stub_request(:any, 'url').to_return(body: 'You did it!')`
 3. Relationships between users, properties and tasks
   - Set policies
+  - How to allow users to have private tasklists? Don't propegate certain tasklists
 4. Methodically interact with tasks
   - In the controller?
   - Need to capture responses to update record
@@ -29,6 +26,9 @@
   - On staff user login? Update just theirs or everyone's?
   - A hybrid: cron 2x per day (6 am & )
 1. Destroy PropertyTracker
+
+## Someday
+1. Test Clients in a meaningful way.
 
 ## Remind myself
 1. rails secrets:edit

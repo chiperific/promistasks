@@ -60,15 +60,15 @@ class User < ApplicationRecord
   end
 
   def self.from_omniauth(auth)
-    @user = where(oauth_provider: auth.provider, email: auth.info.email).first_or_create.tap do |user|
+    @user = where(email: auth.info.email).first_or_create.tap do |user|
       user.name = auth.info.name
       user.password = Devise.friendly_token[0, 20]
       user.oauth_id = auth.uid
       user.oauth_image_link = auth.info.image
       user.oauth_expires_at = Time.at(auth.credentials.expires_at)
+      user.save
     end
     @user.update(oauth_token: auth.credentials.token, oauth_refresh_token: auth.credentials.refresh_token)
-
     @user
   end
 
@@ -85,7 +85,7 @@ class User < ApplicationRecord
   end
 
   def refresh_token
-    return false unless token_expired? && oauth_id.present?
+    return false unless token_expired? && oauth_id.present? && oauth_refresh_token.present?
     data = {
       grant_type: 'refresh_token',
       client_id: Rails.application.secrets.google_client_id,
@@ -94,6 +94,7 @@ class User < ApplicationRecord
     }
     response = HTTParty.post('https://accounts.google.com/o/oauth2/token', { body: data.as_json })
     update(oauth_token: response['access_token'], oauth_expires_at: Time.now.utc + response['expires_in'].to_i.seconds) if response['access_token'].present?
+    response
   end
 
   def token_expired?
