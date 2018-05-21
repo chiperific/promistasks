@@ -9,6 +9,10 @@ RSpec.describe Task, type: :model do
   let(:no_creator) { build :task, creator_id: nil }
   let(:no_owner) { build :task, owner_id: nil }
 
+  let(:bad_status) { build :task, status: 'wrongThing' }
+  let(:bad_visibility) { build :task, visibility: 4 }
+  let(:bad_priority) { build :task, priority: 'wrong thing' }
+
   let(:completed_task) { build :task, completed_at: Time.now - 1.hour }
 
   describe 'must be valid against the schema' do
@@ -26,6 +30,9 @@ RSpec.describe Task, type: :model do
       expect { no_title.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { no_creator.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { no_owner.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { bad_status.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { bad_visibility.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { bad_priority.save! }.to raise_error ActiveRecord::RecordInvalid
     end
   end
 
@@ -81,8 +88,8 @@ RSpec.describe Task, type: :model do
     let(:initialization_template) { create :task, initialization_template: true }
     let(:has_good_info) { create :task, due: Time.now + 3.days, priority: 'medium', budget: 500 }
 
-    let(:small_int) { create :task, position: '00000000000000046641'}
     let(:large_int) { create :task, position: '00000000091261646641'}
+    let(:small_int) { create :task, position: '00000000000000046641'}
 
     it '#needs_more_info returns only non-initialization tasks where needs_more_info is false' do
       task.save
@@ -115,6 +122,8 @@ RSpec.describe Task, type: :model do
     end
 
     it '#descending returns all records ordered by position_int' do
+      large_int
+      small_int
       expect(Task.descending).to eq [small_int, large_int]
     end
   end
@@ -138,6 +147,33 @@ RSpec.describe Task, type: :model do
       expect(no_budget.budget_remaining).to eq Money.new(-250_00)
       expect(no_cost.budget_remaining).to eq Money.new(250_00)
       expect(both_moneys.budget_remaining).to eq Money.new(50_00)
+    end
+  end
+
+  describe '#assign_from_api_fields!' do
+    it 'uses a json hash to assign record values' do
+      task = Task.new
+      task_json = JSON.parse(file_fixture('task_json_spec.json').read)
+
+      expect(task.google_id).to eq nil
+      expect(task.title).to eq nil
+      expect(task.google_updated).to eq nil
+      expect(task.parent_id).to eq nil
+      expect(task.position).to eq nil
+      expect(task.notes).to eq nil
+      expect(task.due).to eq nil
+      expect(task.completed_at).to eq nil
+
+      task.assign_from_api_fields!(task_json)
+
+      expect(task.google_id).not_to eq nil
+      expect(task.title).not_to eq nil
+      expect(task.google_updated).not_to eq nil
+      expect(task.parent_id).not_to eq nil
+      expect(task.position).not_to eq nil
+      expect(task.notes).not_to eq nil
+      expect(task.due).not_to eq nil
+      expect(task.completed_at).not_to eq nil
     end
   end
 
@@ -267,15 +303,74 @@ RSpec.describe Task, type: :model do
   end
 
   describe '#copy_position_as_integer' do
-    pending 'only fires if position is present'
+    let(:has_position) { build :task, position: '0000001234'}
 
-    pending 'sets position_int field based upon position'
+    it 'only fires if position is present' do
+      expect(task).not_to receive(:copy_position_as_integer)
+      task.save!
+
+      expect(has_position).to receive(:copy_position_as_integer)
+      has_position.save!
+    end
+
+    it 'sets position_int field based upon position' do
+      task.save!
+      expect(task.reload.position).to eq nil
+      expect(task.position_int).to eq 0
+
+      has_position.save!
+      expect(has_position.reload.position).to eq '0000001234'
+      expect(has_position.position_int).to eq 1234
+    end
   end
 
   describe '#api_fields_changed?' do
-    pending 'returns false if no fields have changed'
+    let(:no_api_change) { create :task }
+    let(:title_change) { create :task }
+    let(:notes_change) { create :task }
+    let(:due_change) { create :task }
+    let(:status_change) { create :task }
+    let(:deleted_change) { create :task }
+    let(:completed_at_change) { create :task }
+    let(:parent_change) { create :task }
+    let(:new_user) { create :user }
+    let(:new_property) { create :property }
 
-    pending 'returns true if any API fields have changed'
+    it 'returns false if no fields have changed' do
+      no_api_change.priority = 'urgent'
+      no_api_change.creator = new_user
+      no_api_change.owner = new_user
+      no_api_change.subject = new_user
+      no_api_change.property = new_property
+      no_api_change.budget = 167
+      no_api_change.cost = 123
+      no_api_change.visibility = 1
+      no_api_change.license_required = true
+      no_api_change.needs_more_info = true
+      no_api_change.position = '00001234'
+      no_api_change.initialization_template = true
+      no_api_change.owner_type = 'Admin Staff'
+
+      expect(no_api_change.send(:api_fields_changed?)).to eq false
+    end
+
+    it 'returns true if any API fields have changed' do
+      title_change.title = 'New title'
+      notes_change.notes = 'New notes content'
+      due_change.due = Time.now + 2.weeks
+      status_change.status = 'complete'
+      deleted_change.deleted = true
+      completed_at_change.completed_at = Time.now - 3.minutes
+      parent_change.parent_id = 'sOmEReallyLongAndRandomString'
+
+      expect(title_change.send(:api_fields_changed?)).to eq true
+      expect(notes_change.send(:api_fields_changed?)).to eq true
+      expect(due_change.send(:api_fields_changed?)).to eq true
+      expect(status_change.send(:api_fields_changed?)).to eq true
+      expect(deleted_change.send(:api_fields_changed?)).to eq true
+      expect(completed_at_change.send(:api_fields_changed?)).to eq true
+      expect(parent_change.send(:api_fields_changed?)).to eq true
+    end
   end
 
   describe '#create_with_api' do

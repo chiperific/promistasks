@@ -17,6 +17,7 @@ class Task < ApplicationRecord
   validates :priority, inclusion: { in: Constant::Task::PRIORITY, allow_blank: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}" }
   validates_inclusion_of  :license_required, :needs_more_info, :deleted, :hidden,
                           :initialization_template, in: [true, false]
+  validates_inclusion_of :status, in: %w[completed needsAction]
   validates_inclusion_of :visibility, in: [0, 1, 2, 3]
 
   validates :title, uniqueness: true, presence: true
@@ -37,8 +38,7 @@ class Task < ApplicationRecord
   scope :needs_more_info, -> { where(needs_more_info: true).where(initialization_template: false) }
   scope :in_process, -> { where(completed_at: nil).where(initialization_template: false) }
   scope :complete, -> { where.not(completed_at: nil).where(initialization_template: false) }
-
-  scope :descending, -> { order(position_int: :desc) }
+  scope :descending, -> { order(position_int: :asc) }
 
   def budget_remaining
     return nil if budget.nil? && cost.nil?
@@ -55,19 +55,24 @@ class Task < ApplicationRecord
     Constant::Task::OWNER_TYPES
   end
 
-  def assign_from_api_fields(task_json)
-    google_id = task_json['id']
-    title = task_json['title']
-    google_updated = task_json['updated']
-    parent_id = task_json['parent']
-    position = task_json['position']
-    notes = task_json['notes']
-    status = task_json['status']
-    due = task_json['due']
-    completed_at = task_json['completed']
-    deleted = task_json['deleted'] || false
-    hidden = task_json['hidden'] || false
+  def assign_from_api_fields!(task_json)
+    return false if task_json.empty?
+
+    self.google_id = task_json['id']
+    self.title = task_json['title']
+    self.google_updated = task_json['updated']
+    self.parent_id = task_json['parent']
+    self.position = task_json['position']
+    self.notes = task_json['notes']
+    self.status = task_json['status']
+    self.due = task_json['due']
+    self.completed_at = task_json['completed']
+    self.deleted = task_json['deleted'] || false
+    self.hidden = task_json['hidden'] || false
+
+    task_json.present?
   end
+
   private
 
   def require_cost
@@ -109,7 +114,7 @@ class Task < ApplicationRecord
   end
 
   def copy_position_as_integer
-    position_int = position.to_i
+    self.position_int = position.to_i
   end
 
   def api_fields_changed?

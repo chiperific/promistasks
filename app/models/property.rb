@@ -43,8 +43,8 @@ class Property < ApplicationRecord
   end
 
   def assign_from_api_fields(tasklist_json)
-    name = tasklist['title']
-    selflink = tasklist['selfLink']
+    self.name = tasklist_json['title']
+    self.selflink = tasklist_json['selfLink']
   end
 
   private

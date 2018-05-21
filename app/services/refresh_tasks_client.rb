@@ -14,8 +14,7 @@ class RefreshTasksClient
 
         task.creator = user if task.creator.nil?
         task.owner = user if task.owner.nil?
-
-        binding.pry
+        task.property_id = property_id
 
         task.save
       end

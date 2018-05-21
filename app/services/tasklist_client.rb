@@ -10,29 +10,29 @@ class TasklistClient
 
   def list(user)
     # Returns all the authenticated user's task lists.
-    HTTParty.get(BASE_URI, headers: headers(user).as_json)
+    HTTParty.get(BASE_URI, headers: headers(user))
   end
 
   def get(user, tasklist)
     # Returns the authenticated user's specified task list.
-    HTTParty.get(BASE_URI + '/' + tasklist.google_id, headers: headers(user).as_json)
+    HTTParty.get(BASE_URI + '/' + tasklist.google_id, headers: headers(user))
   end
 
   def insert(user, tasklist)
     # Creates a new task list and adds it to the authenticated user's task lists.
     body = { title: tasklist.name }
-    HTTParty.post(BASE_URI, { headers: headers(user).as_json, body: body.to_json })
+    HTTParty.post(BASE_URI, { headers: headers(user), body: body.to_json })
   end
 
   def update(user, tasklist)
     # Modify the authenticated user's specified task list. This method supports patch semantics.
     body = { title: tasklist.name }
-    HTTParty.patch(BASE_URI + '/' + tasklist.google_id, { headers: headers(user).as_json, body: body.to_json })
+    HTTParty.patch(BASE_URI + '/' + tasklist.google_id, { headers: headers(user), body: body.to_json })
   end
 
   def delete(user, tasklist)
     # Deletes the authenticated user's specified task list.
-    HTTParty.delete(BASE_URI + '/' + tasklist.google_id, headers: headers(user).as_json)
+    HTTParty.delete(BASE_URI + '/' + tasklist.google_id, headers: headers(user))
   end
 
   private
@@ -40,6 +40,6 @@ class TasklistClient
   def headers(user)
     { 'Authorization': 'OAuth ' + user.oauth_token,
       'Content-type': 'application/json'
-    }
+    }.as_json
   end
 end
