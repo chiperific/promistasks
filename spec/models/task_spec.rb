@@ -150,7 +150,7 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#assign_from_api_fields' do
+  describe '#assign_from_api_fields!' do
     it 'uses a json hash to assign record values' do
       task = Task.new
       task_json = JSON.parse(file_fixture('task_json_spec.json').read)
@@ -164,7 +164,7 @@ RSpec.describe Task, type: :model do
       expect(task.due).to eq nil
       expect(task.completed_at).to eq nil
 
-      task.assign_from_api_fields(task_json)
+      task.assign_from_api_fields!(task_json)
 
       expect(task.google_id).not_to eq nil
       expect(task.title).not_to eq nil
