@@ -3,16 +3,16 @@
 class CreateProperties < ActiveRecord::Migration[5.1]
   def change
     create_table :properties do |t|
-      t.string :name, null: false # tasklist title
+      t.string :name,    null: false # tasklist title
       t.string :address, null: false
       t.string :city
       t.string :state, default: 'MI'
       t.string :postal_code
       t.text :description
       t.date :acquired_on
-      t.monetize :cost, amount: { null: true, default: nil }
+      t.monetize :cost,     amount: { null: true, default: nil }
       t.monetize :lot_rent, amount: { null: true, default: nil }
-      t.monetize :budget, amount: { null: true, default: nil }
+      t.monetize :budget,   amount: { null: true, default: nil }
       t.string :certificate_number
       t.string :serial_number
       t.integer :year_manufacture
@@ -21,7 +21,7 @@ class CreateProperties < ActiveRecord::Migration[5.1]
       t.string :certification_label1
       t.string :certification_label2
       t.references :creator, references: :users, null: false
-      t.boolean :private, default: false, null: false
+      t.boolean :private,    default: true, null: false
       t.datetime :discarded_at
       t.string :google_id # tasklist ID
       t.string :selflink # tasklist full URL

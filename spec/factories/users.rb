@@ -58,10 +58,10 @@ FactoryBot.define do
   end
 
   factory :oauth_user, class: User do
-    sequence(:name) { |n| "Contractor #{n}" }
+    sequence(:name) { |n| "OAuth User #{n}" }
     password 'password'
     password_confirmation 'password'
-    sequence(:email) { |n| "contractor#{n}@email.computer" }
+    sequence(:email) { |n| "oauth#{n}@email.computer" }
     project_staff true
     oauth_provider 'google_oauth2'
     sequence(:oauth_id) { |n| "10024006334546302578#{n}" }

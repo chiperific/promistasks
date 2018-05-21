@@ -65,7 +65,7 @@ ActiveRecord::Schema.define(version: 20180514194715) do
     t.string "certification_label1"
     t.string "certification_label2"
     t.bigint "creator_id", null: false
-    t.boolean "private", default: false, null: false
+    t.boolean "private", default: true, null: false
     t.datetime "discarded_at"
     t.string "google_id"
     t.string "selflink"
@@ -121,7 +121,7 @@ ActiveRecord::Schema.define(version: 20180514194715) do
     t.bigint "creator_id", null: false
     t.bigint "owner_id", null: false
     t.bigint "subject_id"
-    t.bigint "property_id"
+    t.bigint "property_id", null: false
     t.integer "budget_cents"
     t.string "budget_currency", default: "USD", null: false
     t.integer "cost_cents"

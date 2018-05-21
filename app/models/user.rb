@@ -41,6 +41,7 @@ class User < ApplicationRecord
   monetize :rate_cents, allow_nil: true
 
   scope :staff, -> { where.not(oauth_id: nil) }
+  scope :staff_except, ->(user) { where.not(id: user) }
   scope :not_staff, -> { where(oauth_id: nil) }
 
   def type
@@ -85,7 +86,7 @@ class User < ApplicationRecord
     end
   end
 
-  def refresh_token
+  def refresh_token!
     return false unless token_expired? && oauth_id.present? && oauth_refresh_token.present?
     data = {
       grant_type: 'refresh_token',

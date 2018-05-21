@@ -6,6 +6,8 @@
   - Properties have a private boolean (false == share with all User.staff)
     - From private to public: share with everyone
     - From public to private: remove from everyone elase?
+  - How to handle tasklists created in the API?
+    - assign to user
   - User has no deus_ex_machina
     - initialization_template tasks will use property.creator for task.creator && task.owner)
   - Gonna need to re-think about the exclude_property_users table

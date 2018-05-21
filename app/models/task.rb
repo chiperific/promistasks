@@ -7,13 +7,13 @@ class Task < ApplicationRecord
   belongs_to :owner,    class_name: 'User', inverse_of: :owned_tasks
   belongs_to :subject,  class_name: 'User', inverse_of: :subject_tasks, optional: true
 
-  belongs_to :property, inverse_of: :tasks, optional: true
+  belongs_to :property, inverse_of: :tasks
 
   has_many :skill_tasks, inverse_of: :task, dependent: :destroy
   has_many :skills, through: :skill_tasks
   accepts_nested_attributes_for :skill_tasks, allow_destroy: true
 
-  validates_presence_of :creator_id, :owner_id
+  validates_presence_of :creator_id, :owner_id, :property_id
   validates :priority, inclusion: { in: Constant::Task::PRIORITY, allow_blank: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}" }
   validates_inclusion_of  :license_required, :needs_more_info, :deleted, :hidden,
                           :initialization_template, in: [true, false]
@@ -32,8 +32,8 @@ class Task < ApplicationRecord
   before_save :sync_completed_fields, if: -> { completed_at.present? || status == 'completed'}
   before_save :copy_position_as_integer, if: -> { position.present? }
 
-  # after_create :create_with_api
-  # after_update :update_with_api, if: :api_fields_changed?
+  after_create :create_with_api
+  after_update :update_with_api, if: :saved_changes_to_api_fields?
 
   scope :needs_more_info, -> { where(needs_more_info: true).where(initialization_template: false) }
   scope :in_process, -> { where(completed_at: nil).where(initialization_template: false) }
@@ -98,12 +98,11 @@ class Task < ApplicationRecord
   def decide_completeness
     strikes = 0
 
-    strikes += 4 if due.nil?
-    strikes += 2 if priority.nil?
-    strikes += 2 if budget.nil?
-    strikes += 1 if property_id.nil?
+    strikes += 3 if due.nil?
+    strikes += 1 if priority.nil?
+    strikes += 1 if budget.nil?
 
-    self.needs_more_info = strikes >= 4
+    self.needs_more_info = strikes > 3
     true
   end
 
@@ -117,15 +116,14 @@ class Task < ApplicationRecord
     self.position_int = position.to_i
   end
 
-  def api_fields_changed?
-    # rails 5.2: { saved_change_to_title? || saved_change_to_notes? || saved_change_to_due? || saved_changed_to_completed? || saved_changed_to_deleted? || saved_changed_to_hidden? || saved_changed_to_position? || saved_changed_to_parent_id? }
-    title_changed? ||
-      parent_id_changed? ||
-      notes_changed? ||
-      status_changed? ||
-      due_changed? ||
-      completed_at_changed? ||
-      deleted_changed?
+  def saved_changes_to_api_fields?
+    saved_change_to_title? ||
+      saved_change_to_parent_id? ||
+      saved_change_to_notes? ||
+      saved_change_to_status? ||
+      saved_change_to_due? ||
+      saved_change_to_completed_at? ||
+      saved_change_to_deleted?
   end
 
   def create_with_api

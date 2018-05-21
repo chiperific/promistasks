@@ -25,8 +25,9 @@ class Property < ApplicationRecord
   before_validation :name_and_address
   before_save :default_budget
 
-  after_create :create_with_api, if: -> { not_discarded? }
   after_update :update_with_api
+  after_create :create_with_api,             if: -> { not_discarded? }
+  after_update :propagate_to_api_by_privacy, if: ->(property) { property.saved_change_to_private? }
 
   scope :needs_title, -> { where(certificate_number: nil) }
 
@@ -46,9 +47,14 @@ class Property < ApplicationRecord
     User.where.not(id: excluded_users.select(:user_id))
   end
 
-  def assign_from_api_fields(tasklist_json)
+  def assign_from_api_fields!(tasklist_json)
+    self.google_id = tasklist_json['id']
     self.name = tasklist_json['title']
     self.selflink = tasklist_json['selfLink']
+  end
+
+  def default_budget
+    self.budget = Money.new(7_500_00) if budget.blank?
   end
 
   private
@@ -65,10 +71,6 @@ class Property < ApplicationRecord
     true
   end
 
-  def default_budget
-    self.budget = Money.new(7_500_00) if budget.blank?
-  end
-
   def create_with_api
     if private?
       TasklistClient.new.insert(creator, self)
@@ -81,8 +83,7 @@ class Property < ApplicationRecord
 
   def update_with_api
     # Handle update and delete(discard) in one method
-    # Rails 5: saved_change_to_name?
-    return true if !name_changed? && discarded_at.blank?
+    return true if !saved_change_to_name? && discarded_at.blank?
 
     tasklist = TasklistClient.new
     action = discarded_at.present? ? :delete : :update
@@ -94,5 +95,16 @@ class Property < ApplicationRecord
         tasklist.send(action, user, self)
       end
     end
+  end
+
+  def propagate_to_api_by_privacy
+    tasklist = TasklistClient.new
+    action = private? ? :delete : :insert
+
+    User.staff_except(creator).each do |user|
+      tasklist.send(action, user, self)
+    end
+
+    # if insert, should also propegate the tasks
   end
 end

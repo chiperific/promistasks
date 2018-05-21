@@ -3,18 +3,20 @@
 require 'rails_helper'
 
 RSpec.describe Connection, type: :model do
-  let(:connection) { build :connection }
-
-  let(:no_property) { build :connection, property_id: nil }
-  let(:no_user) { build :connection, user_id: nil }
-  let(:no_relationship) { build :connection, relationship: nil }
+  before :each do
+    stub_request(:any, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).to_return(body: 'You did it!', status: 200)
+    @connection      = FactoryBot.build(:connection)
+    @no_property     = FactoryBot.build(:connection, property_id: nil)
+    @no_user         = FactoryBot.build(:connection, user_id: nil)
+    @no_relationship = FactoryBot.build(:connection, relationship: nil)
+  end
 
   describe 'must be valid against the schema' do
     it 'in order to save' do
-      expect { connection.save!(validate: false) }.not_to raise_error
-      expect { no_property.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { no_user.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { no_relationship.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { @connection.save!(validate: false) }.not_to raise_error
+      expect { @no_property.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { @no_user.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { @no_relationship.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
     end
   end
 
@@ -23,10 +25,10 @@ RSpec.describe Connection, type: :model do
     let(:bad_stage) { build :connection_stage, stage: 'threw a party' }
 
     it 'in order to save' do
-      expect(connection.save!).to eq true
-      expect { no_property.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { no_user.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { no_relationship.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect(@connection.save!).to eq true
+      expect { @no_property.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { @no_user.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { @no_relationship.save! }.to raise_error ActiveRecord::RecordInvalid
     end
 
     it 'validates relationship inclusion' do
@@ -39,10 +41,10 @@ RSpec.describe Connection, type: :model do
   end
 
   it 'can\'t duplicate user and property' do
-    connection.save
+    @connection.save
 
-    property = connection.property
-    user = connection.user
+    property = @connection.property
+    user = @connection.user
 
     duplicate = FactoryBot.build(:connection, property_id: property.id, user_id: user.id)
 
