@@ -101,6 +101,18 @@ RSpec.describe Property, type: :model do
     end
   end
 
+  describe '#not_discarded?' do
+    let(:discarded) { build :property, discarded_at: Time.now - 1.hour }
+
+    it 'returns true if discarded_at is blank' do
+      expect(property.send(:not_discarded?)).to eq true
+    end
+
+    it 'returns false if discarded_at is set' do
+      expect(discarded.send(:not_discarded?)).to eq false
+    end
+  end
+
   describe '#name_and_address' do
     let(:no_name) { build :property, name: nil }
     let(:no_address) { build :property, address: nil }
@@ -138,11 +150,91 @@ RSpec.describe Property, type: :model do
   end
 
   describe '#create_with_api' do
-    pending 'creates a new Tasklist for all User.staff'
+    before :each do
+      stub_request(:any, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).to_return(body: 'You did it!', status: 200)
+      @user = FactoryBot.create(:oauth_user)
+      @user2 = FactoryBot.create(:oauth_user)
+      @user3 = FactoryBot.create(:oauth_user)
+      @private_property = FactoryBot.build(:property, creator: @user, private: true)
+      @public_property = FactoryBot.build(:property, creator: @user, private: false)
+      @discarded_private_property = FactoryBot.build(:property, creator: @user, private: true, discarded_at: Time.now - 1.hour)
+    end
+
+    it 'only fires if discarded_at is blank' do
+      @discarded_private_property.save!
+      expect(WebMock).not_to have_requested(:any, 'https://www.googleapis.com/tasks/v1/users/@me/lists')
+
+      @private_property.save!
+      expect(WebMock).to have_requested(:post, 'https://www.googleapis.com/tasks/v1/users/@me/lists')
+    end
+
+    context 'when private' do
+      it 'creates a new Tasklist for the Creator' do
+        @private_property.save!
+        expect(WebMock).to have_requested(:post, 'https://www.googleapis.com/tasks/v1/users/@me/lists').once
+      end
+    end
+    context 'when public' do
+      it 'creates a new Tasklist for all User.staff' do
+        @public_property.save!
+        expect(WebMock).to have_requested(:post, 'https://www.googleapis.com/tasks/v1/users/@me/lists').times(3)
+      end
+    end
   end
 
   describe '#update_with_api' do
-    pending 'should only fire if name is changed'
-    pending 'updates the Property as a Tasklist for all User.staff'
+    before :each do
+      stub_request(:any, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).to_return(body: 'You did it!', status: 200)
+      @user = FactoryBot.create(:oauth_user)
+      @user2 = FactoryBot.create(:oauth_user)
+      @user3 = FactoryBot.create(:oauth_user)
+      @private_property = FactoryBot.create(:property, creator: @user, private: true)
+      @public_property = FactoryBot.create(:property, creator: @user, private: false)
+      @discarded_private_property = FactoryBot.create(:property, creator: @user, private: true, discarded_at: Time.now - 1.hour)
+      @discarded_public_property = FactoryBot.create(:property, creator: @user, private: false, discarded_at: Time.now - 1.hour)
+    end
+
+    it 'should only fire if name is changed or the record is discarded' do
+      @private_property.update(creator: @user2)
+      expect(WebMock).not_to have_requested(:patch, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/)
+
+      @private_property.update(name: 'Now it\'s called something else!')
+      expect(WebMock).to have_requested(:patch, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).once
+
+      @private_property.update(discarded_at: Time.now - 10.minutes)
+      expect(WebMock).to have_requested(:patch, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).once
+    end
+
+    context 'when private' do
+      context 'and discarded' do
+        it 'deletes the Tasklist for the Creator' do
+          @discarded_private_property.update(name: 'discarded private property')
+          expect(WebMock).to have_requested(:delete, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).once
+        end
+      end
+
+      context 'and not discarded' do
+        it 'updates a Tasklist for the Creator' do
+          @private_property.update(name: 'not discarded private property')
+          expect(WebMock).to have_requested(:patch, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).once
+        end
+      end
+    end
+
+    context 'when public' do
+      context 'and discarded' do
+        it 'deletes the Tasklist for the Creator' do
+          @discarded_public_property.update(name: 'discarded public property')
+          expect(WebMock).to have_requested(:delete, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).times(3)
+        end
+      end
+
+      context 'and not discarded' do
+        it 'updates a Tasklist for the Creator' do
+          @public_property.update(name: 'not discarded public property')
+          expect(WebMock).to have_requested(:patch, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).times(3)
+        end
+      end
+    end
   end
 end

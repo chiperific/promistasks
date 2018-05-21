@@ -30,6 +30,7 @@ class CreateTasks < ActiveRecord::Migration[5.1]
       t.boolean :initialization_template, null: false, default: false
       t.string :owner_type # ['Program Staff', 'Project Staff', 'Admin Staff']
       t.timestamps
+
       t.index :title
       t.index :google_id, unique: true
       t.index :position_int

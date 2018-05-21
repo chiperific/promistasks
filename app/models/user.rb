@@ -18,6 +18,8 @@ class User < ApplicationRecord
   has_many :properties, through: :connections
   accepts_nested_attributes_for :connections, allow_destroy: true
 
+  has_many :created_properties, class_name: 'Property', inverse_of: :creator, foreign_key: 'creator_id'
+
   has_many :skill_users, inverse_of: :user, dependent: :destroy
   has_many :skills, through: :skill_users
   accepts_nested_attributes_for :skill_users, allow_destroy: true
@@ -30,17 +32,16 @@ class User < ApplicationRecord
   validates :oauth_id, :oauth_token, uniqueness: true, allow_blank: true
   validates_inclusion_of  :program_staff, :project_staff, :admin_staff,
                           :client, :volunteer, :contractor,
-                          :system_admin, :deus_ex_machina, in: [true, false]
+                          :system_admin, in: [true, false]
 
   validate :must_have_type
   validate :clients_are_singular
-  before_save :only_one_deus_ex
+  validate :system_admin_must_be_internal, if: -> { system_admin? }
 
   monetize :rate_cents, allow_nil: true
 
-  scope :staff, -> { where.not(oauth_id: nil).where(deus_ex_machina: false) }
-  scope :not_staff, -> { where(oauth_id: nil).where(deus_ex_machina: false) }
-  scope :deus_ex_machina, -> { where(deus_ex_machina: true) }
+  scope :staff, -> { where.not(oauth_id: nil) }
+  scope :not_staff, -> { where(oauth_id: nil) }
 
   def type
     ary = []
@@ -111,7 +112,7 @@ class User < ApplicationRecord
   end
 
   def tasklists
-    Property.where.not(id: self.excluded_tasklists.select(:property_id))
+    Property.where.not(id: excluded_tasklists.select(:property_id))
   end
 
   private
@@ -133,11 +134,8 @@ class User < ApplicationRecord
     true
   end
 
-  def only_one_deus_ex
-    return true unless deus_ex_machina?
-
-    deus_ex_ary = User.deus_ex_machina
-    self.deus_ex_machina = deus_ex_ary.empty? || id == deus_ex_ary.first.id
+  def system_admin_must_be_internal
+    errors.add(:system_admin, 'must be internal staff with a linked Google account') unless oauth_id.present?
     true
   end
 end

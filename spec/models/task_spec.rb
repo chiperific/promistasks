@@ -213,7 +213,7 @@ RSpec.describe Task, type: :model do
 
     it 'adds an error if due is in the past' do
       past_due.save
-      expect(past_due.errors[:due]).to eq ["must be in the future"]
+      expect(past_due.errors[:due]).to eq ['must be in the future']
     end
 
     it 'returns true if due is in the future' do

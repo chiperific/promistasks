@@ -4,6 +4,7 @@ FactoryBot.define do
   factory :property do
     sequence(:name) { |n| "Property #{n}" }
     sequence(:address) { |n| "#{n} Alexander St" }
-    sequence(:google_id) { |n| "FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDow#{n}"}
+    sequence(:google_id) { |n| "FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDow#{n}" }
+    association :creator, factory: :user
   end
 end

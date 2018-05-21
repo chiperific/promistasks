@@ -64,6 +64,8 @@ ActiveRecord::Schema.define(version: 20180514194715) do
     t.string "model"
     t.string "certification_label1"
     t.string "certification_label2"
+    t.bigint "creator_id", null: false
+    t.boolean "private", default: false, null: false
     t.datetime "discarded_at"
     t.string "google_id"
     t.string "selflink"
@@ -72,6 +74,7 @@ ActiveRecord::Schema.define(version: 20180514194715) do
     t.index ["acquired_on"], name: "index_properties_on_acquired_on"
     t.index ["address"], name: "index_properties_on_address", unique: true
     t.index ["certificate_number"], name: "index_properties_on_certificate_number", unique: true
+    t.index ["creator_id"], name: "index_properties_on_creator_id"
     t.index ["google_id"], name: "index_properties_on_google_id", unique: true
     t.index ["name"], name: "index_properties_on_name", unique: true
     t.index ["serial_number"], name: "index_properties_on_serial_number", unique: true
@@ -172,7 +175,6 @@ ActiveRecord::Schema.define(version: 20180514194715) do
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.boolean "system_admin", default: false, null: false
-    t.boolean "deus_ex_machina", default: false, null: false
     t.string "reset_password_token"
     t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"

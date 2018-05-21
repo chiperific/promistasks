@@ -20,6 +20,8 @@ class CreateProperties < ActiveRecord::Migration[5.1]
       t.string :model
       t.string :certification_label1
       t.string :certification_label2
+      t.references :creator, references: :users, null: false
+      t.boolean :private, default: false, null: false
       t.datetime :discarded_at
       t.string :google_id # tasklist ID
       t.string :selflink # tasklist full URL

@@ -79,7 +79,6 @@ RSpec.describe User, type: :model do
     let(:bad_volunteer)     { build :user, volunteer: nil }
     let(:bad_contractor)    { build :user, contractor: nil }
     let(:bad_system_admin)  { build :user, system_admin: nil }
-    let(:bad_deus_ex)       { build :user, deus_ex_machina: nil }
 
     it 'program_staff' do
       expect { bad_program_staff.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
@@ -115,45 +114,25 @@ RSpec.describe User, type: :model do
       expect { bad_system_admin.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { bad_system_admin.save! }.to raise_error ActiveRecord::RecordInvalid
     end
-
-    it 'deus_ex_machina' do
-      expect { bad_deus_ex.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_deus_ex.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
   end
 
   describe 'limits records by scope' do
-    let(:deus_ex) { create :user, deus_ex_machina: true }
     let(:oauth_user) { create :user, oauth_id: '100000000000000000001' }
 
-    it '#staff returns only non-deus-ex Users with an oauth_id' do
+    it '#staff returns only Users with an oauth_id' do
       user.save
       oauth_user.save
-      deus_ex.save
 
       expect(User.staff).to include oauth_user
       expect(User.staff).not_to include user
-      expect(User.staff).not_to include deus_ex
     end
 
-    it '#not_staff returns only non-deus-ex Users without an oauth_id' do
+    it '#not_staff returns only Users without an oauth_id' do
       user.save
       oauth_user.save
-      deus_ex.save
 
       expect(User.not_staff).to include user
       expect(User.not_staff).not_to include oauth_user
-      expect(User.not_staff).not_to include deus_ex
-    end
-
-    it '#deus_ex_machina returns the first User marked as such' do
-      user.save
-      oauth_user.save
-      deus_ex.save
-
-      expect(User.deus_ex_machina).to include deus_ex
-      expect(User.deus_ex_machina).not_to include user
-      expect(User.deus_ex_machina).not_to include oauth_user
     end
   end
 
@@ -189,7 +168,6 @@ RSpec.describe User, type: :model do
     end
 
     it 'contacts Google for a new token if it\'s expired' do
-      # WebMock to the rescue!
       stub_request(:post, 'https://accounts.google.com/o/oauth2/token').to_return(body: 'You did it!', status: 200)
 
       token_expired.refresh_token
@@ -228,6 +206,8 @@ RSpec.describe User, type: :model do
   describe '#tasklists' do
     let(:prop1) { create :property }
     let(:prop2) { create :property }
+
+    pending 'returns all created_properties and public properties (and exclude using the reverse join table??)'
 
     it 'returns all properties where a matching record isn\'t present in the join table' do
       user
@@ -276,23 +256,22 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#only_one_deus_ex' do
-    let(:deus_ex) { build :user, deus_ex_machina: true }
-    let(:second_deus_ex) { build :user, deus_ex_machina: true }
+  describe '#system_admin_must_be_internal' do
+    let(:system_admin) { build :oauth_user, system_admin: true }
+    let(:bad_admin) { build :user, system_admin: true }
 
-    it 'returns true if deus_ex_machina is false' do
-      expect(user.send(:only_one_deus_ex)).to eq true
+    it 'only fires if system_admin is checked' do
+      expect(user).not_to receive(:system_admin_must_be_internal)
+      user.save!
+
+      expect(system_admin).to receive(:system_admin_must_be_internal)
+      system_admin.save!
     end
 
-    it 'allows deus_ex_machina to remain true if no other user has been set as such' do
-      expect(deus_ex.send(:only_one_deus_ex)).to eq true
-      expect { deus_ex.save }.to(change { User.count })
-    end
-
-    it 'sets deus_ex_machina to false if a User.deus_ex_machina already exists' do
-      deus_ex.save
-      second_deus_ex.save
-      expect(second_deus_ex.deus_ex_machina).to eq false
+    it 'adds an error if the user doesn\'t have an oauth_id' do
+      bad_admin.save
+      expect(bad_admin.errors[:system_admin]).to eq ['must be internal staff with a linked Google account']
+      expect(system_admin.save!).to eq true
     end
   end
 end
