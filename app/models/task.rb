@@ -17,6 +17,7 @@ class Task < ApplicationRecord
   validates :priority, inclusion: { in: Constant::Task::PRIORITY, allow_blank: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}" }
   validates_inclusion_of  :license_required, :needs_more_info, :deleted, :hidden,
                           :initialization_template, in: [true, false]
+  validates_inclusion_of :status, in: %w[completed needsAction]
   validates_inclusion_of :visibility, in: [0, 1, 2, 3]
 
   validates :title, uniqueness: true, presence: true
@@ -54,7 +55,9 @@ class Task < ApplicationRecord
     Constant::Task::OWNER_TYPES
   end
 
-  def assign_from_api_fields(task_json)
+  def assign_from_api_fields!(task_json)
+    return false if task_json.empty?
+
     self.google_id = task_json['id']
     self.title = task_json['title']
     self.google_updated = task_json['updated']
@@ -66,6 +69,8 @@ class Task < ApplicationRecord
     self.completed_at = task_json['completed']
     self.deleted = task_json['deleted'] || false
     self.hidden = task_json['hidden'] || false
+
+    task_json.present?
   end
 
   private

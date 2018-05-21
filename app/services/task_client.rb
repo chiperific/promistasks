@@ -21,15 +21,13 @@ class TaskClient
   def insert(user, tasklist_gid, task)
     # Creates a new task on the specified task list.
     body = {
-      title: task.title,
-      notes: task.notes,
-      status: task.status,
-      deleted: task.deleted
+      title:     task.title,
+      notes:     task.notes,
+      status:    task.status,
+      deleted:   task.deleted,
+      completed: task.completed_at.present? ? task.completed_at.utc.rfc3339(3) : nil,
+      due:       task.due.present? ? task.due.utc.rfc3339(3) : nil
     }
-
-    # protect against errors generated when calling .utc on nil dates
-    body[:due] = task.due.utc.rfc3339(3) if task.due.present?
-    body[:completed] = task.completed_at.utc.rfc3339(3) if task.completed_at.present?
 
     HTTParty.post(BASE_URI + tasklist_gid + '/tasks/', { headers: headers(user).as_json, body: body.to_json })
   end
@@ -37,16 +35,13 @@ class TaskClient
   def update(user, tasklist_gid, task)
     # Modify the specified task. This method supports patch semantics
     body = {
-      title: task.title,
-      notes: task.notes,
-      status: task.status,
-      deleted: task.deleted
+      title:     task.title,
+      notes:     task.notes,
+      status:    task.status,
+      deleted:   task.deleted,
+      completed: task.completed_at.present? ? task.completed_at.utc.rfc3339(3) : nil,
+      due:       task.due.present? ? task.due.utc.rfc3339(3) : nil
     }
-
-    # protect against errors generated when calling .utc on nil dates
-    body[:due] = task.due.utc.rfc3339(3) if task.due.present?
-    body[:completed] = task.completed_at.utc.rfc3339(3) if task.completed_at.present?
-
     HTTParty.patch(BASE_URI + tasklist_gid + '/tasks/' + task.google_id, { headers: headers(user).as_json, body: body.to_json })
   end
 

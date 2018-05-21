@@ -9,6 +9,10 @@ RSpec.describe Task, type: :model do
   let(:no_creator) { build :task, creator_id: nil }
   let(:no_owner) { build :task, owner_id: nil }
 
+  let(:bad_status) { build :task, status: 'wrongThing' }
+  let(:bad_visibility) { build :task, visibility: 4 }
+  let(:bad_priority) { build :task, priority: 'wrong thing' }
+
   let(:completed_task) { build :task, completed_at: Time.now - 1.hour }
 
   describe 'must be valid against the schema' do
@@ -26,6 +30,9 @@ RSpec.describe Task, type: :model do
       expect { no_title.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { no_creator.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { no_owner.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { bad_status.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { bad_visibility.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { bad_priority.save! }.to raise_error ActiveRecord::RecordInvalid
     end
   end
 
