@@ -29,6 +29,7 @@ class Task < ApplicationRecord
   monetize :budget_cents, :cost_cents, allow_nil: true
 
   before_save :decide_completeness
+  before_save :sync_deleted_and_discarded_at, if: :unsynced_deleted_discard?
   before_save :sync_completed_fields, if: -> { completed_at.present? || status == 'completed' }
   before_save :copy_position_as_integer, if: -> { position.present? }
 
@@ -105,6 +106,17 @@ class Task < ApplicationRecord
 
     self.needs_more_info = strikes > 3
     true
+  end
+
+  def unsynced_deleted_discard?
+    return false if !deleted? && discarded_at.blank?
+    return false if deleted? && discarded_at.present?
+    true
+  end
+
+  def sync_deleted_and_discarded_at
+    self.discarded_at = Time.now if deleted?
+    self.deleted = discarded_at.present? ? true : false
   end
 
   def sync_completed_fields

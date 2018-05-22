@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180514194715) do
+ActiveRecord::Schema.define(version: 20180510150150) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,17 +30,6 @@ ActiveRecord::Schema.define(version: 20180514194715) do
     t.index ["stage"], name: "index_connections_on_stage"
     t.index ["user_id", "property_id"], name: "index_connections_on_user_id_and_property_id", unique: true
     t.index ["user_id"], name: "index_connections_on_user_id"
-  end
-
-  create_table "exclude_property_users", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.bigint "property_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["property_id", "user_id"], name: "index_exclude_property_users_on_property_id_and_user_id", unique: true
-    t.index ["property_id"], name: "index_exclude_property_users_on_property_id"
-    t.index ["user_id", "property_id"], name: "index_exclude_property_users_on_user_id_and_property_id", unique: true
-    t.index ["user_id"], name: "index_exclude_property_users_on_user_id"
   end
 
   create_table "properties", force: :cascade do |t|
@@ -201,8 +190,6 @@ ActiveRecord::Schema.define(version: 20180514194715) do
 
   add_foreign_key "connections", "properties"
   add_foreign_key "connections", "users"
-  add_foreign_key "exclude_property_users", "properties"
-  add_foreign_key "exclude_property_users", "users"
   add_foreign_key "skill_tasks", "skills"
   add_foreign_key "skill_tasks", "tasks"
   add_foreign_key "skill_users", "skills"

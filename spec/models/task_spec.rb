@@ -258,6 +258,57 @@ RSpec.describe Task, type: :model do
     end
   end
 
+  describe '#unsynced_deleted_discard?' do
+    let(:neither)            { build :task }
+    let(:both)               { build :task, deleted: true, discarded_at: Time.now }
+    let(:unsynced_deleted)   { build :task, deleted: true }
+    let(:unsynced_discarded) { build :task, discarded_at: Time.now }
+
+    it 'returns false if neither field is set' do
+      expect(neither.send(:unsynced_deleted_discard?)).to eq false
+    end
+
+    it 'returns false if both fields are set' do
+      expect(both.send(:unsynced_deleted_discard?)).to eq false
+    end
+
+    it 'returns true if fields are out of sync' do
+      expect(unsynced_deleted.send(:unsynced_deleted_discard?)).to eq true
+      expect(unsynced_discarded.send(:unsynced_deleted_discard?)).to eq true
+    end
+  end
+
+  describe '#sync_deleted_and_discarded_at' do
+    let(:neither)            { build :task }
+    let(:both)               { build :task, deleted: true, discarded_at: Time.now }
+    let(:unsynced_deleted)   { build :task, deleted: true }
+    let(:unsynced_discarded) { build :task, discarded_at: Time.now }
+
+    it 'only fires if the fields are unsynced' do
+      expect(neither).not_to receive(:sync_deleted_and_discarded_at)
+      neither.save!
+
+      expect(both).not_to receive(:sync_deleted_and_discarded_at)
+      both.save!
+
+      expect(unsynced_deleted).to receive(:sync_deleted_and_discarded_at)
+      unsynced_deleted.save!
+
+      expect(unsynced_discarded).to receive(:sync_deleted_and_discarded_at)
+      unsynced_discarded.save!
+    end
+
+    context 'when deleted is false' do
+      it 'sets discarded_at to match the property' do
+      end
+    end
+
+    context 'when discarded_at is present' do
+      it 'sets deleted to true' do
+      end
+    end
+  end
+
   describe '#sync_completed_fields' do
     let(:synced_not_complete) { create :task }
     let(:synced_complete) { create :task, completed_at: Time.now, status: 'completed' }
@@ -330,7 +381,7 @@ RSpec.describe Task, type: :model do
         t.creator = new_user
         t.owner = new_user
         t.subject = new_user
-        t.property = new_property
+        t.property_id = new_property.id
         t.budget = 167
         t.cost = 123
         t.visibility = 1
