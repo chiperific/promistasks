@@ -71,24 +71,6 @@ RSpec.describe Property, type: :model do
     end
   end
 
-  describe '#tasklist_users' do
-    let(:user1) { create :user }
-    let(:user2) { create :user }
-
-    it 'returns all users where a matching record isn\'t present in the join table' do
-      user1
-      user2
-
-      expect(@property.tasklist_users).to include user1
-      expect(@property.tasklist_users).to include user2
-
-      FactoryBot.create(:exclude_property_user, user: user1, property: @property)
-
-      expect(@property.tasklist_users).not_to include user1
-      expect(@property.tasklist_users).to include user2
-    end
-  end
-
   describe '#assign_from_api_fields!' do
     it 'uses a json hash to assign record values' do
       property = Property.new
@@ -116,21 +98,6 @@ RSpec.describe Property, type: :model do
     end
   end
 
-  describe '#name_and_address' do
-    let(:no_name) { build :property, name: nil }
-    let(:no_address) { build :property, address: nil }
-
-    it 'copies the fields to eachother if one was blank' do
-      no_name.save
-      no_name.reload
-      expect(no_name.name).to eq no_name.address
-
-      no_address.save
-      no_address.reload
-      expect(no_address.address).to eq no_address.name
-    end
-  end
-
   describe '#default_budget' do
     let(:no_budget) { build :property }
     let(:custom_budget) { build :property, budget: 500 }
@@ -149,6 +116,41 @@ RSpec.describe Property, type: :model do
       custom_budget.reload
 
       expect(custom_budget.budget).to eq Money.new(500_00)
+    end
+  end
+
+  describe '#unsynced_name_address?' do
+    let(:both) { build :property }
+    let(:neither) { build :property, name: nil, address: nil }
+    let(:unsynced_name) { build :property, address: nil }
+    let(:unsynced_address) { build :property, name: nil }
+
+    it 'returns false if both are present' do
+      expect(both.send(:unsynced_name_address?)).to eq false
+    end
+
+    it 'returns false if neither are present' do
+      expect(neither.send(:unsynced_name_address?)).to eq false
+    end
+
+    it 'returns true if they are out of sync' do
+      expect(unsynced_name.send(:unsynced_name_address?)).to eq true
+      expect(unsynced_address.send(:unsynced_name_address?)).to eq true
+    end
+  end
+
+  describe '#name_and_address' do
+    let(:no_name) { build :property, name: nil }
+    let(:no_address) { build :property, address: nil }
+
+    it 'copies the fields to eachother if one was blank' do
+      no_name.save
+      no_name.reload
+      expect(no_name.name).to eq no_name.address
+
+      no_address.save
+      no_address.reload
+      expect(no_address.address).to eq no_address.name
     end
   end
 
@@ -287,6 +289,40 @@ RSpec.describe Property, type: :model do
         @public_property.update(private: true)
         expect(WebMock).to have_requested(:delete, Constant::Regex::TASKLIST).times(user_count)
       end
+    end
+  end
+
+  describe '#discard_tasks!' do
+    before :each do
+      @discarded_property = FactoryBot.create(:property)
+      @task1 = FactoryBot.create(:task, property: @discarded_property)
+      @task2 = FactoryBot.create(:task, property: @discarded_property)
+      @task3 = FactoryBot.create(:task, property: @discarded_property)
+    end
+
+    it 'only fires after a property is discarded' do
+      expect(@property).not_to receive(:discard_tasks!)
+      @property.save!
+
+      @discarded_property.discarded_at = Time.now
+      expect(@discarded_property).to receive(:discard_tasks!)
+      @discarded_property.save!
+    end
+
+    it 'marks all associated tasks as discarded' do
+      expect(@task1.discarded_at).to eq nil
+      expect(@task2.discarded_at).to eq nil
+      expect(@task3.discarded_at).to eq nil
+
+      @discarded_property.update(discarded_at: Time.now)
+
+      @task1.reload
+      @task2.reload
+      @task3.reload
+
+      expect(@task1.discarded_at).not_to eq nil
+      expect(@task2.discarded_at).not_to eq nil
+      expect(@task3.discarded_at).not_to eq nil
     end
   end
 end

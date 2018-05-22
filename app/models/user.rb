@@ -24,10 +24,6 @@ class User < ApplicationRecord
   has_many :skills, through: :skill_users
   accepts_nested_attributes_for :skill_users, allow_destroy: true
 
-  has_many :exclude_property_users, inverse_of: :user, dependent: :destroy
-  has_many :excluded_tasklists, class_name: :Property, through: :exclude_property_users, source: :property
-  accepts_nested_attributes_for :exclude_property_users, allow_destroy: true
-
   validates :name, :email, uniqueness: true, presence: true
   validates :oauth_id, :oauth_token, uniqueness: true, allow_blank: true
   validates_inclusion_of  :program_staff, :project_staff, :admin_staff,
@@ -110,10 +106,6 @@ class User < ApplicationRecord
 
   def active_for_authentication?
     super && !discarded_at
-  end
-
-  def tasklists
-    Property.where.not(id: excluded_tasklists.select(:property_id))
   end
 
   private
