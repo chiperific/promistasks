@@ -5,9 +5,9 @@ class User < ApplicationRecord
   include Discard::Model
 
   # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable
+  # :confirmable, :lockable, :timeoutable, :recoverable
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable,
+         :rememberable, :trackable, :validatable,
          :omniauthable, omniauth_providers: [:google_oauth2]
 
   has_many :created_tasks,  class_name: 'Task', inverse_of: :creator, foreign_key: 'creator_id'
