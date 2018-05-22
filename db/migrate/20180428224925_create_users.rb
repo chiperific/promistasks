@@ -26,7 +26,6 @@ class CreateUsers < ActiveRecord::Migration[5.1]
 
       ## System-level
       t.boolean :system_admin, null: false, default: false
-      t.boolean :deus_ex_machina, null: false, default: false # One User must be the 'system' for generating initialization tasks
 
       ## Recoverable
       t.string   :reset_password_token

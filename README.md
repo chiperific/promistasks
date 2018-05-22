@@ -1,6 +1,17 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
+2. I destroyed some things:
+  - Properties have a Creator(User)
+  - Properties have a private boolean (false == share with all User.staff)
+    - PRIVATE properties must take self.tasks.map(&:owners &:creators) into account before removing
+  - How to handle tasklists created in the API?
+    - assign to user
+  - User has no deus_ex_machina
+    - initialization_template tasks will use property.creator for task.creator && task.owner)
+  - Gonna need to re-think about the exclude_property_users table
+    - Gonna need to look at User#tasklists
+  - If tasklist || task deleted == true, set discarded_at
 3. Relationships between users, properties and tasks
   - Set policies
   - How to allow users to have private tasklists? Don't propegate certain tasklists

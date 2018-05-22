@@ -10,7 +10,7 @@ class CreateTasks < ActiveRecord::Migration[5.1]
       t.references :creator,  references: :users, null: false
       t.references :owner,    references: :users, null: false
       t.references :subject,  references: :users, null: true, default: nil
-      t.references :property,                     null: true, default: nil
+      t.references :property,                     null: false
       t.monetize :budget, amount: { null: true, default: nil }
       t.monetize :cost,   amount: { null: true, default: nil }
       t.integer :visibility,       default: 0,     null: false # [[0, 'Staff'], [1, 'Everyone'], [2, 'Only associated people'], [3, 'Not clients']]
@@ -30,6 +30,7 @@ class CreateTasks < ActiveRecord::Migration[5.1]
       t.boolean :initialization_template, null: false, default: false
       t.string :owner_type # ['Program Staff', 'Project Staff', 'Admin Staff']
       t.timestamps
+
       t.index :title
       t.index :google_id, unique: true
       t.index :position_int
