@@ -25,8 +25,8 @@ class Property < ApplicationRecord
   before_validation :name_and_address
   before_save :default_budget
 
+  after_create :create_with_api, if: :not_discarded?
   after_update :update_with_api
-  after_create :create_with_api,             if: -> { not_discarded? }
   after_update :propagate_to_api_by_privacy, if: ->(property) { property.saved_change_to_private? }
 
   scope :needs_title, -> { where(certificate_number: nil) }

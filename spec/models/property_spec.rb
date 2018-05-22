@@ -4,7 +4,8 @@ require 'rails_helper'
 
 RSpec.describe Property, type: :model do
   before :each do
-    stub_request(:any, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).to_return(body: 'You did it!', status: 200)
+    stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
+    stub_request(:any, Constant::Regex::TASK).to_return(body: 'You did it!', status: 200)
     @property                      = FactoryBot.create(:property, certificate_number: 'string', google_id: 'string', serial_number: 'string')
     @no_name_or_address            = FactoryBot.build(:property, name: nil, address: nil)
     @non_unique_address            = FactoryBot.build(:property, address: @property.address)
@@ -153,7 +154,7 @@ RSpec.describe Property, type: :model do
 
   describe '#create_with_api' do
     before :each do
-      stub_request(:any, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).to_return(body: 'You did it!', status: 200)
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
       @user  = FactoryBot.create(:oauth_user)
       @user2 = FactoryBot.create(:oauth_user)
       @user3 = FactoryBot.create(:oauth_user)
@@ -188,7 +189,7 @@ RSpec.describe Property, type: :model do
 
   describe '#update_with_api' do
     before :each do
-      stub_request(:any, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).to_return(body: 'You did it!', status: 200)
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
       @user  = FactoryBot.create(:oauth_user)
       @user2 = FactoryBot.create(:oauth_user)
       @user3 = FactoryBot.create(:oauth_user)
@@ -201,27 +202,27 @@ RSpec.describe Property, type: :model do
 
     it 'should only fire if name is changed or the record is discarded' do
       @private_property.update(creator: @user2)
-      expect(WebMock).not_to have_requested(:patch, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/)
+      expect(WebMock).not_to have_requested(:patch, Constant::Regex::TASKLIST)
 
       @private_property.update(name: 'Now it\'s called something else!')
-      expect(WebMock).to have_requested(:patch, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).once
+      expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).once
 
       @private_property.update(discarded_at: Time.now - 10.minutes)
-      expect(WebMock).to have_requested(:patch, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).once
+      expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).once
     end
 
     context 'when private' do
       context 'and discarded' do
         it 'deletes the Tasklist for the Creator' do
           @discarded_private_property.update(name: 'discarded private property')
-          expect(WebMock).to have_requested(:delete, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).once
+          expect(WebMock).to have_requested(:delete, Constant::Regex::TASKLIST).once
         end
       end
 
       context 'and not discarded' do
         it 'updates a Tasklist for the Creator' do
           @private_property.update(name: 'not discarded private property')
-          expect(WebMock).to have_requested(:patch, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).once
+          expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).once
         end
       end
     end
@@ -231,7 +232,7 @@ RSpec.describe Property, type: :model do
         it 'deletes the Tasklist for all users' do
           user_count = User.count
           @discarded_public_property.update(name: 'discarded public property')
-          expect(WebMock).to have_requested(:delete, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).times(user_count)
+          expect(WebMock).to have_requested(:delete, Constant::Regex::TASKLIST).times(user_count)
         end
       end
 
@@ -239,7 +240,7 @@ RSpec.describe Property, type: :model do
         it 'updates a Tasklist for all users' do
           user_count = User.count
           @public_property.update(name: 'not discarded public property')
-          expect(WebMock).to have_requested(:patch, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).times(user_count)
+          expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).times(user_count)
         end
       end
     end
@@ -247,7 +248,7 @@ RSpec.describe Property, type: :model do
 
   describe '#propagate_to_api_by_privacy' do
     before :each do
-      stub_request(:any, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).to_return(body: 'You did it!', status: 200)
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
       @user  = FactoryBot.create(:oauth_user)
       @user2 = FactoryBot.create(:oauth_user)
       @user3 = FactoryBot.create(:oauth_user)
@@ -275,7 +276,7 @@ RSpec.describe Property, type: :model do
         @private_property.save!
         user_count = User.count - 1
         @private_property.update(private: false)
-        expect(WebMock).to have_requested(:post, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).times(user_count)
+        expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).times(user_count)
       end
     end
 
@@ -284,7 +285,7 @@ RSpec.describe Property, type: :model do
         @public_property.save!
         user_count = User.count - 1
         @public_property.update(private: true)
-        expect(WebMock).to have_requested(:delete, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).times(user_count)
+        expect(WebMock).to have_requested(:delete, Constant::Regex::TASKLIST).times(user_count)
       end
     end
   end

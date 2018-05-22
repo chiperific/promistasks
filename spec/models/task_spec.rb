@@ -4,7 +4,8 @@ require 'rails_helper'
 
 RSpec.describe Task, type: :model do
   before :each do
-    stub_request(:any, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).to_return(body: 'You did it!', status: 200)
+    stub_request(:any, Constant::Regex::TASK).to_return(body: 'You did it!', status: 200)
+    stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
     @task           = FactoryBot.build(:task)
     @no_title       = FactoryBot.build(:task, title: nil)
     @no_creator     = FactoryBot.build(:task, creator_id: nil)
@@ -320,7 +321,7 @@ RSpec.describe Task, type: :model do
     let(:deleted_change) { create :task }
     let(:completed_at_change) { create :task }
     let(:parent_change) { create :task }
-    let(:new_user) { create :user }
+    let(:new_user) { create :oauth_user }
     let(:new_property) { create :property }
 
     it 'returns false if no fields have changed' do
@@ -364,10 +365,66 @@ RSpec.describe Task, type: :model do
   end
 
   describe '#create_with_api' do
-    pending 'creates a task for the owner and creator'
+    let(:new_task) { build :task }
+
+    it 'creates a task for the owner and creator' do
+      new_task.save!
+      expect(WebMock).to have_requested(:post, Constant::Regex::TASK).twice
+    end
   end
 
   describe '#update_with_api' do
-    pending 'updates a task for the owner and creator'
+    let(:new_user) { create :oauth_user }
+    let(:new_property) { create :property }
+    let(:no_api_change) { create :task }
+    let(:updated_task) { create :task }
+
+    it 'should only fire if an api field is changed' do
+      no_api_change.tap do |t|
+        t.priority = 'low'
+        t.creator = new_user
+        t.owner = new_user
+        t.subject = new_user
+        t.property = new_property
+        t.budget = 50_00
+        t.cost = 48_00
+        t.visibility = 1
+        t.license_required = true
+        t.previous_id = '12345679'
+        t.initialization_template = true
+        t.owner_type = 'Admin Staff'
+      end
+      expect(no_api_change).not_to receive(:update_with_api)
+      no_api_change.save!
+    end
+
+    it 'updates the task for the owner and creator' do
+      updated_task.update(title: 'I have an updated title')
+      expect(WebMock).to have_requested(:patch, Constant::Regex::TASK).twice
+    end
+  end
+
+  describe '#relocate' do
+    let(:updated_task) { create :task }
+    let(:new_property_task) { create :task }
+    let(:new_property) { create :property }
+
+    it 'should only fire if the property changes' do
+      updated_task.save!
+      new_property_task.save!
+      expect(updated_task).not_to receive(:relocate)
+      updated_task.update(title: 'I won\'t relocate')
+
+      expect(new_property_task).to receive(:relocate)
+      new_property_task.update(property: new_property)
+    end
+
+    it 'relocates the task for the owner and creator' do
+      new_property_task.save!
+      WebMock::RequestRegistry.instance.reset!
+      new_property_task.update(property: new_property, title: 'Move me!')
+      expect(WebMock).to have_requested(:delete, Constant::Regex::TASK).twice
+      expect(WebMock).to have_requested(:post, Constant::Regex::TASK).twice
+    end
   end
 end

@@ -29,11 +29,12 @@ class Task < ApplicationRecord
   monetize :budget_cents, :cost_cents, allow_nil: true
 
   before_save :decide_completeness
-  before_save :sync_completed_fields, if: -> { completed_at.present? || status == 'completed'}
+  before_save :sync_completed_fields, if: -> { completed_at.present? || status == 'completed' }
   before_save :copy_position_as_integer, if: -> { position.present? }
 
   after_create :create_with_api
   after_update :update_with_api, if: :saved_changes_to_api_fields?
+  after_update :relocate, if: -> { saved_change_to_property_id? }
 
   scope :needs_more_info, -> { where(needs_more_info: true).where(initialization_template: false) }
   scope :in_process, -> { where(completed_at: nil).where(initialization_template: false) }
@@ -127,10 +128,24 @@ class Task < ApplicationRecord
   end
 
   def create_with_api
-    # for each User.staff where owner || creator
+    [owner, creator].each do |user|
+      TaskClient.new.insert(user, property.google_id, self)
+    end
   end
 
   def update_with_api
-    # for each User.staff where owner || creator
+    taskclient = TaskClient.new
+    # Handle update and delete(discard) in one method
+    action = discarded_at.present? ? :delete : :update
+
+    [owner, creator].each do |user|
+      taskclient.send(action, user, property.google_id, self)
+    end
+  end
+
+  def relocate
+    [owner, creator].each do |user|
+      TaskClient.new.relocate(user, property.google_id, self)
+    end
   end
 end

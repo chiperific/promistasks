@@ -10,7 +10,8 @@ RSpec.describe SkillTask, type: :model do
     let(:no_task) { build :skill_task, task_id: nil }
 
     it 'in order to save' do
-      stub_request(:any, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).to_return(body: 'You did it!', status: 200)
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
+      stub_request(:any, Constant::Regex::TASK).to_return(body: 'You did it!', status: 200)
       expect(skill_task.save!).to eq true
 
       expect { no_skill.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
@@ -21,7 +22,8 @@ RSpec.describe SkillTask, type: :model do
   end
 
   it 'can\'t duplicate skill and task' do
-    stub_request(:any, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).to_return(body: 'You did it!', status: 200)
+    stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
+    stub_request(:any, Constant::Regex::TASK).to_return(body: 'You did it!', status: 200)
     skill_task.save
 
     skill = skill_task.skill

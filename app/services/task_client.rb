@@ -63,7 +63,7 @@ class TaskClient
     HTTParty.post(BASE_URI + tasklist_gid + '/clear', headers: headers(user).as_json)
   end
 
-  def move(user, tasklist_gid, task_gid, options={})
+  def move(user, tasklist_gid, task_gid, options = {})
     user.refresh_token!
     # Moves the specified task to another position in the task list.
     # This can include putting it as a child task under a new parent

@@ -210,7 +210,7 @@ RSpec.describe User, type: :model do
     pending 'returns all created_properties and public properties (and exclude using the reverse join table??)'
 
     it 'returns all properties where a matching record isn\'t present in the join table' do
-      stub_request(:any, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).to_return(body: 'You did it!', status: 200)
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
       user
       prop1
       prop2

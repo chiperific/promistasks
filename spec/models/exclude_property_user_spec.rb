@@ -9,7 +9,7 @@ RSpec.describe ExcludePropertyUser, type: :model do
     let(:no_property) { build :exclude_property_user, property_id: nil }
     let(:no_user) { build :exclude_property_user, user_id: nil }
     it 'in order to save' do
-      stub_request(:any, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).to_return(body: 'You did it!', status: 200)
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
       expect(exclude_property_user.save!).to eq true
 
       expect { no_property.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
@@ -21,7 +21,7 @@ RSpec.describe ExcludePropertyUser, type: :model do
   end
 
   it 'can\'t duplicate property and user' do
-    stub_request(:any, %r/https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}/).to_return(body: 'You did it!', status: 200)
+    stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
     exclude_property_user.save
 
     property = exclude_property_user.property
