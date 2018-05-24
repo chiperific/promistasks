@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 ruby '2.4.4'
 
 git_source(:github) do |repo_name|
-  repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
+  repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?('/')
   "https://github.com/#{repo_name}.git"
 end
 
@@ -22,6 +22,8 @@ gem 'omniauth-google-oauth2'
 gem 'pg'
 gem 'puma', '~> 3.7'
 gem 'rails', '~> 5.1.6'
+gem 'rails_admin'
+gem 'rails_admin_clone'
 gem 'sass-rails', '~> 5.0'
 gem 'simple_form'
 gem 'therubyracer', platforms: :ruby
