@@ -26,6 +26,14 @@ class Property < ApplicationRecord
   after_save   :discard_tasks!, if: -> { discarded_at.present? }
 
   scope :needs_title, -> { where(certificate_number: nil) }
+  # scope :occupied, -> {}
+  # scope :unoccupied, -> {}
+  # scope :public, -> { where(private: false) } # even rails_admin shouldn't see private lists?
+
+  class << self
+    alias archived discarded
+    alias active kept
+  end
 
   def full_address
     addr = address
@@ -36,6 +44,7 @@ class Property < ApplicationRecord
   end
 
   def budget_remaining
+    budget ||= default_budget
     budget - tasks.map(&:cost).compact.sum
   end
 

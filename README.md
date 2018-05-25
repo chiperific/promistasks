@@ -1,6 +1,7 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
+2. RailsAdmin doesn't use my controller actions. Argh.....
 3. Relationships between users, properties and tasks
   - Make controllers
   - Set policies
@@ -33,6 +34,7 @@
 
 ## Keep in mind
 - PRIVATE properties must take self.tasks.map(&:owners &:creators) into account before removing
+- PRIVATE properties shouldn't even be visible to RailsAdmin?
 - Bring in tasklists and tasks from the app
 - initialization_template tasks will use property.creator for task.creator && task.owner
 

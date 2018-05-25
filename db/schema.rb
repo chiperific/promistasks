@@ -168,6 +168,8 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.integer "sign_in_count", default: 0, null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
+    t.inet "current_sign_in_ip"
+    t.inet "last_sign_in_ip"
     t.string "oauth_provider"
     t.string "oauth_id"
     t.string "oauth_image_link"
@@ -176,7 +178,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.datetime "oauth_expires_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    # t.datetime "discarded_at"
+    t.datetime "discarded_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["name"], name: "index_users_on_name", unique: true
     t.index ["oauth_id"], name: "index_users_on_oauth_id", unique: true
