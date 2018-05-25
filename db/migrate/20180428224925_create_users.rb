@@ -34,8 +34,6 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.integer  :sign_in_count, null: false, default: 0
       t.datetime :current_sign_in_at
       t.datetime :last_sign_in_at
-      t.inet     :current_sign_in_ip
-      t.inet     :last_sign_in_ip
 
       ## Oauth / google_oauth2 fields
       t.string :oauth_provider
@@ -52,7 +50,6 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.index :name,        unique: true
       t.index :oauth_id,    unique: true
       t.index :email,       unique: true
-      t.index :reset_password_token
     end
   end
 end

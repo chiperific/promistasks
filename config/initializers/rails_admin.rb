@@ -32,11 +32,11 @@ RailsAdmin.config do |config|
     index                         # mandatory
     new
     export
-    bulk_delete
+    # bulk_delete
     show
     edit
     clone
-    delete
+    # delete
     show_in_app
 
     ## With an audit adapter, you can add:
@@ -48,7 +48,7 @@ RailsAdmin.config do |config|
     visible false
   end
 
-  config.moded Property do
+  config.model Property do
     visible false
   end
 
@@ -90,7 +90,7 @@ RailsAdmin.config do |config|
   config.model User do
     weight 0
     list do
-      scopes ['staff', 'not staff', 'discarded']
+      scopes %i[staff not_staff discarded]
       field :name
       field :title
       field :type
@@ -123,7 +123,7 @@ RailsAdmin.config do |config|
       end
 
       group :associations do
-        label 'Properties and Tasks'
+        label 'Skills, Properties and Tasks'
         active false
       end
 
@@ -135,24 +135,9 @@ RailsAdmin.config do |config|
         group :basics
       end
 
-      field :connections do
-        group :associations
-      end
-
-      field :created_properties do
-        group :associations
-      end
-
-      field :created_tasks do
-        group :associations
-      end
-
-      field :owned_tasks do
-        group :associations
-      end
-
-      field :subject_tasks do
-        group :associations
+      field :discarded_at do
+        group :types
+        label 'Archive as of'
       end
 
       field :program_staff do
@@ -164,6 +149,10 @@ RailsAdmin.config do |config|
       end
 
       field :admin_staff do
+        group :types
+      end
+
+      field :system_admin do
         group :types
       end
 
@@ -183,6 +172,35 @@ RailsAdmin.config do |config|
         group :types
       end
 
+      field :skills do
+        group :skills
+      end
+
+      field :connections do
+        group :associations
+        label 'Connected to properties:'
+      end
+
+      field :created_properties do
+        group :associations
+        label 'Created these properties:'
+      end
+
+      field :created_tasks do
+        group :associations
+        label 'Created these tasks:'
+      end
+
+      field :owned_tasks do
+        group :associations
+        label 'Owns these tasks:'
+      end
+
+      field :subject_tasks do
+        group :associations
+        label 'Subject of these tasks:'
+      end
+
       field :email do
         group :login_info
       end
@@ -193,11 +211,6 @@ RailsAdmin.config do |config|
 
       field :password_confirmation do
         group :login_info
-      end
-
-      field :oauth_provider do
-        group :login_info
-        read_only true
       end
 
       field :phone1 do
@@ -227,9 +240,6 @@ RailsAdmin.config do |config|
       field :postal_code do
         group :contact_info
       end
-
-      include_all_fields
-      exclude_fields :skill_users
     end
 
     show do
@@ -262,12 +272,22 @@ RailsAdmin.config do |config|
         active false
       end
 
+      group :technical do
+        label 'Technical stuff'
+        active false
+      end
+
       field :name do
         group :basics
       end
 
       field :title do
         group :basics
+      end
+
+      field :discarded_at do
+        group :types
+        label 'Archived on date'
       end
 
       field :program_staff do
@@ -279,6 +299,10 @@ RailsAdmin.config do |config|
       end
 
       field :admin_staff do
+        group :types
+      end
+
+      field :system_admin do
         group :types
       end
 
@@ -360,8 +384,29 @@ RailsAdmin.config do |config|
         group :contact_info
       end
 
-      include_all_fields
-      exclude_fields :skill_users
+      field :remember_created_at do
+        group :technical
+      end
+
+      field :sign_in_count do
+        group :technical
+      end
+
+      field :current_sign_in_at do
+        group :technical
+      end
+
+      field :last_sign_in_at do
+        group :technical
+      end
+
+      field :created_at do
+        group :technical
+      end
+
+      field :updated_at do
+        group :technical
+      end
     end
   end
 end

@@ -164,14 +164,10 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.boolean "system_admin", default: false, null: false
-    t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
     t.integer "sign_in_count", default: 0, null: false
     t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
-    t.inet "current_sign_in_ip"
-    t.inet "last_sign_in_ip"
     t.string "oauth_provider"
     t.string "oauth_id"
     t.string "oauth_image_link"
@@ -180,12 +176,11 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.datetime "oauth_expires_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.datetime "discarded_at"
+    # t.datetime "discarded_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["name"], name: "index_users_on_name", unique: true
     t.index ["oauth_id"], name: "index_users_on_oauth_id", unique: true
     t.index ["oauth_token"], name: "index_users_on_oauth_token", unique: true
-    t.index ["reset_password_token"], name: "index_users_on_reset_password_token"
   end
 
   add_foreign_key "connections", "properties"
