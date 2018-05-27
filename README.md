@@ -1,7 +1,6 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-2. RailsAdmin doesn't use my controller actions. Argh.....
 3. Relationships between users, properties and tasks
   - Make controllers
   - Set policies

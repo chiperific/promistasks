@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  # resources :tasks
+  root to: 'tasks#public'
 
-  mount RailsAdmin::Engine => '/admin', as: 'rails_admin'
+  resources :tasks
+  resources :properties, path: 'lists'
+  # mount RailsAdmin::Engine => '/admin', as: 'rails_admin'
 
   devise_for :users, controllers: { omniauth_callbacks: 'users/omniauth_callbacks', registrations: 'registrations' }
 
-  root to: 'tasks#public'
 end

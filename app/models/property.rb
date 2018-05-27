@@ -28,7 +28,7 @@ class Property < ApplicationRecord
   scope :needs_title, -> { where(certificate_number: nil) }
   # scope :occupied, -> {}
   # scope :unoccupied, -> {}
-  # scope :public, -> { where(private: false) } # even rails_admin shouldn't see private lists?
+  scope :public_visible, -> { where(private: false) }
 
   class << self
     alias archived discarded
