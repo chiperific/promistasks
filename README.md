@@ -33,6 +33,7 @@
 
 ## Keep in mind
 - PRIVATE properties must take self.tasks.map(&:owners &:creators) into account before removing
+- PRIVATE properties shouldn't even be visible to RailsAdmin?
 - Bring in tasklists and tasks from the app
 - initialization_template tasks will use property.creator for task.creator && task.owner
 

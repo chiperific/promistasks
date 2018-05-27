@@ -13,4 +13,9 @@ class Skill < ApplicationRecord
 
   validates :name, uniqueness: true, presence: true
   validates_inclusion_of :volunteerable, :license_required, in: [true, false]
+
+  class << self
+    alias archived discarded
+    alias active kept
+  end
 end
