@@ -2,7 +2,8 @@
 
 class PropertiesController < ApplicationController
   def index
-    my_properties = policy_scope(Property)
+    # my_properties = policy_scope(Property)
+    @properties = Property.all
   end
 
   def show

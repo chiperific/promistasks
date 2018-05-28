@@ -259,16 +259,16 @@ Devise.setup do |config|
   # up on your models and hooks.
   # config.omniauth :github, 'APP_ID', 'APP_SECRET', scope: 'user,public_repo'
   config.omniauth :google_oauth2, Rails.application.secrets.google_client_id, Rails.application.secrets.google_client_secret,
-                  scope: 'email, profile, tasks'
+                  scope: 'email, profile, tasks',
                   # Restrict logins just to a specific org domain:
                   # hd: Rails.application.secrets.org_domain,
                   # The rest of this seems to be useless:
                   # image_aspect_ratio: 'square',
                   # image_size: 50
                   # prompt: 'consent',
-                  # client_options: {
-                  #   ssl: { ca_file: Rails.root.join('cacert.pem').to_s }
-                  # }
+                  client_options: {
+                    ssl: { ca_file: Rails.root.join('cacert.pem').to_s }
+                  }
 
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or

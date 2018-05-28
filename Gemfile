@@ -21,6 +21,7 @@ gem 'money-rails'
 gem 'omniauth-google-oauth2'
 gem 'pg'
 gem 'puma', '~> 3.7'
+gem 'pundit'
 gem 'rails', '~> 5.1.6'
 gem 'sass-rails', '~> 5.0'
 gem 'simple_form'
@@ -35,7 +36,6 @@ group :development, :test do
   gem 'binding_of_caller'
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
   gem 'factory_bot_rails'
-  gem 'foreman'
   gem 'pry-byebug'
   gem 'rubocop'
 end
