@@ -27,10 +27,6 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       ## System-level
       t.boolean :system_admin, null: false, default: false
 
-      ## Recoverable
-      t.string   :reset_password_token
-      t.datetime :reset_password_sent_at
-
       ## Rememberable
       t.datetime :remember_created_at
 
@@ -56,7 +52,6 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.index :name,        unique: true
       t.index :oauth_id,    unique: true
       t.index :email,       unique: true
-      t.index :reset_password_token
     end
   end
 end

@@ -28,6 +28,11 @@ class Property < ApplicationRecord
   scope :needs_title, -> { where(certificate_number: nil) }
   scope :public_visible, -> { where(private: false) }
 
+  class << self
+    alias archived discarded
+    alias active kept
+  end
+
   def full_address
     addr = address
     addr += ', ' + city unless city.blank?
@@ -37,6 +42,7 @@ class Property < ApplicationRecord
   end
 
   def budget_remaining
+    budget ||= default_budget
     budget - tasks.map(&:cost).compact.sum
   end
 

@@ -40,6 +40,11 @@ class User < ApplicationRecord
   scope :staff_except, ->(user) { where.not(id: user) }
   scope :not_staff, -> { where(oauth_id: nil) }
 
+  class << self
+    alias archived discarded
+    alias active kept
+  end
+
   def type
     ary = []
 

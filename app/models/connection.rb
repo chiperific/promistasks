@@ -14,13 +14,10 @@ class Connection < ApplicationRecord
   validate :relationship_must_match_user_type
   validate :stage_date_and_stage
 
-  # def relationship_enum
-  #   Constant::Connection::RELATIONSHIPS
-  # end
-
-  # def stage_enum
-  #   Constant::Connection::STAGES
-  # end
+  class << self
+    alias archived discarded
+    alias active kept
+  end
 
   private
 

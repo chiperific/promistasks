@@ -41,6 +41,7 @@ class Task < ApplicationRecord
   scope :in_process, -> { where(completed_at: nil).where(initialization_template: false) }
   scope :complete, -> { where.not(completed_at: nil).where(initialization_template: false) }
   scope :descending, -> { order(position_int: :asc) }
+  scope :public_visible, -> { where(visibility: 1) }
 
   def budget_remaining
     return nil if budget.nil? && cost.nil?
