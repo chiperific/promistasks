@@ -23,11 +23,8 @@ class CreateProperties < ActiveRecord::Migration[5.1]
       t.references :creator, references: :users, null: false
       t.boolean :private,    default: true, null: false
       t.datetime :discarded_at
-      t.string :google_id # tasklist ID
-      t.string :selflink # tasklist full URL
       t.timestamps
 
-      t.index :google_id,          unique: true
       t.index :name,               unique: true
       t.index :address,            unique: true
       t.index :certificate_number, unique: true

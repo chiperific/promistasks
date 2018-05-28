@@ -141,8 +141,11 @@ class Task < ApplicationRecord
   end
 
   def create_with_api
+    taskclient = TaskClient.new
+
     [owner, creator].each do |user|
-      TaskClient.new.insert(user, property.google_id, self)
+      tasklist = Tasklist.where(property: property, user: user)
+      taskclient.insert(user, tasklist.tasklist_id, self) if tasklist.present?
     end
   end
 
@@ -152,13 +155,15 @@ class Task < ApplicationRecord
     action = discarded_at.present? ? :delete : :update
 
     [owner, creator].each do |user|
-      taskclient.send(action, user, property.google_id, self)
+      tasklist = Tasklist.where(property: property, user: user)
+      taskclient.send(action, user, tasklist.tasklist_id, self) if tasklist.present?
     end
   end
 
   def relocate
     [owner, creator].each do |user|
-      TaskClient.new.relocate(user, property.google_id, self)
+      tasklist = Tasklist.where(property: property, user: user)
+      TaskClient.new.relocate(user, tasklist.tasklist_id, self) if tasklist.present?
     end
   end
 end

@@ -8,12 +8,13 @@ class Property < ApplicationRecord
   accepts_nested_attributes_for :connections, allow_destroy: true
 
   belongs_to :creator, class_name: 'User', inverse_of: :created_properties
+  has_many :tasklists, inverse_of: :property, dependent: :destroy
 
   has_many :tasks, inverse_of: :property, dependent: :destroy
 
   validates_presence_of :creator_id
   validates :name, :address, uniqueness: true, presence: true
-  validates_uniqueness_of :certificate_number, :google_id, :serial_number, allow_nil: true
+  validates_uniqueness_of :certificate_number, :serial_number, allow_nil: true
   validates_inclusion_of :private, in: [true, false]
 
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true

@@ -6,11 +6,10 @@ RSpec.describe Property, type: :model do
   before :each do
     stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
     stub_request(:any, Constant::Regex::TASK).to_return(body: 'You did it!', status: 200)
-    @property                      = FactoryBot.create(:property, certificate_number: 'string', google_id: 'string', serial_number: 'string')
+    @property                      = FactoryBot.create(:property, certificate_number: 'string', serial_number: 'string')
     @no_name_or_address            = FactoryBot.build(:property, name: nil, address: nil)
     @non_unique_address            = FactoryBot.build(:property, address: @property.address)
     @non_unique_certificate_number = FactoryBot.build(:property, certificate_number: @property.certificate_number)
-    @non_unique_google_id          = FactoryBot.build(:property, google_id: @property.google_id)
     @non_unique_serial_number      = FactoryBot.build(:property, serial_number: @property.serial_number)
     WebMock::RequestRegistry.instance.reset!
   end
@@ -21,7 +20,6 @@ RSpec.describe Property, type: :model do
       expect { @no_name_or_address.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { @non_unique_address.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { @non_unique_certificate_number.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
-      expect { @non_unique_google_id.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { @non_unique_serial_number.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
     end
   end
@@ -32,7 +30,6 @@ RSpec.describe Property, type: :model do
       expect { @no_name_or_address.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @non_unique_address.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @non_unique_certificate_number.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { @non_unique_google_id.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @non_unique_serial_number.save! }.to raise_error ActiveRecord::RecordInvalid
     end
   end
