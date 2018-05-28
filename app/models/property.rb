@@ -84,7 +84,7 @@ class Property < ApplicationRecord
       end
     end
 
-    # must get google_id and save it to record
+    # must get google_id and save it to join table
   end
 
   def update_with_api
@@ -98,10 +98,12 @@ class Property < ApplicationRecord
     action = google_id.nil? ? :insert : action
 
     if private?
-      tasklist.send(action, creator, self)
+      response = tasklist.send(action, creator, self)
+      # add the response to the join table
     else
       User.staff.each do |user|
-        tasklist.send(action, user, self)
+        # if there's a new staff, or the staff doesn't have
+        response = tasklist.send(action, user, self)
       end
     end
   end

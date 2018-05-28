@@ -1,6 +1,13 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
+1. Properties are singular in the app, tasklists are duplicated in Google
+  - Join table to track google_ids
+  - Tasklist.where(user: user, property: property).find_or_create before API
+  - use response to set google_id
+2. Tasks are singular in the app, but duplicated in Google
+  - Join table to track google_ids and positions
+  - TaskJoin.where(user: user, task: task)
 3. Relationships between users, properties and tasks
   - Make controllers
   - Set policies

@@ -31,7 +31,6 @@ class Task < ApplicationRecord
   before_save :decide_completeness
   before_save :sync_deleted_and_discarded_at, if: :unsynced_deleted_discard?
   before_save :sync_completed_fields, if: -> { completed_at.present? || status == 'completed' }
-  before_save :copy_position_as_integer, if: -> { position.present? }
 
   after_create :create_with_api
   after_update :update_with_api, if: :saved_changes_to_api_fields?
@@ -126,9 +125,6 @@ class Task < ApplicationRecord
     self.status = 'completed'
   end
 
-  def copy_position_as_integer
-    self.position_int = position.to_i
-  end
 
   def saved_changes_to_api_fields?
     saved_change_to_title? ||

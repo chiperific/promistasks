@@ -43,5 +43,20 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.index [:property_id, :user_id], unique: true
       t.index :google_id
     end
+
+    create_table :task_joins do |t|
+      t.references :user, null: false, foreign_key: true
+      t.references :task, null: false, foreign_key: true
+      t.string :tasklist_id                           # google field, but maintained from tasklist join table
+      t.string :google_id                             # google field, Task ID
+      t.string :position                              # google field
+      t.integer :position_int, default: 0, limit: 8   # position field converted to an integer
+      t.string :parent_id                             # google field
+      t.string :previous_id
+      t.index [:user_id, :task_id], unique: true
+      t.index [:task_id, :user_id], unique: true
+      t.index :tasklist_id
+      t.index :google_id
+    end
   end
 end
