@@ -26,8 +26,6 @@ class Property < ApplicationRecord
   after_save   :discard_tasks!, if: -> { discarded_at.present? }
 
   scope :needs_title, -> { where(certificate_number: nil) }
-  # scope :occupied, -> {}
-  # scope :unoccupied, -> {}
   scope :public_visible, -> { where(private: false) }
 
   class << self
@@ -84,6 +82,8 @@ class Property < ApplicationRecord
         TasklistClient.new.insert(user, self)
       end
     end
+
+    # must get google_id and save it to record
   end
 
   def update_with_api
@@ -92,6 +92,9 @@ class Property < ApplicationRecord
 
     tasklist = TasklistClient.new
     action = discarded_at.present? ? :delete : :update
+
+    # switch to insert if there's no google ID, rare case, but can happen if API fails for some reason
+    action = google_id.nil? ? :insert : action
 
     if private?
       tasklist.send(action, creator, self)

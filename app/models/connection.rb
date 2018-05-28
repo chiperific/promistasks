@@ -19,14 +19,6 @@ class Connection < ApplicationRecord
     alias active kept
   end
 
-  def relationship_enum
-    Constant::Connection::RELATIONSHIPS
-  end
-
-  def stage_enum
-    Constant::Connection::STAGES
-  end
-
   private
 
   def relationship_appropriate_for_stage
