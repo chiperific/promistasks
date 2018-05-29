@@ -20,14 +20,14 @@ class Property < ApplicationRecord
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
 
   before_validation :name_and_address, if: :unsynced_name_address?
-  before_save :default_budget
+  before_save  :default_budget
   after_create :create_with_api, if: :not_discarded?
   after_update :update_with_api
   after_update :propagate_to_api_by_privacy, if: -> { saved_change_to_private? }
-  after_save   :discard_tasks!, if: -> { discarded_at.present? }
+  after_update :delete_with_api, if: -> { discarded_at.present? }
 
-  scope :needs_title, -> { where(certificate_number: nil) }
-  scope :public_visible, -> { where(private: false) }
+  scope :needs_title, -> { undiscarded.where(certificate_number: nil) }
+  scope :public_visible, -> { undiscarded.where(private: false) }
 
   class << self
     alias archived discarded
@@ -43,14 +43,8 @@ class Property < ApplicationRecord
   end
 
   def budget_remaining
-    budget ||= default_budget
-    budget - tasks.map(&:cost).compact.sum
-  end
-
-  def assign_from_api_fields!(tasklist_json)
-    self.google_id = tasklist_json['id']
-    self.name = tasklist_json['title']
-    self.selflink = tasklist_json['selfLink']
+    self.budget ||= default_budget
+    self.budget - tasks.map(&:cost).sum
   end
 
   def default_budget
@@ -77,46 +71,70 @@ class Property < ApplicationRecord
 
   def create_with_api
     if private?
-      TasklistClient.new.insert(creator, self)
+      tasklist = tasklists.where(user: creator).first_or_create
+      response = TasklistClient.new.insert(creator, tasklist)
+      tasklist.update(google_id: response['id'])
     else
       User.staff.each do |user|
-        TasklistClient.new.insert(user, self)
+        tasklist = tasklists.where(user: user).first_or_create
+        response = TasklistClient.new.insert(user, tasklist)
+        tasklist.update(google_id: response['id'])
       end
     end
-
-    # must get google_id and save it to join table
   end
 
   def update_with_api
-    # Handle update and delete(discard) in one method
-    return true if !saved_change_to_name? && discarded_at.blank?
-
-    tasklist = TasklistClient.new
-    action = discarded_at.present? ? :delete : :update
-
-    # switch to insert if there's no google ID, rare case, but can happen if API fails for some reason
-    action = google_id.nil? ? :insert : action
+    return true unless saved_change_to_name?
 
     if private?
-      response = tasklist.send(action, creator, self)
-      # add the response to the join table
+      tasklist = tasklists.where(user: creator).first_or_create
+      action = tasklist.google_id.present? ? :update : :insert
+      response = TasklistClient.new.send(action, creator, tasklist)
+      tasklist.update(google_id: response['id'])
     else
       User.staff.each do |user|
-        # if there's a new staff, or the staff doesn't have
-        response = tasklist.send(action, user, self)
+        tasklist = tasklists.where(user: user).first_or_create
+        action = tasklist.google_id.present? ? :update : :insert
+        response = TasklistClient.new.send(action, user, tasklist)
+        tasklist.update(google_id: response['id'])
       end
     end
   end
 
-  def propagate_to_api_by_privacy
-    tasklist = TasklistClient.new
-    action = private? ? :delete : :insert
+  def delete_with_api
+    return true if discarded_at.blank?
 
-    User.staff_except(creator).each do |user|
-      tasklist.send(action, user, self)
+    if private?
+      tasklist = tasklists.where(user: creator).first_or_create
+      TasklistClient.new.delete(creator, tasklist)
+      tasklist.destroy! unless tasklist.new_record?
+    else
+      User.staff.each do |user|
+        tasklist = tasklists.where(user: user).first_or_create
+        TasklistClient.new.delete(user, tasklist)
+        tasklist.destroy! unless tasklist.new_record?
+      end
     end
 
-    # if insert, should also propegate the tasks
+    discard_tasks!
+  end
+
+  def propagate_to_api_by_privacy
+    if private?
+      User.staff_except(creator).each do |user|
+        tasklist = tasklists.where(user: user).first_or_initialize
+        TasklistClient.new.delete(user, tasklist) unless tasklist.new_record?
+        tasklist.destroy! unless tasklist.new_record?
+      end
+    else
+      User.staff_except(creator).each do |user|
+        tasklist = tasklists.where(user: user).first_or_create
+        action = tasklist.new_record? ? :insert : :update
+        response = TasklistClient.new.send(action, user, tasklist)
+        tasklist.update(google_id: response['id'])
+        # propegate tasks by visibility
+      end
+    end
   end
 
   def discard_tasks!

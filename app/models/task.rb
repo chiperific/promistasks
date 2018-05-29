@@ -21,7 +21,6 @@ class Task < ApplicationRecord
   validates_inclusion_of :visibility, in: [0, 1, 2, 3]
 
   validates :title, uniqueness: true, presence: true
-  validates :google_id, uniqueness: true, allow_blank: true
 
   validate :require_cost
   validate :due_cant_be_past
@@ -36,11 +35,11 @@ class Task < ApplicationRecord
   after_update :update_with_api, if: :saved_changes_to_api_fields?
   after_update :relocate, if: -> { saved_change_to_property_id? }
 
-  scope :needs_more_info, -> { where(needs_more_info: true).where(initialization_template: false) }
-  scope :in_process, -> { where(completed_at: nil).where(initialization_template: false) }
-  scope :complete, -> { where.not(completed_at: nil).where(initialization_template: false) }
-  scope :descending, -> { order(position_int: :asc) }
-  scope :public_visible, -> { where(visibility: 1) }
+  scope :needs_more_info, -> { undiscarded.where(needs_more_info: true).where(initialization_template: false) }
+  scope :in_process, -> { undiscarded.where(completed_at: nil).where(initialization_template: false) }
+  scope :complete, -> { undiscarded.where.not(completed_at: nil).where(initialization_template: false) }
+  scope :descending, -> { undiscarded.order(position_int: :asc) }
+  scope :public_visible, -> { undiscarded.where(visibility: 1) }
 
   def budget_remaining
     return nil if budget.nil? && cost.nil?
@@ -60,17 +59,14 @@ class Task < ApplicationRecord
   def assign_from_api_fields!(task_json)
     return false if task_json.empty?
 
-    self.google_id = task_json['id']
-    self.title = task_json['title']
-    self.google_updated = task_json['updated']
-    self.parent_id = task_json['parent']
-    self.position = task_json['position']
-    self.notes = task_json['notes']
-    self.status = task_json['status']
-    self.due = task_json['due']
-    self.completed_at = task_json['completed']
-    self.deleted = task_json['deleted'] || false
-    self.hidden = task_json['hidden'] || false
+    tap do |t|
+      t.notes = task_json['notes']
+      t.status = task_json['status']
+      t.due = task_json['due']
+      t.deleted = task_json['deleted'] || false
+      t.hidden = task_json['hidden'] || false
+      t.completed_at = task_json['completed']
+    end
 
     task_json.present?
   end
@@ -124,7 +120,6 @@ class Task < ApplicationRecord
     self.completed_at = Time.now
     self.status = 'completed'
   end
-
 
   def saved_changes_to_api_fields?
     saved_change_to_title? ||

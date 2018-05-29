@@ -4,8 +4,9 @@ require 'rails_helper'
 
 RSpec.describe Property, type: :model do
   before :each do
-    stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
-    stub_request(:any, Constant::Regex::TASK).to_return(body: 'You did it!', status: 200)
+    @tasklist_json = JSON.parse(file_fixture('tasklist_json_spec.json').read).to_json
+    stub_request(:any, Constant::Regex::TASKLIST).to_return(headers: {"Content-Type"=> "application/json"}, body: @tasklist_json, status: 200)
+    stub_request(:any, Constant::Regex::TASK).to_return(headers: {"Content-Type"=> "application/json"}, body: @tasklist_json, status: 200)
     @property                      = FactoryBot.create(:property, certificate_number: 'string', serial_number: 'string')
     @no_name_or_address            = FactoryBot.build(:property, name: nil, address: nil)
     @non_unique_address            = FactoryBot.build(:property, address: @property.address)
@@ -68,19 +69,10 @@ RSpec.describe Property, type: :model do
     end
   end
 
-  describe '#assign_from_api_fields!' do
-    it 'uses a json hash to assign record values' do
-      property = Property.new
-      tasklist_json = JSON.parse(file_fixture('tasklist_json_spec.json').read)
-
-      expect(property.name).to eq nil
-      expect(property.selflink).to eq nil
-
-      property.assign_from_api_fields!(tasklist_json)
-
-      expect(property.name).not_to eq nil
-      expect(property.selflink).not_to eq nil
-    end
+  describe '#default_budget' do
+    pending 'fires before an event is saved'
+    pending 'sets a budget if one isn\'t set'
+    pending 'doesn\'t change the budget if one is already set'
   end
 
   describe '#not_discarded?' do
@@ -153,7 +145,7 @@ RSpec.describe Property, type: :model do
 
   describe '#create_with_api' do
     before :each do
-      stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(headers: {"Content-Type"=> "application/json"}, body: @tasklist_json, status: 200)
       @user  = FactoryBot.create(:oauth_user)
       @user2 = FactoryBot.create(:oauth_user)
       @user3 = FactoryBot.create(:oauth_user)
@@ -188,7 +180,7 @@ RSpec.describe Property, type: :model do
 
   describe '#update_with_api' do
     before :each do
-      stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(headers: {"Content-Type"=> "application/json"}, body: @tasklist_json, status: 200)
       @user  = FactoryBot.create(:oauth_user)
       @user2 = FactoryBot.create(:oauth_user)
       @user3 = FactoryBot.create(:oauth_user)
@@ -201,10 +193,10 @@ RSpec.describe Property, type: :model do
 
     it 'should only fire if name is changed or the record is discarded' do
       @private_property.update(creator: @user2)
-      expect(WebMock).not_to have_requested(:patch, Constant::Regex::TASKLIST)
+      expect(WebMock).not_to have_requested(:any, Constant::Regex::TASKLIST)
 
       @private_property.update(name: 'Now it\'s called something else!')
-      expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).once
+      expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).once
 
       @private_property.update(discarded_at: Time.now - 10.minutes)
       expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).once
@@ -247,7 +239,7 @@ RSpec.describe Property, type: :model do
 
   describe '#propagate_to_api_by_privacy' do
     before :each do
-      stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(headers: {"Content-Type"=> "application/json"}, body: @tasklist_json, status: 200)
       @user  = FactoryBot.create(:oauth_user)
       @user2 = FactoryBot.create(:oauth_user)
       @user3 = FactoryBot.create(:oauth_user)

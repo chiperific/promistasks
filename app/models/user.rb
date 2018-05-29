@@ -37,9 +37,9 @@ class User < ApplicationRecord
 
   monetize :rate_cents, allow_nil: true
 
-  scope :staff, -> { where.not(oauth_id: nil) }
-  scope :staff_except, ->(user) { where.not(id: user) }
-  scope :not_staff, -> { where(oauth_id: nil) }
+  scope :staff, -> { undiscarded.where.not(oauth_id: nil) }
+  scope :staff_except, ->(user) { undiscarded.where.not(id: user) }
+  scope :not_staff, -> { undiscarded.where(oauth_id: nil) }
 
   class << self
     alias archived discarded

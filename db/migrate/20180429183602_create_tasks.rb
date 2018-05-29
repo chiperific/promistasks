@@ -26,9 +26,6 @@ class CreateTasks < ActiveRecord::Migration[5.1]
       t.timestamps
 
       t.index :title
-      t.index :google_id, unique: true
-      t.index :position_int
-      t.index :visibility
     end
   end
 end

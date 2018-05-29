@@ -44,7 +44,7 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.index :google_id
     end
 
-    create_table :task_joins do |t|
+    create_table :task_users do |t|
       t.references :user, null: false, foreign_key: true
       t.references :task, null: false, foreign_key: true
       t.string :tasklist_id                           # google field, but maintained from tasklist join table
@@ -57,6 +57,7 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.index [:task_id, :user_id], unique: true
       t.index :tasklist_id
       t.index :google_id
+      t.index :position_int
     end
   end
 end

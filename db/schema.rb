@@ -99,6 +99,24 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.index ["name"], name: "index_skills_on_name", unique: true
   end
 
+  create_table "task_users", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "task_id", null: false
+    t.string "tasklist_id"
+    t.string "google_id"
+    t.string "position"
+    t.bigint "position_int", default: 0
+    t.string "parent_id"
+    t.string "previous_id"
+    t.index ["google_id"], name: "index_task_users_on_google_id"
+    t.index ["position_int"], name: "index_task_users_on_position_int"
+    t.index ["task_id", "user_id"], name: "index_task_users_on_task_id_and_user_id", unique: true
+    t.index ["task_id"], name: "index_task_users_on_task_id"
+    t.index ["tasklist_id"], name: "index_task_users_on_tasklist_id"
+    t.index ["user_id", "task_id"], name: "index_task_users_on_user_id_and_task_id", unique: true
+    t.index ["user_id"], name: "index_task_users_on_user_id"
+  end
+
   create_table "tasklists", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "property_id", null: false
@@ -131,24 +149,15 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.boolean "deleted", default: false, null: false
     t.boolean "hidden", default: false, null: false
     t.datetime "completed_at"
-    t.datetime "google_updated"
-    t.string "google_id"
-    t.string "position"
-    t.bigint "position_int", default: 0
-    t.string "parent_id"
-    t.string "previous_id"
     t.boolean "initialization_template", default: false, null: false
     t.string "owner_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_tasks_on_creator_id"
-    t.index ["google_id"], name: "index_tasks_on_google_id", unique: true
     t.index ["owner_id"], name: "index_tasks_on_owner_id"
-    t.index ["position_int"], name: "index_tasks_on_position_int"
     t.index ["property_id"], name: "index_tasks_on_property_id"
     t.index ["subject_id"], name: "index_tasks_on_subject_id"
     t.index ["title"], name: "index_tasks_on_title"
-    t.index ["visibility"], name: "index_tasks_on_visibility"
   end
 
   create_table "users", force: :cascade do |t|
@@ -199,6 +208,8 @@ ActiveRecord::Schema.define(version: 20180510150150) do
   add_foreign_key "skill_tasks", "tasks"
   add_foreign_key "skill_users", "skills"
   add_foreign_key "skill_users", "users"
+  add_foreign_key "task_users", "tasks"
+  add_foreign_key "task_users", "users"
   add_foreign_key "tasklists", "properties"
   add_foreign_key "tasklists", "users"
 end

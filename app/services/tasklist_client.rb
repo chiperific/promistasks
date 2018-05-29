@@ -2,11 +2,7 @@
 
 class TasklistClient
   include HTTParty
-  # require 'google/apis/tasks_v1'
-
   BASE_URI = 'https://www.googleapis.com/tasks/v1/users/@me/lists'
-
-  # before_hook :refresh_user(user) # needs a variable
 
   # https://developers.google.com/tasks/v1/reference/
 
@@ -25,14 +21,14 @@ class TasklistClient
   def insert(user, tasklist)
     user.refresh_token!
     # Creates a new task list and adds it to the authenticated user's task lists.
-    body = { title: tasklist.name }
+    body = { title: tasklist.property.name }
     HTTParty.post(BASE_URI, { headers: headers(user), body: body.to_json })
   end
 
   def update(user, tasklist)
     user.refresh_token!
     # Modify the authenticated user's specified task list. This method supports patch semantics.
-    body = { title: tasklist.name }
+    body = { title: tasklist.property.name }
     HTTParty.patch(BASE_URI + '/' + tasklist.google_id, { headers: headers(user), body: body.to_json })
   end
 
