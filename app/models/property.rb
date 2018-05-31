@@ -20,8 +20,8 @@ class Property < ApplicationRecord
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
 
   before_validation :name_and_address, if: :unsynced_name_address?
-  before_save  :default_budget
-  after_create :create_with_api, if: :not_discarded?
+  before_save :default_budget
+  after_create :create_with_api, if: -> { discarded_at.blank? }
   after_update :update_with_api
   after_update :propagate_to_api_by_privacy, if: -> { saved_change_to_private? }
   after_update :delete_with_api, if: -> { discarded_at.present? }
@@ -53,10 +53,6 @@ class Property < ApplicationRecord
 
   private
 
-  def not_discarded?
-    discarded_at.blank?
-  end
-
   def unsynced_name_address?
     return false if name.present? && address.present?
     return false if name.blank? && address.blank?
@@ -73,30 +69,34 @@ class Property < ApplicationRecord
     if private?
       tasklist = tasklists.where(user: creator).first_or_create
       response = TasklistClient.new.insert(creator, tasklist)
-      tasklist.update(google_id: response['id'])
+      tasklist.google_id = response['id']
+      tasklist.save
     else
       User.staff.each do |user|
         tasklist = tasklists.where(user: user).first_or_create
         response = TasklistClient.new.insert(user, tasklist)
-        tasklist.update(google_id: response['id'])
+        tasklist.google_id = response['id']
+        tasklist.save
       end
     end
   end
 
   def update_with_api
-    return true unless saved_change_to_name?
+    return true unless saved_change_to_name? || saved_change_to_private?
 
     if private?
       tasklist = tasklists.where(user: creator).first_or_create
       action = tasklist.google_id.present? ? :update : :insert
       response = TasklistClient.new.send(action, creator, tasklist)
-      tasklist.update(google_id: response['id'])
+      tasklist.google_id = response['id']
+      tasklist.save
     else
       User.staff.each do |user|
         tasklist = tasklists.where(user: user).first_or_create
         action = tasklist.google_id.present? ? :update : :insert
         response = TasklistClient.new.send(action, user, tasklist)
-        tasklist.update(google_id: response['id'])
+        tasklist.google_id = response['id']
+        tasklist.save
       end
     end
   end
@@ -105,12 +105,12 @@ class Property < ApplicationRecord
     return true if discarded_at.blank?
 
     if private?
-      tasklist = tasklists.where(user: creator).first_or_create
+      tasklist = tasklists.where(user: creator).first
       TasklistClient.new.delete(creator, tasklist)
       tasklist.destroy! unless tasklist.new_record?
     else
       User.staff.each do |user|
-        tasklist = tasklists.where(user: user).first_or_create
+        tasklist = tasklists.where(user: user).first
         TasklistClient.new.delete(user, tasklist)
         tasklist.destroy! unless tasklist.new_record?
       end
@@ -131,7 +131,8 @@ class Property < ApplicationRecord
         tasklist = tasklists.where(user: user).first_or_create
         action = tasklist.new_record? ? :insert : :update
         response = TasklistClient.new.send(action, user, tasklist)
-        tasklist.update(google_id: response['id'])
+        tasklist.google_id = response['id']
+        tasklist.save
         # propegate tasks by visibility
       end
     end

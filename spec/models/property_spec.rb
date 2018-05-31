@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Property, type: :model do
   before :each do
-    @tasklist_json = JSON.parse(file_fixture('tasklist_json_spec.json').read).to_json
+    @tasklist_json = FactoryBot.create(:tasklist_json).marshal_dump.to_json
     stub_request(:any, Constant::Regex::TASKLIST).to_return(headers: {"Content-Type"=> "application/json"}, body: @tasklist_json, status: 200)
     stub_request(:any, Constant::Regex::TASK).to_return(headers: {"Content-Type"=> "application/json"}, body: @tasklist_json, status: 200)
     @property                      = FactoryBot.create(:property, certificate_number: 'string', serial_number: 'string')
@@ -75,18 +75,6 @@ RSpec.describe Property, type: :model do
     pending 'doesn\'t change the budget if one is already set'
   end
 
-  describe '#not_discarded?' do
-    let(:discarded) { build :property, discarded_at: Time.now - 1.hour }
-
-    it 'returns true if discarded_at is blank' do
-      expect(@property.send(:not_discarded?)).to eq true
-    end
-
-    it 'returns false if discarded_at is set' do
-      expect(discarded.send(:not_discarded?)).to eq false
-    end
-  end
-
   describe '#default_budget' do
     let(:no_budget) { build :property }
     let(:custom_budget) { build :property, budget: 500 }
@@ -145,7 +133,15 @@ RSpec.describe Property, type: :model do
 
   describe '#create_with_api' do
     before :each do
-      stub_request(:any, Constant::Regex::TASKLIST).to_return(headers: {"Content-Type"=> "application/json"}, body: @tasklist_json, status: 200)
+      User.destroy_all
+      Property.destroy_all
+      Tasklist.destroy_all
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json }
+      )
       @user  = FactoryBot.create(:oauth_user)
       @user2 = FactoryBot.create(:oauth_user)
       @user3 = FactoryBot.create(:oauth_user)
@@ -180,72 +176,77 @@ RSpec.describe Property, type: :model do
 
   describe '#update_with_api' do
     before :each do
-      stub_request(:any, Constant::Regex::TASKLIST).to_return(headers: {"Content-Type"=> "application/json"}, body: @tasklist_json, status: 200)
+      User.destroy_all
+      Property.destroy_all
+      Tasklist.destroy_all
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json }
+      )
       @user  = FactoryBot.create(:oauth_user)
       @user2 = FactoryBot.create(:oauth_user)
       @user3 = FactoryBot.create(:oauth_user)
       @private_property = FactoryBot.create(:property, creator: @user, private: true)
       @public_property  = FactoryBot.create(:property, creator: @user, private: false)
-      @discarded_private_property = FactoryBot.create(:property, creator: @user, private: true, discarded_at: Time.now - 1.hour)
-      @discarded_public_property  = FactoryBot.create(:property, creator: @user, private: false, discarded_at: Time.now - 1.hour)
+      # @discarded_private_property = FactoryBot.create(:property, creator: @user, private: true, discarded_at: Time.now - 1.hour)
+      # @discarded_public_property  = FactoryBot.create(:property, creator: @user, private: false, discarded_at: Time.now - 1.hour)
       WebMock::RequestRegistry.instance.reset!
     end
 
-    it 'should only fire if name is changed or the record is discarded' do
+    it 'should only fire if name is changed' do
       @private_property.update(creator: @user2)
       expect(WebMock).not_to have_requested(:any, Constant::Regex::TASKLIST)
 
       @private_property.update(name: 'Now it\'s called something else!')
       expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).once
-
-      @private_property.update(discarded_at: Time.now - 10.minutes)
-      expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).once
     end
 
     context 'when private' do
-      context 'and discarded' do
-        it 'deletes the Tasklist for the Creator' do
-          @discarded_private_property.update(name: 'discarded private property')
-          expect(WebMock).to have_requested(:delete, Constant::Regex::TASKLIST).once
-        end
-      end
-
-      context 'and not discarded' do
-        it 'updates a Tasklist for the Creator' do
-          @private_property.update(name: 'not discarded private property')
-          expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).once
-        end
+      it 'updates a Tasklist for the Creator' do
+        @private_property.update(name: 'not discarded private property')
+        expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).once
       end
     end
 
     context 'when public' do
-      context 'and discarded' do
-        it 'deletes the Tasklist for all users' do
-          user_count = User.count
-          @discarded_public_property.update(name: 'discarded public property')
-          expect(WebMock).to have_requested(:delete, Constant::Regex::TASKLIST).times(user_count)
-        end
-      end
-
-      context 'and not discarded' do
-        it 'updates a Tasklist for all users' do
-          user_count = User.count
-          @public_property.update(name: 'not discarded public property')
-          expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).times(user_count)
-        end
+      it 'updates a Tasklist for all users' do
+        user_count = User.count
+        @public_property.update(name: 'not discarded public property')
+        expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).times(user_count)
       end
     end
   end
 
   describe '#propagate_to_api_by_privacy' do
     before :each do
-      stub_request(:any, Constant::Regex::TASKLIST).to_return(headers: {"Content-Type"=> "application/json"}, body: @tasklist_json, status: 200)
-      @user  = FactoryBot.create(:oauth_user)
+      User.destroy_all
+      Property.destroy_all
+      Tasklist.destroy_all
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json }
+      )
+      # stub_request(:any, Constant::Regex::TASK).to_return(headers: {"Content-Type"=> "application/json"}, body: @task_json, status: 200)
+      @user = FactoryBot.create(:oauth_user)
       @user2 = FactoryBot.create(:oauth_user)
       @user3 = FactoryBot.create(:oauth_user)
       @private_property = FactoryBot.create(:property, name: 'Private Property', creator: @user, private: true)
       @public_property  = FactoryBot.create(:property, name: 'Public Property', creator: @user, private: false)
       WebMock::RequestRegistry.instance.reset!
+    end
+
+    after :each do
+      User.destroy_all
+      Property.destroy_all
+      Tasklist.destroy_all
     end
 
     context 'when privacy hasn\'t changed' do
@@ -263,27 +264,30 @@ RSpec.describe Property, type: :model do
     end
 
     context 'when true to false (was private, now public)' do
-      it 'removes the tasklist from other users' do
+      it 'adds the tasklist to other users' do
         @private_property.save!
-        user_count = User.count - 1
+        count = User.count - 1
         @private_property.update(private: false)
-        expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).times(user_count)
+        expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).times(count)
       end
     end
 
     context 'when false to true (was public, now private)' do
-      it 'adds the tasklist to other users' do
+      it 'removes the tasklist from other users' do
         @public_property.save!
-        user_count = User.count - 1
+        count = @public_property.tasklists.count - 1
         @public_property.update(private: true)
-        expect(WebMock).to have_requested(:delete, Constant::Regex::TASKLIST).times(user_count)
+        expect(WebMock).to have_requested(:delete, Constant::Regex::TASKLIST).times(count)
       end
     end
   end
 
   describe '#discard_tasks!' do
     before :each do
-      @discarded_property = FactoryBot.create(:property)
+      @tasklist_json = FactoryBot.create(:tasklist_json).marshal_dump.to_json
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(headers: {"Content-Type"=> "application/json"}, body: @tasklist_json, status: 200)
+      stub_request(:any, Constant::Regex::TASK).to_return(headers: {"Content-Type"=> "application/json"}, body: @tasklist_json, status: 200)
+      @discarded_property = FactoryBot.create(:property, name: 'about to be discarded')
       @task1 = FactoryBot.create(:task, property: @discarded_property)
       @task2 = FactoryBot.create(:task, property: @discarded_property)
       @task3 = FactoryBot.create(:task, property: @discarded_property)

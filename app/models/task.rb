@@ -123,12 +123,11 @@ class Task < ApplicationRecord
 
   def saved_changes_to_api_fields?
     saved_change_to_title? ||
-      saved_change_to_parent_id? ||
       saved_change_to_notes? ||
-      saved_change_to_status? ||
       saved_change_to_due? ||
-      saved_change_to_completed_at? ||
-      saved_change_to_deleted?
+      saved_change_to_status? ||
+      saved_change_to_deleted? ||
+      saved_change_to_completed_at?
   end
 
   def create_with_api
