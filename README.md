@@ -1,6 +1,7 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
+1. Expect pending tests not to be pending
 3. Relationships between users, properties and tasks
   - Make controllers
   - Set policies
