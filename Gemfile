@@ -44,7 +44,7 @@ group :test do
   gem 'capybara', '~> 2.13'
   gem 'faker'
   gem 'rspec-rails'
-  gem 'rspec-retry'
+  # gem 'rspec-retry'
   gem 'rspec_junit_formatter'
   gem 'selenium-webdriver'
 end

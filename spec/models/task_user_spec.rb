@@ -2,14 +2,12 @@
 
 require 'rails_helper'
 
-RSpec.describe SkillTask, type: :model do
+RSpec.describe TaskUser, type: :model do
   before :each do
     User.destroy_all
     Property.destroy_all
     Tasklist.destroy_all
     TaskUser.destroy_all
-    Skill.destroy_all
-    SkillTask.destroy_all
     stub_request(:any, Constant::Regex::TASKLIST).to_return(
       { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
       { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
@@ -23,32 +21,43 @@ RSpec.describe SkillTask, type: :model do
       { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json }
     )
     @task = FactoryBot.create(:task)
-    @skill_task = FactoryBot.build(:skill_task, task: @task)
+    @user = FactoryBot.create(:oauth_user)
+    @task_user = FactoryBot.create(:task_user, task: @task, user: @user)
     WebMock::RequestRegistry.instance.reset!
   end
-
   describe 'must be valid' do
-    let(:no_skill) { build :skill_task, task: @task, skill_id: nil }
-    let(:no_task) { build :skill_task, task_id: nil }
+    pending 'in order to save'
+  end
 
-    it 'in order to save' do
-      expect(@skill_task.save!).to eq true
+  describe 'requires uniqueness' do
+    pending 'on task and user'
+    pending 'on google_id'
+  end
 
-      expect { no_skill.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { no_skill.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { no_task.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { no_task.save! }.to raise_error ActiveRecord::RecordInvalid
+  describe '#set_position_as_integer' do
+    let(:has_position) { build :task_user, task: @task, position: '0000001234'}
+
+    it 'only fires if position is present' do
+      expect(@task_user).not_to receive(:set_position_as_integer)
+      @task_user.save!
+
+      expect(has_position).to receive(:set_position_as_integer)
+      has_position.save!
+    end
+
+    it 'sets position_int field based upon position' do
+      @task_user.save!
+      expect(@task_user.reload.position).to eq nil
+      expect(@task_user.position_int).to eq 0
+
+      has_position.save!
+      expect(has_position.reload.position).to eq '0000001234'
+      expect(has_position.position_int).to eq 1234
     end
   end
 
-  it 'can\'t duplicate skill and task' do
-    @skill_task.save
-
-    skill = @skill_task.skill
-    task = @skill_task.task
-
-    duplicate = FactoryBot.build(:skill_task, skill_id: skill.id, task_id: task.id)
-
-    expect { duplicate.save! }.to raise_error ActiveRecord::RecordNotUnique
+  describe '#set_tasklist_id' do
+    pending 'only fires if tasklist_id is empty'
+    pending 'sets the tasklist_id from the parent property'
   end
 end

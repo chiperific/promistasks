@@ -8,15 +8,27 @@ class GetTasksClient
     return unless tasks['items'].present?
 
     tasks['items'].each do |task_json|
-      task = Task.where(google_id: task_json['id']).first_or_initialize
+      task_user = TaskUser.where(google_id: task_json['id']).first_or_initialize
 
-      task.assign_from_api_fields(task_json)
+      if task_user.new_record?
+        task = Task.where('title = ? AND property_id = ?', task_json['title'], property_id).first_or_initialize
+      else
+        task = task_user.task
+      end
 
+      task.assign_from_api_fields!(task_json)
       task.creator ||= user
       task.owner ||= user
-      task.property_id = property_id
-
       task.save
+
+      task_user.tap do |t|
+        t.user = user
+        t.task = task
+        t.tasklist_id = tasklist_gid
+        t.position = task_json['position']
+        t.parent_id = task_json['parent']
+        t.save
+      end
     end
   end
 end
