@@ -3,16 +3,36 @@
 require 'rails_helper'
 
 RSpec.describe SkillTask, type: :model do
-  let(:skill_task) { build :skill_task }
+  before :each do
+    User.destroy_all
+    Property.destroy_all
+    Tasklist.destroy_all
+    TaskUser.destroy_all
+    Skill.destroy_all
+    SkillTask.destroy_all
+    stub_request(:any, Constant::Regex::TASKLIST).to_return(
+      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
+      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json }
+    )
+    stub_request(:any, Constant::Regex::TASK).to_return(
+      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
+      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
+      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
+      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json }
+    )
+    @task = FactoryBot.create(:task)
+    @skill_task = FactoryBot.build(:skill_task, task: @task)
+    WebMock::RequestRegistry.instance.reset!
+  end
 
   describe 'must be valid' do
-    let(:no_skill) { build :skill_task, skill_id: nil }
+    let(:no_skill) { build :skill_task, task: @task, skill_id: nil }
     let(:no_task) { build :skill_task, task_id: nil }
 
     it 'in order to save' do
-      stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
-      stub_request(:any, Constant::Regex::TASK).to_return(body: 'You did it!', status: 200)
-      expect(skill_task.save!).to eq true
+      expect(@skill_task.save!).to eq true
 
       expect { no_skill.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { no_skill.save! }.to raise_error ActiveRecord::RecordInvalid
@@ -22,12 +42,10 @@ RSpec.describe SkillTask, type: :model do
   end
 
   it 'can\'t duplicate skill and task' do
-    stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
-    stub_request(:any, Constant::Regex::TASK).to_return(body: 'You did it!', status: 200)
-    skill_task.save
+    @skill_task.save
 
-    skill = skill_task.skill
-    task = skill_task.task
+    skill = @skill_task.skill
+    task = @skill_task.task
 
     duplicate = FactoryBot.build(:skill_task, skill_id: skill.id, task_id: task.id)
 
