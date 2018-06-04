@@ -41,7 +41,7 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.string :google_id
       t.index [:user_id, :property_id], unique: true
       t.index [:property_id, :user_id], unique: true
-      t.index :google_id
+      t.index :google_id,               unique: true
     end
 
     create_table :task_users do |t|
@@ -55,8 +55,8 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.string :previous_id
       t.index [:user_id, :task_id], unique: true
       t.index [:task_id, :user_id], unique: true
+      t.index :google_id,           unique: true
       t.index :tasklist_id
-      t.index :google_id
       t.index :position_int
     end
   end

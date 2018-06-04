@@ -20,6 +20,11 @@ class User < ApplicationRecord
 
   has_many :created_properties, class_name: 'Property', inverse_of: :creator, foreign_key: 'creator_id'
   has_many :tasklists, inverse_of: :user, dependent: :destroy
+  accepts_nested_attributes_for :created_properties, allow_destroy: true
+
+  has_many :task_users, inverse_of: :user, dependent: :destroy
+  has_many :tasks, through: :task_users
+  accepts_nested_attributes_for :task_users, allow_destroy: true
 
   has_many :skill_users, inverse_of: :user, dependent: :destroy
   has_many :skills, through: :skill_users

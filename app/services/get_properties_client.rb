@@ -11,7 +11,7 @@ class GetPropertiesClient
       property.creator ||= user
       property.save!
 
-      property.tasklists.where(user: creator).first_or_create.tap do |t|
+      property.tasklists.where(user: user).first_or_create.tap do |t|
         t.google_id = tasklist_json['id']
         t.save!
       end

@@ -21,7 +21,7 @@ class CreateProperties < ActiveRecord::Migration[5.1]
       t.string :certification_label1
       t.string :certification_label2
       t.references :creator, references: :users, null: false
-      t.boolean :private,    default: true, null: false
+      t.boolean :is_private,    default: true, null: false
       t.datetime :discarded_at
       t.timestamps
 

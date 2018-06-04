@@ -54,7 +54,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.string "certification_label1"
     t.string "certification_label2"
     t.bigint "creator_id", null: false
-    t.boolean "private", default: true, null: false
+    t.boolean "is_private", default: true, null: false
     t.datetime "discarded_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -108,7 +108,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.bigint "position_int", default: 0
     t.string "parent_id"
     t.string "previous_id"
-    t.index ["google_id"], name: "index_task_users_on_google_id"
+    t.index ["google_id"], name: "index_task_users_on_google_id", unique: true
     t.index ["position_int"], name: "index_task_users_on_position_int"
     t.index ["task_id", "user_id"], name: "index_task_users_on_task_id_and_user_id", unique: true
     t.index ["task_id"], name: "index_task_users_on_task_id"
@@ -121,7 +121,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.bigint "user_id", null: false
     t.bigint "property_id", null: false
     t.string "google_id"
-    t.index ["google_id"], name: "index_tasklists_on_google_id"
+    t.index ["google_id"], name: "index_tasklists_on_google_id", unique: true
     t.index ["property_id", "user_id"], name: "index_tasklists_on_property_id_and_user_id", unique: true
     t.index ["property_id"], name: "index_tasklists_on_property_id"
     t.index ["user_id", "property_id"], name: "index_tasklists_on_user_id_and_property_id", unique: true
@@ -155,8 +155,10 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_tasks_on_creator_id"
     t.index ["owner_id"], name: "index_tasks_on_owner_id"
+    t.index ["property_id", "title"], name: "index_tasks_on_property_id_and_title", unique: true
     t.index ["property_id"], name: "index_tasks_on_property_id"
     t.index ["subject_id"], name: "index_tasks_on_subject_id"
+    t.index ["title", "property_id"], name: "index_tasks_on_title_and_property_id", unique: true
     t.index ["title"], name: "index_tasks_on_title"
   end
 

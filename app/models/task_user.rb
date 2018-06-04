@@ -1,14 +1,28 @@
 # frozen_string_literal: true
 
 class TaskUser < ApplicationRecord
-  belongs_to :user, inverse_of: :task_joins
-  belongs_to :task, inverse_of: :task_joins
+  belongs_to :user, inverse_of: :task_users
+  belongs_to :task, inverse_of: :task_users
 
-  validates :user, :property, presence: true, uniqueness: true
+  validates :task, presence: true, uniqueness: { scope: :user }
   validates_uniqueness_of :google_id, allow_nil: true
 
   before_save :set_position_as_integer, if: -> { position.present? }
-  after_validation :set_tasklist_id
+  after_validation :set_tasklist_id, if: -> { tasklist_id.nil? }
+
+  scope :descending, -> { undiscarded.order(position_int: :asc) }
+
+  def assign_from_api_fields!(task_json)
+    return false if task_json.nil?
+
+    tap do |t|
+      t.google_id = task_json['id']
+      t.position = task_json['position']
+      t.parent_id = task_json['parent']
+    end
+
+    task_json.present?
+  end
 
   private
 
@@ -17,6 +31,6 @@ class TaskUser < ApplicationRecord
   end
 
   def set_tasklist_id
-    self.tasklist_id = task.property.google_id
+    self.tasklist_id = task.property.tasklists.where(user: self.user).first.google_id
   end
 end

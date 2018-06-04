@@ -24,23 +24,26 @@ RSpec.describe Tasklist, type: :model do
     end
   end
 
-  it 'can\'t duplicate user and property' do
-    @tasklist.save
+  describe 'requires uniqueness'
+    it 'on user and property' do
+      @tasklist.save
 
-    user = @tasklist.user
-    property = @tasklist.property
+      user = @tasklist.user
+      property = @tasklist.property
 
-    duplicate = FactoryBot.build(:tasklist, user_id: user.id, property_id: property.id)
+      duplicate = FactoryBot.build(:tasklist, user_id: user.id, property_id: property.id)
 
-    expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
-  end
+      expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
+    end
 
-  it 'can\'t duplicate google_id' do
-    @tasklist.save
+    it 'on google_id' do
+      @tasklist.save
 
-    gid = @tasklist.google_id
-    duplicate = FactoryBot.build(:tasklist, google_id: gid)
+      gid = @tasklist.google_id
+      duplicate = FactoryBot.build(:tasklist, google_id: gid)
 
-    expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
+    end
   end
 end

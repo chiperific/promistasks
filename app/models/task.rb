@@ -13,6 +13,10 @@ class Task < ApplicationRecord
   has_many :skills, through: :skill_tasks
   accepts_nested_attributes_for :skill_tasks, allow_destroy: true
 
+  has_many :task_users, inverse_of: :task, dependent: :destroy
+  has_many :users, through: :task_users
+  accepts_nested_attributes_for :task_users, allow_destroy: true
+
   validates_presence_of :creator_id, :owner_id, :property_id
   validates :priority, inclusion: { in: Constant::Task::PRIORITY, allow_blank: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}" }
   validates_inclusion_of  :license_required, :needs_more_info, :deleted, :hidden,
@@ -20,7 +24,7 @@ class Task < ApplicationRecord
   validates_inclusion_of :status, in: %w[completed needsAction]
   validates_inclusion_of :visibility, in: [0, 1, 2, 3]
 
-  validates :title, uniqueness: true, presence: true
+  validates :title, presence: true, uniqueness: { scope: :property }
 
   validate :require_cost
   validate :due_cant_be_past
@@ -32,13 +36,13 @@ class Task < ApplicationRecord
   before_save :sync_completed_fields, if: -> { completed_at.present? || status == 'completed' }
 
   after_create :create_with_api
+  after_update :create_with_api, if: :saved_changes_to_users?
   after_update :update_with_api, if: :saved_changes_to_api_fields?
   after_update :relocate, if: -> { saved_change_to_property_id? }
 
   scope :needs_more_info, -> { undiscarded.where(needs_more_info: true).where(initialization_template: false) }
   scope :in_process, -> { undiscarded.where(completed_at: nil).where(initialization_template: false) }
   scope :complete, -> { undiscarded.where.not(completed_at: nil).where(initialization_template: false) }
-  scope :descending, -> { undiscarded.order(position_int: :asc) }
   scope :public_visible, -> { undiscarded.where(visibility: 1) }
 
   def budget_remaining
@@ -57,7 +61,7 @@ class Task < ApplicationRecord
   end
 
   def assign_from_api_fields!(task_json)
-    return false if task_json.empty?
+    return false if task_json.nil?
 
     tap do |t|
       t.notes = task_json['notes']
@@ -69,6 +73,16 @@ class Task < ApplicationRecord
     end
 
     task_json.present?
+  end
+
+  def create_taskuser_for(user)
+    tasklist = Tasklist.where(property: self.property, user: user).first
+    task_user = task_users.where(user: user).first_or_initialize
+    return 'already exists' if task_user.google_id.present?
+    response = TaskClient.new.insert(user, tasklist.google_id, self)
+    task_user.assign_from_api_fields!(response)
+    task_user.tasklist_id = tasklist.google_id
+    task_user.save
   end
 
   private
@@ -130,30 +144,62 @@ class Task < ApplicationRecord
       saved_change_to_completed_at?
   end
 
+  def saved_changes_to_users?
+    saved_change_to_creator_id? || saved_change_to_owner_id?
+  end
+
   def create_with_api
-    taskclient = TaskClient.new
+    [creator, owner].each do |user|
+      property.create_tasklist_for(user)
+    end
 
     [owner, creator].each do |user|
-      tasklist = Tasklist.where(property: property, user: user)
-      taskclient.insert(user, tasklist.tasklist_id, self) if tasklist.present?
+      create_taskuser_for(user)
     end
   end
 
   def update_with_api
-    taskclient = TaskClient.new
-    # Handle update and delete(discard) in one method
+    [creator, owner].each do |user|
+      property.create_tasklist_for(user)
+      Property.find(property_id_before_last_save).create_tasklist_for(user)
+      create_taskuser_for(user)
+    end
+
     action = discarded_at.present? ? :delete : :update
 
     [owner, creator].each do |user|
-      tasklist = Tasklist.where(property: property, user: user)
-      taskclient.send(action, user, tasklist.tasklist_id, self) if tasklist.present?
+      tasklist = Tasklist.where(property: property, user: user).first
+      task_user = task_users.where(user: user).first
+      response = TaskClient.new.send(action, user, task_user.tasklist_id, self, task_user.google_id) if task_user.tasklist_id.present?
+      if action == :delete
+        task_user.destroy
+      else
+        task_user.assign_from_api_fields!(response)
+        task_user.save
+      end
+    end
+
+    if saved_change_to_creator_id?
+      task_users.where(user_id: creator_id_before_last_save).first.destroy
+    end
+
+    if saved_change_to_owner_id?
+      task_users.where(user_id: owner_id_before_last_save).frst.destroy
     end
   end
 
   def relocate
+    [creator, owner].each do |user|
+      property.create_tasklist_for(user)
+      Property.find(property_id_before_last_save).create_tasklist_for(user)
+      create_taskuser_for(user)
+    end
+
     [owner, creator].each do |user|
-      tasklist = Tasklist.where(property: property, user: user)
-      TaskClient.new.relocate(user, tasklist.tasklist_id, self) if tasklist.present?
+      old_tasklist = Tasklist.where(property_id: property_id_before_last_save, user: user).first
+      tasklist = Tasklist.where(property: property, user: user).first
+      task_user = task_users.where(user: user).first
+      TaskClient.new.relocate(user, old_tasklist.google_id, tasklist.google_id, self, task_user.google_id) if task_user.tasklist_id.present?
     end
   end
 end
