@@ -27,10 +27,13 @@ class TaskUser < ApplicationRecord
   private
 
   def set_position_as_integer
+    self.position_int = 0 if position.nil?
     self.position_int = position.to_i
   end
 
   def set_tasklist_id
-    self.tasklist_id = task.property.tasklists.where(user: self.user).first.google_id
+    task.property.create_tasklist_for(user) if task.property.tasklists.where(user: user).empty?
+    tasklist = task.property.tasklists.where(user: user).first
+    self.tasklist_id = tasklist.google_id
   end
 end

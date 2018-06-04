@@ -24,7 +24,7 @@ RSpec.describe Tasklist, type: :model do
     end
   end
 
-  describe 'requires uniqueness'
+  describe 'requires uniqueness' do
     it 'on user and property' do
       @tasklist.save
 
