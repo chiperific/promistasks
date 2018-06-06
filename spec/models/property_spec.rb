@@ -42,9 +42,11 @@ RSpec.describe Property, type: :model do
     )
     @property                      = FactoryBot.create(:property, certificate_number: 'string', serial_number: 'string')
     @no_name_or_address            = FactoryBot.build(:property, name: nil, address: nil)
+    @no_creator                    = FactoryBot.build(:property, creator_id: nil)
     @non_unique_address            = FactoryBot.build(:property, address: @property.address)
     @non_unique_certificate_number = FactoryBot.build(:property, certificate_number: @property.certificate_number)
     @non_unique_serial_number      = FactoryBot.build(:property, serial_number: @property.serial_number)
+
     WebMock::RequestRegistry.instance.reset!
   end
 
@@ -52,6 +54,7 @@ RSpec.describe Property, type: :model do
     it 'in order to save' do
       expect { @property.save!(validate: false) }.not_to raise_error
       expect { @no_name_or_address.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { @no_creator.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { @non_unique_address.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { @non_unique_certificate_number.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { @non_unique_serial_number.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
@@ -62,6 +65,7 @@ RSpec.describe Property, type: :model do
     it 'in order to save' do
       expect(@property.save!).to eq true
       expect { @no_name_or_address.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { @no_creator.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @non_unique_address.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @non_unique_certificate_number.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @non_unique_serial_number.save! }.to raise_error ActiveRecord::RecordInvalid
@@ -70,9 +74,25 @@ RSpec.describe Property, type: :model do
 
   describe 'limits records by scope' do
     let(:no_title) { create :property }
+    let(:public_property) { create :property, is_private: false }
+    let(:archived_property) { create :property, discarded_at: Time.now }
+
     it '#needs_title returns only records without a certificate_number' do
       expect(Property.needs_title).not_to include @property
       expect(Property.needs_title).to include no_title
+    end
+
+    it '#public_visible returns only records where is_private is false' do
+      expect(Property.public_visible).not_to include @property
+      expect(Property.public_visible).to include public_property
+    end
+
+    it '#archived is alias of #discarded' do
+      expect(Property.archived).to eq Property.discarded
+    end
+
+    it '#active is alias of #kept' do
+      expect(Property.active).to eq Property.kept
     end
   end
 
@@ -103,12 +123,6 @@ RSpec.describe Property, type: :model do
   end
 
   describe '#default_budget' do
-    pending 'fires before an event is saved'
-    pending 'sets a budget if one isn\'t set'
-    pending 'doesn\'t change the budget if one is already set'
-  end
-
-  describe '#default_budget' do
     let(:no_budget) { build :property }
     let(:custom_budget) { build :property, budget: 500 }
 
@@ -129,8 +143,26 @@ RSpec.describe Property, type: :model do
     end
   end
 
-  describe '#create_with_api_for(user)' do
-    pending 'creates a tasklist and makes an API call'
+  describe '#create_tasklist_for(user)' do
+    let(:user) { create :oauth_user }
+
+    it 'returns "already exists" if the tasklist exists with a google_id' do
+      expect(@property.create_tasklist_for(@property.creator)).to eq 'already exists'
+    end
+
+    it 'creates a tasklist' do
+      prev_count = Tasklist.count
+
+      @property.create_tasklist_for(user)
+      expect(Tasklist.count).to eq prev_count + 1
+    end
+
+    it 'makes an API call' do
+      new_property = FactoryBot.build(:property)
+      WebMock::RequestRegistry.instance.reset!
+      new_property.save!
+      expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).once
+    end
   end
 
   describe '#unsynced_name_address?' do

@@ -75,11 +75,16 @@ class Task < ApplicationRecord
     task_json.present?
   end
 
-  def create_taskuser_for(user)
-    tasklist = Tasklist.where(property: self.property, user: user).first
+  def create_taskuser_for(user, action = :insert)
+    tasklist = Tasklist.where(property: property, user: user).first
     task_user = task_users.where(user: user).first_or_initialize
     return 'already exists' if task_user.google_id.present?
-    response = TaskClient.new.insert(user, tasklist.google_id, self)
+    response = TaskClient.new.send(
+      action,
+      user: user,
+      tasklist_gid: tasklist.google_id,
+      task: self
+    )
     task_user.assign_from_api_fields!(response)
     task_user.tasklist_id = tasklist.google_id
     task_user.save
@@ -148,29 +153,32 @@ class Task < ApplicationRecord
     saved_change_to_creator_id? || saved_change_to_owner_id?
   end
 
-  def create_with_api
+  def prepare_for_api
     [creator, owner].each do |user|
+      Property.find(property_id_before_last_save).create_tasklist_for(user) if property_id_before_last_save.present?
       property.create_tasklist_for(user)
-    end
-
-    [owner, creator].each do |user|
       create_taskuser_for(user)
     end
   end
 
-  def update_with_api
-    [creator, owner].each do |user|
-      property.create_tasklist_for(user)
-      Property.find(property_id_before_last_save).create_tasklist_for(user)
-      create_taskuser_for(user)
-    end
+  def create_with_api
+    prepare_for_api
+  end
 
+  def update_with_api
+    prepare_for_api
     action = discarded_at.present? ? :delete : :update
 
-    [owner, creator].each do |user|
-      tasklist = Tasklist.where(property: property, user: user).first
+    [creator, owner].each do |user|
       task_user = task_users.where(user: user).first
-      response = TaskClient.new.send(action, user, task_user.tasklist_id, self, task_user.google_id) if task_user.tasklist_id.present?
+      response = TaskClient.new.send(
+        action,
+        user: user,
+        tasklist_gid: task_user.tasklist_id,
+        task: self,
+        task_gid: task_user.google_id
+      )
+
       if action == :delete
         task_user.destroy
       else
@@ -179,27 +187,17 @@ class Task < ApplicationRecord
       end
     end
 
-    if saved_change_to_creator_id?
-      task_users.where(user_id: creator_id_before_last_save).first.destroy
-    end
-
-    if saved_change_to_owner_id?
-      task_users.where(user_id: owner_id_before_last_save).frst.destroy
-    end
+    task_users.where(user_id: creator_id_before_last_save).first.destroy if saved_change_to_creator_id?
+    task_users.where(user_id: owner_id_before_last_save).frst.destroy    if saved_change_to_owner_id?
   end
 
   def relocate
+    prepare_for_api
     [creator, owner].each do |user|
-      property.create_tasklist_for(user)
-      Property.find(property_id_before_last_save).create_tasklist_for(user)
-      create_taskuser_for(user)
-    end
-
-    [owner, creator].each do |user|
       old_tasklist = Tasklist.where(property_id: property_id_before_last_save, user: user).first
       tasklist = Tasklist.where(property: property, user: user).first
       task_user = task_users.where(user: user).first
-      TaskClient.new.relocate(user, old_tasklist.google_id, tasklist.google_id, self, task_user.google_id) if task_user.tasklist_id.present?
+      TaskClient.new.relocate(user: user, old_list_gid: old_tasklist.google_id, new_list_gid: tasklist.google_id, task: self, task_gid: task_user.google_id) if task_user.tasklist_id.present?
     end
   end
 end

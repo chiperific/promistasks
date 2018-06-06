@@ -198,6 +198,12 @@ RSpec.describe Task, type: :model do
     end
   end
 
+  describe '#create_taskuser_for' do
+    pending 'returns "already exists" if it already exists'
+    pending 'makes an API call through TaskClient'
+    pending 'creates a task_user record'
+  end
+
   describe '#require_cost' do
     let(:complete_w_budget) { build :task, property: @property, completed_at: Time.now, budget: 400 }
     let(:complete_w_both) { build :task, property: @property, completed_at: Time.now, budget: 400, cost: 250 }
@@ -404,6 +410,20 @@ RSpec.describe Task, type: :model do
       expect(status_change.send(:saved_changes_to_api_fields?)).to eq true
       expect(deleted_change.send(:saved_changes_to_api_fields?)).to eq true
       expect(completed_at_change.send(:saved_changes_to_api_fields?)).to eq true
+    end
+  end
+
+  describe '#saved_changes_to_users?' do
+    pending 'returns true if creator_id changed'
+    pending 'returns true if owner_id changed'
+    pending 'returns false if neither user fields have changed'
+  end
+
+  describe '#prepare_for_api' do
+    pending 'ensures tasklists exist for each user field'
+    pending 'ensures task_users exist for each user field'
+    context 'when the property has changed' do
+      pending 'ensures tasklists exist for the old property'
     end
   end
 
