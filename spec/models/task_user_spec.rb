@@ -60,4 +60,9 @@ RSpec.describe TaskUser, type: :model do
     pending 'only fires if tasklist_id is empty'
     pending 'sets the tasklist_id from the parent property'
   end
+
+  describe '#cascade_completeness' do
+    pending 'only fires if completed_at is present and the task isn\'t marked complete'
+    pending 'sets the parent task\'s completed_at to match'
+  end
 end

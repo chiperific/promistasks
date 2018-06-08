@@ -31,14 +31,15 @@ class Task < ApplicationRecord
 
   monetize :budget_cents, :cost_cents, allow_nil: true
 
-  before_save :decide_completeness
-  before_save :sync_deleted_and_discarded_at, if: :unsynced_deleted_discard?
-  before_save :sync_completed_fields, if: -> { completed_at.present? || status == 'completed' }
+  before_save :decide_record_completeness
 
   after_create :create_with_api
   after_update :create_with_api, if: :saved_changes_to_users?
   after_update :update_with_api, if: :saved_changes_to_api_fields?
   after_update :relocate, if: -> { saved_change_to_property_id? }
+
+  # this probably isn't necessary because update_with_api should catch everything
+  # after_save :cascade_discarded, if: -> { discarded_at.present? }
 
   scope :needs_more_info, -> { undiscarded.where(needs_more_info: true).where(initialization_template: false) }
   scope :in_process, -> { undiscarded.where(completed_at: nil).where(initialization_template: false) }
@@ -70,13 +71,15 @@ class Task < ApplicationRecord
       t.deleted = task_json['deleted'] || false
       t.hidden = task_json['hidden'] || false
       t.completed_at = task_json['completed']
+      t.discarded_at = deleted? ? Time.now : nil
     end
 
     task_json.present?
   end
 
   def create_taskuser_for(user, action = :insert)
-    tasklist = Tasklist.where(property: property, user: user).first
+    property.create_tasklist_for(user)
+    tasklist = property.tasklists.where(user: user).first
     task_user = task_users.where(user: user).first_or_initialize
     return 'already exists' if task_user.google_id.present?
     response = TaskClient.new.send(
@@ -112,7 +115,7 @@ class Task < ApplicationRecord
     end
   end
 
-  def decide_completeness
+  def decide_record_completeness
     strikes = 0
 
     strikes += 3 if due.nil?
@@ -121,23 +124,6 @@ class Task < ApplicationRecord
 
     self.needs_more_info = strikes > 3
     true
-  end
-
-  def unsynced_deleted_discard?
-    return false if !deleted? && discarded_at.blank?
-    return false if deleted? && discarded_at.present?
-    true
-  end
-
-  def sync_deleted_and_discarded_at
-    self.discarded_at = Time.now if deleted?
-    self.deleted = discarded_at.present? ? true : false
-  end
-
-  def sync_completed_fields
-    return true if completed_at.present? && status == 'completed'
-    self.completed_at = Time.now
-    self.status = 'completed'
   end
 
   def saved_changes_to_api_fields?
@@ -153,11 +139,12 @@ class Task < ApplicationRecord
     saved_change_to_creator_id? || saved_change_to_owner_id?
   end
 
-  def prepare_for_api
+  def prepare_for_api(**args)
     [creator, owner].each do |user|
+      property.create_tasklist_for(user) unless args[:only_tasks]
+      create_taskuser_for(user) unless args[:only_tasklists]
+      next unless args[:relocate]
       Property.find(property_id_before_last_save).create_tasklist_for(user) if property_id_before_last_save.present?
-      property.create_tasklist_for(user)
-      create_taskuser_for(user)
     end
   end
 
@@ -174,12 +161,12 @@ class Task < ApplicationRecord
       response = TaskClient.new.send(
         action,
         user: user,
-        tasklist_gid: task_user.tasklist_id,
         task: self,
+        tasklist_gid: task_user.tasklist_id,
         task_gid: task_user.google_id
       )
 
-      if action == :delete
+      if discarded_at.present?
         task_user.destroy
       else
         task_user.assign_from_api_fields!(response)
@@ -192,7 +179,7 @@ class Task < ApplicationRecord
   end
 
   def relocate
-    prepare_for_api
+    prepare_for_api(relocate: true)
     [creator, owner].each do |user|
       old_tasklist = Tasklist.where(property_id: property_id_before_last_save, user: user).first
       tasklist = Tasklist.where(property: property, user: user).first
@@ -200,4 +187,8 @@ class Task < ApplicationRecord
       TaskClient.new.relocate(user: user, old_list_gid: old_tasklist.google_id, new_list_gid: tasklist.google_id, task: self, task_gid: task_user.google_id) if task_user.tasklist_id.present?
     end
   end
+
+  # def cascade_discarded
+  #   task_users.destroy_all
+  # end
 end

@@ -55,8 +55,7 @@ class Property < ApplicationRecord
     tasklist = tasklists.where(user: user).first_or_create
     return 'already exists' if tasklist.google_id.present?
     response = TasklistClient.new.send(action, user, tasklist)
-    tasklist.google_id = response['id']
-    tasklist.save
+    tasklist.update(google_id: response['id'])
   end
 
   private

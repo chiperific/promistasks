@@ -9,6 +9,7 @@ class TaskUser < ApplicationRecord
 
   before_save :set_position_as_integer, if: -> { position.present? }
   after_validation :set_tasklist_id, if: -> { tasklist_id.nil? }
+  after_save :cascade_completeness, if: -> { completed_at.present? && task.completed_at.nil? }
 
   scope :descending, -> { undiscarded.order(position_int: :asc) }
 
@@ -19,6 +20,8 @@ class TaskUser < ApplicationRecord
       t.google_id = task_json['id']
       t.position = task_json['position']
       t.parent_id = task_json['parent']
+      t.deleted = task_json['deleted'] || false
+      t.completed_at = task_json['completed']
     end
 
     task_json.present?
@@ -35,5 +38,9 @@ class TaskUser < ApplicationRecord
     task.property.create_tasklist_for(user) if task.property.tasklists.where(user: user).empty?
     tasklist = task.property.tasklists.where(user: user).first
     self.tasklist_id = tasklist.google_id
+  end
+
+  def cascade_completeness
+    task.update(completed_at: completed_at)
   end
 end

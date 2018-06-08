@@ -122,8 +122,7 @@ class User < ApplicationRecord
   private
 
   def must_have_type
-    # skip this if it's an oauth user
-    return true if oauth_id.present?
+    return true if oauth_id.present? # skip this if it's an oauth user
     if type.empty?
       errors.add(:register_as, ': Must have at least one type.')
       false

@@ -18,8 +18,6 @@ class CreateTasks < ActiveRecord::Migration[5.1]
       t.boolean :needs_more_info,  default: false, null: false
       t.string :status,                            null: false, default: 'needsAction'  # google field: "needsAction" or "completed"
       t.datetime :discarded_at
-      t.boolean :deleted,          default: false, null: false                          # google field
-      t.boolean :hidden,           default: false, null: false                          # google field
       t.datetime :completed_at                                                          # google field -- completed, lives on this model because completing from one staff should complete for all
       t.boolean :initialization_template, null: false, default: false
       t.string :owner_type                                                              # ['Program Staff', 'Project Staff', 'Admin Staff']

@@ -126,6 +126,8 @@ RSpec.describe Task, type: :model do
   describe 'limits records by scope' do
     let(:initialization_template) { create :task, property: @property, initialization_template: true }
     let(:has_good_info) { create :task, property: @property, due: Time.now + 3.days, priority: 'medium', budget: 500 }
+    let(:visibility_1) { create :task, property: @property, visibility: 1 }
+    let(:visibility_2) { create :task, property: @property, visibility: 2 }
 
     it '#needs_more_info returns only non-initialization tasks where needs_more_info is false' do
       @task.save
@@ -155,6 +157,16 @@ RSpec.describe Task, type: :model do
       expect(Task.complete).to include @completed_task
       expect(Task.complete).not_to include @task
       expect(Task.complete).not_to include initialization_template
+    end
+
+    it '#public_visible returns only undiscarded tasks where visibility is set to everyone' do
+      visibility_1.save
+      visibility_2.save
+      @task.save
+
+      expect(Task.public_visible).to include visibility_1
+      expect(Task.public_visible).not_to include visibility_2
+      expect(Task.public_visible).not_to include @task
     end
   end
 
@@ -199,9 +211,21 @@ RSpec.describe Task, type: :model do
   end
 
   describe '#create_taskuser_for' do
-    pending 'returns "already exists" if it already exists'
-    pending 'makes an API call through TaskClient'
-    pending 'creates a task_user record'
+    it 'returns "already exists" if it already exists' do
+      @task.save
+      expect(@task.create_taskuser_for(@task.creator)).to eq 'already exists'
+    end
+
+    it 'makes an API call through TaskClient for the creator and owner' do
+      @task.save
+      expect(WebMock).to have_requested(:post, Constant::Regex::TASK).twice
+    end
+
+    it 'creates a task_user record for the creator and owner' do
+      first_count = TaskUser.count
+      @task.save
+      expect(TaskUser.count).to eq first_count + 2
+    end
   end
 
   describe '#require_cost' do
@@ -278,57 +302,6 @@ RSpec.describe Task, type: :model do
       expect(two_strikes.needs_more_info).to eq false
       expect(one_strike.needs_more_info).to eq false
       expect(zero_strikes.needs_more_info).to eq false
-    end
-  end
-
-  describe '#unsynced_deleted_discard?' do
-    let(:neither)            { build :task, property: @property }
-    let(:both)               { build :task, property: @property, deleted: true, discarded_at: Time.now }
-    let(:unsynced_deleted)   { build :task, property: @property, deleted: true }
-    let(:unsynced_discarded) { build :task, property: @property, discarded_at: Time.now }
-
-    it 'returns false if neither field is set' do
-      expect(neither.send(:unsynced_deleted_discard?)).to eq false
-    end
-
-    it 'returns false if both fields are set' do
-      expect(both.send(:unsynced_deleted_discard?)).to eq false
-    end
-
-    it 'returns true if fields are out of sync' do
-      expect(unsynced_deleted.send(:unsynced_deleted_discard?)).to eq true
-      expect(unsynced_discarded.send(:unsynced_deleted_discard?)).to eq true
-    end
-  end
-
-  describe '#sync_deleted_and_discarded_at' do
-    let(:neither)            { build :task, property: @property }
-    let(:both)               { build :task, property: @property, deleted: true, discarded_at: Time.now }
-    let(:unsynced_deleted)   { build :task, property: @property, deleted: true }
-    let(:unsynced_discarded) { build :task, property: @property, discarded_at: Time.now }
-
-    it 'only fires if the fields are unsynced' do
-      expect(neither).not_to receive(:sync_deleted_and_discarded_at)
-      neither.save!
-
-      expect(both).not_to receive(:sync_deleted_and_discarded_at)
-      both.save!
-
-      expect(unsynced_deleted).to receive(:sync_deleted_and_discarded_at)
-      unsynced_deleted.save!
-
-      expect(unsynced_discarded).to receive(:sync_deleted_and_discarded_at)
-      unsynced_discarded.save!
-    end
-
-    context 'when deleted is false' do
-      it 'sets discarded_at to match the property' do
-      end
-    end
-
-    context 'when discarded_at is present' do
-      it 'sets deleted to true' do
-      end
     end
   end
 
@@ -414,7 +387,11 @@ RSpec.describe Task, type: :model do
   end
 
   describe '#saved_changes_to_users?' do
-    pending 'returns true if creator_id changed'
+    it 'returns true if creator_id changed' do
+      @task.save
+      expect(@task.saved_changes_to_users?).to eq false
+    end
+
     pending 'returns true if owner_id changed'
     pending 'returns false if neither user fields have changed'
   end
