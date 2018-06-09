@@ -9,16 +9,14 @@ RSpec.describe TaskUser, type: :model do
     Tasklist.destroy_all
     TaskUser.destroy_all
     stub_request(:any, Constant::Regex::TASKLIST).to_return(
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json }
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
     )
     stub_request(:any, Constant::Regex::TASK).to_return(
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json }
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:task_json).marshal_dump.to_json
     )
     @task = FactoryBot.create(:task)
     @user = FactoryBot.create(:oauth_user)
@@ -35,7 +33,7 @@ RSpec.describe TaskUser, type: :model do
   end
 
   describe '#set_position_as_integer' do
-    let(:has_position) { build :task_user, task: @task, position: '0000001234'}
+    let(:has_position) { build :task_user, task: @task, position: '0000001234' }
 
     it 'only fires if position is present' do
       expect(@task_user).not_to receive(:set_position_as_integer)

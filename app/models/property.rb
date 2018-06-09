@@ -23,7 +23,7 @@ class Property < ApplicationRecord
   before_save :default_budget
   after_create :create_with_api, if: -> { discarded_at.blank? }
   after_update :propagate_to_api_by_privacy, if: -> { saved_change_to_is_private? }
-  after_update :update_with_api
+  after_update :update_with_api, unless: -> { saved_change_to_is_private? }
   after_update :delete_with_api, if: -> { discarded_at.present? }
 
   scope :needs_title, -> { undiscarded.where(certificate_number: nil) }
@@ -53,9 +53,12 @@ class Property < ApplicationRecord
 
   def create_tasklist_for(user, action = :insert)
     tasklist = tasklists.where(user: user).first_or_create
-    return 'already exists' if tasklist.google_id.present?
-    response = TasklistClient.new.send(action, user, tasklist)
-    tasklist.update(google_id: response['id'])
+    if tasklist.google_id.nil?
+      response = TasklistClient.new.send(action, user, tasklist)
+      tasklist.google_id = response['id']
+      tasklist.save
+    end
+    tasklist
   end
 
   private

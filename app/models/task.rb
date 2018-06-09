@@ -19,9 +19,8 @@ class Task < ApplicationRecord
 
   validates_presence_of :creator_id, :owner_id, :property_id
   validates :priority, inclusion: { in: Constant::Task::PRIORITY, allow_blank: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}" }
-  validates_inclusion_of  :license_required, :needs_more_info, :deleted, :hidden,
+  validates_inclusion_of  :license_required, :needs_more_info,
                           :initialization_template, in: [true, false]
-  validates_inclusion_of :status, in: %w[completed needsAction]
   validates_inclusion_of :visibility, in: [0, 1, 2, 3]
 
   validates :title, presence: true, uniqueness: { scope: :property }
@@ -65,32 +64,42 @@ class Task < ApplicationRecord
     return false if task_json.nil?
 
     tap do |t|
+      t.title = task_json['title']
       t.notes = task_json['notes']
-      t.status = task_json['status']
-      t.due = task_json['due']
-      t.deleted = task_json['deleted'] || false
-      t.hidden = task_json['hidden'] || false
       t.completed_at = task_json['completed']
-      t.discarded_at = deleted? ? Time.now : nil
+      t.due = task_json['due']
     end
 
     task_json.present?
   end
 
   def create_taskuser_for(user, action = :insert)
-    property.create_tasklist_for(user)
-    tasklist = property.tasklists.where(user: user).first
-    task_user = task_users.where(user: user).first_or_initialize
-    return 'already exists' if task_user.google_id.present?
-    response = TaskClient.new.send(
-      action,
-      user: user,
-      tasklist_gid: tasklist.google_id,
-      task: self
-    )
-    task_user.assign_from_api_fields!(response)
-    task_user.tasklist_id = tasklist.google_id
-    task_user.save
+    tasklist = property.create_tasklist_for(user)
+    task_user = task_users.where(user: user).first_or_create
+    if task_user.google_id.nil?
+      response = TaskClient.new.send(
+        action,
+        user: user,
+        tasklist_gid: tasklist.google_id,
+        task: self,
+        task_user: task_user
+      )
+      task_user.assign_from_api_fields!(response)
+      task_user.update(tasklist_id: tasklist.google_id)
+      task_user.reload
+    end
+    task_user
+  end
+
+  def saved_changes_to_users?
+    saved_change_to_creator_id? || saved_change_to_owner_id?
+  end
+
+  def saved_changes_to_api_fields?
+    saved_change_to_title? ||
+      saved_change_to_notes? ||
+      saved_change_to_due? ||
+      saved_change_to_completed_at?
   end
 
   private
@@ -126,24 +135,9 @@ class Task < ApplicationRecord
     true
   end
 
-  def saved_changes_to_api_fields?
-    saved_change_to_title? ||
-      saved_change_to_notes? ||
-      saved_change_to_due? ||
-      saved_change_to_status? ||
-      saved_change_to_deleted? ||
-      saved_change_to_completed_at?
-  end
-
-  def saved_changes_to_users?
-    saved_change_to_creator_id? || saved_change_to_owner_id?
-  end
-
-  def prepare_for_api(**args)
+  def prepare_for_api
     [creator, owner].each do |user|
-      property.create_tasklist_for(user) unless args[:only_tasks]
-      create_taskuser_for(user) unless args[:only_tasklists]
-      next unless args[:relocate]
+      create_taskuser_for(user)
       Property.find(property_id_before_last_save).create_tasklist_for(user) if property_id_before_last_save.present?
     end
   end
@@ -162,6 +156,7 @@ class Task < ApplicationRecord
         action,
         user: user,
         task: self,
+        task_user: task_user,
         tasklist_gid: task_user.tasklist_id,
         task_gid: task_user.google_id
       )
@@ -179,16 +174,19 @@ class Task < ApplicationRecord
   end
 
   def relocate
-    prepare_for_api(relocate: true)
+    prepare_for_api
     [creator, owner].each do |user|
       old_tasklist = Tasklist.where(property_id: property_id_before_last_save, user: user).first
       tasklist = Tasklist.where(property: property, user: user).first
       task_user = task_users.where(user: user).first
-      TaskClient.new.relocate(user: user, old_list_gid: old_tasklist.google_id, new_list_gid: tasklist.google_id, task: self, task_gid: task_user.google_id) if task_user.tasklist_id.present?
+      TaskClient.new.relocate(
+        user: user,
+        old_list_gid: old_tasklist.google_id,
+        new_list_gid: tasklist.google_id,
+        task: self,
+        task_user: task_user,
+        task_gid: task_user.google_id
+      )
     end
   end
-
-  # def cascade_discarded
-  #   task_users.destroy_all
-  # end
 end

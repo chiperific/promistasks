@@ -8,7 +8,7 @@ module Constant
   end
 
   class Task
-    # TYPES = ['Work Order', 'Billing', 'To Do', 'Reminder'].freeze
+    STATUS = %w[needsAction completed].freeze
     PRIORITY = %w[urgent high medium low someday].freeze
     ALERTS = ['due soon', 'urgent priority', 'high priority', 'data entry'].freeze
     OWNER_TYPES = ['Program Staff', 'Project Staff', 'Admin Staff'].freeze

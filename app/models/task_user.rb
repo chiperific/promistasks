@@ -6,12 +6,20 @@ class TaskUser < ApplicationRecord
 
   validates :task, presence: true, uniqueness: { scope: :user }
   validates_uniqueness_of :google_id, allow_nil: true
+  validates_inclusion_of :deleted, in: [true, false]
 
+  before_validation :sequence_google_id, if: -> { Rails.env.test? }
   before_save :set_position_as_integer, if: -> { position.present? }
   after_validation :set_tasklist_id, if: -> { tasklist_id.nil? }
   after_save :cascade_completeness, if: -> { completed_at.present? && task.completed_at.nil? }
 
   scope :descending, -> { undiscarded.order(position_int: :asc) }
+
+  def sequence_google_id
+    return true if task&.title == 'validate'
+    number = TaskUser.count.positive? ? TaskUser.last.id + 1 : 1
+    self.google_id += number.to_s unless google_id.nil?
+  end
 
   def assign_from_api_fields!(task_json)
     return false if task_json.nil?

@@ -154,7 +154,6 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.integer "visibility", default: 0, null: false
     t.boolean "license_required", default: false, null: false
     t.boolean "needs_more_info", default: false, null: false
-    t.string "status", default: "needsAction", null: false
     t.datetime "discarded_at"
     t.datetime "completed_at"
     t.boolean "initialization_template", default: false, null: false

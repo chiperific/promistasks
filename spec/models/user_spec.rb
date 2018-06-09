@@ -253,4 +253,9 @@ RSpec.describe User, type: :model do
       expect(system_admin.save!).to eq true
     end
   end
+
+  describe '#propegate_tasklists' do
+    pending 'only fires on update'
+    pending 'creates tasklists for the new user'
+  end
 end

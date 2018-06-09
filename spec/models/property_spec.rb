@@ -9,44 +9,22 @@ RSpec.describe Property, type: :model do
     Tasklist.destroy_all
     TaskUser.destroy_all
     stub_request(:any, Constant::Regex::TASKLIST).to_return(
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json }
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
     )
     stub_request(:any, Constant::Regex::TASK).to_return(
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json }
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:task_json).marshal_dump.to_json
     )
     @property                      = FactoryBot.create(:property, certificate_number: 'string', serial_number: 'string')
     @no_name_or_address            = FactoryBot.build(:property, name: nil, address: nil)
     @no_creator                    = FactoryBot.build(:property, creator_id: nil)
+    @non_unique_name               = FactoryBot.build(:property, name: @property.name)
     @non_unique_address            = FactoryBot.build(:property, address: @property.address)
     @non_unique_certificate_number = FactoryBot.build(:property, certificate_number: @property.certificate_number)
     @non_unique_serial_number      = FactoryBot.build(:property, serial_number: @property.serial_number)
-
     WebMock::RequestRegistry.instance.reset!
   end
 
@@ -55,6 +33,7 @@ RSpec.describe Property, type: :model do
       expect { @property.save!(validate: false) }.not_to raise_error
       expect { @no_name_or_address.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { @no_creator.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { @non_unique_name.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { @non_unique_address.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { @non_unique_certificate_number.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { @non_unique_serial_number.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
@@ -66,6 +45,7 @@ RSpec.describe Property, type: :model do
       expect(@property.save!).to eq true
       expect { @no_name_or_address.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @no_creator.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { @non_unique_name.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @non_unique_address.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @non_unique_certificate_number.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @non_unique_serial_number.save! }.to raise_error ActiveRecord::RecordInvalid
@@ -146,8 +126,11 @@ RSpec.describe Property, type: :model do
   describe '#create_tasklist_for(user)' do
     let(:user) { create :oauth_user }
 
-    it 'returns "already exists" if the tasklist exists with a google_id' do
-      expect(@property.create_tasklist_for(@property.creator)).to eq 'already exists'
+    it 'doesn\'t make an API call if the tasklist exists with a google_id' do
+      @property.save
+      WebMock::RequestRegistry.instance.reset!
+      @property.update(name: 'New name!')
+      expect(WebMock).not_to have_requested(:post, Constant::Regex::TASKLIST)
     end
 
     it 'creates a tasklist' do
@@ -293,7 +276,7 @@ RSpec.describe Property, type: :model do
       it 'adds the tasklist to other users' do
         private_property.save!
         WebMock::RequestRegistry.instance.reset!
-        count = User.count - 1
+        count = User.staff_except(private_property.creator).count
         private_property.update(is_private: false)
         expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).times(count)
       end

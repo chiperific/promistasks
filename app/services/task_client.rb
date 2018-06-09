@@ -25,13 +25,14 @@ class TaskClient
   def insert(**args)
     user = args[:user]
     task = args[:task]
+    task_user = args[:task_user]
     user.refresh_token!
     # Creates a new task on the specified task list.
     body = {
       title:     task.title,
       notes:     task.notes,
-      status:    task.status,
-      deleted:   task.deleted,
+      status:    task.completed_at.present? ? 'completed' : 'needsAction',
+      deleted:   task_user.deleted,
       completed: task.completed_at.present? ? task.completed_at.utc.rfc3339(3) : nil,
       due:       task.due.present? ? task.due.utc.rfc3339(3) : nil
     }
@@ -42,13 +43,14 @@ class TaskClient
   def update(**args)
     user = args[:user]
     task = args[:task]
+    task_user = args[:task_user]
     user.refresh_token!
     # Modify the specified task. This method supports patch semantics
     body = {
       title:     task.title,
       notes:     task.notes,
-      status:    task.status,
-      deleted:   task.deleted,
+      status:    task.completed_at.present? ? 'completed' : 'needsAction',
+      deleted:   task_user.deleted,
       completed: task.completed_at.present? ? task.completed_at.utc.rfc3339(3) : nil,
       due:       task.due.present? ? task.due.utc.rfc3339(3) : nil
     }
@@ -98,6 +100,7 @@ class TaskClient
       user: user,
       tasklist_gid: args[:old_list_gid],
       task: args[:task],
+      task_user: args[:task_user],
       task_gid: args[:task_gid]
     }
 
@@ -105,6 +108,7 @@ class TaskClient
       user: user,
       tasklist_gid: args[:new_list_gid],
       task: args[:task],
+      task_user: args[:task_user],
       task_gid: args[:task_gid]
     }
     # Moves the specified task to a different list.
@@ -117,7 +121,6 @@ class TaskClient
 
   def headers(user)
     { 'Authorization': 'OAuth ' + user.oauth_token,
-      'Content-type': 'application/json'
-    }
+      'Content-type': 'application/json' }
   end
 end
