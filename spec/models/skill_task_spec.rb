@@ -4,12 +4,6 @@ require 'rails_helper'
 
 RSpec.describe SkillTask, type: :model do
   before :each do
-    User.destroy_all
-    Property.destroy_all
-    Tasklist.destroy_all
-    TaskUser.destroy_all
-    Skill.destroy_all
-    SkillTask.destroy_all
     stub_request(:any, Constant::Regex::TASKLIST).to_return(
       { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
       { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },

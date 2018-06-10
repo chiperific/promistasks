@@ -40,7 +40,10 @@ RSpec.describe Tasklist, type: :model do
       @tasklist.save
 
       gid = @tasklist.google_id
-      duplicate = FactoryBot.build(:tasklist, google_id: gid)
+      property = @tasklist.property
+      property.update(name: 'validate')
+
+      duplicate = FactoryBot.build(:tasklist, property: property, google_id: gid)
 
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique

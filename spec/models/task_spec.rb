@@ -4,52 +4,27 @@ require 'rails_helper'
 
 RSpec.describe Task, type: :model do
   before :each do
-    User.destroy_all
-    Property.destroy_all
-    Tasklist.destroy_all
-    TaskUser.destroy_all
     stub_request(:any, Constant::Regex::TASKLIST).to_return(
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json }
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
     )
     stub_request(:any, Constant::Regex::TASK).to_return(
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json },
-      { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:task_json).marshal_dump.to_json }
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:task_json).marshal_dump.to_json
     )
+    @creator        = FactoryBot.create(:oauth_user)
+    @owner          = FactoryBot.create(:oauth_user)
     @property       = FactoryBot.create(:property)
-    @task           = FactoryBot.build(:task, property: @property)
-    @no_title       = FactoryBot.build(:task, property: @property, title: nil)
-    @no_creator     = FactoryBot.build(:task, property: @property, creator_id: nil)
-    @no_owner       = FactoryBot.build(:task, property: @property, owner_id: nil)
-    @no_property    = FactoryBot.build(:task, property_id: nil)
-    @bad_status     = FactoryBot.build(:task, property: @property, status: 'wrongThing')
-    @bad_visibility = FactoryBot.build(:task, property: @property, visibility: 4)
-    @bad_priority   = FactoryBot.build(:task, property: @property, priority: 'wrong thing')
-    @completed_task = FactoryBot.build(:task, property: @property, completed_at: Time.now - 1.hour)
+    @task           = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner)
+    @no_title       = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner, title: nil)
+    @bad_priority   = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner, priority: 'wrong thing')
+    @no_creator     = FactoryBot.build(:task, property: @property, owner: @owner, creator_id: nil)
+    @no_owner       = FactoryBot.build(:task, property: @property, creator: @creator, owner_id: nil)
+    @no_property    = FactoryBot.build(:task, property_id: nil, creator: @creator, owner: @owner)
+    @bad_visibility = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner, visibility: 4)
+    @completed_task = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner, completed_at: Time.now - 1.hour)
     WebMock::RequestRegistry.instance.reset!
   end
 
@@ -70,7 +45,6 @@ RSpec.describe Task, type: :model do
       expect { @no_creator.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @no_owner.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @no_property.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { @bad_status.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @bad_visibility.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { @bad_priority.save! }.to raise_error ActiveRecord::RecordInvalid
     end
@@ -87,12 +61,10 @@ RSpec.describe Task, type: :model do
   end
 
   describe 'requires booleans be in a state:' do
-    let(:bad_license) { build :task, property: @property, license_required: nil }
-    let(:bad_needs_no_info) { build :task, property: @property, needs_more_info: nil, due: Time.now + 3.hours, budget: Money.new(300_00), priority: 'low' }
-    let(:bad_needs_info) { build :task, property: @property, needs_more_info: nil }
-    let(:bad_deleted) { build :task, property: @property, deleted: nil }
-    let(:bad_hidden) { build :task, property: @property, hidden: nil }
-    let(:bad_initilization) { build :task, property: @property, initialization_template: nil }
+    let(:bad_license)       { build :task, property: @property, creator: @creator, owner: @owner, license_required: nil }
+    let(:bad_needs_no_info) { build :task, property: @property, creator: @creator, owner: @owner, needs_more_info: nil, due: Time.now + 3.hours, budget: Money.new(300_00), priority: 'low' }
+    let(:bad_needs_info)    { build :task, property: @property, creator: @creator, owner: @owner, needs_more_info: nil }
+    let(:bad_initilization) { build :task, property: @property, creator: @creator, owner: @owner, initialization_template: nil }
 
     it 'license_required' do
       expect { bad_license.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
@@ -107,16 +79,6 @@ RSpec.describe Task, type: :model do
       expect { bad_needs_info.save! }.not_to raise_error
     end
 
-    it 'deleted' do
-      expect { bad_deleted.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_deleted.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
-
-    it 'hidden' do
-      expect { bad_hidden.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_hidden.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
-
     it 'initialization_template' do
       expect { bad_initilization.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { bad_initilization.save! }.to raise_error ActiveRecord::RecordInvalid
@@ -124,8 +86,10 @@ RSpec.describe Task, type: :model do
   end
 
   describe 'limits records by scope' do
-    let(:initialization_template) { create :task, property: @property, initialization_template: true }
-    let(:has_good_info) { create :task, property: @property, due: Time.now + 3.days, priority: 'medium', budget: 500 }
+    let(:initialization_template) { create :task, property: @property, creator: @creator, owner: @owner, initialization_template: true }
+    let(:has_good_info)           { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 3.days, priority: 'medium', budget: 500 }
+    let(:visibility_1)            { create :task, property: @property, creator: @creator, owner: @owner, visibility: 1 }
+    let(:visibility_2)            { create :task, property: @property, creator: @creator, owner: @owner, visibility: 2 }
 
     it '#needs_more_info returns only non-initialization tasks where needs_more_info is false' do
       @task.save
@@ -156,12 +120,22 @@ RSpec.describe Task, type: :model do
       expect(Task.complete).not_to include @task
       expect(Task.complete).not_to include initialization_template
     end
+
+    it '#public_visible returns only undiscarded tasks where visibility is set to everyone' do
+      visibility_1.save
+      visibility_2.save
+      @task.save
+
+      expect(Task.public_visible).to include visibility_1
+      expect(Task.public_visible).not_to include visibility_2
+      expect(Task.public_visible).not_to include @task
+    end
   end
 
   describe '#budget_remaining' do
-    let(:no_budget) { create :task, property: @property, cost: 250 }
-    let(:no_cost) { create :task, property: @property, budget: 250 }
-    let(:both_moneys) { create :task, property: @property, budget: 300, cost: 250 }
+    let(:no_budget)   { create :task, property: @property, creator: @creator, owner: @owner, cost: 250 }
+    let(:no_cost)     { create :task, property: @property, creator: @creator, owner: @owner, budget: 250 }
+    let(:both_moneys) { create :task, property: @property, creator: @creator, owner: @owner, budget: 300, cost: 250 }
 
     it 'returns nil if budget && cost are both nil' do
       @task.save
@@ -185,190 +159,68 @@ RSpec.describe Task, type: :model do
       task_json = JSON.parse(file_fixture('task_json_spec.json').read)
 
       expect(task.notes).to eq nil
-      expect(task.status).to eq 'needsAction'
       expect(task.due).to eq nil
       expect(task.completed_at).to eq nil
 
       task.assign_from_api_fields!(task_json)
 
       expect(task.notes).not_to eq nil
-      expect(task.status).to eq 'needsActionSpec'
       expect(task.due).not_to eq nil
       expect(task.completed_at).not_to eq nil
     end
   end
 
-  describe '#require_cost' do
-    let(:complete_w_budget) { build :task, property: @property, completed_at: Time.now, budget: 400 }
-    let(:complete_w_both) { build :task, property: @property, completed_at: Time.now, budget: 400, cost: 250 }
-
-    it 'ignores tasks that aren\'t complete' do
+  describe '#create_taskuser_for' do
+    it 'doesn\'t make an API call if it already exists' do
       @task.save
-      expect(@task.errors[:cost].empty?).to eq true
+      WebMock::RequestRegistry.instance.reset!
+      @task.update(title: 'New title!')
+      expect(WebMock).not_to have_requested(:post, Constant::Regex::TASK)
     end
 
-    it 'ignores tasks where budget isn\'t present' do
-      @completed_task.save
-      expect(@completed_task.errors[:cost].empty?).to eq true
-    end
-
-    it 'adds an error if there\'s a budget but no cost' do
-      complete_w_budget.save
-      expect(complete_w_budget.errors[:cost].empty?).to eq false
-    end
-
-    it 'ignores tasks where budget and cost are present' do
-      complete_w_both.save
-      expect(complete_w_both.errors[:cost].empty?).to eq true
-    end
-  end
-
-  describe '#due_cant_be_past' do
-    let(:past_due) { build :task, property: @property, due: Time.now - 1.hour }
-    let(:future_due) { build :task, property: @property, due: Time.now + 1.hour }
-
-    it 'returns true if due is nil' do
+    it 'makes an API call through TaskClient for the creator and owner' do
       @task.save
-      expect(@task.errors[:due].empty?).to eq true
+      expect(WebMock).to have_requested(:post, Constant::Regex::TASK).twice
     end
 
-    it 'adds an error if due is in the past' do
-      past_due.save
-      expect(past_due.errors[:due]).to eq ['must be in the future']
-    end
-
-    it 'returns true if due is in the future' do
-      future_due.save
-      expect(future_due.errors[:due].empty?).to eq true
+    it 'creates a task_user record for the creator and owner' do
+      first_count = TaskUser.count
+      @task.save
+      expect(TaskUser.count).to eq first_count + 2
     end
   end
 
-  describe '#decide_completeness' do
-    let(:five_strikes)  { build :task, property: @property }
-    let(:four_strikes)  { build :task, property: @property, budget: 50_00 }
-    let(:three_strikes) { build :task, property: @property, priority: 'medium', budget: 50_00 }
-    let(:two_strikes)   { build :task, property: @property, due: Time.now + 1.hour }
-    let(:one_strike)    { build :task, property: @property, due: Time.now + 1.hour, priority: 'medium' }
-    let(:zero_strikes)  { build :task, property: @property, due: Time.now + 1.hour, priority: 'medium', budget: 50_00 }
-
-    it 'sets needs_more_info based on strikes' do
-      expect(five_strikes.needs_more_info).to eq false
-      expect(four_strikes.needs_more_info).to eq false
-      expect(three_strikes.needs_more_info).to eq false
-      expect(two_strikes.needs_more_info).to eq false
-      expect(one_strike.needs_more_info).to eq false
-      expect(zero_strikes.needs_more_info).to eq false
-
-      five_strikes.save
-      four_strikes.save
-      three_strikes.save
-      two_strikes.save
-      one_strike.save
-      zero_strikes.save
-
-      expect(five_strikes.needs_more_info).to eq true
-      expect(four_strikes.needs_more_info).to eq true
-      expect(three_strikes.needs_more_info).to eq false
-      expect(two_strikes.needs_more_info).to eq false
-      expect(one_strike.needs_more_info).to eq false
-      expect(zero_strikes.needs_more_info).to eq false
+  describe '#saved_changes_to_users?' do
+    before :each do
+      @task.save
+      @task.reload
+      @new_user = FactoryBot.create(:oauth_user)
     end
-  end
-
-  describe '#unsynced_deleted_discard?' do
-    let(:neither)            { build :task, property: @property }
-    let(:both)               { build :task, property: @property, deleted: true, discarded_at: Time.now }
-    let(:unsynced_deleted)   { build :task, property: @property, deleted: true }
-    let(:unsynced_discarded) { build :task, property: @property, discarded_at: Time.now }
-
-    it 'returns false if neither field is set' do
-      expect(neither.send(:unsynced_deleted_discard?)).to eq false
+    it 'returns false if neither user fields have changed' do
+      @task.save
+      expect(@task.saved_changes_to_users?).to eq false
     end
 
-    it 'returns false if both fields are set' do
-      expect(both.send(:unsynced_deleted_discard?)).to eq false
+    it 'returns true if creator_id changed' do
+      @task.update(creator: @new_user)
+      expect(@task.saved_changes_to_users?).to eq true
     end
 
-    it 'returns true if fields are out of sync' do
-      expect(unsynced_deleted.send(:unsynced_deleted_discard?)).to eq true
-      expect(unsynced_discarded.send(:unsynced_deleted_discard?)).to eq true
-    end
-  end
-
-  describe '#sync_deleted_and_discarded_at' do
-    let(:neither)            { build :task, property: @property }
-    let(:both)               { build :task, property: @property, deleted: true, discarded_at: Time.now }
-    let(:unsynced_deleted)   { build :task, property: @property, deleted: true }
-    let(:unsynced_discarded) { build :task, property: @property, discarded_at: Time.now }
-
-    it 'only fires if the fields are unsynced' do
-      expect(neither).not_to receive(:sync_deleted_and_discarded_at)
-      neither.save!
-
-      expect(both).not_to receive(:sync_deleted_and_discarded_at)
-      both.save!
-
-      expect(unsynced_deleted).to receive(:sync_deleted_and_discarded_at)
-      unsynced_deleted.save!
-
-      expect(unsynced_discarded).to receive(:sync_deleted_and_discarded_at)
-      unsynced_discarded.save!
-    end
-
-    context 'when deleted is false' do
-      it 'sets discarded_at to match the property' do
-      end
-    end
-
-    context 'when discarded_at is present' do
-      it 'sets deleted to true' do
-      end
-    end
-  end
-
-  describe '#sync_completed_fields' do
-    let(:synced_not_complete) { create :task, property: @property }
-    let(:synced_complete)     { create :task, property: @property, completed_at: Time.now, status: 'completed' }
-    let(:only_datetime)       { build :task, property: @property, completed_at: Time.now }
-    let(:only_status)         { build :task, property: @property, status: 'completed' }
-
-    it 'only fires when completed_at or status indicate completeness' do
-      expect(synced_not_complete).not_to receive(:sync_completed_fields)
-      synced_not_complete.save
-
-      expect(synced_complete).to receive(:sync_completed_fields)
-      synced_complete.save
-
-      expect(only_status).to receive(:sync_completed_fields)
-      only_status.save
-    end
-
-    it 'returns true if they are already in sync' do
-      expect(synced_complete.send(:sync_completed_fields)).to eq true
-    end
-
-    it 'sets both fields to indicate completeness' do
-      expect(only_status.completed_at).to eq nil
-      only_status.save
-      expect(only_status.completed_at).not_to eq nil
-
-      expect(only_datetime.status).to eq 'needsAction'
-      only_datetime.save
-      expect(only_datetime.status).to eq 'completed'
+    it 'returns true if owner_id changed' do
+      @task.update(owner: @new_user)
+      expect(@task.saved_changes_to_users?).to eq true
     end
   end
 
   describe '#saved_changes_to_api_fields?' do
-    let(:no_api_change) { create :task, property: @property }
-    let(:new_user) { create :oauth_user }
-    let(:new_property) { create :property }
+    let(:no_api_change) { create :task, property: @property, creator: @creator, owner: @owner }
+    let(:new_user)      { create :oauth_user }
+    let(:new_property)  { create :property }
 
-    let(:title_change) { create :task, property: @property }
-    let(:notes_change) { create :task, property: @property }
-    let(:due_change) { create :task, property: @property }
-    let(:status_change) { create :task, property: @property }
-    let(:deleted_change) { create :task, property: @property }
-    let(:completed_at_change) { create :task, property: @property }
+    let(:title_change) { create :task, property: @property, creator: @creator, owner: @owner }
+    let(:notes_change) { create :task, property: @property, creator: @creator, owner: @owner }
+    let(:due_change) { create :task, property: @property, creator: @creator, owner: @owner }
+    let(:completed_at_change) { create :task, property: @property, creator: @creator, owner: @owner }
 
     it 'returns false if no fields have changed' do
       no_api_change.tap do |t|
@@ -394,38 +246,132 @@ RSpec.describe Task, type: :model do
       title_change.update(title: 'New title')
       notes_change.update(notes: 'New notes content')
       due_change.update(due: Time.now + 2.weeks)
-      status_change.update(status: 'complete')
-      deleted_change.update(deleted: true)
       completed_at_change.update(completed_at: Time.now - 3.minutes)
 
       expect(title_change.send(:saved_changes_to_api_fields?)).to eq true
       expect(notes_change.send(:saved_changes_to_api_fields?)).to eq true
       expect(due_change.send(:saved_changes_to_api_fields?)).to eq true
-      expect(status_change.send(:saved_changes_to_api_fields?)).to eq true
-      expect(deleted_change.send(:saved_changes_to_api_fields?)).to eq true
       expect(completed_at_change.send(:saved_changes_to_api_fields?)).to eq true
+    end
+  end
+
+  describe '#require_cost' do
+    let(:complete_w_budget) { build :task, property: @property, creator: @creator, owner: @owner, completed_at: Time.now, budget: 400 }
+    let(:complete_w_both)   { build :task, property: @property, creator: @creator, owner: @owner, completed_at: Time.now, budget: 400, cost: 250 }
+
+    it 'ignores tasks that aren\'t complete' do
+      @task.save
+      expect(@task.errors[:cost].empty?).to eq true
+    end
+
+    it 'ignores tasks where budget isn\'t present' do
+      @completed_task.save
+      expect(@completed_task.errors[:cost].empty?).to eq true
+    end
+
+    it 'adds an error if there\'s a budget but no cost' do
+      complete_w_budget.save
+      expect(complete_w_budget.errors[:cost].empty?).to eq false
+    end
+
+    it 'ignores tasks where budget and cost are present' do
+      complete_w_both.save
+      expect(complete_w_both.errors[:cost].empty?).to eq true
+    end
+  end
+
+  describe '#due_cant_be_past' do
+    let(:past_due)   { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now - 1.hour }
+    let(:future_due) { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour }
+
+    it 'returns true if due is nil' do
+      @task.save
+      expect(@task.errors[:due].empty?).to eq true
+    end
+
+    it 'adds an error if due is in the past' do
+      past_due.save
+      expect(past_due.errors[:due]).to eq ['must be in the future']
+    end
+
+    it 'returns true if due is in the future' do
+      future_due.save
+      expect(future_due.errors[:due].empty?).to eq true
+    end
+  end
+
+  describe '#decide_record_completeness' do
+    let(:five_strikes)  { build :task, property: @property, creator: @creator, owner: @owner }
+    let(:four_strikes)  { build :task, property: @property, creator: @creator, owner: @owner, budget: 50_00 }
+    let(:three_strikes) { build :task, property: @property, creator: @creator, owner: @owner, priority: 'medium', budget: 50_00 }
+    let(:two_strikes)   { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour }
+    let(:one_strike)    { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour, priority: 'medium' }
+    let(:zero_strikes)  { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour, priority: 'medium', budget: 50_00 }
+
+    it 'sets needs_more_info based on strikes' do
+      expect(five_strikes.needs_more_info).to eq false
+      expect(four_strikes.needs_more_info).to eq false
+      expect(three_strikes.needs_more_info).to eq false
+      expect(two_strikes.needs_more_info).to eq false
+      expect(one_strike.needs_more_info).to eq false
+      expect(zero_strikes.needs_more_info).to eq false
+
+      five_strikes.save
+      four_strikes.save
+      three_strikes.save
+      two_strikes.save
+      one_strike.save
+      zero_strikes.save
+
+      expect(five_strikes.needs_more_info).to eq true
+      expect(four_strikes.needs_more_info).to eq true
+      expect(three_strikes.needs_more_info).to eq false
+      expect(two_strikes.needs_more_info).to eq false
+      expect(one_strike.needs_more_info).to eq false
+      expect(zero_strikes.needs_more_info).to eq false
+    end
+  end
+
+  describe '#prepare_for_api' do
+    context 'when tasklists and task_users already exist' do
+      it 'ensures tasklists exist for each user field' do
+        @task.save
+        first_count = Tasklist.count
+        @task.update(title: 'New title!')
+        expect(Tasklist.count).to eq first_count
+      end
+      it 'ensures task_users exist for each user field' do
+        @task.save
+        first_count = TaskUser.count
+        @task.update(title: 'New title!')
+        expect(TaskUser.count).to eq first_count
+      end
+    end
+    context 'when tasklists and task_users don\'t exist' do
+      it 'creates tasklists for each user field' do
+        first_count = Tasklist.count
+        @task.save
+        expect(Tasklist.count).to eq first_count + 2
+      end
+      it 'creates task_users for each user field' do
+        first_count = TaskUser.count
+        @task.save
+        expect(TaskUser.count).to eq first_count + 2
+      end
+    end
+    context 'when the property has changed' do
+      it 'ensures tasklists exist for the old property for each user field' do
+        @task.save
+        new_property = FactoryBot.create(:property)
+        first_count = Tasklist.count
+        @task.update(property: new_property)
+        expect(Tasklist.count).to eq first_count + 2
+      end
     end
   end
 
   describe '#create_with_api' do
     before :each do
-      User.destroy_all
-      Property.destroy_all
-      Tasklist.destroy_all
-      TaskUser.destroy_all
-      stub_request(:any, Constant::Regex::TASKLIST).to_return(
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json }
-      )
-      stub_request(:any, Constant::Regex::TASK).to_return(
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json }
-      )
-      @creator = FactoryBot.create(:oauth_user)
-      @owner = FactoryBot.create(:oauth_user)
-      @property = FactoryBot.create(:property, is_private: false)
       @new_task = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner)
       WebMock::RequestRegistry.instance.reset!
     end
@@ -438,36 +384,10 @@ RSpec.describe Task, type: :model do
 
   describe '#update_with_api' do
     before :each do
-      User.destroy_all
-      Property.destroy_all
-      Tasklist.destroy_all
-      TaskUser.destroy_all
-      stub_request(:any, Constant::Regex::TASKLIST).to_return(
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json }
-      )
-      stub_request(:any, Constant::Regex::TASK).to_return(
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json },
-        { headers: {"Content-Type"=> "application/json"}, status: 200, body: FactoryBot.create(:tasklist_json).marshal_dump.to_json }
-      )
-      @creator = FactoryBot.create(:oauth_user)
-      @owner = FactoryBot.create(:oauth_user)
-      @property = FactoryBot.create(:property, name: 'Standard property', is_private: false, creator: @creator)
-      @updated_task = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
-
-      @no_api_change = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
-      @new_user = FactoryBot.create(:oauth_user, name: 'New user')
-      @new_property = FactoryBot.create(:property, name: 'New property', is_private: false, creator: @new_user)
-
+      @updated_task   = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
+      @no_api_change  = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
+      @new_user       = FactoryBot.create(:oauth_user, name: 'New user')
+      @new_property   = FactoryBot.create(:property, name: 'New property', is_private: false, creator: @new_user)
       WebMock::RequestRegistry.instance.reset!
     end
 
@@ -485,7 +405,6 @@ RSpec.describe Task, type: :model do
         t.initialization_template = true
         t.owner_type = 'Admin Staff'
       end
-      # hits Task#relocate with new property, creator and owner, but relocate doesn't know how to handle the user changes
       expect(@no_api_change).not_to receive(:update_with_api)
       @no_api_change.save!
     end
@@ -497,9 +416,9 @@ RSpec.describe Task, type: :model do
   end
 
   describe '#relocate' do
-    let(:updated_task) { create :task, property: @property }
-    let(:new_property_task) { create :task, property: @property }
-    let(:new_property) { create :property }
+    let(:updated_task)      { create :task, property: @property, creator: @creator, owner: @owner }
+    let(:new_property_task) { create :task, property: @property, creator: @creator, owner: @owner }
+    let(:new_property)      { create :property }
 
     it 'should only fire if the property changes' do
       updated_task.save!

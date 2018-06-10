@@ -42,6 +42,8 @@ class User < ApplicationRecord
 
   monetize :rate_cents, allow_nil: true
 
+  after_create :propegate_tasklists, if: -> { oauth_id.present? }
+
   scope :staff, -> { undiscarded.where.not(oauth_id: nil) }
   scope :staff_except, ->(user) { undiscarded.where.not(id: user) }
   scope :not_staff, -> { undiscarded.where(oauth_id: nil) }
@@ -122,8 +124,7 @@ class User < ApplicationRecord
   private
 
   def must_have_type
-    # skip this if it's an oauth user
-    return true if oauth_id.present?
+    return true if oauth_id.present? # skip this if it's an oauth user
     if type.empty?
       errors.add(:register_as, ': Must have at least one type.')
       false
@@ -141,5 +142,11 @@ class User < ApplicationRecord
   def system_admin_must_be_internal
     errors.add(:system_admin, 'must be internal staff with a linked Google account') unless oauth_id.present?
     true
+  end
+
+  def propegate_tasklists
+    Property.public_visible.each do |property|
+      property.create_tasklist_for(self)
+    end
   end
 end

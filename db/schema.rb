@@ -70,6 +70,8 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.bigint "skill_id", null: false
     t.bigint "task_id", null: false
     t.datetime "discarded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["discarded_at"], name: "index_skill_tasks_on_discarded_at"
     t.index ["skill_id", "task_id"], name: "index_skill_tasks_on_skill_id_and_task_id", unique: true
     t.index ["skill_id"], name: "index_skill_tasks_on_skill_id"
@@ -82,6 +84,8 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.bigint "user_id", null: false
     t.boolean "is_licensed", default: false, null: false
     t.datetime "discarded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["discarded_at"], name: "index_skill_users_on_discarded_at"
     t.index ["skill_id", "user_id"], name: "index_skill_users_on_skill_id_and_user_id", unique: true
     t.index ["skill_id"], name: "index_skill_users_on_skill_id"
@@ -108,6 +112,10 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.bigint "position_int", default: 0
     t.string "parent_id"
     t.string "previous_id"
+    t.boolean "deleted", default: false, null: false
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["google_id"], name: "index_task_users_on_google_id", unique: true
     t.index ["position_int"], name: "index_task_users_on_position_int"
     t.index ["task_id", "user_id"], name: "index_task_users_on_task_id_and_user_id", unique: true
@@ -121,6 +129,8 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.bigint "user_id", null: false
     t.bigint "property_id", null: false
     t.string "google_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["google_id"], name: "index_tasklists_on_google_id", unique: true
     t.index ["property_id", "user_id"], name: "index_tasklists_on_property_id_and_user_id", unique: true
     t.index ["property_id"], name: "index_tasklists_on_property_id"
@@ -144,10 +154,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.integer "visibility", default: 0, null: false
     t.boolean "license_required", default: false, null: false
     t.boolean "needs_more_info", default: false, null: false
-    t.string "status", default: "needsAction", null: false
     t.datetime "discarded_at"
-    t.boolean "deleted", default: false, null: false
-    t.boolean "hidden", default: false, null: false
     t.datetime "completed_at"
     t.boolean "initialization_template", default: false, null: false
     t.string "owner_type"

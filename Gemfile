@@ -35,6 +35,7 @@ group :development, :test do
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
+  gem 'cucumber-rails', require: false
   gem 'factory_bot_rails'
   gem 'pry-byebug'
   gem 'rubocop'
@@ -42,11 +43,13 @@ end
 
 group :test do
   gem 'capybara', '~> 2.13'
+  gem 'database_cleaner'
   gem 'faker'
+  gem 'rails-controller-testing'
   gem 'rspec-rails'
-  # gem 'rspec-retry'
   gem 'rspec_junit_formatter'
   gem 'selenium-webdriver'
+  gem 'shoulda-matchers', git: 'https://github.com/thoughtbot/shoulda-matchers.git', branch: 'rails-5'
 end
 
 group :development do
