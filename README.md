@@ -1,9 +1,7 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-1. Schema change: task_users.deleted, task_users.completed_at, task.deleted
-  - Need spec adjustments
-1. Expect pending tests not to be pending
+2. https://semaphoreci.com/community/tutorials/setting-up-a-bdd-stack-on-a-rails-5-application
 3. Relationships between users, properties and tasks
   - Make controllers
   - Set policies

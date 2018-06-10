@@ -15,6 +15,7 @@ require 'devise'
 require 'capybara/rspec'
 require 'selenium-webdriver'
 require 'webmock/rspec'
+require 'support/form_helper'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 # Add additional requires below this line. Rails is not loaded until this point!
@@ -41,22 +42,26 @@ ActiveRecord::Migration.maintain_test_schema!
 RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include Devise::Test::IntegrationHelpers, type: :system
+  config.include FormHelper, type: :system
 
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
   config.use_transactional_fixtures = true
   config.infer_spec_type_from_file_location!
   config.filter_rails_from_backtrace!
 
-  # # Rspec/retry settings
-  # # show retry status in spec process
-  # config.verbose_retry = true
-  # # Try twice (retry once)
-  # config.default_retry_count = 1
-  # # Only retry when Selenium raises Net::ReadTimeout
-  # config.exceptions_to_retry = [Net::ReadTimeout]
-
   config.expect_with :rspec do |expectations|
     expectations.syntax = %i[should expect]
+  end
+
+  config.before(:suite) do
+    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
+  config.around(:each) do |example|
+    DatabaseCleaner.cleaning do
+      example.run
+    end
   end
 
   config.before(:each, type: :system) do
@@ -69,11 +74,13 @@ RSpec.configure do |config|
   end
 end
 
-# Shoulda::Matchers.configure do |config|
-#   config.integrate do |with|
-#     # Choose a test framework:
-#     with.test_framework :rspec
-#     # Choose one or more libraries:
-#     with.library :rails
-#   end
-# end
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+
+    with.library :active_record
+    with.library :active_model
+    with.library :action_controller
+    with.library :rails
+  end
+end

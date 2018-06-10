@@ -76,7 +76,7 @@ class TaskClient
   def move(**args)
     user = args[:user]
     user.refresh_token!
-    # Moves the specified task to another position in the task list.
+    # Moves the specified task to another position in the tasklist.
     # This can include putting it as a child task under a new parent
     # and/or move it to a different position among its sibling tasks.
 
