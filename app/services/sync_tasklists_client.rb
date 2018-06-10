@@ -30,11 +30,11 @@ class SyncTasklistsClient
   end
 
   def create_local_property(user, tasklist_json)
-    property = Property.create(
+    Property.create(
       name: tasklist_json['title'],
-      creator: user
+      creator: user,
+      created_in_api: true
     )
-    property.reload
   end
 
   def create_local_tasklist(user, tasklist_json, property, tasklist)

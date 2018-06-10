@@ -38,6 +38,7 @@ group :development, :test do
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
   gem 'cucumber-rails', require: false
   gem 'factory_bot_rails'
+  gem 'foreman'
   gem 'pry-byebug'
   gem 'rubocop'
 end

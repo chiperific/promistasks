@@ -124,7 +124,7 @@ class User < ApplicationRecord
   def sync_with_api
     return false unless oauth_id.present?
 
-    SyncTasklistClient.new(self)
+    SyncTasklistsClient.new(self)
 
     Property.visible_to(self).each do |property|
       tasklist = property.tasklists.where(user: user).first
@@ -133,7 +133,7 @@ class User < ApplicationRecord
     end
   end
 
-  handle_asynchronously :sync_with_api
+  # handle_asynchronously :sync_with_api
 
   private
 

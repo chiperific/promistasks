@@ -28,8 +28,11 @@ class SyncTasksClient
 
   def create_local_task(user, task_json)
     task = Task.new.assign_from_api_fields!(task_json)
-    task.creator = user
-    task.owner = user
+    task.tap do |t|
+      t.creator = user
+      t.owner = user
+      t.created_in_api = true
+    end
     task.save
     task.reload
   end

@@ -45,3 +45,4 @@
 4. git remote prune origin --dry-run
 5. Tasks API: https://developers.google.com/tasks/v1/reference/
 6. OAuth2 Developer Playground: https://developers.google.com/oauthplayground
+7. API auth: https://console.developers.google.com/apis/dashboard?project=tasks-api-202522

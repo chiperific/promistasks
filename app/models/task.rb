@@ -32,7 +32,7 @@ class Task < ApplicationRecord
 
   before_save :decide_record_completeness
 
-  after_create :create_with_api
+  after_create :create_with_api, if: -> { discarded_at.blank? && !created_in_api? }
   after_update :create_with_api, if: :saved_changes_to_users?
   after_update :update_with_api, if: :saved_changes_to_api_fields?
   after_update :relocate, if: -> { saved_change_to_property_id? }

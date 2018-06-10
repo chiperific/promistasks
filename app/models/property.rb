@@ -21,7 +21,7 @@ class Property < ApplicationRecord
 
   before_validation :name_and_address, if: :unsynced_name_address?
   before_save :default_budget
-  after_create :create_with_api, if: -> { discarded_at.blank? }
+  after_create :create_with_api, if: -> { discarded_at.blank? && !created_in_api? }
   after_update :propagate_to_api_by_privacy, if: -> { saved_change_to_is_private? }
   after_update :update_with_api, unless: -> { saved_change_to_is_private? }
   after_update :delete_with_api, if: -> { discarded_at.present? }
