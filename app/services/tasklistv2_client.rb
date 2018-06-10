@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'google/apis/tasks_v1'
 require 'googleauth'
 require 'googleauth/stores/file_token_store'
