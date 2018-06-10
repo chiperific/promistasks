@@ -30,6 +30,7 @@ class TaskUser < ApplicationRecord
       t.parent_id = task_json['parent']
       t.deleted = task_json['deleted'] || false
       t.completed_at = task_json['completed']
+      t.updated_at = task_json['updated']
     end
 
     task_json.present?

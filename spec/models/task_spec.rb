@@ -130,6 +130,9 @@ RSpec.describe Task, type: :model do
       expect(Task.public_visible).not_to include visibility_2
       expect(Task.public_visible).not_to include @task
     end
+
+    pending '#related_to shows records where the user is the creator, owner or subject'
+    pending '#visible_to shows a combo of #related_to and public_visible'
   end
 
   describe '#budget_remaining' do

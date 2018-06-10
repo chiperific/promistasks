@@ -63,6 +63,11 @@ RSpec.describe Property, type: :model do
       expect(Property.public_visible).to include public_property
     end
 
+    pending '#created_by returns only records where the user is the creator'
+    pending '#with_tasks_for returns only records with a related task where the user is a creator or owner'
+    pending '#related_to returns a combo of #created_by and #with_tasks_for'
+    pending '#visible_to returns a combo of #created_by, #with_tasks_for, and #public_visible'
+
     it '#archived is alias of #discarded' do
       expect(Property.archived).to eq Property.discarded
     end

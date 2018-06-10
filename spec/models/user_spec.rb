@@ -202,6 +202,14 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe 'sync_with_api' do
+    pending 'runs in the background'
+    pending 'calls the SyncTasklistClient'
+    pending 'calls the GetTasksClient'
+    pending 'sends tasklists to the API'
+    pending 'sends tasls to the API'
+  end
+
   describe '#must_have_type' do
     let(:no_type) { build :user, program_staff: nil }
 

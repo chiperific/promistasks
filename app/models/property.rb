@@ -28,6 +28,10 @@ class Property < ApplicationRecord
 
   scope :needs_title, -> { undiscarded.where(certificate_number: nil) }
   scope :public_visible, -> { undiscarded.where(is_private: false) }
+  scope :created_by, ->(user) { undiscarded.where(creator: user) }
+  scope :with_tasks_for, ->(user) { undiscarded.joins(:tasks).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id) }
+  scope :related_to, ->(user) { created_by(user).or(with_tasks_for(user)) }
+  scope :visible_to, ->(user) { related_to(user).or(public_visible) }
 
   class << self
     alias archived discarded

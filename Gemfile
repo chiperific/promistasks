@@ -10,6 +10,7 @@ end
 
 gem 'bootstrap-sass'
 gem 'coffee-rails', '~> 4.2'
+gem 'delayed_job_active_record'
 gem 'devise'
 gem 'discard', '~> 1.0'
 gem 'font-awesome-rails'

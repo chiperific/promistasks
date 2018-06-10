@@ -121,6 +121,17 @@ class User < ApplicationRecord
     super && !discarded_at
   end
 
+  def sync_with_api
+    return false unless oauth_id.present?
+
+    SyncTasklistClient.new(self)
+
+    Property.visible_to(self).each do |property|
+    end
+  end
+
+  handle_asynchronously :sync_with_api
+
   private
 
   def must_have_type
