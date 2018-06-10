@@ -1,7 +1,7 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-2. https://semaphoreci.com/community/tutorials/setting-up-a-bdd-stack-on-a-rails-5-application
+2. WTF are feature tests and does the folder really need to live above specs?
 3. Relationships between users, properties and tasks
   - Make controllers
   - Set policies

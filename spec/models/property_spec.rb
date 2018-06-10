@@ -4,10 +4,6 @@ require 'rails_helper'
 
 RSpec.describe Property, type: :model do
   before :each do
-    User.destroy_all
-    Property.destroy_all
-    Tasklist.destroy_all
-    TaskUser.destroy_all
     stub_request(:any, Constant::Regex::TASKLIST).to_return(
       headers: { 'Content-Type'=> 'application/json' },
       status: 200,
