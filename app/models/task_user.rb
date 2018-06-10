@@ -43,7 +43,8 @@ class TaskUser < ApplicationRecord
   end
 
   def set_tasklist_id
-    task.property.create_tasklist_for(user) if task.property.tasklists.where(user: user).empty?
+    return false if user.nil? || task.nil?
+    task.property.create_tasklist_for(user)
     tasklist = task.property.tasklists.where(user: user).first
     self.tasklist_id = tasklist.google_id
   end
