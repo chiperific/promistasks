@@ -127,6 +127,9 @@ class User < ApplicationRecord
     SyncTasklistClient.new(self)
 
     Property.visible_to(self).each do |property|
+      tasklist = property.tasklists.where(user: user).first
+      next unless tasklist.exists? && tasklist.google_id.present?
+      SyncTasksClient.new(self, tasklist.google_id)
     end
   end
 
