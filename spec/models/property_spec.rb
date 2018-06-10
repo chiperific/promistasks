@@ -48,6 +48,21 @@ RSpec.describe Property, type: :model do
     end
   end
 
+  describe 'requires booleans to be in a state:' do
+    let(:bad_private) { build :property, is_private: nil }
+    let(:bad_created) { build :property, created_in_api: nil }
+
+    it 'is_private' do
+      expect { bad_private.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { bad_private.save! }.to raise_error ActiveRecord::RecordInvalid
+    end
+
+    it 'created_in_api' do
+      expect { bad_created.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { bad_created.save! }.to raise_error ActiveRecord::RecordInvalid
+    end
+  end
+
   describe 'limits records by scope' do
     let(:no_title) { create :property }
     let(:public_property) { create :property, is_private: false }

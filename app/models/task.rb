@@ -20,7 +20,7 @@ class Task < ApplicationRecord
   validates_presence_of :creator_id, :owner_id, :property_id
   validates :priority, inclusion: { in: Constant::Task::PRIORITY, allow_blank: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}" }
   validates_inclusion_of  :license_required, :needs_more_info,
-                          :initialization_template, in: [true, false]
+                          :initialization_template, :created_in_api, in: [true, false]
   validates_inclusion_of :visibility, in: [0, 1, 2, 3]
 
   validates :title, presence: true, uniqueness: { scope: :property }

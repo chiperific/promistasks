@@ -15,7 +15,7 @@ class Property < ApplicationRecord
   validates_presence_of :creator_id
   validates :name, :address, uniqueness: true, presence: true
   validates_uniqueness_of :certificate_number, :serial_number, allow_nil: true
-  validates_inclusion_of :is_private, in: [true, false]
+  validates_inclusion_of :is_private, :created_in_api, in: [true, false]
 
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
 

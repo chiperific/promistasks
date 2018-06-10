@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.desribe 'Public Page', type: :system do
+RSpec.describe 'Public Page', type: :system do
   context 'when not logged in' do
     pending 'can be visited'
     pending 'shows publicly visited tasks'
