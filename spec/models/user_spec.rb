@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe User, type: :model do
   let(:user) { build :user }
+  let(:oauth_user) { build :oauth_user }
   let(:no_name) { build :user, name: nil }
   let(:no_email) { build :user, email: nil }
   let(:no_password) { build :user, password: nil }
@@ -117,8 +118,6 @@ RSpec.describe User, type: :model do
   end
 
   describe 'limits records by scope' do
-    let(:oauth_user) { create :user, oauth_id: '100000000000000000001' }
-
     it '#staff returns only Users with an oauth_id' do
       user.save
       oauth_user.save
@@ -255,7 +254,37 @@ RSpec.describe User, type: :model do
   end
 
   describe '#propegate_tasklists' do
-    pending 'only fires on update'
-    pending 'creates tasklists for the new user'
+    before :each do
+      stub_request(:any, Constant::Regex::TASKLIST).to_return(
+        headers: { 'Content-Type'=> 'application/json' },
+        status: 200,
+        body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
+      )
+
+      3.times { FactoryBot.create(:property) }
+    end
+
+    it 'only fires if user has an oauth_id' do
+      expect(user.oauth_id).to eq nil
+      expect(user).not_to receive(:propegate_tasklists)
+      user.save!
+    end
+
+    it 'only fires on create' do
+      expect(oauth_user.oauth_id).not_to eq nil
+      expect(oauth_user).to receive(:propegate_tasklists)
+      oauth_user.save!
+
+      expect(oauth_user).not_to receive(:propegate_tasklists)
+      oauth_user.update(name: 'New name!')
+    end
+
+    it 'creates tasklists for the new user' do
+      first_count = Tasklist.where(user: oauth_user).count
+      prop_count = Property.public_visible.count
+      oauth_user.save
+
+      expect(Tasklist.where(user: oauth_user).count).to eq first_count + prop_count
+    end
   end
 end
