@@ -44,7 +44,7 @@ class Task < ApplicationRecord
   scope :in_process, -> { undiscarded.where(completed_at: nil).where(initialization_template: false) }
   scope :complete, -> { undiscarded.where.not(completed_at: nil).where(initialization_template: false) }
   scope :public_visible, -> { undiscarded.where(visibility: 1) }
-  scope :related_to, ->(user) { where(creator_id: user.id).or(Task.where(owner_id: user.id)).or(Task.where(subject_id: user.id)) }
+  scope :related_to, ->(user) { where('creator_id = ? OR owner_id = ?', user.id, user.id) }
   scope :visible_to, ->(user) { related_to(user).or(public_visible) }
 
   def budget_remaining

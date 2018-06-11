@@ -91,11 +91,14 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe 'limits records by scope' do
+  fdescribe 'limits records by scope' do
     let(:initialization_template) { create :task, property: @property, creator: @creator, owner: @owner, initialization_template: true }
     let(:has_good_info)           { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 3.days, priority: 'medium', budget: 500 }
     let(:visibility_1)            { create :task, property: @property, creator: @creator, owner: @owner, visibility: 1 }
     let(:visibility_2)            { create :task, property: @property, creator: @creator, owner: @owner, visibility: 2 }
+    let(:user) { create :user }
+    let(:related_one) { create :task, creator: user }
+    let(:related_two) { create :task, creator: user }
 
     it '#needs_more_info returns only non-initialization tasks where needs_more_info is false' do
       @task.save
@@ -137,8 +140,29 @@ RSpec.describe Task, type: :model do
       expect(Task.public_visible).not_to include @task
     end
 
-    pending '#related_to shows records where the user is the creator, owner or subject'
-    pending '#visible_to shows a combo of #related_to and public_visible'
+    it '#related_to shows records where the user is the creator, owner or subject' do
+      user
+      related_one
+      related_two
+      expect(Task.related_to(user)).to include related_one
+      expect(Task.related_to(user)).to include related_two
+      expect(Task.related_to(user)).not_to include has_good_info
+      expect(Task.related_to(user)).not_to include @task
+    end
+
+    it '#visible_to shows a combo of #related_to and public_visible' do
+      user
+      related_one
+      related_two
+      visibility_1
+      visibility_2
+      has_good_info
+      expect(Task.visible_to(user)).to include related_one
+      expect(Task.visible_to(user)).to include related_two
+      expect(Task.visible_to(user)).to include visibility_1
+      expect(Task.visible_to(user)).not_to include visibility_2
+      expect(Task.visible_to(user)).not_to include has_good_info
+    end
   end
 
   describe '#budget_remaining' do

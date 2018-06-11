@@ -26,17 +26,29 @@ class Property < ApplicationRecord
   after_update :update_with_api, unless: -> { saved_change_to_is_private? }
   after_update :delete_with_api, if: -> { discarded_at.present? }
 
-  scope :needs_title, -> { undiscarded.where(certificate_number: nil) }
-  scope :public_visible, -> { undiscarded.where(is_private: false) }
-  scope :created_by, ->(user) { undiscarded.where(creator: user) }
-  scope :with_tasks_for, ->(user) { undiscarded.joins(:tasks).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id) }
-  scope :related_to, ->(user) { created_by(user).or(with_tasks_for(user)) }
-  scope :visible_to, ->(user) { related_to(user).or(public_visible) }
+  scope :needs_title,    ->       { undiscarded.where(certificate_number: nil) }
+  scope :public_visible, ->       { undiscarded.where(is_private: false) }
+  scope :created_by,     ->(user) { undiscarded.where(creator: user) }
+  scope :with_tasks_for, ->(user) { undiscarded.where(id: Task.select(:property_id).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id)) }
+  scope :related_to,     ->(user) { created_by(user).or(with_tasks_for(user)) }
+  scope :visible_to,     ->(user) { related_to(user).or(public_visible) }
 
   class << self
     alias archived discarded
     alias active kept
   end
+
+  # def self.related_to(user)
+  #   ary = Property.created_by(user).map(&:id)
+  #   ary << Property.with_tasks_for(user).pam(&:id)
+  #   Property.find(ary.uniq!)
+  # end
+
+  # def self.visible_to(user)
+  #   ary = Property.related_to(user).map(&:id)
+  #   ary << Property.public_visible.map(&:id)
+  #   Property.find(ary.uniq!)
+  # end
 
   def full_address
     addr = address

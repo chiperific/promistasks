@@ -67,9 +67,16 @@ RSpec.describe Property, type: :model do
     let(:no_title) { create :property }
     let(:public_property) { create :property, is_private: false }
     let(:archived_property) { create :property, discarded_at: Time.now }
+    let(:user) { create :oauth_user }
+    let(:this_user) { create :property, creator: user }
+    let(:this_user_also) { create :property, creator: user }
+    let(:not_this_user) { create :property }
+    let(:task_creator) { create :task, creator: user, property: not_this_user }
+    let(:task_owner) { create :task, owner: user, property: not_this_user }
 
     it '#needs_title returns only records without a certificate_number' do
       expect(Property.needs_title).not_to include @property
+      expect(Property.needs_title).not_to include archived_property
       expect(Property.needs_title).to include no_title
     end
 
@@ -78,10 +85,61 @@ RSpec.describe Property, type: :model do
       expect(Property.public_visible).to include public_property
     end
 
-    pending '#created_by returns only records where the user is the creator'
-    pending '#with_tasks_for returns only records with a related task where the user is a creator or owner'
-    pending '#related_to returns a combo of #created_by and #with_tasks_for'
-    pending '#visible_to returns a combo of #created_by, #with_tasks_for, and #public_visible'
+    it '#created_by returns only records where the user is the creator' do
+      expect(Property.created_by(user)).not_to include @property
+      expect(Property.created_by(user)).not_to include not_this_user
+      expect(Property.created_by(user)).not_to include archived_property
+      expect(Property.created_by(user)).to include this_user
+      expect(Property.created_by(user)).to include this_user_also
+    end
+
+    it '#with_tasks_for returns only records with a related task where the user is a creator or owner' do
+      @property
+      this_user_also
+      this_user
+      archived_property
+      not_this_user
+      user
+      task_creator
+      task_owner
+      expect(Property.with_tasks_for(user)).not_to include @property
+      expect(Property.with_tasks_for(user)).not_to include this_user_also
+      expect(Property.with_tasks_for(user)).not_to include this_user
+      expect(Property.with_tasks_for(user)).not_to include archived_property
+      expect(Property.with_tasks_for(user)).to include not_this_user
+    end
+
+    it '#related_to returns a combo of #created_by and #with_tasks_for' do
+      @property
+      this_user_also
+      this_user
+      archived_property
+      not_this_user
+      user
+      task_creator
+      task_owner
+      expect(Property.related_to(user)).not_to include @property
+      expect(Property.related_to(user)).not_to include archived_property
+      expect(Property.related_to(user)).to include this_user_also
+      expect(Property.related_to(user)).to include this_user
+      expect(Property.related_to(user)).to include not_this_user
+    end
+
+    it '#visible_to returns a combo of #created_by, #with_tasks_for, and #public_visible' do
+      @property.update(is_private: false)
+      this_user_also
+      this_user
+      archived_property
+      not_this_user
+      user
+      task_creator
+      task_owner
+      expect(Property.visible_to(user)).not_to include archived_property
+      expect(Property.visible_to(user)).to include @property
+      expect(Property.visible_to(user)).to include this_user_also
+      expect(Property.visible_to(user)).to include this_user
+      expect(Property.visible_to(user)).to include not_this_user
+    end
 
     it '#archived is alias of #discarded' do
       expect(Property.archived).to eq Property.discarded
