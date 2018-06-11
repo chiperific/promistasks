@@ -15,7 +15,7 @@ class SyncTasklistsClient
         create_local_tasklist(user, tasklist_json, property, tasklist)
       else
         # compare dates, most recent wins
-        case tasklist.updated_at.utc < Time.parse(tasklist_json['update'])
+        case tasklist.updated_at.utc < Time.parse(tasklist_json['updated'])
         when true
           update_local_property(user, tasklist_json, tasklist.property)
           update_local_tasklist(user, tasklist_json, tasklist)
@@ -24,7 +24,7 @@ class SyncTasklistsClient
         end
         # stale lists (Google ID has changed for some reason)
         stale_tasklists = Tasklist.where.not(id: tasklist.id).where(property: tasklist.property).where(user: user)
-        stale_tasklists.destroy_all if stale_lists.any?
+        stale_tasklists.destroy_all if stale_tasklists.any?
       end
     end
   end

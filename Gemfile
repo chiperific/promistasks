@@ -40,6 +40,7 @@ group :development, :test do
   gem 'factory_bot_rails'
   gem 'foreman'
   gem 'pry-byebug'
+  gem 'pry-remote'
   gem 'rubocop'
 end
 

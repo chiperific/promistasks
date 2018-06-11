@@ -25,8 +25,8 @@ class Task < ApplicationRecord
 
   validates :title, presence: true, uniqueness: { scope: :property }
 
-  validate :require_cost
-  validate :due_cant_be_past
+  validate :require_cost, if: -> { budget.present? && cost.nil? && completed_at.nil? }
+  validate :due_cant_be_past, unless: -> { created_in_api? }
 
   monetize :budget_cents, :cost_cents, allow_nil: true
 
@@ -72,20 +72,14 @@ class Task < ApplicationRecord
       t.due = task_json['due']
     end
 
-    task_json.present?
+    self
   end
 
-  def create_taskuser_for(user, action = :insert)
+  def create_taskuser_for(user, action = :api_insert)
     tasklist = property.create_tasklist_for(user)
     task_user = task_users.where(user: user).first_or_create
     if task_user.google_id.nil?
-      response = TaskClient.new.send(
-        action,
-        user: user,
-        tasklist_gid: tasklist.google_id,
-        task: self,
-        task_user: task_user
-      )
+      response = task_user.send(action)
       task_user.assign_from_api_fields!(response)
       task_user.update(tasklist_id: tasklist.google_id)
       task_user.reload
@@ -107,13 +101,7 @@ class Task < ApplicationRecord
   private
 
   def require_cost
-    return true if completed_at.nil?
-    if budget.present? && cost.nil?
-      errors.add(:cost, 'must be recorded, or you can delete the budget amount')
-      false
-    else
-      true
-    end
+    errors.add(:cost, 'must be recorded, or you can delete the budget amount')
   end
 
   def due_cant_be_past
@@ -150,18 +138,11 @@ class Task < ApplicationRecord
 
   def update_with_api
     prepare_for_api
-    action = discarded_at.present? ? :delete : :update
+    action = discarded_at.present? ? :api_delete : :api_update
 
     [creator, owner].each do |user|
       task_user = task_users.where(user: user).first
-      response = TaskClient.new.send(
-        action,
-        user: user,
-        task: self,
-        task_user: task_user,
-        tasklist_gid: task_user.tasklist_id,
-        task_gid: task_user.google_id
-      )
+      response = task_user.send(action)
 
       if discarded_at.present?
         task_user.destroy

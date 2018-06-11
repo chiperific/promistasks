@@ -6,11 +6,11 @@ class TasklistClient
 
   # https://developers.google.com/tasks/v1/reference/
 
-  def list(user)
-    user.refresh_token!
-    # Returns all the authenticated user's task lists.
-    HTTParty.get(BASE_URI, headers: headers(user))
-  end
+  # def list(user)
+  #   user.refresh_token!
+  #   # Returns all the authenticated user's task lists.
+  #   HTTParty.get(BASE_URI, headers: headers(user))
+  # end
 
   def get(user, tasklist)
     user.refresh_token!

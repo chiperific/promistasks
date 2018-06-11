@@ -121,15 +121,20 @@ class User < ApplicationRecord
     super && !discarded_at
   end
 
+  def list_api_tasklists
+    return false unless oauth_id.present?
+    HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists', headers: api_headers)
+  end
+
   def sync_with_api
     return false unless oauth_id.present?
 
     SyncTasklistsClient.new(self)
 
     Property.visible_to(self).each do |property|
-      tasklist = property.tasklists.where(user: user).first
-      next unless tasklist.exists? && tasklist.google_id.present?
-      SyncTasksClient.new(self, tasklist.google_id)
+      tasklist = property.tasklists.where(user: self).first
+      next unless tasklist.present? && tasklist.google_id.present?
+      SyncTasksClient.new(self, tasklist)
     end
   end
 
@@ -162,5 +167,10 @@ class User < ApplicationRecord
     Property.public_visible.each do |property|
       property.create_tasklist_for(self)
     end
+  end
+
+  def api_headers
+    { 'Authorization': 'OAuth ' + oauth_token,
+      'Content-type': 'application/json' }
   end
 end

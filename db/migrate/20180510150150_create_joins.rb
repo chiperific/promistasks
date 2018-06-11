@@ -50,7 +50,7 @@ class CreateJoins < ActiveRecord::Migration[5.1]
     create_table :task_users do |t|
       t.references :user, null: false, foreign_key: true
       t.references :task, null: false, foreign_key: true
-      t.string :tasklist_id                           # google field, but maintained from tasklist join table
+      t.string :tasklist_gid                          # google field, but maintained from tasklist join table
       t.string :google_id                             # google field, Task ID
       t.string :position                              # google field
       t.integer :position_int, default: 0, limit: 8   # position field converted to an integer
@@ -62,7 +62,7 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.index [:user_id, :task_id], unique: true
       t.index [:task_id, :user_id], unique: true
       t.index :google_id,           unique: true
-      t.index :tasklist_id
+      t.index :tasklist_gid
       t.index :position_int
     end
   end

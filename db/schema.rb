@@ -122,7 +122,7 @@ ActiveRecord::Schema.define(version: 20180610153731) do
   create_table "task_users", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "task_id", null: false
-    t.string "tasklist_id"
+    t.string "tasklist_gid"
     t.string "google_id"
     t.string "position"
     t.bigint "position_int", default: 0
@@ -136,7 +136,7 @@ ActiveRecord::Schema.define(version: 20180610153731) do
     t.index ["position_int"], name: "index_task_users_on_position_int"
     t.index ["task_id", "user_id"], name: "index_task_users_on_task_id_and_user_id", unique: true
     t.index ["task_id"], name: "index_task_users_on_task_id"
-    t.index ["tasklist_id"], name: "index_task_users_on_tasklist_id"
+    t.index ["tasklist_gid"], name: "index_task_users_on_tasklist_gid"
     t.index ["user_id", "task_id"], name: "index_task_users_on_user_id_and_task_id", unique: true
     t.index ["user_id"], name: "index_task_users_on_user_id"
   end
