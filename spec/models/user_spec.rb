@@ -3,70 +3,82 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  let(:user) { build :user }
-  let(:oauth_user) { build :oauth_user }
-  let(:no_name) { build :user, name: nil }
-  let(:no_email) { build :user, email: nil }
-  let(:no_password) { build :user, password: nil }
-  let(:no_pw_or_conf) { build :user, password: nil, password_confirmation: nil }
-  let(:no_encrypt_pw) { build :user, encrypted_password: nil }
-  let(:token_expired) { create :oauth_user, oauth_expires_at: Time.now - 1.hour }
-  let(:token_fresh) { create :oauth_user, oauth_expires_at: Time.now + 6.hours }
-  let(:several_types) { create :user, program_staff: true, admin_staff: true, project_staff: true }
-  let(:volunteer) { create :volunteer_user }
-
-  describe 'must be valid against schema' do
-    it 'in order to save' do
-      expect(user.save!(validate: false)).to eq true
-
-      expect { no_name.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { no_email.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { no_encrypt_pw.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-    end
+  before :each do
+    stub_request(:any, Constant::Regex::TASKLIST).to_return(
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
+    )
+    stub_request(:any, Constant::Regex::TASK).to_return(
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:task_json).marshal_dump.to_json
+    )
+    @user = FactoryBot.build(:user)
+    @oauth_user = FactoryBot.build(:oauth_user)
+    WebMock::RequestRegistry.instance.reset!
   end
 
-  describe 'must be valid against model' do
-    it 'in order to save' do
-      expect(user.save!).to eq true
+  describe 'must be valid' do
+    let(:no_name)       { build :user, name: nil }
+    let(:no_email)      { build :user, email: nil }
+    let(:no_password)   { build :user, password: nil }
+    let(:no_pw_or_conf) { build :user, password: nil, password_confirmation: nil }
+    let(:no_encrypt_pw) { build :user, encrypted_password: nil }
 
-      expect { no_name.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { no_email.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { no_password.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { no_pw_or_conf.save! }.to raise_error ActiveRecord::RecordInvalid
+    context 'against schema' do
+      it 'in order to save' do
+        expect(@user.save!(validate: false)).to eq true
+
+        expect { no_name.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { no_email.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { no_encrypt_pw.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      end
+    end
+
+    context 'against model' do
+      it 'in order to save' do
+        expect(@user.save!).to eq true
+
+        expect { no_name.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_email.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_password.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_pw_or_conf.save! }.to raise_error ActiveRecord::RecordInvalid
+      end
     end
   end
 
   describe 'requires uniqueness' do
     it 'on name' do
-      user.save
+      @user.save
 
-      duplicate = FactoryBot.build(:user, name: user.name)
+      duplicate = FactoryBot.build(:user, name: @user.name)
       expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
 
     it 'on email' do
-      user.save
+      @user.save
 
-      duplicate = FactoryBot.build(:user, email: user.email)
+      duplicate = FactoryBot.build(:user, email: @user.email)
       expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
 
     it 'on oauth_id' do
-      user.oauth_id = '100000000000000000001'
-      user.save
+      @user.oauth_id = '100000000000000000001'
+      @user.save
 
-      duplicate = FactoryBot.build(:user, oauth_id: user.oauth_id)
+      duplicate = FactoryBot.build(:user, oauth_id: @user.oauth_id)
       expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
 
     it 'on oauth_token' do
-      user.oauth_token = 'ya29.Glu6BYecZ3wHaU-ilHoWWo0YcZrmpj4j6eet3qec7_3SD1RWt3J4xhx9Bg6IjMELq9WdbbB48sw6T_Y3FmWVI1sgRIMxYg4Nr2wmnt6WxBQ4aqTnChgkEPpYvCX0'
-      user.save
+      @user.oauth_token = 'ya29.Glu6BYecZ3wHaU-ilHoWWo0YcZrmpj4j6eet3qec7_3SD1RWt3J4xhx9Bg6IjMELq9WdbbB48sw6T_Y3FmWVI1sgRIMxYg4Nr2wmnt6WxBQ4aqTnChgkEPpYvCX0'
+      @user.save
 
-      duplicate = FactoryBot.build(:user, oauth_token: user.oauth_token)
+      duplicate = FactoryBot.build(:user, oauth_token: @user.oauth_token)
       expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
@@ -118,26 +130,53 @@ RSpec.describe User, type: :model do
   end
 
   describe 'limits records by scope' do
-    it '#staff returns only Users with an oauth_id' do
-      user.save
-      oauth_user.save
+    let(:client)      { create :client_user }
+    let(:volunteer)   { create :volunteer_user }
+    let(:contractor)  { create :contractor_user}
+    let(:project)     { create :oauth_user }
+    let(:program)     { create :oauth_user, program_staff: true }
 
-      expect(User.staff).to include oauth_user
-      expect(User.staff).not_to include user
+    it '#staff returns only Users with an oauth_id' do
+      @user.save
+      @oauth_user.save
+
+      expect(User.staff).to include @oauth_user
+      expect(User.staff).not_to include @user
+    end
+
+    it '#staff_except(user) returns staff minus the provided user' do
+      @user.save
+      @oauth_user.save
+      client
+      volunteer
+      contractor
+      project
+      program
+
+      expect(User.staff_except(@oauth_user)).not_to include @oauth_user
+      expect(User.staff_except(@oauth_user)).not_to include @user
+      expect(User.staff_except(@oauth_user)).not_to include client
+      expect(User.staff_except(@oauth_user)).not_to include volunteer
+      expect(User.staff_except(@oauth_user)).not_to include contractor
+      expect(User.staff_except(@oauth_user)).to include project
+      expect(User.staff_except(@oauth_user)).to include program
     end
 
     it '#not_staff returns only Users without an oauth_id' do
-      user.save
-      oauth_user.save
+      @user.save
+      @oauth_user.save
 
-      expect(User.not_staff).to include user
-      expect(User.not_staff).not_to include oauth_user
+      expect(User.not_staff).to include @user
+      expect(User.not_staff).not_to include @oauth_user
     end
   end
 
   describe '#type' do
+    let(:several_types) { create :user, program_staff: true, admin_staff: true, project_staff: true }
+    let(:volunteer)     { create :volunteer_user }
+
     it 'returns an array of types that describe the user' do
-      expect(user.type).to eq ['Program Staff']
+      expect(@user.type).to eq ['Program Staff']
       expect(several_types.type).to eq ['Program Staff', 'Project Staff', 'Admin Staff']
       expect(volunteer.type).to eq ['Volunteer']
     end
@@ -158,12 +197,15 @@ RSpec.describe User, type: :model do
   end
 
   describe '#refresh_token!' do
+    let(:token_expired) { create :oauth_user, oauth_expires_at: Time.now - 1.hour }
+    let(:token_fresh)   { create :oauth_user, oauth_expires_at: Time.now + 6.hours }
+
     it 'returns false if the token hasn\'t expired' do
       expect(token_fresh.refresh_token!).to eq false
     end
 
     it 'returns false if the user isn\'t oauth' do
-      expect(user.refresh_token!).to eq false
+      expect(@user.refresh_token!).to eq false
     end
 
     it 'contacts Google for a new token if it\'s expired' do
@@ -190,8 +232,11 @@ RSpec.describe User, type: :model do
   end
 
   describe '#token_expired?' do
+    let(:token_expired) { create :oauth_user, oauth_expires_at: Time.now - 1.hour }
+    let(:token_fresh)   { create :oauth_user, oauth_expires_at: Time.now + 6.hours }
+
     it 'returns nil if the user isn\'t an oauth' do
-      expect(user.token_expired?).to eq nil
+      expect(@user.token_expired?).to eq nil
     end
     it 'returns true if oauth_expires_at is in the past' do
       expect(token_expired.token_expired?).to eq true
@@ -202,16 +247,55 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#list_api_tasklists' do
+    it 'returns false if oauth_id is missing' do
+      @user.save
+      expect(@user.list_api_tasklists).to eq false
+    end
+
+    it 'makes an API call' do
+      @oauth_user.save
+      @oauth_user.list_api_tasklists
+      expect(WebMock).to have_requested(:get, 'https://www.googleapis.com/tasks/v1/users/@me/lists')
+    end
+
+    it 'returns a google tasklist object' do
+      @oauth_user.save
+      response = @oauth_user.list_api_tasklists
+      expect(response['kind']).to eq 'tasks#taskList'
+    end
+  end
+
   describe 'sync_with_api' do
+    before :each do
+      @oauth_user.save
+      3.times { FactoryBot.create(:property, creator: @oauth_user) }
+    end
+
     pending 'runs in the background'
-    pending 'calls the SyncTasklistClient'
-    pending 'calls the GetTasksClient'
-    pending 'sends tasklists to the API'
-    pending 'sends tasls to the API'
+
+    it 'returns false unless oauth_id is present' do
+      @user.save
+      expect(@user.sync_with_api).to eq false
+    end
+
+    it 'calls the SyncTasklistClient' do
+      expect(SyncTasklistsClient).to receive(:new).with(@oauth_user)
+      @oauth_user.sync_with_api
+    end
+
+    it 'calls the SyncTasksClient' do
+      Property.all.each(&:reload)
+
+      expect(SyncTasksClient).to receive(:new).exactly(3).times
+      @oauth_user.sync_with_api
+    end
   end
 
   describe '#must_have_type' do
     let(:no_type) { build :user, program_staff: nil }
+    let(:several_types) { create :user, program_staff: true, admin_staff: true, project_staff: true }
+    let(:volunteer)     { create :volunteer_user }
 
     it 'returns true if the user has at least one type' do
       expect(several_types.send(:must_have_type)).to eq true
@@ -229,7 +313,7 @@ RSpec.describe User, type: :model do
     let(:client_and) { build :client_user, program_staff: true }
 
     it 'returns true if the user isn\'t a client' do
-      expect(user.send(:clients_are_singular)).to eq true
+      expect(@user.send(:clients_are_singular)).to eq true
     end
 
     it 'returns true if the user is only a client' do
@@ -247,8 +331,8 @@ RSpec.describe User, type: :model do
     let(:bad_admin) { build :user, system_admin: true }
 
     it 'only fires if system_admin is checked' do
-      expect(user).not_to receive(:system_admin_must_be_internal)
-      user.save!
+      expect(@user).not_to receive(:system_admin_must_be_internal)
+      @user.save!
 
       expect(system_admin).to receive(:system_admin_must_be_internal)
       system_admin.save!
@@ -263,36 +347,30 @@ RSpec.describe User, type: :model do
 
   describe '#propegate_tasklists' do
     before :each do
-      stub_request(:any, Constant::Regex::TASKLIST).to_return(
-        headers: { 'Content-Type'=> 'application/json' },
-        status: 200,
-        body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
-      )
-
       3.times { FactoryBot.create(:property) }
     end
 
     it 'only fires if user has an oauth_id' do
-      expect(user.oauth_id).to eq nil
-      expect(user).not_to receive(:propegate_tasklists)
-      user.save!
+      expect(@user.oauth_id).to eq nil
+      expect(@user).not_to receive(:propegate_tasklists)
+      @user.save!
     end
 
     it 'only fires on create' do
-      expect(oauth_user.oauth_id).not_to eq nil
-      expect(oauth_user).to receive(:propegate_tasklists)
-      oauth_user.save!
+      expect(@oauth_user.oauth_id).not_to eq nil
+      expect(@oauth_user).to receive(:propegate_tasklists)
+      @oauth_user.save!
 
-      expect(oauth_user).not_to receive(:propegate_tasklists)
-      oauth_user.update(name: 'New name!')
+      expect(@oauth_user).not_to receive(:propegate_tasklists)
+      @oauth_user.update(name: 'New name!')
     end
 
     it 'creates tasklists for the new user' do
-      first_count = Tasklist.where(user: oauth_user).count
+      first_count = Tasklist.where(user: @oauth_user).count
       prop_count = Property.public_visible.count
-      oauth_user.save
+      @oauth_user.save
 
-      expect(Tasklist.where(user: oauth_user).count).to eq first_count + prop_count
+      expect(Tasklist.where(user: @oauth_user).count).to eq first_count + prop_count
     end
   end
 end

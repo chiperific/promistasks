@@ -12,36 +12,36 @@ class TasklistClient
   #   HTTParty.get(BASE_URI, headers: headers(user))
   # end
 
-  def get(user, tasklist)
-    user.refresh_token!
-    # Returns the authenticated user's specified task list.
-    HTTParty.get(BASE_URI + '/' + tasklist.google_id, headers: headers(user))
-  end
+  # def get(user, tasklist)
+  #   user.refresh_token!
+  #   # Returns the authenticated user's specified task list.
+  #   HTTParty.get(BASE_URI + '/' + tasklist.google_id, headers: headers(user))
+  # end
 
-  def insert(user, tasklist)
-    user.refresh_token!
-    # Creates a new task list and adds it to the authenticated user's task lists.
-    body = { title: tasklist.property.name }
-    HTTParty.post(BASE_URI, { headers: headers(user), body: body.to_json })
-  end
+  # def insert(user, tasklist)
+  #   user.refresh_token!
+  #   # Creates a new task list and adds it to the authenticated user's task lists.
+  #   body = { title: tasklist.property.name }
+  #   HTTParty.post(BASE_URI, { headers: headers(user), body: body.to_json })
+  # end
 
-  def update(user, tasklist)
-    user.refresh_token!
-    # Modify the authenticated user's specified task list. This method supports patch semantics.
-    body = { title: tasklist.property.name }
-    HTTParty.patch(BASE_URI + '/' + tasklist.google_id, { headers: headers(user), body: body.to_json })
-  end
+  # def update(user, tasklist)
+  #   user.refresh_token!
+  #   # Modify the authenticated user's specified task list. This method supports patch semantics.
+  #   body = { title: tasklist.property.name }
+  #   HTTParty.patch(BASE_URI + '/' + tasklist.google_id, { headers: headers(user), body: body.to_json })
+  # end
 
-  def delete(user, tasklist)
-    user.refresh_token!
-    # Deletes the authenticated user's specified task list.
-    HTTParty.delete(BASE_URI + '/' + tasklist.google_id, headers: headers(user))
-  end
+  # def delete(user, tasklist)
+  #   user.refresh_token!
+  #   # Deletes the authenticated user's specified task list.
+  #   HTTParty.delete(BASE_URI + '/' + tasklist.google_id, headers: headers(user))
+  # end
 
-  private
+  # private
 
-  def headers(user)
-    { 'Authorization': 'OAuth ' + user.oauth_token,
-      'Content-type': 'application/json' }.as_json
-  end
+  # def headers(user)
+  #   { 'Authorization': 'OAuth ' + user.oauth_token,
+  #     'Content-type': 'application/json' }.as_json
+  # end
 end

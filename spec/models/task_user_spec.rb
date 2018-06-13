@@ -73,6 +73,49 @@ RSpec.describe TaskUser, type: :model do
     end
   end
 
+  describe '#assign_from_api_fields!' do
+    pending 'returns false if task_json is null'
+    pending 'returns false if user isn\'t oauth'
+    pending 'returns false if there\'s no google_id'
+    pending 'returns false if there\'s no tasklist_gid'
+    pending 'uses a json hash to assign record values'
+  end
+
+  describe '#api_get' do
+    pending 'returns false for non-oauth users'
+    pending 'returns false if there\'s no google_id'
+    pending 'returns false if there\'s no tasklist_gid'
+    pending 'makes an API call'
+  end
+
+  describe '#api_insert' do
+    pending 'returns false for non-oauth users'
+    pending 'returns false if there\'s no google_id'
+    pending 'returns false if there\'s no tasklist_gid'
+    pending 'makes an API call'
+  end
+
+  describe '#api_update' do
+    pending 'returns false for non-oauth users'
+    pending 'returns false if there\'s no google_id'
+    pending 'returns false if there\'s no tasklist_gid'
+    pending 'makes an API call'
+  end
+
+  describe '#api_delete' do
+    pending 'returns false for non-oauth users'
+    pending 'returns false if there\'s no google_id'
+    pending 'returns false if there\'s no tasklist_gid'
+    pending 'makes an API call'
+  end
+
+  describe '#api_move' do
+    pending 'returns false for non-oauth users'
+    pending 'returns false if there\'s no google_id'
+    pending 'returns false if there\'s no tasklist_gid'
+    pending 'makes an API call'
+  end
+
   describe '#set_position_as_integer' do
     let(:has_position) { build :task_user, task: @task, position: '0000001234' }
 
@@ -95,52 +138,52 @@ RSpec.describe TaskUser, type: :model do
     end
   end
 
-  describe '#set_tasklist_id' do
+  describe '#set_tasklist_gid' do
     let(:no_user) { build :task_user, user_id: nil }
     let(:no_task) { build :task_user, task_id: nil }
-    let(:has_tasklist_id) { build :task_user, tasklist_id: 'FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDo1001' }
+    let(:has_tasklist_gid) { build :task_user, tasklist_gid: 'FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDo1001' }
     let(:fresh) { build :task_user }
 
     it 'returns false if user is nil' do
-      expect(no_user.send(:set_tasklist_id)).to eq false
+      expect(no_user.send(:set_tasklist_gid)).to eq false
     end
 
     it 'returns false if task is nil' do
-      expect(no_task.send(:set_tasklist_id)).to eq false
+      expect(no_task.send(:set_tasklist_gid)).to eq false
     end
 
-    it 'only fires if tasklist_id is empty' do
-      expect(has_tasklist_id).not_to receive(:set_tasklist_id)
-      has_tasklist_id.save!
+    it 'only fires if tasklist_gid is empty' do
+      expect(has_tasklist_gid).not_to receive(:set_tasklist_gid)
+      has_tasklist_gid.save!
     end
 
-    it 'sets the tasklist_id from the parent property' do
-      expect(fresh).to receive(:set_tasklist_id)
+    it 'sets the tasklist_gid from the parent property' do
+      expect(fresh).to receive(:set_tasklist_gid)
       fresh.save!
     end
   end
 
-  describe '#cascade_completeness' do
+  describe '#elevate_completeness' do
     let(:completed) { build :task_user, completed_at: Time.now - 1.hour }
     let(:complete_task) { build :task, completed_at: Time.now }
 
     it 'only fires if completed_at is present and the task isn\'t marked complete' do
       # task_user completed_at set, but not task
-      expect(completed).to receive(:cascade_completeness)
+      expect(completed).to receive(:elevate_completeness)
       completed.save!
 
       # neither completed_at set
-      expect(@task_user).not_to receive(:cascade_completeness)
+      expect(@task_user).not_to receive(:elevate_completeness)
       @task_user.save!
 
       # both completed_at set
       completed.update(task: complete_task)
-      expect(completed).not_to receive(:cascade_completeness)
+      expect(completed).not_to receive(:elevate_completeness)
       completed.save!
 
       # task completed_at set, but not task_user
       @task.update(completed_at: Time.now)
-      expect(@task_user).not_to receive(:cascade_completeness)
+      expect(@task_user).not_to receive(:elevate_completeness)
       @task_user.save!
     end
 

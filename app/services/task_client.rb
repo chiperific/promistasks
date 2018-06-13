@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 class TaskClient
-  include HTTParty
+  # include HTTParty
   # require 'google/apis/tasks_v1'
 
-  BASE_URI = 'https://www.googleapis.com/tasks/v1/lists/'
+  # BASE_URI = 'https://www.googleapis.com/tasks/v1/lists/'
 
   # https://developers.google.com/tasks/v1/reference/
 

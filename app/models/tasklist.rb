@@ -2,6 +2,7 @@
 
 class Tasklist < ApplicationRecord
   include HTTParty
+  BASE_URI = 'https://www.googleapis.com/tasks/v1/users/@me/lists'
 
   belongs_to :user,     inverse_of: :tasklists
   belongs_to :property, inverse_of: :tasklists
@@ -9,24 +10,57 @@ class Tasklist < ApplicationRecord
   validates :property, presence: true, uniqueness: { scope: :user }
   validates_uniqueness_of :google_id, allow_nil: true
 
-  before_validation :sequence_google_id, if: -> { Rails.env.test? }
+  before_destroy :api_delete
+  after_create  :api_insert, unless: -> { created_from_api? }
+  after_update  :api_update
 
   def list_api_tasks
     return false unless user.oauth_id.present?
     user.refresh_token!
-    HTTParty.get('https://www.googleapis.com/tasks/v1/lists/' + google_id + '/tasks/', headers: headers.as_json)
+    HTTParty.get('https://www.googleapis.com/tasks/v1/lists/' + google_id + '/tasks/', headers: api_headers)
+  end
+
+  def api_get
+    return false unless user.oauth_id.present? && google_id.present?
+    user.refresh_token!
+    HTTParty.get(BASE_URI + '/' + tasklist.google_id, headers: api_headers)
+  end
+
+  def api_insert
+    return false unless user.oauth_id.present?
+    user.refresh_token!
+    body = { title: property.name }.to_json
+    response = HTTParty.post(BASE_URI, { headers: api_headers, body: body })
+
+    response['id'] = sequence_google_id(response['id']) if Rails.env.test?
+
+    update_columns(google_id: response['id'], updated_at: response['updated'])
+  end
+
+  def api_update
+    return false unless user.oauth_id.present? && google_id.present?
+    user.refresh_token!
+    body = { title: property.name }.to_json
+    response = HTTParty.patch(BASE_URI + '/' + google_id, { headers: api_headers, body: body })
+    update_columns(updated_at: response['updated'])
+  end
+
+  def api_delete
+    return false unless user.oauth_id.present? && google_id.present?
+    user.refresh_token!
+    HTTParty.delete(BASE_URI + '/' + google_id, headers: api_headers)
   end
 
   private
 
-  def sequence_google_id
+  def sequence_google_id(id)
     return true if property&.name == 'validate'
     number = Tasklist.count.positive? ? Tasklist.last.id + 1 : 1
-    self.google_id += number.to_s unless google_id.nil?
+    id + number.to_s
   end
 
   def api_headers
     { 'Authorization': 'OAuth ' + user.oauth_token,
-      'Content-type': 'application/json' }
+      'Content-type': 'application/json' }.as_json
   end
 end

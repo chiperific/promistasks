@@ -4,12 +4,9 @@ class SyncTasksClient
   def initialize(user, tasklist)
     user.refresh_token!
 
-    tasks = TaskClient.new.list(
-      user: user,
-      tasklist_gid: tasklist.google_id
-    )
+    tasks = tasklist.list_api_tasks
 
-    return false unless tasks['items'].present?
+    return unless tasks['items'].present?
 
     tasks['items'].each do |task_json|
       task_user = TaskUser.where(google_id: task_json['id']).first_or_initialize
@@ -21,7 +18,7 @@ class SyncTasksClient
         # compare dates, most recent wins
         case task_user.updated_at.utc < Time.parse(task_json['updated'])
         when true
-          update_local_task     (user, task_json, task_user, tasklist)
+          update_local_task(user, task_json, task_user, tasklist)
           update_local_task_user(user, task_json, task_user)
         when false
           update_google_task(user, task_user, tasklist.google_id)

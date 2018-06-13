@@ -65,7 +65,6 @@ RSpec.describe Task, type: :model do
     let(:bad_needs_no_info) { build :task, property: @property, creator: @creator, owner: @owner, needs_more_info: nil, due: Time.now + 3.hours, budget: Money.new(300_00), priority: 'low' }
     let(:bad_needs_info)    { build :task, property: @property, creator: @creator, owner: @owner, needs_more_info: nil }
     let(:bad_initilization) { build :task, property: @property, creator: @creator, owner: @owner, initialization_template: nil }
-    let(:bad_created)       { build :task, property: @property, creator: @creator, owner: @owner, created_in_api: nil }
 
     it 'license_required' do
       expect { bad_license.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
@@ -84,14 +83,9 @@ RSpec.describe Task, type: :model do
       expect { bad_initilization.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { bad_initilization.save! }.to raise_error ActiveRecord::RecordInvalid
     end
-
-    it 'created_in_api' do
-      expect { bad_created.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_created.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
   end
 
-  fdescribe 'limits records by scope' do
+  describe 'limits records by scope' do
     let(:initialization_template) { create :task, property: @property, creator: @creator, owner: @owner, initialization_template: true }
     let(:has_good_info)           { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 3.days, priority: 'medium', budget: 500 }
     let(:visibility_1)            { create :task, property: @property, creator: @creator, owner: @owner, visibility: 1 }
@@ -187,6 +181,8 @@ RSpec.describe Task, type: :model do
   end
 
   describe '#assign_from_api_fields!' do
+    pending 'returns false if task_json is null'
+
     it 'uses a json hash to assign record values' do
       task = Task.new
       task_json = JSON.parse(file_fixture('task_json_spec.json').read)

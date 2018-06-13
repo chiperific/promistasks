@@ -42,15 +42,19 @@ class User < ApplicationRecord
 
   monetize :rate_cents, allow_nil: true
 
-  after_create :propegate_tasklists, if: -> { oauth_id.present? }
+  after_create :propegate_tasklists, if: -> { oauth_id.present? && discarded_at.blank? }
 
   scope :staff, -> { undiscarded.where.not(oauth_id: nil) }
-  scope :staff_except, ->(user) { undiscarded.where.not(id: user) }
+  scope :staff_except, ->(user) { undiscarded.staff.where.not(id: user) }
   scope :not_staff, -> { undiscarded.where(oauth_id: nil) }
 
   class << self
     alias archived discarded
     alias active kept
+  end
+
+  def register_as
+    # handles grouping of booleans as radial buttons on Devise::registration#new
   end
 
   def type
@@ -95,6 +99,11 @@ class User < ApplicationRecord
     end
   end
 
+  # Devise's active needs to be adjusted to account for discarded_at soft-delete
+  def active_for_authentication?
+    super && !discarded_at
+  end
+
   def refresh_token!
     return false unless token_expired? && oauth_id.present? && oauth_refresh_token.present?
     data = {
@@ -111,14 +120,6 @@ class User < ApplicationRecord
   def token_expired?
     return nil unless oauth_id.present?
     Time.at(oauth_expires_at) < Time.now
-  end
-
-  def register_as
-    # handles grouping of booleans as radial buttons on Devise::registration#new
-  end
-
-  def active_for_authentication?
-    super && !discarded_at
   end
 
   def list_api_tasklists
@@ -164,7 +165,7 @@ class User < ApplicationRecord
   end
 
   def propegate_tasklists
-    Property.public_visible.each do |property|
+    Property.visible_to(self).each do |property|
       property.create_tasklist_for(self)
     end
   end

@@ -41,16 +41,17 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.references :user,     null: false, foreign_key: true
       t.references :property, null: false, foreign_key: true
       t.string :google_id
+      t.boolean :created_from_api, default: false, null: false
       t.timestamps
       t.index [:user_id, :property_id], unique: true
       t.index [:property_id, :user_id], unique: true
-      t.index :google_id,               unique: true
+      t.index :google_id
     end
 
     create_table :task_users do |t|
-      t.references :user, null: false, foreign_key: true
-      t.references :task, null: false, foreign_key: true
-      t.string :tasklist_gid                          # google field, but maintained from tasklist join table
+      t.references :user,     null: false, foreign_key: true
+      t.references :task,     null: false, foreign_key: true
+      t.string :tasklist_gid, null: false             # google field, but maintained from tasklist join table
       t.string :google_id                             # google field, Task ID
       t.string :position                              # google field
       t.integer :position_int, default: 0, limit: 8   # position field converted to an integer
@@ -58,6 +59,7 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.string :previous_id
       t.boolean :deleted, default: false, null: false # google field
       t.datetime :completed_at                        # google field -- RFC 3339 timestamp
+      t.boolean :created_from_api, default: false, null: false
       t.timestamps
       t.index [:user_id, :task_id], unique: true
       t.index [:task_id, :user_id], unique: true

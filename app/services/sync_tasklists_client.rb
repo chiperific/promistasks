@@ -4,7 +4,8 @@ class SyncTasklistsClient
   def initialize(user)
     user.refresh_token!
 
-    tasklists = TasklistClient.new.list(user)
+    tasklists = user.list_api_tasklists
+
     return unless tasklists['items'].present?
 
     tasklists['items'].each do |tasklist_json|
@@ -27,13 +28,14 @@ class SyncTasklistsClient
         stale_tasklists.destroy_all if stale_tasklists.any?
       end
     end
+
+    # what about properties that aren't a part of the tasklist? E.g. deleted in Google?
   end
 
   def create_local_property(user, tasklist_json)
     Property.create(
       name: tasklist_json['title'],
-      creator: user,
-      created_in_api: true
+      creator: user
     )
   end
 
@@ -43,6 +45,7 @@ class SyncTasklistsClient
       t.user = user
       t.google_id = tasklist_json['id']
       t.updated_at = tasklist_json['updated']
+      t.created_from_api = true
     end
     tasklist.save
     tasklist.reload

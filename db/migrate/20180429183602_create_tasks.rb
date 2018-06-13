@@ -19,7 +19,6 @@ class CreateTasks < ActiveRecord::Migration[5.1]
       t.datetime :discarded_at
       t.datetime :completed_at                                 # google field -- completed, lives on this model because completing from one staff should complete for all
       t.boolean :initialization_template, default: false, null: false
-      t.boolean :created_in_api,          default: false, null: false
       t.string :owner_type                                     # ['Program Staff', 'Project Staff', 'Admin Staff']
       t.timestamps
 

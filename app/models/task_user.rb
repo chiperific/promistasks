@@ -10,23 +10,18 @@ class TaskUser < ApplicationRecord
   validates_uniqueness_of :google_id, allow_nil: true
   validates_inclusion_of :deleted, in: [true, false]
 
-  before_validation :sequence_google_id, if: -> { Rails.env.test? }
-  before_save :set_position_as_integer, if: -> { position.present? }
-  after_validation :set_tasklist_gid, if: -> { tasklist_id.nil? }
-  after_save :cascade_completeness, if: -> { completed_at.present? && task.completed_at.nil? }
+  # should be unnecessary
+  # before_save  :ensure_tasklist_exists,  if: -> { tasklist_gid.nil? }
+  before_save    :set_position_as_integer, if: -> { position.present? }
+  before_destroy :api_delete
+  after_update   :relocate,                if: -> { saved_change_to_tasklist_gid? }
+  after_update   :api_move,                if: -> { saved_changes_to_placement? }
+  after_save     :elevate_completeness,    if: -> { completed_at.present? && task.completed_at.nil? }
 
   scope :descending, -> { undiscarded.order(position_int: :asc) }
 
   BASE_URI = 'https://www.googleapis.com/tasks/v1/lists/'
 
-  # api_relocate: just send api_delete with before saving tasklist_gid and api_insert after saving tasklist_gid
-  # api_move: set or clear the new parent and previous before calling
-
-  def sequence_google_id
-    return true if task&.title == 'validate'
-    number = TaskUser.count.positive? ? TaskUser.last.id + 1 : 1
-    self.google_id += number.to_s unless google_id.nil?
-  end
 
   def assign_from_api_fields!(task_json)
     return false if task_json.nil?
@@ -43,32 +38,45 @@ class TaskUser < ApplicationRecord
     self
   end
 
+  def saved_changes_to_placement?
+    saved_change_to_position? ||
+      saved_change_to_parent_id? ||
+      saved_change_to_previous_id?
+  end
+
   def api_get
-    return false unless user.oauth_id.present?
+    return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
     user.refresh_token!
     HTTParty.get(BASE_URI + tasklist_gid + '/tasks/' + google_id, headers: api_headers.as_json)
   end
 
   def api_insert
-    return false unless user.oauth_id.present?
+    return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
     user.refresh_token!
-    HTTParty.post(BASE_URI + tasklist_gid + '/tasks/', { headers: api_headers.as_json, body: api_body.to_json })
+    response = HTTParty.post(BASE_URI + tasklist_gid + '/tasks/', { headers: api_headers.as_json, body: api_body.to_json })
+
+    response['id'] = sequence_google_id(id, self) if Rails.env.test?
+
+    update_columns(google_id: response['id'], updated_at: response['updated'])
   end
 
   def api_update
-    return false unless user.oauth_id.present?
+    return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
     user.refresh_token!
-    HTTParty.patch(BASE_URI + tasklist_id + '/tasks/' + google_id, { headers: api_headers.as_json, body: api_body.to_json })
+    response = HTTParty.patch(BASE_URI + tasklist_gid + '/tasks/' + google_id, { headers: api_headers.as_json, body: api_body.to_json })
+    update_columns(updated_at: response['updated'])
   end
 
   def api_delete
-    return false unless user.oauth_id.present?
+    return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
     user.refresh_token!
     HTTParty.delete(BASE_URI + tasklist_gid + '/tasks/' + google_id, headers: api_headers.as_json)
   end
 
   def api_move
-    return false unless user.oauth_id.present?
+    # set or clear the new parent and previous before calling
+    # what about when position changes? Must get precursing task's id and set to previous_id
+    return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
     user.refresh_token!
 
     uri = BASE_URI + tasklist_gid + '/tasks/' + google_id + '/move?'
@@ -77,9 +85,18 @@ class TaskUser < ApplicationRecord
     uri += 'previous=' + previous_id if previous_id.present?
 
     HTTParty.post(uri, headers: api_headers.as_json)
+
+    # then get rid of the previous_id as a move in the API will negate it
+    # self.update_column(previous_id: nil)
   end
 
   private
+
+  def sequence_google_id(id, record)
+    return true if task&.title == 'validate'
+    number = record.class.count.positive? ? record.class.last.id + 1 : 1
+    id + number.to_s
+  end
 
   def set_position_as_integer
     self.position_int = 0 if position.nil?
@@ -87,14 +104,27 @@ class TaskUser < ApplicationRecord
   end
 
   def set_tasklist_gid
+    # scenario:
+    # I'm creating a task and assigning it to a user
     return false if user.nil? || task.nil?
-    task.property.create_tasklist_for(user)
+    # task.property.create_tasklist_for(user)
     tasklist = task.property.tasklists.where(user: user).first
     self.tasklist_gid = tasklist.google_id
   end
 
-  def cascade_completeness
+  def elevate_completeness
     task.update(completed_at: completed_at)
+  end
+
+  # api_relocate: just send api_delete before saving tasklist_gid and api_insert after saving tasklist_gid
+
+  def relocate
+    return false if tasklist_gid_before_last_save.nil? || tasklist_gid_before_last_save == tasklist_gid
+    mem_dup = self.dup
+    mem_dup.tasklist_gid = tasklist_gid_before_last_save
+    mem_dup.api_delete
+    self.api_insert
+    # send api_create, but use new tasklist_gid
   end
 
   def api_headers

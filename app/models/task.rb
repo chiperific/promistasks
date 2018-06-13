@@ -20,22 +20,28 @@ class Task < ApplicationRecord
   validates_presence_of :creator_id, :owner_id, :property_id
   validates :priority, inclusion: { in: Constant::Task::PRIORITY, allow_blank: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}" }
   validates_inclusion_of  :license_required, :needs_more_info,
-                          :initialization_template, :created_in_api, in: [true, false]
+                          :initialization_template, in: [true, false]
   validates_inclusion_of :visibility, in: [0, 1, 2, 3]
 
   validates :title, presence: true, uniqueness: { scope: :property }
 
   validate :require_cost, if: -> { budget.present? && cost.nil? && completed_at.nil? }
-  validate :due_cant_be_past, unless: -> { created_in_api? }
+  validate :due_cant_be_past
 
   monetize :budget_cents, :cost_cents, allow_nil: true
 
   before_save :decide_record_completeness
 
-  after_create :create_with_api, if: -> { discarded_at.blank? && !created_in_api? }
-  after_update :create_with_api, if: :saved_changes_to_users?
-  after_update :update_with_api, if: :saved_changes_to_api_fields?
+  after_create :create_task_users
+  after_update :update_task_users, if: :saved_changes_to_api_fields?
   after_update :relocate, if: -> { saved_change_to_property_id? }
+  after_update :change_task_users, if: :saved_changes_to_users?
+  after_update :cascade_completed, if: -> { completed_at.present? && completed_at_before_last_save.nil? }
+  after_save :delete_task_users, if: -> { discarded_at.present? }
+
+  # after_create :create_with_api, if: -> { discarded_at.blank? && !created_in_api? }
+  # after_update :create_with_api, if: :saved_changes_to_users?
+  # after_update :update_with_api, if: :saved_changes_to_api_fields?
 
   # this probably isn't necessary because update_with_api should catch everything
   # after_save :cascade_discarded, if: -> { discarded_at.present? }
@@ -54,14 +60,6 @@ class Task < ApplicationRecord
     temp_budget - temp_cost
   end
 
-  def priority_enum
-    Constant::Task::PRIORITY
-  end
-
-  def owner_type_enum
-    Constant::Task::OWNER_TYPES
-  end
-
   def assign_from_api_fields!(task_json)
     return false if task_json.nil?
 
@@ -75,17 +73,76 @@ class Task < ApplicationRecord
     self
   end
 
-  def create_taskuser_for(user, action = :api_insert)
-    tasklist = property.create_tasklist_for(user)
-    task_user = task_users.where(user: user).first_or_create
-    if task_user.google_id.nil?
-      response = task_user.send(action)
-      task_user.assign_from_api_fields!(response)
-      task_user.update(tasklist_id: tasklist.google_id)
-      task_user.reload
-    end
-    task_user
+  def ensure_task_user_exists_for(user)
+    task_user = task_users.where(user: user).first_or_initialize
+    return task_user unless task_user.new_record? || task_user.google_id.nil?
+    tasklist = property.tasklists.where(user: user).first
+    task_user.tasklist_gid = tasklist.google_id
+    task_user.save
+    task_user.reload
   end
+
+  def create_task_users
+    [creator, owner].each do |user|
+      ensure_task_user_exists_for(user)
+    end
+  end
+
+  def update_task_users
+    [creator, owner].each do |user|
+      task_user = ensure_task_user_exists_for(user)
+      # since task_user is only { task, user, google_id }, changing other details about the task won't trigger an api call from task_user
+      # however, if the users change, then new task_users will be created, which triggers the #api_create on after_create callback
+      task_user.api_update unless saved_changes_to_users?
+    end
+  end
+
+  def relocate
+    [creator, owner].each do |user|
+      # does the user have the new property as a tasklist?
+      tasklist = property.ensure_tasklist_exists_for(user)
+      # find or create the task_user
+      task_user = ensure_task_user_exists_for(user)
+      # the new tasklist_gid is saved here, which will trigger task_user#relocate
+      task_user.update(tasklist_gid: tasklist.google_id)
+    end
+  end
+
+  def change_task_users
+    old_creator_id = creator_id_before_last_save
+    old_owner_id = owner_id_before_last_save
+
+    if creator_id != old_creator_id
+      ensure_task_user_exists_for(user)
+      task_users.where(user_id: old_creator_id).first.destroy
+    end
+
+    if owner_id != old_owner_id
+      ensure_task_user_exists_for(user)
+      task_users.where(user_id: old_owner_id).first.destroy
+    end
+  end
+
+  def cascade_completed
+    task_users.each do |tu|
+      tu.update(completed_at: completed_at)
+    end
+  end
+
+  def delete_task_users
+  end
+
+  # def create_or_update_task_user_for(user, action = :api_insert)
+  #   tasklist = property.create_tasklist_for(user)
+  #   task_user = task_users.where(user: user).first_or_create
+  #   if task_user.google_id.nil?
+  #     response = task_user.send(action)
+  #     task_user.assign_from_api_fields!(response)
+  #     task_user.update(tasklist_gid: tasklist.google_id)
+  #     task_user.reload
+  #   end
+  #   task_user
+  # end
 
   def saved_changes_to_users?
     saved_change_to_creator_id? || saved_change_to_owner_id?
@@ -94,8 +151,7 @@ class Task < ApplicationRecord
   def saved_changes_to_api_fields?
     saved_change_to_title? ||
       saved_change_to_notes? ||
-      saved_change_to_due? ||
-      saved_change_to_completed_at?
+      saved_change_to_due?
   end
 
   private
@@ -106,6 +162,7 @@ class Task < ApplicationRecord
 
   def due_cant_be_past
     return true if due.nil?
+    return true if task_users.where(user: creator).first&.created_from_api?
     if due.past?
       errors.add(:due, 'must be in the future')
       false
@@ -125,12 +182,12 @@ class Task < ApplicationRecord
     true
   end
 
-  def prepare_for_api
-    [creator, owner].each do |user|
-      create_taskuser_for(user)
-      Property.find(property_id_before_last_save).create_tasklist_for(user) if property_id_before_last_save.present?
-    end
-  end
+  # def prepare_for_api
+  #   [creator, owner].each do |user|
+  #     create_taskuser_for(user)
+  #     Property.find(property_id_before_last_save).create_tasklist_for(user) if property_id_before_last_save.present?
+  #   end
+  # end
 
   def create_with_api
     prepare_for_api
@@ -159,17 +216,9 @@ class Task < ApplicationRecord
   def relocate
     prepare_for_api
     [creator, owner].each do |user|
-      old_tasklist = Tasklist.where(property_id: property_id_before_last_save, user: user).first
       tasklist = Tasklist.where(property: property, user: user).first
       task_user = task_users.where(user: user).first
-      TaskClient.new.relocate(
-        user: user,
-        old_list_gid: old_tasklist.google_id,
-        new_list_gid: tasklist.google_id,
-        task: self,
-        task_user: task_user,
-        task_gid: task_user.google_id
-      )
+      task_user.update(tasklist_gid: tasklist.google_id)
     end
   end
 end

@@ -4,7 +4,16 @@ require 'rails_helper'
 
 RSpec.describe Tasklist, type: :model do
   before :each do
-    stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
+    stub_request(:any, Constant::Regex::TASKLIST).to_return(
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
+    )
+    stub_request(:any, Constant::Regex::TASK).to_return(
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:task_json).marshal_dump.to_json
+    )
     @tasklist = FactoryBot.build(:tasklist)
     WebMock::RequestRegistry.instance.reset!
   end
@@ -12,7 +21,7 @@ RSpec.describe Tasklist, type: :model do
   describe 'must be valid' do
     let(:no_user)         { build :tasklist, user_id: nil }
     let(:no_property)     { build :tasklist, property_id: nil }
-    let(:no_google_id)  { build :tasklist, google_id: nil }
+    let(:no_google_id)    { build :tasklist, google_id: nil }
 
     it 'in order to save' do
       expect(@tasklist.save!).to eq true
@@ -48,5 +57,12 @@ RSpec.describe Tasklist, type: :model do
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
       expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
     end
+  end
+
+  describe '#list_api_tasks' do
+    pending 'returns false for non-oauth users'
+    pending 'calls user.refresh_token!'
+    pending 'makes an API call'
+    pending 'returns a list of tasks related to the tasklist'
   end
 end
