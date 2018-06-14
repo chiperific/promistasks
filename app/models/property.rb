@@ -22,10 +22,10 @@ class Property < ApplicationRecord
   before_validation :name_and_address, if: :unsynced_name_address?
   before_save :default_budget
 
-  after_create :create_tasklists,                unless: -> { discarded_at.present? }
+  after_create :create_tasklists,                   if: -> { discarded_at.nil? }
   after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }
   after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? }
-  after_update :update_tasklists,               unless: -> { discarded_at.present? }
+  after_update :update_tasklists,                   if: -> { discarded_at.nil? && saved_change_to_name? }
 
   scope :needs_title,    ->       { undiscarded.where(certificate_number: nil) }
   scope :public_visible, ->       { undiscarded.where(is_private: false) }
@@ -57,8 +57,9 @@ class Property < ApplicationRecord
   end
 
   def ensure_tasklist_exists_for(user)
+    return false if user.oauth_id.nil?
     tasklist = tasklists.where(user: user).first_or_initialize
-    return tasklist unless tasklist.new_record?
+    return tasklist unless tasklist.new_record? || tasklist.google_id.nil?
     tasklist.save
     tasklist.reload
   end
@@ -77,19 +78,16 @@ class Property < ApplicationRecord
 
   def cascade_by_privacy
     if is_private? # became private
-      User.staff_except(creator).each do |user|
-        tasklist = tasklists.where(user: creator).first_or_initialize
+      # Only remove the tasklist from users without related tasks
+      User.without_tasks_for(self).each do |user|
+        tasklist = tasklists.where(user: user).first_or_initialize
         next if tasklist.new_record?
         tasklist.destroy
-        # this feels like the wrong place for this
-        # maybe trigger on task#after_update, if: -> { discarded_at.present }
-        # but update_all skips callbacks
-        tasks.task_users.where(user: user).destroy_all
-        tasks.where(owner: user).update_all(discarded_at: discarded_at)
       end
+
     else # became public
       User.staff_except(creator).each do |user|
-        tasklist = tasklists.where(user: user).first_or_initialize
+        tasklist = ensure_tasklist_exists_for(user)
         next unless tasklist.new_record? || tasklist.google_id.nil?
         tasklist.api_insert
       end
@@ -104,26 +102,22 @@ class Property < ApplicationRecord
     # this feels like the wrong place for this
     # maybe trigger on task#after_update, if: -> { discarded_at.present }
     # but update_all skips callbacks
-    tasks.task_users.destroy_all if tasks.exists? && tasks.task_users.exists?
+    tasks.each do |task|
+      task.task_users.destroy_all if task.present? && task.task_users.present?
+    end
     tasks.update_all(discarded_at: discarded_at)
   end
 
   def update_tasklists
-    return true unless saved_change_to_name?
-
+    # since tasklist is only { property, user, google_id }, changing other details about the property won't trigger an api call from tasklist
+    # however, if the user changes, then a new tasklist will be created, which triggers the #api_create on after_create callback
     if is_private?
-      tasklist = tasklists.where(user: creator).first_or_create
-      action = tasklist.google_id.present? ? :update : :insert
-      response = TasklistClient.new.send(action, creator, tasklist)
-      tasklist.google_id = response['id']
-      tasklist.save
+      tasklist = ensure_tasklist_exists_for(creator)
+      tasklist.api_update
     else
       User.staff.each do |user|
-        tasklist = tasklists.where(user: user).first_or_create
-        action = tasklist.google_id.present? ? :update : :insert
-        response = TasklistClient.new.send(action, user, tasklist)
-        tasklist.google_id = response['id']
-        tasklist.save
+        tasklist = ensure_tasklist_exists_for(user)
+        tasklist.api_update
       end
     end
   end
@@ -139,47 +133,4 @@ class Property < ApplicationRecord
     self.name ||= address
     true
   end
-
-  # def delete_with_api
-  #   return true if discarded_at.blank?
-
-  #   if is_private?
-  #     tasklist = tasklists.where(user: creator).first
-  #     TasklistClient.new.delete(creator, tasklist)
-  #     tasklist.destroy! unless tasklist.new_record?
-  #   else
-  #     User.staff.each do |user|
-  #       tasklist = tasklists.where(user: user).first
-  #       TasklistClient.new.delete(user, tasklist)
-  #       tasklist.destroy! unless tasklist.new_record?
-  #     end
-  #   end
-
-  #   discard_tasks!
-  # end
-
-  # def propagate_to_api_by_privacy
-  #   if is_private? # became private
-  #     User.staff_except(creator).each do |user|
-  #       tasklist = tasklists.where(user: user).first_or_initialize
-  #       TasklistClient.new.delete(user, tasklist) unless tasklist.new_record?
-  #       tasklist.destroy
-  #       tasks.task_users.where(user: user).destroy_all if tasks.exists? && tasks.task_users.exists?
-  #     end
-  #   else # became public
-  #     User.staff_except(creator).each do |user|
-  #       tasklist = tasklists.where(user: user).first_or_initialize
-  #       action = tasklist.new_record? ? :insert : :update
-  #       response = TasklistClient.new.send(action, user, tasklist)
-  #       tasklist.google_id = response['id']
-  #       tasklist.save
-  #     end
-  #   end
-  # end
-
-  # def discard_tasks!
-  #   tasks.each do |task|
-  #     task.update(discarded_at: discarded_at)
-  #   end
-  # end
 end

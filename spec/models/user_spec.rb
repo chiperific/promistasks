@@ -135,6 +135,8 @@ RSpec.describe User, type: :model do
     let(:contractor)  { create :contractor_user}
     let(:project)     { create :oauth_user }
     let(:program)     { create :oauth_user, program_staff: true }
+    let(:oauth_user2) { create :oauth_user }
+    let(:property)    { create :property, creator: oauth_user2 }
 
     it '#staff returns only Users with an oauth_id' do
       @user.save
@@ -168,6 +170,57 @@ RSpec.describe User, type: :model do
 
       expect(User.not_staff).to include @user
       expect(User.not_staff).not_to include @oauth_user
+    end
+
+    context do
+      before :each do
+        @user.save
+        @oauth_user.save
+        FactoryBot.create(:task, property: property, creator: @user, owner: @oauth_user)
+        FactoryBot.create(:task, property: property, creator: @oauth_user, owner: volunteer)
+        FactoryBot.create(:task, property: property, creator: oauth_user2, owner: contractor)
+        FactoryBot.create(:task, property: property, creator: project, owner: @user)
+      end
+
+      it '#created_tasks_for returns only Users that are creators of tasks related to property' do
+        expect(User.created_tasks_for(property)).to include @user
+        expect(User.created_tasks_for(property)).to include @oauth_user
+        expect(User.created_tasks_for(property)).to include oauth_user2
+        expect(User.created_tasks_for(property)).to include project
+        expect(User.created_tasks_for(property)).not_to include volunteer
+        expect(User.created_tasks_for(property)).not_to include contractor
+        expect(User.created_tasks_for(property)).not_to include program
+      end
+
+      it '#owned_tasks_for returns only Users that are owners of tasks related to property' do
+        expect(User.owned_tasks_for(property)).to include @oauth_user
+        expect(User.owned_tasks_for(property)).to include volunteer
+        expect(User.owned_tasks_for(property)).to include contractor
+        expect(User.owned_tasks_for(property)).to include @user
+        expect(User.owned_tasks_for(property)).not_to include oauth_user2
+        expect(User.owned_tasks_for(property)).not_to include project
+        expect(User.owned_tasks_for(property)).not_to include program
+      end
+
+      it '#with_tasks_for returns only Users that are related to tasks of the property' do
+        expect(User.with_tasks_for(property)).to include @oauth_user
+        expect(User.with_tasks_for(property)).to include volunteer
+        expect(User.with_tasks_for(property)).to include contractor
+        expect(User.with_tasks_for(property)).to include @user
+        expect(User.with_tasks_for(property)).to include oauth_user2
+        expect(User.with_tasks_for(property)).to include project
+        expect(User.with_tasks_for(property)).not_to include program
+      end
+
+      it '#without_tasks_for returns Users that aren\'t related to tasks of the property' do
+        expect(User.without_tasks_for(property)).to include program
+        expect(User.without_tasks_for(property)).not_to include @oauth_user
+        expect(User.without_tasks_for(property)).not_to include volunteer
+        expect(User.without_tasks_for(property)).not_to include contractor
+        expect(User.without_tasks_for(property)).not_to include @user
+        expect(User.without_tasks_for(property)).not_to include oauth_user2
+        expect(User.without_tasks_for(property)).not_to include project
+      end
     end
   end
 

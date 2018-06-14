@@ -11,13 +11,17 @@ class Tasklist < ApplicationRecord
   validates_uniqueness_of :google_id, allow_nil: true
 
   before_destroy :api_delete
-  after_create  :api_insert, unless: -> { created_from_api? }
-  after_update  :api_update
+  after_create   :api_insert, unless: -> { created_from_api? }
+  after_update   :api_update
 
   def list_api_tasks
     return false unless user.oauth_id.present?
     user.refresh_token!
-    HTTParty.get('https://www.googleapis.com/tasks/v1/lists/' + google_id + '/tasks/', headers: api_headers)
+    response = HTTParty.get('https://www.googleapis.com/tasks/v1/lists/' + google_id + '/tasks/', headers: api_headers)
+
+    response['id'] = sequence_google_id(response['id']) if Rails.env.test?
+
+    update_columns(google_id: response['id'], updated_at: response['updated'])
   end
 
   def api_get

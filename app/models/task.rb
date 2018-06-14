@@ -74,9 +74,10 @@ class Task < ApplicationRecord
   end
 
   def ensure_task_user_exists_for(user)
+    return false if user.oauth_id.nil?
     task_user = task_users.where(user: user).first_or_initialize
     return task_user unless task_user.new_record? || task_user.google_id.nil?
-    tasklist = property.tasklists.where(user: user).first
+    tasklist = property.ensure_tasklist_exists_for(user)
     task_user.tasklist_gid = tasklist.google_id
     task_user.save
     task_user.reload

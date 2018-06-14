@@ -44,9 +44,17 @@ class User < ApplicationRecord
 
   after_create :propegate_tasklists, if: -> { oauth_id.present? && discarded_at.blank? }
 
+  # rubocop:disable Layout/IndentationConsistency
   scope :staff, -> { undiscarded.where.not(oauth_id: nil) }
   scope :staff_except, ->(user) { undiscarded.staff.where.not(id: user) }
   scope :not_staff, -> { undiscarded.where(oauth_id: nil) }
+  scope :with_tasks_for, ->(property) { created_tasks_for(property).or(owned_tasks_for(property)) }
+    scope :created_tasks_for, ->(property) { undiscarded.where(id: Task.select(:creator_id).where(property: property)) }
+    scope :owned_tasks_for, ->(property) { undiscarded.where(id: Task.select(:owner_id).where(property: property)) }
+  scope :without_tasks_for, ->(property) { without_created_tasks_for(property).without_owned_tasks_for(property) }
+    scope :without_created_tasks_for, ->(property) { undiscarded.where.not(id: Task.select(:creator_id).where(property: property)) }
+    scope :without_owned_tasks_for, ->(property) { undiscarded.where.not(id: Task.select(:owner_id).where(property: property)) }
+  # rubocop:enable Layout/IndentationConsistency
 
   class << self
     alias archived discarded
@@ -166,7 +174,7 @@ class User < ApplicationRecord
 
   def propegate_tasklists
     Property.visible_to(self).each do |property|
-      property.create_tasklist_for(self)
+      property.ensure_tasklist_exists_for(self)
     end
   end
 
