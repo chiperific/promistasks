@@ -308,29 +308,115 @@ RSpec.describe Task, type: :model do
   end
 
   describe '#change_task_users' do
-    pending 'only fires if creator or owner has changed'
-    pending 'won\'t fires if creator or owner hasn\'t changed'
+    let(:new_creator) { create :oauth_user }
+    let(:new_owner) { create :oauth_user }
+
+    it 'won\'t fires if creator or owner hasn\'t changed' do
+      @task.save
+      expect(@task).not_to receive(:change_task_users)
+      @task.update(title: 'new title entry')
+    end
+
+    it 'only fires if creator or owner has changed' do
+      @task.save
+      expect(@task).to receive(:change_task_users)
+      @task.update(creator: new_creator)
+
+      expect(@task).to receive(:change_task_users)
+      @task.update(owner: new_owner)
+    end
+
     context 'when creator has changed' do
-      pending 'creates a new task_user'
-      pending 'deletes the old task_user'
+      it 'deletes the old task_user' do
+        @task.save
+        @task.reload
+        task_user = @task.task_users.where(user: @task.creator).first
+        @task.update(creator: new_creator)
+        expect { task_user.reload }.to raise_error ActiveRecord::RecordNotFound
+      end
+
+      it 'creates a new task_user' do
+        @task.save
+        @task.update(creator: new_creator)
+        @task.reload
+        task_user = @task.task_users.where(user: @task.creator).first
+        expect(task_user.reload.user_id).not_to eq @task.creator_id_before_last_save
+      end
     end
 
     context 'when owner has changed' do
-      pending 'creates a new task_user'
-      pending 'deletes the old task_user'
+      it 'deletes the old task_user' do
+        @task.save
+        @task.reload
+        task_user = @task.task_users.where(user: @task.owner).first
+        @task.update(owner: new_owner)
+        expect { task_user.reload }.to raise_error ActiveRecord::RecordNotFound
+      end
+
+      it 'creates a new task_user' do
+        @task.save
+        @task.update(owner: new_owner)
+        @task.reload
+        task_user = @task.task_users.where(user: @task.owner).first
+        expect(task_user.reload.user_id).not_to eq @task.owner_id_before_last_save
+      end
     end
   end
 
   describe '#cascade_completed' do
-    pending 'only fires if completed_at was just set'
-    pending 'won\'t fire if completed_at wasn\'t just set'
-    pending 'sets completed_at on all related task_user records'
+    let(:completed_task) { create :task, completed_at: Time.now }
+
+    it 'won\'t fire if completed_at wasn\'t just set' do
+      expect(completed_task).not_to receive(:cascade_completed)
+      completed_task.update(title: 'did not change completed at')
+
+      expect(@task).not_to receive(:cascade_completed)
+      @task.save
+    end
+
+    it 'only fires if completed_at was just set' do
+      @task.save
+      expect(@task).to receive(:cascade_completed)
+      @task.update(completed_at: Time.now)
+    end
+
+    it 'sets completed_at on all related task_user records' do
+      @task.save
+      @task.reload
+      task_user_comps = @task.task_users.map(&:completed_at)
+      expect(task_user_comps.include?(nil)).to eq true
+
+      @task.update(completed_at: Time.now)
+      task_user_comps = @task.task_users.map(&:completed_at)
+      expect(task_user_comps.include?(nil)).to eq false
+    end
   end
 
   describe '#delete_task_users' do
-    pending 'only fires if discarded_at was just set'
-    pending 'won\'t fire if discarded_at was not just set'
-    pending 'destroys all related task_user records'
+    let(:discarded_task) { create :task, discarded_at: Time.now }
+
+    it 'won\'t fire if discarded_at was not just set' do
+      expect(discarded_task).not_to receive(:delete_task_users)
+      discarded_task.update(title: 'Im discarded')
+
+      @task.save
+      expect(@task).not_to receive(:delete_task_users)
+      @task.update(title: 'Im not discarded')
+    end
+
+    it 'only fires if discarded_at was just set' do
+      @task.save
+      expect(@task).to receive(:delete_task_users)
+      @task.discard
+    end
+
+    it 'destroys all related task_user records' do
+      @task.save
+      @task.reload
+      count = TaskUser.count
+      @task.discard
+      expect(TaskUser.count).to eq count - 2
+    end
   end
 
   describe '#saved_changes_to_users?' do

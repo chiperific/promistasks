@@ -332,7 +332,7 @@ RSpec.describe User, type: :model do
       expect(@user.sync_with_api).to eq false
     end
 
-    it 'calls the SyncTasklistClient' do
+    fit 'calls the SyncTasklistClient' do
       expect(SyncTasklistsClient).to receive(:new).with(@oauth_user)
       @oauth_user.sync_with_api
     end

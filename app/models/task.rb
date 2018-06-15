@@ -31,12 +31,12 @@ class Task < ApplicationRecord
   monetize :budget_cents, :cost_cents, allow_nil: true
 
   before_save :decide_record_completeness
-  after_create :create_task_users
+  after_create :create_task_users, unless: -> { discarded_at.present? }
   after_update :update_task_users, if: :saved_changes_to_api_fields?
   after_update :relocate, if: -> { saved_change_to_property_id? }
   after_update :change_task_users, if: :saved_changes_to_users?
   after_update :cascade_completed, if: -> { completed_at.present? && completed_at_before_last_save.nil? }
-  after_save :delete_task_users, if: -> { discarded_at.present? }
+  after_save :delete_task_users, if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
 
   scope :needs_more_info, -> { undiscarded.where(needs_more_info: true).where(initialization_template: false) }
   scope :in_process, -> { undiscarded.where(completed_at: nil).where(initialization_template: false) }
@@ -101,16 +101,13 @@ class Task < ApplicationRecord
   end
 
   def change_task_users
-    old_creator_id = creator_id_before_last_save
-    old_owner_id = owner_id_before_last_save
-
-    if creator_id != old_creator_id
-      task_users.where(user_id: old_creator_id).first.destroy
+    if creator_id != creator_id_before_last_save
+      task_users.where(user_id: creator_id_before_last_save).first.destroy
       ensure_task_user_exists_for(creator)
     end
 
-    if owner_id != old_owner_id
-      task_users.where(user_id: old_owner_id).first.destroy
+    if owner_id != owner_id_before_last_save
+      task_users.where(user_id: owner_id_before_last_save).first.destroy
       ensure_task_user_exists_for(owner)
     end
   end
