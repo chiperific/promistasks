@@ -21,14 +21,15 @@ class SyncTasksClient
           update_local_task(user, task_json, task_user, tasklist)
           update_local_task_user(user, task_json, task_user)
         when false
-          update_google_task(user, task_user, tasklist.google_id)
+          task_user.api_update
         end
       end
     end
+    # what to do with tasks that aren't returned from the tasklist?
   end
 
   def create_local_task(user, task_json, tasklist)
-    task = Task.new.assign_from_api_fields!(task_json)
+    task = Task.new.assign_from_api_fields(task_json)
     task.tap do |t|
       t.creator = user
       t.owner = user
@@ -42,7 +43,7 @@ class SyncTasksClient
   def create_local_task_user(user, task_json, task, task_user)
     task_user.user = user
     task_user.task = task
-    task_user.assign_from_api_fields!(task_json)
+    task_user.assign_from_api_fields(task_json)
     task_user.save
     task_user.reload
   end
@@ -52,7 +53,7 @@ class SyncTasksClient
       t.creator ||= user
       t.owner ||= user
       t.property = tasklist.property
-      t.assign_from_api_fields!(task_json)
+      t.assign_from_api_fields(task_json)
     end
     task.save
     task.reload
@@ -61,21 +62,8 @@ class SyncTasksClient
   def update_local_task_user(user, task_json, task_user)
     task_user.task = task
     task_user.user = user
-    task_user.assign_from_api_fields!(task_json)
+    task_user.assign_from_api_fields(task_json)
     task_user.save
-    task_user.reload
-  end
-
-  def update_google_task(user, task_user, tasklist_gid)
-    response = TaskClient.new.update(
-      user: user,
-      task_user: task_user,
-      tasklist_gid: tasklist_gid
-    )
-    task_user.update(
-      google_id: response['id'],
-      updated_at: response['updated']
-    )
     task_user.reload
   end
 end

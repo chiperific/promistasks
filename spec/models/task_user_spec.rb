@@ -73,7 +73,7 @@ RSpec.describe TaskUser, type: :model do
     end
   end
 
-  describe '#assign_from_api_fields!' do
+  describe '#assign_from_api_fields' do
     pending 'returns false if task_json is null'
     pending 'returns false if user isn\'t oauth'
     pending 'returns false if there\'s no google_id'

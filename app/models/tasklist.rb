@@ -57,10 +57,10 @@ class Tasklist < ApplicationRecord
 
   private
 
-  def sequence_google_id(id)
+  def sequence_google_id(response_id)
     return true if property&.name == 'validate'
     number = Tasklist.count.positive? ? Tasklist.last.id + 1 : 1
-    id + number.to_s
+    response_id + number.to_s + Random.rand(0...3000).to_s
   end
 
   def api_headers

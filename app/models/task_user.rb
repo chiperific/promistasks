@@ -14,6 +14,7 @@ class TaskUser < ApplicationRecord
   # before_save  :ensure_tasklist_exists,  if: -> { tasklist_gid.nil? }
   before_save    :set_position_as_integer, if: -> { position.present? }
   before_destroy :api_delete
+  after_create   :api_insert
   after_update   :relocate,                if: -> { saved_change_to_tasklist_gid? }
   after_update   :api_move,                if: -> { saved_changes_to_placement? }
   after_save     :elevate_completeness,    if: -> { completed_at.present? && task.completed_at.nil? }
@@ -22,8 +23,7 @@ class TaskUser < ApplicationRecord
 
   BASE_URI = 'https://www.googleapis.com/tasks/v1/lists/'
 
-
-  def assign_from_api_fields!(task_json)
+  def assign_from_api_fields(task_json)
     return false if task_json.nil?
 
     tap do |t|
@@ -51,20 +51,22 @@ class TaskUser < ApplicationRecord
   end
 
   def api_insert
-    return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
+    return false unless user.oauth_id.present? && tasklist_gid.present?
     user.refresh_token!
     response = HTTParty.post(BASE_URI + tasklist_gid + '/tasks/', { headers: api_headers.as_json, body: api_body.to_json })
 
-    response['id'] = sequence_google_id(id, self) if Rails.env.test?
+    response['id'] = sequence_google_id(response['id']) if Rails.env.test?
 
-    update_columns(google_id: response['id'], updated_at: response['updated'])
+    update_columns(google_id: response['id'], updated_at: response['updated'], position: response['position'], parent_id: response['parent'])
+    response
   end
 
   def api_update
     return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
     user.refresh_token!
     response = HTTParty.patch(BASE_URI + tasklist_gid + '/tasks/' + google_id, { headers: api_headers.as_json, body: api_body.to_json })
-    update_columns(updated_at: response['updated'])
+    update_columns(updated_at: response['updated'], position: response['position'], parent_id: response['parent'])
+    response
   end
 
   def api_delete
@@ -92,10 +94,10 @@ class TaskUser < ApplicationRecord
 
   private
 
-  def sequence_google_id(id, record)
+  def sequence_google_id(response_id)
     return true if task&.title == 'validate'
-    number = record.class.count.positive? ? record.class.last.id + 1 : 1
-    id + number.to_s
+    number = TaskUser.count.positive? ? TaskUser.last.id + 1 : 1
+    response_id + number.to_s + Random.rand(0...3000).to_s
   end
 
   def set_position_as_integer
@@ -137,7 +139,7 @@ class TaskUser < ApplicationRecord
       title:     task.title,
       notes:     task.notes,
       status:    task.completed_at.present? ? 'completed' : 'needsAction',
-      deleted:   task_user.deleted,
+      deleted:   self.deleted,
       completed: task.completed_at.present? ? task.completed_at.utc.rfc3339(3) : nil,
       due:       task.due.present? ? task.due.utc.rfc3339(3) : nil
     }
