@@ -167,7 +167,10 @@ RSpec.describe TaskUser, type: :model do
         expect(WebMock).to have_requested(:get, Constant::Regex::TASK)
       end
 
-      pending 'returns the API response'
+      it 'returns the API response' do
+        response = @task_user.api_get
+        expect(response['kind']).to eq 'tasks#task'
+      end
     end
 
     describe '#api_insert' do
@@ -193,7 +196,10 @@ RSpec.describe TaskUser, type: :model do
         expect(WebMock).to have_requested(:post, Constant::Regex::TASK)
       end
 
-      pending 'returns the API response'
+      it 'returns the API response' do
+        response = @task_user.api_insert
+        expect(response['kind']).to eq 'tasks#task'
+      end
     end
 
     describe '#api_update' do
@@ -216,7 +222,10 @@ RSpec.describe TaskUser, type: :model do
         expect(WebMock).to have_requested(:patch, Constant::Regex::TASK)
       end
 
-      pending 'returns the API response'
+      it 'returns the API response' do
+        response = @task_user.api_update
+        expect(response['kind']).to eq 'tasks#task'
+      end
     end
 
     describe '#api_delete' do
@@ -282,7 +291,10 @@ RSpec.describe TaskUser, type: :model do
         expect(WebMock).to have_requested(:post, Constant::Regex::TASK)
       end
 
-      pending 'returns the API response'
+      it 'returns the API response' do
+        response = @task_user.api_move
+        expect(response['kind']).to eq 'tasks#task'
+      end
     end
   end
 

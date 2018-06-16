@@ -6,7 +6,8 @@ class Connection < ApplicationRecord
   belongs_to :user, inverse_of: :connections
   belongs_to :property, inverse_of: :connections
 
-  validates_presence_of :user_id, :property_id, :relationship
+  validates :property, presence: true, uniqueness: { scope: :user }
+  validates_presence_of :relationship
   validates :relationship, inclusion: { in: Constant::Connection::RELATIONSHIPS, message: "must be one of these: #{Constant::Connection::RELATIONSHIPS.to_sentence}" }
   validates :stage, inclusion: { in: Constant::Connection::STAGES, allow_blank: true, message: "must be one of these: #{Constant::Connection::STAGES.to_sentence}" }
 
