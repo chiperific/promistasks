@@ -23,6 +23,6 @@ module Constant
 
   class Regex
     TASKLIST = %r{https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}}
-    TASK = %r{https:\/\/www.googleapis.com\/tasks\/v1\/lists\/.{0,245}}
+    TASK =     %r{https:\/\/www.googleapis.com\/tasks\/v1\/lists\/.{0,245}}
   end
 end

@@ -18,7 +18,7 @@ RSpec.describe SkillTask, type: :model do
     )
     @task = FactoryBot.create(:task)
     @skill_task = FactoryBot.build(:skill_task, task: @task)
-    WebMock::RequestRegistry.instance.reset!
+    WebMock.reset_executed_requests!
   end
 
   describe 'must be valid' do

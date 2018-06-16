@@ -20,7 +20,7 @@ RSpec.describe Task, type: :model do
     @task           = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner)
     @completed_task = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner, completed_at: Time.now - 1.hour)
     @updated_task   = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
-    WebMock::RequestRegistry.instance.reset!
+    WebMock.reset_executed_requests!
   end
 
   describe 'must be valid' do
@@ -252,7 +252,7 @@ RSpec.describe Task, type: :model do
       @no_api_change  = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
       @new_user       = FactoryBot.create(:oauth_user, name: 'New user')
       @new_property   = FactoryBot.create(:property, name: 'New property', is_private: false, creator: @new_user)
-      WebMock::RequestRegistry.instance.reset!
+      WebMock.reset_executed_requests!
     end
 
     it 'should only fire if an api field is changed' do

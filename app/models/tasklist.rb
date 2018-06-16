@@ -9,6 +9,7 @@ class Tasklist < ApplicationRecord
 
   validates :property, presence: true, uniqueness: { scope: :user }
   validates_uniqueness_of :google_id, allow_nil: true
+  validates_inclusion_of :created_from_api, in: [true, false]
 
   before_destroy :api_delete
   after_create   :api_insert, unless: -> { created_from_api? }
@@ -29,7 +30,7 @@ class Tasklist < ApplicationRecord
   def api_get
     return false unless user.oauth_id.present? && google_id.present?
     user.refresh_token!
-    HTTParty.get(BASE_URI + '/' + tasklist.google_id, headers: api_headers)
+    HTTParty.get(BASE_URI + '/' + google_id, headers: api_headers)
   end
 
   def api_insert
@@ -41,6 +42,7 @@ class Tasklist < ApplicationRecord
     response['id'] = sequence_google_id(response['id']) if Rails.env.test?
 
     update_columns(google_id: response['id'], updated_at: response['updated'])
+    response
   end
 
   def api_update
@@ -49,6 +51,7 @@ class Tasklist < ApplicationRecord
     body = { title: property.name }.to_json
     response = HTTParty.patch(BASE_URI + '/' + google_id, { headers: api_headers, body: body })
     update_columns(updated_at: response['updated'])
+    response
   end
 
   def api_delete
@@ -60,7 +63,7 @@ class Tasklist < ApplicationRecord
   private
 
   def sequence_google_id(response_id)
-    return true if property&.name == 'validate'
+    return response_id if property&.name == 'validate'
     number = Tasklist.count.positive? ? Tasklist.last.id + 1 : 1
     response_id + number.to_s + Random.rand(0...3000).to_s
   end

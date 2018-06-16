@@ -15,7 +15,7 @@ RSpec.describe Property, type: :model do
       body: FactoryBot.create(:task_json).marshal_dump.to_json
     )
     @property = FactoryBot.create(:property, certificate_number: 'string', serial_number: 'string', is_private: false)
-    WebMock::RequestRegistry.instance.reset!
+    WebMock.reset_executed_requests!
   end
 
   describe 'must be valid against the schema' do
@@ -204,7 +204,7 @@ RSpec.describe Property, type: :model do
 
     it 'doesn\'t make an API call if the tasklist exists with a google_id' do
       @property.save
-      WebMock::RequestRegistry.instance.reset!
+      WebMock.reset_executed_requests!
       @property.update(name: 'New name!')
       expect(WebMock).not_to have_requested(:post, Constant::Regex::TASKLIST)
     end
@@ -218,7 +218,7 @@ RSpec.describe Property, type: :model do
 
     it 'makes an API call' do
       new_property = FactoryBot.build(:property)
-      WebMock::RequestRegistry.instance.reset!
+      WebMock.reset_executed_requests!
       new_property.save!
       expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).once
     end
@@ -232,7 +232,7 @@ RSpec.describe Property, type: :model do
       @private_property = FactoryBot.build(:property, creator: @user, is_private: true)
       @public_property  = FactoryBot.build(:property, creator: @user, is_private: false)
       @discarded_private_property = FactoryBot.build(:property, creator: @user, is_private: true, discarded_at: Time.now - 1.hour)
-      WebMock::RequestRegistry.instance.reset!
+      WebMock.reset_executed_requests!
     end
 
     it 'only fires if discarded_at is blank' do
@@ -283,7 +283,7 @@ RSpec.describe Property, type: :model do
     context 'when true to false (was private, now public)' do
       it 'adds the tasklist to other users' do
         private_property.save
-        WebMock::RequestRegistry.instance.reset!
+        WebMock.reset_executed_requests!
         count = User.staff_except(private_property.creator).count
         private_property.update(is_private: false)
         expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).times(count)
@@ -343,7 +343,7 @@ RSpec.describe Property, type: :model do
       @user3 = FactoryBot.create(:oauth_user)
       @private_property = FactoryBot.create(:property, creator: @user, is_private: true)
       @public_property  = FactoryBot.create(:property, creator: @user, is_private: false)
-      WebMock::RequestRegistry.instance.reset!
+      WebMock.reset_executed_requests!
     end
 
     it 'should only fire if name is changed' do

@@ -16,7 +16,7 @@ RSpec.describe User, type: :model do
     )
     @user = FactoryBot.build(:user)
     @oauth_user = FactoryBot.build(:oauth_user)
-    WebMock::RequestRegistry.instance.reset!
+    WebMock.reset_executed_requests!
   end
 
   describe 'must be valid' do
@@ -312,7 +312,7 @@ RSpec.describe User, type: :model do
       expect(WebMock).to have_requested(:get, 'https://www.googleapis.com/tasks/v1/users/@me/lists')
     end
 
-    it 'returns a google tasklist object' do
+    it 'returns a hash of google tasklist objects' do
       @oauth_user.save
       response = @oauth_user.list_api_tasklists
       expect(response['kind']).to eq 'tasks#taskList'

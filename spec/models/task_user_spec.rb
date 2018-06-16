@@ -18,7 +18,7 @@ RSpec.describe TaskUser, type: :model do
     @property = FactoryBot.create(:property, creator: @user)
     @task = FactoryBot.create(:task, property: @property, creator: @user, owner: @user)
     @task_user = @task.task_users.where(user: @user).first
-    WebMock::RequestRegistry.instance.reset!
+    WebMock.reset_executed_requests!
   end
 
   describe 'must be valid' do
@@ -74,12 +74,18 @@ RSpec.describe TaskUser, type: :model do
     end
   end
 
-  describe 'requires booleans to be in a state' do
+  describe 'requires booleans to be in a state:' do
     let(:bad_deleted) { build :task_user, deleted: nil, tasklist_gid: 'FAKEmdQ5NTUwMTk3NjU1MjE3MTU6MDo1001' }
+    let(:bad_created_from_api) { build :task_user, created_from_api: nil }
 
     it 'deleted' do
       expect { bad_deleted.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { bad_deleted.save! }.to raise_error ActiveRecord::RecordInvalid
+    end
+
+    it 'created_from_api' do
+      expect { bad_created_from_api.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { bad_created_from_api.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
     end
   end
 
@@ -138,7 +144,7 @@ RSpec.describe TaskUser, type: :model do
       local_task = FactoryBot.create(:task, creator: non_oauth_user, owner: non_oauth_user)
       @local_task_user = FactoryBot.build(:task_user, task: local_task, user: non_oauth_user)
       @unsaved_task_user = FactoryBot.build(:task_user)
-      WebMock::RequestRegistry.instance.reset!
+      WebMock.reset_executed_requests!
     end
 
     describe '#api_get' do
@@ -160,6 +166,8 @@ RSpec.describe TaskUser, type: :model do
         @task_user.api_get
         expect(WebMock).to have_requested(:get, Constant::Regex::TASK)
       end
+
+      pending 'returns the API response'
     end
 
     describe '#api_insert' do
@@ -184,6 +192,8 @@ RSpec.describe TaskUser, type: :model do
         @task_user.api_insert
         expect(WebMock).to have_requested(:post, Constant::Regex::TASK)
       end
+
+      pending 'returns the API response'
     end
 
     describe '#api_update' do
@@ -205,6 +215,8 @@ RSpec.describe TaskUser, type: :model do
         @task_user.api_update
         expect(WebMock).to have_requested(:patch, Constant::Regex::TASK)
       end
+
+      pending 'returns the API response'
     end
 
     describe '#api_delete' do
@@ -269,6 +281,8 @@ RSpec.describe TaskUser, type: :model do
         @task_user.api_move
         expect(WebMock).to have_requested(:post, Constant::Regex::TASK)
       end
+
+      pending 'returns the API response'
     end
   end
 

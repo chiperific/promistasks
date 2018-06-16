@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :tasklist do
-    user
+    association :user, factory: :oauth_user
     property
   end
 end
