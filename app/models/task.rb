@@ -121,9 +121,7 @@ class Task < ApplicationRecord
   def delete_task_users
     # the task_user#before_destroy callback deletes the task from the API
     # task_users.destroy_all skips callbacks
-    task_users.each do |tu|
-      tu.destroy
-    end
+    task_users.each(&:destroy)
   end
 
   def saved_changes_to_users?
@@ -131,10 +129,10 @@ class Task < ApplicationRecord
   end
 
   def saved_changes_to_api_fields?
-    saved_change_to_title? ||
-      saved_change_to_notes? ||
-      saved_change_to_due? ||
-      saved_change_to_completed_at?
+    !!saved_change_to_title? ||
+      !!saved_change_to_notes? ||
+      !!saved_change_to_due? ||
+      !!saved_change_to_completed_at?
   end
 
   private

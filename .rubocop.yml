@@ -16,6 +16,8 @@ Style/SymbolArray:
     - db/migrate/*
 Style/BracesAroundHashParameters:
   Enabled: false
+Style/DoubleNegation:
+  Enabled: false
 AllCops:
   Exclude:
     - db/schema.rb

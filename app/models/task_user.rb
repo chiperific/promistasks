@@ -7,19 +7,20 @@ class TaskUser < ApplicationRecord
   belongs_to :task, inverse_of: :task_users
 
   validates :task, presence: true, uniqueness: { scope: :user }
+  validates_presence_of :tasklist_gid
   validates_uniqueness_of :google_id, allow_nil: true
   validates_inclusion_of :deleted, in: [true, false]
 
-  # should be unnecessary
-  # before_save  :ensure_tasklist_exists,  if: -> { tasklist_gid.nil? }
-  before_save    :set_position_as_integer, if: -> { position.present? }
-  before_destroy :api_delete
-  after_create   :api_insert
-  after_update   :relocate,                if: -> { saved_change_to_tasklist_gid? }
-  after_update   :api_move,                if: -> { saved_changes_to_placement? }
-  after_save     :elevate_completeness,    if: -> { completed_at.present? && task.completed_at.nil? }
+  before_validation :set_tasklist_gid, if: -> { tasklist_gid.nil? }
+  before_save       :set_position_as_integer, if: -> { position.present? }
+  before_destroy    :api_delete
+  after_create      :api_insert
+  after_update      :relocate,                if: -> { saved_change_to_tasklist_gid? }
+  after_update      :api_move,                if: -> { saved_changes_to_placement? }
+  after_save        :elevate_completeness,    if: -> { completed_at.present? && task.completed_at.nil? }
 
   scope :descending, -> { undiscarded.order(position_int: :asc) }
+  scope :previous, ->(position_int) { where('position_int < ?', position_int).order(position_int: :desc) }
 
   BASE_URI = 'https://www.googleapis.com/tasks/v1/lists/'
 
@@ -39,9 +40,9 @@ class TaskUser < ApplicationRecord
   end
 
   def saved_changes_to_placement?
-    saved_change_to_position? ||
-      saved_change_to_parent_id? ||
-      saved_change_to_previous_id?
+    !!saved_change_to_position? ||
+      !!saved_change_to_parent_id? ||
+      !!saved_change_to_previous_id?
   end
 
   def api_get
@@ -79,6 +80,7 @@ class TaskUser < ApplicationRecord
     # set or clear the new parent and previous before calling
     # what about when position changes? Must get precursing task's id and set to previous_id
     return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
+    return false if position.nil? && parent_id.nil? && previous_id.nil?
     user.refresh_token!
 
     uri = BASE_URI + tasklist_gid + '/tasks/' + google_id + '/move?'
@@ -106,11 +108,9 @@ class TaskUser < ApplicationRecord
   end
 
   def set_tasklist_gid
-    # scenario:
-    # I'm creating a task and assigning it to a user
     return false if user.nil? || task.nil?
-    # task.property.create_tasklist_for(user)
-    tasklist = task.property.tasklists.where(user: user).first
+    tasklist = task.property.ensure_tasklist_exists_for(user)
+    return false unless tasklist.present?
     self.tasklist_gid = tasklist.google_id
   end
 
@@ -118,15 +118,12 @@ class TaskUser < ApplicationRecord
     task.update(completed_at: completed_at)
   end
 
-  # api_relocate: just send api_delete before saving tasklist_gid and api_insert after saving tasklist_gid
-
   def relocate
-    return false if tasklist_gid_before_last_save.nil? || tasklist_gid_before_last_save == tasklist_gid
+    return false if tasklist_gid_before_last_save == tasklist_gid
     mem_dup = self.dup
     mem_dup.tasklist_gid = tasklist_gid_before_last_save
     mem_dup.api_delete
     self.api_insert
-    # send api_create, but use new tasklist_gid
   end
 
   def api_headers
