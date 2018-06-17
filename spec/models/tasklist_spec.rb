@@ -67,27 +67,33 @@ RSpec.describe Tasklist, type: :model do
   end
 
   describe '#list_api_tasks' do
-    let(:user) { create :user }
-    let(:local_tasklist) { create :tasklist, user: user }
-    let(:tasklist) { create :tasklist }
+    before :each do
+      stub_request(:get, Constant::Regex::TASK).to_return(
+        headers: { 'Content-Type'=> 'application/json' },
+        status: 200,
+        body: file_fixture('list_tasks_json_spec.json').read
+      )
+      @user = FactoryBot.create(:user)
+      @local_tasklist = FactoryBot.create(:tasklist, user: @user)
+    end
 
     it 'returns false for non-oauth users' do
-      expect(local_tasklist.list_api_tasks).to eq false
+      expect(@local_tasklist.list_api_tasks).to eq false
     end
 
     it 'calls user.refresh_token!' do
-      user = tasklist.user
+      user = @tasklist.user
       expect(user).to receive(:refresh_token!)
-      tasklist.list_api_tasks
+      @tasklist.list_api_tasks
     end
 
     it 'makes an API call' do
-      tasklist.list_api_tasks
-      expect(WebMock).to have_requested(:get, Constant::Regex::TASK)
+      @tasklist.list_api_tasks
+      expect(WebMock).to have_requested(:get, 'https://www.googleapis.com/tasks/v1/lists/')
     end
 
     it 'returns a list of tasks related to the tasklist' do
-      response = tasklist.list_api_tasks
+      response = @tasklist.list_api_tasks
       expect(response['kind']).to eq 'tasks#task'
     end
   end

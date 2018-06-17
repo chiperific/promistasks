@@ -135,15 +135,22 @@ class User < ApplicationRecord
     HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists', headers: api_headers)
   end
 
+  # rubocop:disable Naming/AccessorMethodName
+  def get_default_tasklist
+    return false unless oauth_id.present?
+    HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists/@default', headers: api_headers)
+  end
+  # rubocop:enable Naming/AccessorMethodName
+
   def sync_with_api
     return false unless oauth_id.present?
 
-    SyncTasklistsClient.new(self)
+    TasklistsClient.sync(self)
 
     Property.visible_to(self).each do |property|
       tasklist = property.tasklists.where(user: self).first
       next unless tasklist.present? && tasklist.google_id.present?
-      SyncTasksClient.new(self, tasklist)
+      TasksClient.sync(self, tasklist)
     end
   end
 

@@ -301,6 +301,14 @@ RSpec.describe User, type: :model do
   end
 
   describe '#list_api_tasklists' do
+    before :each do
+      stub_request(:get, 'https://www.googleapis.com/tasks/v1/users/@me/lists').to_return(
+        headers: { 'Content-Type'=> 'application/json' },
+        status: 200,
+        body: file_fixture('list_tasklists_json_spec.json').read
+      )
+    end
+
     it 'returns false if oauth_id is missing' do
       @user.save
       expect(@user.list_api_tasklists).to eq false

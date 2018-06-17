@@ -19,8 +19,8 @@ class Task < ApplicationRecord
 
   validates_presence_of :creator_id, :owner_id, :property_id
   validates :priority, inclusion: { in: Constant::Task::PRIORITY, allow_blank: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}" }
-  validates_inclusion_of  :license_required, :needs_more_info,
-                          :initialization_template, in: [true, false]
+  validates_inclusion_of  :license_required, :needs_more_info, :created_from_api,
+                          in: [true, false]
   validates_inclusion_of :visibility, in: [0, 1, 2, 3]
 
   validates :title, presence: true, uniqueness: { scope: :property }
@@ -31,7 +31,7 @@ class Task < ApplicationRecord
   monetize :budget_cents, :cost_cents, allow_nil: true
 
   before_save :decide_record_completeness
-  after_create :create_task_users, unless: -> { discarded_at.present? }
+  after_create :create_task_users, unless: -> { discarded_at.present? || created_from_api? }
   after_update :update_task_users, if: :saved_changes_to_api_fields?
   after_update :relocate, if: -> { saved_change_to_property_id? }
   after_update :change_task_users, if: :saved_changes_to_users?
@@ -60,6 +60,7 @@ class Task < ApplicationRecord
       t.notes = task_json['notes']
       t.completed_at = task_json['completed']
       t.due = task_json['due']
+      t.created_in_api = true
     end
 
     self
@@ -83,7 +84,7 @@ class Task < ApplicationRecord
 
   def update_task_users
     # if the users change, then new task_users will be created, which triggers the #api_create on after_create callback
-    return false if saved_changes_to_users?
+    return false if saved_changes_to_users? || discarded_at.present?
     [creator, owner].each do |user|
       task_user = ensure_task_user_exists_for(user)
       # changing details about the task won't trigger an api call from task_user

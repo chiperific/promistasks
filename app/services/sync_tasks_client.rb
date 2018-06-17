@@ -34,7 +34,6 @@ class SyncTasksClient
       t.creator = user
       t.owner = user
       t.property = tasklist.property
-      t.created_in_api = true
     end
     task.save
     task.reload

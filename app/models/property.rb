@@ -12,17 +12,17 @@ class Property < ApplicationRecord
 
   has_many :tasks, inverse_of: :property, dependent: :destroy
 
-  validates_presence_of :creator_id
   validates :name, :address, uniqueness: true, presence: true
+  validates_presence_of :creator_id
   validates_uniqueness_of :certificate_number, :serial_number, allow_nil: true
-  validates_inclusion_of :is_private, in: [true, false]
+  validates_inclusion_of :is_private, :is_default, :created_from_api, in: [true, false]
 
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
 
-  before_validation :name_and_address, if: :unsynced_name_address?
-  before_save :default_budget
-
-  after_create :create_tasklists,                   if: -> { discarded_at.nil? }
+  before_validation :name_and_address,              if: :unsynced_name_address?
+  before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
+  before_save  :default_budget,                     if: -> { budget.blank? }
+  after_create :create_tasklists,                   unless: -> { discarded_at.present? || created_from_api? }
   after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }
   after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? }
   after_update :update_tasklists,                   if: -> { discarded_at.nil? && saved_change_to_name? }
@@ -52,10 +52,6 @@ class Property < ApplicationRecord
     self.budget - tasks.map(&:cost).sum
   end
 
-  def default_budget
-    self.budget = Money.new(7_500_00) if budget.blank?
-  end
-
   def ensure_tasklist_exists_for(user)
     return false if user.oauth_id.nil?
     tasklist = tasklists.where(user: user).first_or_initialize
@@ -66,11 +62,31 @@ class Property < ApplicationRecord
 
   private
 
+  def unsynced_name_address?
+    return false if name.present? && address.present?
+    return false if name.blank? && address.blank?
+    true
+  end
+
+  def name_and_address
+    self.address ||= name
+    self.name ||= address
+    true
+  end
+
+  def default_budget
+    self.budget = Money.new(7_500_00)
+  end
+
+  def refuse_to_discard_default
+    self.discarded_at = nil
+  end
+
   def create_tasklists
     if is_private?
       ensure_tasklist_exists_for(creator)
     else
-      User.staff.each do |user|
+      User.staff_except(creator).each do |user|
         ensure_tasklist_exists_for(user)
       end
     end
@@ -120,17 +136,5 @@ class Property < ApplicationRecord
         tasklist.api_update
       end
     end
-  end
-
-  def unsynced_name_address?
-    return false if name.present? && address.present?
-    return false if name.blank? && address.blank?
-    true
-  end
-
-  def name_and_address
-    self.address ||= name
-    self.name ||= address
-    true
   end
 end

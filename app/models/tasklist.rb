@@ -9,11 +9,9 @@ class Tasklist < ApplicationRecord
 
   validates :property, presence: true, uniqueness: { scope: :user }
   validates_uniqueness_of :google_id, allow_nil: true
-  validates_inclusion_of :created_from_api, in: [true, false]
 
   before_destroy :api_delete
-  after_create   :api_insert, unless: -> { created_from_api? }
-  after_update   :api_update
+  after_create   :api_insert, unless: -> { google_id.present? }
 
   def list_api_tasks
     return false unless user.oauth_id.present?
@@ -34,7 +32,7 @@ class Tasklist < ApplicationRecord
   end
 
   def api_insert
-    return false unless user.oauth_id.present?
+    return false if user.oauth_id.nil? || property.created_from_api?
     user.refresh_token!
     body = { title: property.name }.to_json
     response = HTTParty.post(BASE_URI, { headers: api_headers, body: body })

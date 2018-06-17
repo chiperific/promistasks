@@ -41,7 +41,6 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.references :user,     null: false, foreign_key: true
       t.references :property, null: false, foreign_key: true
       t.string :google_id
-      t.boolean :created_from_api, default: false, null: false
       t.timestamps
       t.index [:user_id, :property_id], unique: true
       t.index [:property_id, :user_id], unique: true
@@ -59,7 +58,6 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.string :previous_id
       t.boolean :deleted, default: false, null: false # google field
       t.datetime :completed_at                        # google field -- RFC 3339 timestamp
-      t.boolean :created_from_api, default: false, null: false
       t.timestamps
       t.index [:user_id, :task_id], unique: true
       t.index [:task_id, :user_id], unique: true

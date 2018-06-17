@@ -69,7 +69,9 @@ ActiveRecord::Schema.define(version: 20180610153731) do
     t.string "certification_label1"
     t.string "certification_label2"
     t.bigint "creator_id", null: false
-    t.boolean "is_private", default: true, null: false
+    t.boolean "is_private", default: false, null: false
+    t.boolean "is_default", default: false, null: false
+    t.boolean "created_from_api", default: false, null: false
     t.datetime "discarded_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -129,7 +131,6 @@ ActiveRecord::Schema.define(version: 20180610153731) do
     t.string "previous_id"
     t.boolean "deleted", default: false, null: false
     t.datetime "completed_at"
-    t.boolean "created_from_api", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["google_id"], name: "index_task_users_on_google_id", unique: true
@@ -145,10 +146,9 @@ ActiveRecord::Schema.define(version: 20180610153731) do
     t.bigint "user_id", null: false
     t.bigint "property_id", null: false
     t.string "google_id"
-    t.boolean "created_from_api", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["google_id"], name: "index_tasklists_on_google_id", unique: true
+    t.index ["google_id"], name: "index_tasklists_on_google_id"
     t.index ["property_id", "user_id"], name: "index_tasklists_on_property_id_and_user_id", unique: true
     t.index ["property_id"], name: "index_tasklists_on_property_id"
     t.index ["user_id", "property_id"], name: "index_tasklists_on_user_id_and_property_id", unique: true
@@ -173,7 +173,7 @@ ActiveRecord::Schema.define(version: 20180610153731) do
     t.boolean "needs_more_info", default: false, null: false
     t.datetime "discarded_at"
     t.datetime "completed_at"
-    t.boolean "initialization_template", default: false, null: false
+    t.boolean "created_from_api", default: false, null: false
     t.string "owner_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

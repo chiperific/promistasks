@@ -1,7 +1,11 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-2. WTF are feature tests and does the folder really need to live above specs?
+1. TasklistsClient is ready, but in the process I changed lots of models:
+- Property
+- Task
+- User
+- Tasklist
 3. Relationships between users, properties and tasks
   - Make controllers
   - Set policies
