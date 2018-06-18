@@ -84,6 +84,7 @@ class Property < ApplicationRecord
 
   def only_one_default
     return true if Property.where(is_default: true).count == 0
+    return true if Property.where(is_default: true).count == 1 && self == Property.where(is_default: true).first
     self.is_default = false
   end
 

@@ -259,19 +259,91 @@ RSpec.describe Property, type: :model do
     end
   end
 
-  describe '#only_one_default' do
-    pending 'only fires if record is marked as default'
-    pending 'sets is_default to false'
-  end
+  describe 'is_default validations' do
+    let(:default_prop)  { build :property, is_default: true}
+    let(:normal_prop)   { build :property }
+    let(:discarded_prop) { build :property, discarded_at: Time.now }
 
-  describe '#default_must_be_private' do
-    pending 'only fires if discarded_at is nil, is_default is true and is_private is false'
-    pending 'sets is_private to true'
-  end
+    describe '#only_one_default' do
+      it 'only fires if record is marked as default' do
+        expect(normal_prop).not_to receive(:only_one_default)
+        normal_prop.save!
 
-  describe '#refuse_to_discard_default' do
-    pending 'only fires if discarded_at is present and record is_default'
-    pending 'sets discarded_at to nil'
+        expect(default_prop).to receive(:only_one_default)
+        default_prop.save!
+      end
+
+      it 'returns true if there\'s no default' do
+        expect(default_prop.send(:only_one_default)).to eq true
+      end
+
+      it 'returns true if this record is the only default' do
+        default_prop.save
+        expect(default_prop.send(:only_one_default)).to eq true
+      end
+
+      it 'sets is_default to false' do
+        default_prop.save
+        normal_prop.is_default = true
+        normal_prop.save
+        expect(normal_prop.is_default).to eq false
+      end
+    end
+
+    describe '#default_must_be_private' do
+      it 'won\'t fire if discarded_at is not nil' do
+        expect(discarded_prop).not_to receive(:default_must_be_private)
+        discarded_prop.save
+      end
+
+      it 'won\'t fire if is_default is false' do
+        expect(normal_prop).not_to receive(:default_must_be_private)
+        normal_prop.save
+      end
+
+      it 'won\'t fire if is_private is true' do
+        default_prop.is_private = true
+        expect(default_prop).not_to receive(:default_must_be_private)
+        default_prop.save
+      end
+
+      it 'only fires if all conditions are met' do
+        expect(default_prop).to receive(:default_must_be_private)
+        default_prop.update(is_private: false)
+      end
+
+      it 'sets is_private to true' do
+        default_prop.is_private = false
+        default_prop.save
+        expect(default_prop.is_private).to eq true
+      end
+    end
+
+    describe '#refuse_to_discard_default' do
+      it 'won\'t fire if discarded_at is nil' do
+        expect(default_prop).not_to receive(:refuse_to_discard_default)
+        default_prop.save
+      end
+
+      it 'won\'t fire if is_default is false' do
+        expect(discarded_prop).not_to receive(:refuse_to_discard_default)
+        discarded_prop.save
+      end
+
+      it 'only fires if conditions are met' do
+        default_prop.discarded_at = Time.now
+        expect(default_prop).to receive(:refuse_to_discard_default)
+        default_prop.save
+      end
+
+      it 'sets discarded_at to nil' do
+        discarded_prop.save
+        expect(discarded_prop.discarded_at).not_to eq nil
+
+        discarded_prop.send(:refuse_to_discard_default)
+        expect(discarded_prop.discarded_at).to eq nil
+      end
+    end
   end
 
   describe '#create_tasklists' do

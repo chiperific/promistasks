@@ -1,6 +1,7 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
+
 1. TasklistsClient is ready, but in the process I changed lots of models:
 - Property
 - Task
@@ -34,6 +35,10 @@
 1. Destroy PropertyTracker
 
 ## Keep in mind
+--**--**--**
+- If you rename your default tasklist, it will rename the property and everyone else's default tasklist. HMMMM. Can probably be handled through TasklistsClient (don't ever update the Property)
+- Shouldn't I be calling Property.where(is_default: true).first in TasklistClient.sync?!???!
+--**--**--**
 - PRIVATE properties must take self.tasks.map(&:owners &:creators) into account before removing
 - Bring in tasklists and tasks from the app on user.create
 - initialization_template tasks will use property.creator for task.creator && task.owner
