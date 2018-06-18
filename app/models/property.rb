@@ -20,9 +20,9 @@ class Property < ApplicationRecord
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
 
   before_validation :name_and_address,              if: :unsynced_name_address?
-  before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
-  before_validation :default_must_be_private,       if: -> { discarded_at.nil? && is_default? && !is_private? }
   before_validation :only_one_default,              if: -> { is_default? }
+  before_validation :default_must_be_private,       if: -> { discarded_at.nil? && is_default? && !is_private? }
+  before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
   before_save  :default_budget,                     if: -> { budget.blank? }
   after_create :create_tasklists,                   unless: -> { discarded_at.present? || created_from_api? }
   after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }
@@ -82,17 +82,17 @@ class Property < ApplicationRecord
     self.budget = Money.new(7_500_00)
   end
 
-  def refuse_to_discard_default
-    self.discarded_at = nil
+  def only_one_default
+    return true if Property.where(is_default: true).count == 0
+    self.is_default = false
   end
 
   def default_must_be_private
     self.is_private = true
   end
 
-  def only_one_default
-    return true if Property.where(is_default: true).count == 0
-    self.is_default = false
+  def refuse_to_discard_default
+    self.discarded_at = nil
   end
 
   def create_tasklists

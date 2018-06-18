@@ -178,6 +178,66 @@ RSpec.describe Property, type: :model do
     end
   end
 
+  describe '#ensure_tasklist_exists_for(user)' do
+    let(:user) { create :oauth_user }
+
+    it 'doesn\'t make an API call if the tasklist exists with a google_id' do
+      @property.save
+      WebMock.reset_executed_requests!
+      @property.update(name: 'New name!')
+      expect(WebMock).not_to have_requested(:post, Constant::Regex::TASKLIST)
+    end
+
+    it 'creates a tasklist' do
+      prev_count = Tasklist.count
+
+      @property.ensure_tasklist_exists_for(user)
+      expect(Tasklist.count).to eq prev_count + 1
+    end
+
+    it 'makes an API call' do
+      new_property = FactoryBot.build(:property, is_private: true)
+      WebMock.reset_executed_requests!
+      new_property.ensure_tasklist_exists_for(new_property.creator)
+      expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).once
+    end
+  end
+
+  describe '#unsynced_name_address?' do
+    let(:both) { build :property }
+    let(:neither) { build :property, name: nil, address: nil }
+    let(:unsynced_name) { build :property, address: nil }
+    let(:unsynced_address) { build :property, name: nil }
+
+    it 'returns false if both are present' do
+      expect(both.send(:unsynced_name_address?)).to eq false
+    end
+
+    it 'returns false if neither are present' do
+      expect(neither.send(:unsynced_name_address?)).to eq false
+    end
+
+    it 'returns true if they are out of sync' do
+      expect(unsynced_name.send(:unsynced_name_address?)).to eq true
+      expect(unsynced_address.send(:unsynced_name_address?)).to eq true
+    end
+  end
+
+  describe '#name_and_address' do
+    let(:no_name) { build :property, name: nil }
+    let(:no_address) { build :property, address: nil }
+
+    it 'copies the fields to eachother if one was blank' do
+      no_name.save
+      no_name.reload
+      expect(no_name.name).to eq no_name.address
+
+      no_address.save
+      no_address.reload
+      expect(no_address.address).to eq no_address.name
+    end
+  end
+
   describe '#default_budget' do
     let(:no_budget) { build :property }
     let(:custom_budget) { build :property, budget: 500 }
@@ -199,29 +259,19 @@ RSpec.describe Property, type: :model do
     end
   end
 
-  describe '#ensure_tasklist_exists_for(user)' do
-    let(:user) { create :oauth_user }
+  describe '#only_one_default' do
+    pending 'only fires if record is marked as default'
+    pending 'sets is_default to false'
+  end
 
-    it 'doesn\'t make an API call if the tasklist exists with a google_id' do
-      @property.save
-      WebMock.reset_executed_requests!
-      @property.update(name: 'New name!')
-      expect(WebMock).not_to have_requested(:post, Constant::Regex::TASKLIST)
-    end
+  describe '#default_must_be_private' do
+    pending 'only fires if discarded_at is nil, is_default is true and is_private is false'
+    pending 'sets is_private to true'
+  end
 
-    it 'creates a tasklist' do
-      prev_count = Tasklist.count
-
-      @property.ensure_tasklist_exists_for(user)
-      expect(Tasklist.count).to eq prev_count + 1
-    end
-
-    it 'makes an API call' do
-      new_property = FactoryBot.build(:property)
-      WebMock.reset_executed_requests!
-      new_property.save!
-      expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).once
-    end
+  describe '#refuse_to_discard_default' do
+    pending 'only fires if discarded_at is present and record is_default'
+    pending 'sets discarded_at to nil'
   end
 
   describe '#create_tasklists' do
@@ -367,41 +417,6 @@ RSpec.describe Property, type: :model do
         @public_property.update(name: 'not discarded public property')
         expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).times(user_count)
       end
-    end
-  end
-
-  describe '#unsynced_name_address?' do
-    let(:both) { build :property }
-    let(:neither) { build :property, name: nil, address: nil }
-    let(:unsynced_name) { build :property, address: nil }
-    let(:unsynced_address) { build :property, name: nil }
-
-    it 'returns false if both are present' do
-      expect(both.send(:unsynced_name_address?)).to eq false
-    end
-
-    it 'returns false if neither are present' do
-      expect(neither.send(:unsynced_name_address?)).to eq false
-    end
-
-    it 'returns true if they are out of sync' do
-      expect(unsynced_name.send(:unsynced_name_address?)).to eq true
-      expect(unsynced_address.send(:unsynced_name_address?)).to eq true
-    end
-  end
-
-  describe '#name_and_address' do
-    let(:no_name) { build :property, name: nil }
-    let(:no_address) { build :property, address: nil }
-
-    it 'copies the fields to eachother if one was blank' do
-      no_name.save
-      no_name.reload
-      expect(no_name.name).to eq no_name.address
-
-      no_address.save
-      no_address.reload
-      expect(no_address.address).to eq no_address.name
     end
   end
 end

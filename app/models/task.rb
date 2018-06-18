@@ -30,21 +30,21 @@ class Task < ApplicationRecord
 
   monetize :budget_cents, :cost_cents, allow_nil: true
 
-  before_validation :visibility_must_be_2, if: -> { property.is_default? && visibility != 2 }
+  before_validation :visibility_must_be_2, if: -> { property&.is_default? && visibility != 2 }
   before_save       :decide_record_completeness
   after_create      :create_task_users,    unless: -> { discarded_at.present? || created_from_api? }
   after_update      :update_task_users,    if: :saved_changes_to_api_fields?
-  after_update      :relocate, if: -> { saved_change_to_property_id? }
+  after_update      :relocate,             if: -> { saved_change_to_property_id? }
   after_update      :change_task_users,    if: :saved_changes_to_users?
   after_update      :cascade_completed,    if: -> { completed_at.present? && completed_at_before_last_save.nil? }
   after_save        :delete_task_users,    if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
 
-  scope :needs_more_info, -> { undiscarded.where(needs_more_info: true).where(initialization_template: false) }
-  scope :in_process, -> { undiscarded.where(completed_at: nil).where(initialization_template: false) }
-  scope :complete, -> { undiscarded.where.not(completed_at: nil).where(initialization_template: false) }
-  scope :public_visible, -> { undiscarded.where(visibility: 1) }
-  scope :related_to, ->(user) { where('creator_id = ? OR owner_id = ?', user.id, user.id) }
-  scope :visible_to, ->(user) { related_to(user).or(public_visible) }
+  scope :in_process,      -> { undiscarded.where(completed_at: nil) }
+  scope :needs_more_info, -> { undiscarded.in_process.where(needs_more_info: true) }
+  scope :complete,        -> { undiscarded.where.not(completed_at: nil) }
+  scope :public_visible,  -> { undiscarded.where(visibility: 1) }
+  scope :related_to,      ->(user) { undiscarded.where('creator_id = ? OR owner_id = ?', user.id, user.id) }
+  scope :visible_to,      ->(user) { undiscarded.related_to(user).or(public_visible) }
 
   def budget_remaining
     return nil if budget.nil? && cost.nil?
@@ -61,7 +61,7 @@ class Task < ApplicationRecord
       t.notes = task_json['notes']
       t.completed_at = task_json['completed']
       t.due = task_json['due']
-      t.created_in_api = true
+      t.created_from_api = true
     end
 
     self
@@ -160,7 +160,7 @@ class Task < ApplicationRecord
 
   def due_cant_be_past
     return true if due.nil?
-    return true if task_users.where(user: creator).first&.created_from_api?
+    return true if created_from_api?
     if due.past?
       errors.add(:due, 'must be in the future')
       false

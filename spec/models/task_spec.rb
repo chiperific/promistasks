@@ -68,7 +68,7 @@ RSpec.describe Task, type: :model do
     let(:bad_license)       { build :task, property: @property, creator: @creator, owner: @owner, license_required: nil }
     let(:bad_needs_no_info) { build :task, property: @property, creator: @creator, owner: @owner, needs_more_info: nil, due: Time.now + 3.hours, budget: Money.new(300_00), priority: 'low' }
     let(:bad_needs_info)    { build :task, property: @property, creator: @creator, owner: @owner, needs_more_info: nil }
-    let(:bad_initilization) { build :task, property: @property, creator: @creator, owner: @owner, initialization_template: nil }
+    let(:bad_created)       { build :task, property: @property, creator: @creator, owner: @owner, created_from_api: nil }
 
     it 'license_required' do
       expect { bad_license.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
@@ -83,54 +83,49 @@ RSpec.describe Task, type: :model do
       expect { bad_needs_info.save! }.not_to raise_error
     end
 
-    it 'initialization_template' do
-      expect { bad_initilization.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_initilization.save! }.to raise_error ActiveRecord::RecordInvalid
+    it 'created_from_api' do
+      expect { bad_created.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { bad_created.save! }.to raise_error ActiveRecord::RecordInvalid
     end
   end
 
   describe 'limits records by scope' do
-    let(:initialization_template) { create :task, property: @property, creator: @creator, owner: @owner, initialization_template: true }
-    let(:has_good_info)           { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 3.days, priority: 'medium', budget: 500 }
-    let(:visibility_1)            { create :task, property: @property, creator: @creator, owner: @owner, visibility: 1 }
-    let(:visibility_2)            { create :task, property: @property, creator: @creator, owner: @owner, visibility: 2 }
+    let(:has_good_info1) { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 3.days, priority: 'medium', budget: 500 }
+    let(:has_good_info2) { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 2.days, priority: 'high', budget: 800 }
+    let(:visibility_1)   { create :task, property: @property, creator: @creator, owner: @owner, visibility: 1 }
+    let(:visibility_2)   { create :task, property: @property, creator: @creator, owner: @owner, visibility: 2 }
     let(:user) { create :user }
     let(:related_one) { create :task, creator: user }
     let(:related_two) { create :task, creator: user }
 
-    it '#needs_more_info returns only non-initialization tasks where needs_more_info is false' do
+    it '#needs_more_info returns only tasks where needs_more_info is false' do
       @task.save
-      has_good_info.save
-      initialization_template.save
 
       expect(Task.needs_more_info).to include @task
-      expect(Task.needs_more_info).not_to include has_good_info
-      expect(Task.needs_more_info).not_to include initialization_template
+      expect(Task.needs_more_info).not_to include @completed_task
+      expect(Task.needs_more_info).not_to include has_good_info1
+      expect(Task.needs_more_info).not_to include has_good_info2
     end
 
-    it '#in_process returns only non-initialization tasks where completed is nil' do
+    it '#in_process returns only tasks where completed is nil' do
       @task.save
       @completed_task.save
-      initialization_template.save
 
       expect(Task.in_process).to include @task
+      expect(Task.in_process).to include has_good_info1
       expect(Task.in_process).not_to include @completed_task
-      expect(Task.in_process).not_to include initialization_template
     end
 
-    it '#complete returns only non-initialization tasks where completed is not nil' do
+    it '#complete returns only tasks where completed is not nil' do
       @completed_task.save
       @task.save
-      initialization_template.save
 
       expect(Task.complete).to include @completed_task
       expect(Task.complete).not_to include @task
-      expect(Task.complete).not_to include initialization_template
+      expect(Task.complete).not_to include has_good_info1
     end
 
     it '#public_visible returns only undiscarded tasks where visibility is set to everyone' do
-      visibility_1.save
-      visibility_2.save
       @task.save
 
       expect(Task.public_visible).to include visibility_1
@@ -139,27 +134,18 @@ RSpec.describe Task, type: :model do
     end
 
     it '#related_to shows records where the user is the creator, owner or subject' do
-      user
-      related_one
-      related_two
       expect(Task.related_to(user)).to include related_one
       expect(Task.related_to(user)).to include related_two
-      expect(Task.related_to(user)).not_to include has_good_info
+      expect(Task.related_to(user)).not_to include has_good_info1
       expect(Task.related_to(user)).not_to include @task
     end
 
     it '#visible_to shows a combo of #related_to and public_visible' do
-      user
-      related_one
-      related_two
-      visibility_1
-      visibility_2
-      has_good_info
       expect(Task.visible_to(user)).to include related_one
       expect(Task.visible_to(user)).to include related_two
       expect(Task.visible_to(user)).to include visibility_1
       expect(Task.visible_to(user)).not_to include visibility_2
-      expect(Task.visible_to(user)).not_to include has_good_info
+      expect(Task.visible_to(user)).not_to include has_good_info1
     end
   end
 
@@ -266,7 +252,6 @@ RSpec.describe Task, type: :model do
         t.cost = 48_00
         t.visibility = 1
         t.license_required = true
-        t.initialization_template = true
         t.owner_type = 'Admin Staff'
       end
       expect(@no_api_change).not_to receive(:update_task_users)
@@ -279,10 +264,9 @@ RSpec.describe Task, type: :model do
       @task.update(creator: @new_user, owner: @new_user, title: 'new title')
     end
 
-    pending 'fires task_user.api_update' do
-      task_user = @updated_task.task_users.where(user: @creator).first
-      expect(task_user).to receive(:api_update)
+    it 'fires task_user.api_update' do
       @updated_task.update(title: 'new title')
+      expect(WebMock).to have_requested(:patch, Constant::Regex::TASK).twice
     end
   end
 
@@ -463,7 +447,6 @@ RSpec.describe Task, type: :model do
         t.visibility = 1
         t.license_required = true
         t.needs_more_info = true
-        t.initialization_template = true
         t.owner_type = 'Admin Staff'
       end
       no_api_change.save!
