@@ -9,7 +9,7 @@ class TaskUser < ApplicationRecord
   validates :task, presence: true, uniqueness: { scope: :user }
   validates_presence_of :tasklist_gid
   validates_uniqueness_of :google_id, allow_nil: true
-  validates_inclusion_of :deleted, :created_from_api, in: [true, false]
+  validates_inclusion_of :deleted, in: [true, false]
 
   before_validation :set_tasklist_gid, if: -> { tasklist_gid.nil? }
   before_save       :set_position_as_integer, if: -> { position.present? }

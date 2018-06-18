@@ -29,7 +29,7 @@ class TasklistsClient
     else
       case tasklist.updated_at.utc < Time.parse(tasklist_json['updated'])
       when true
-        update_property(tasklist_json, tasklist.property, default)
+        update_property(tasklist.property, tasklist_json['title'], default)
         tasklist.update(updated_at: tasklist_json['updated'])
       when false
         tasklist.api_update unless tasklist.property.name == tasklist_json['title']
@@ -47,9 +47,9 @@ class TasklistsClient
     )
   end
 
-  def update_property(tasklist_json, property, default = false)
+  def update_property(property, title, default = false)
     property.tap do |prop|
-      prop.name = tasklist_json['title']
+      prop.name = title
       prop.creator ||= @user
       prop.is_default = default
       prop.save

@@ -76,16 +76,10 @@ RSpec.describe TaskUser, type: :model do
 
   describe 'requires booleans to be in a state:' do
     let(:bad_deleted) { build :task_user, deleted: nil, tasklist_gid: 'FAKEmdQ5NTUwMTk3NjU1MjE3MTU6MDo1001' }
-    let(:bad_created_from_api) { build :task_user, created_from_api: nil }
 
     it 'deleted' do
       expect { bad_deleted.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { bad_deleted.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
-
-    it 'created_from_api' do
-      expect { bad_created_from_api.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { bad_created_from_api.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
     end
   end
 
