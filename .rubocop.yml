@@ -18,6 +18,10 @@ Style/BracesAroundHashParameters:
   Enabled: false
 Style/DoubleNegation:
   Enabled: false
+Layout/IndentHash:
+  Enabled: false
+Lint/AmbiguousBlockAssociation:
+  Enabled: false
 AllCops:
   Exclude:
     - db/schema.rb

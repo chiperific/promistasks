@@ -327,6 +327,10 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#fetch_default_tasklist' do
+    pending 'does stuff'
+  end
+
   describe 'sync_with_api' do
     before :each do
       @oauth_user.save

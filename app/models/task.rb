@@ -30,13 +30,14 @@ class Task < ApplicationRecord
 
   monetize :budget_cents, :cost_cents, allow_nil: true
 
-  before_save :decide_record_completeness
-  after_create :create_task_users, unless: -> { discarded_at.present? || created_from_api? }
-  after_update :update_task_users, if: :saved_changes_to_api_fields?
-  after_update :relocate, if: -> { saved_change_to_property_id? }
-  after_update :change_task_users, if: :saved_changes_to_users?
-  after_update :cascade_completed, if: -> { completed_at.present? && completed_at_before_last_save.nil? }
-  after_save :delete_task_users, if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
+  before_validation :visibility_must_be_2, if: -> { property.is_default? && visibility != 2 }
+  before_save       :decide_record_completeness
+  after_create      :create_task_users,    unless: -> { discarded_at.present? || created_from_api? }
+  after_update      :update_task_users,    if: :saved_changes_to_api_fields?
+  after_update      :relocate, if: -> { saved_change_to_property_id? }
+  after_update      :change_task_users,    if: :saved_changes_to_users?
+  after_update      :cascade_completed,    if: -> { completed_at.present? && completed_at_before_last_save.nil? }
+  after_save        :delete_task_users,    if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
 
   scope :needs_more_info, -> { undiscarded.where(needs_more_info: true).where(initialization_template: false) }
   scope :in_process, -> { undiscarded.where(completed_at: nil).where(initialization_template: false) }
@@ -138,6 +139,21 @@ class Task < ApplicationRecord
 
   private
 
+  def visibility_must_be_2
+    self.visibility = 2
+  end
+
+  def decide_record_completeness
+    strikes = 0
+
+    strikes += 3 if due.nil?
+    strikes += 1 if priority.nil?
+    strikes += 1 if budget.nil?
+
+    self.needs_more_info = strikes > 3
+    true
+  end
+
   def require_cost
     errors.add(:cost, 'must be recorded, or you can delete the budget amount')
   end
@@ -151,16 +167,5 @@ class Task < ApplicationRecord
     else
       true
     end
-  end
-
-  def decide_record_completeness
-    strikes = 0
-
-    strikes += 3 if due.nil?
-    strikes += 1 if priority.nil?
-    strikes += 1 if budget.nil?
-
-    self.needs_more_info = strikes > 3
-    true
   end
 end

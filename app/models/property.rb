@@ -21,6 +21,8 @@ class Property < ApplicationRecord
 
   before_validation :name_and_address,              if: :unsynced_name_address?
   before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
+  before_validation :default_must_be_private,       if: -> { discarded_at.nil? && is_default? && !is_private? }
+  before_validation :only_one_default,              if: -> { is_default? }
   before_save  :default_budget,                     if: -> { budget.blank? }
   after_create :create_tasklists,                   unless: -> { discarded_at.present? || created_from_api? }
   after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }
@@ -33,6 +35,8 @@ class Property < ApplicationRecord
   scope :with_tasks_for, ->(user) { undiscarded.where(id: Task.select(:property_id).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id)) }
   scope :related_to,     ->(user) { created_by(user).or(with_tasks_for(user)) }
   scope :visible_to,     ->(user) { related_to(user).or(public_visible) }
+  # there can be only one, highlander, regardless of user
+  # scope :default_for,    ->(user) { created_by(user).where(is_default: true) }
 
   class << self
     alias archived discarded
@@ -82,11 +86,20 @@ class Property < ApplicationRecord
     self.discarded_at = nil
   end
 
+  def default_must_be_private
+    self.is_private = true
+  end
+
+  def only_one_default
+    return true if Property.where(is_default: true).count == 0
+    self.is_default = false
+  end
+
   def create_tasklists
     if is_private?
       ensure_tasklist_exists_for(creator)
     else
-      User.staff_except(creator).each do |user|
+      User.staff.each do |user|
         ensure_tasklist_exists_for(user)
       end
     end

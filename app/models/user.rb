@@ -135,12 +135,10 @@ class User < ApplicationRecord
     HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists', headers: api_headers)
   end
 
-  # rubocop:disable Naming/AccessorMethodName
-  def get_default_tasklist
+  def fetch_default_tasklist
     return false unless oauth_id.present?
     HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists/@default', headers: api_headers)
   end
-  # rubocop:enable Naming/AccessorMethodName
 
   def sync_with_api
     return false unless oauth_id.present?

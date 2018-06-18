@@ -9,6 +9,14 @@ FactoryBot.define do
     sequence(:selfLink) { |n| "https://www.googleapis.com/tasks/v1/users/@me/lists/MDE1MDQ5NTUwMTk3NjU1MjE3MTU6MDo#{n}" }
   end
 
+  factory :default_tasklist_json, class: OpenStruct do
+    kind 'tasks#taskList'
+    id 'FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDow'
+    title 'My Tasks'
+    updated '2018-06-10T23:22:03.000Z'
+    selfLink 'https://www.googleapis.com/tasks/v1/users/@me/lists/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDow'
+  end
+
   factory :task_json, class: OpenStruct do
     kind 'tasks#task'
     sequence(:id) { |n| "fakeMDQ5NTUwMTk3NjU1MjE3MTU6MDozOTU2Nzc3NTgwNjE0NTM#{n}" }
