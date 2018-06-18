@@ -48,14 +48,16 @@ class TaskUser < ApplicationRecord
   def api_get
     return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
     user.refresh_token!
-    HTTParty.get(BASE_URI + tasklist_gid + '/tasks/' + google_id, headers: api_headers.as_json)
+    response = HTTParty.get(BASE_URI + tasklist_gid + '/tasks/' + google_id, headers: api_headers.as_json)
+    return false unless response.present?
+    response
   end
 
   def api_insert
     return false unless user.oauth_id.present? && tasklist_gid.present?
     user.refresh_token!
     response = HTTParty.post(BASE_URI + tasklist_gid + '/tasks/', { headers: api_headers.as_json, body: api_body.to_json })
-
+    return false unless response.present?
     response['id'] = sequence_google_id(response['id']) if Rails.env.test?
 
     update_columns(google_id: response['id'], updated_at: response['updated'], position: response['position'], parent_id: response['parent'])
@@ -66,6 +68,7 @@ class TaskUser < ApplicationRecord
     return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
     user.refresh_token!
     response = HTTParty.patch(BASE_URI + tasklist_gid + '/tasks/' + google_id, { headers: api_headers.as_json, body: api_body.to_json })
+    return false unless response.present?
     update_columns(updated_at: response['updated'], position: response['position'], parent_id: response['parent'])
     response
   end
@@ -73,7 +76,8 @@ class TaskUser < ApplicationRecord
   def api_delete
     return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
     user.refresh_token!
-    HTTParty.delete(BASE_URI + tasklist_gid + '/tasks/' + google_id, headers: api_headers.as_json)
+    response = HTTParty.delete(BASE_URI + tasklist_gid + '/tasks/' + google_id, headers: api_headers.as_json)
+    return false unless response.present?
   end
 
   def api_move
@@ -88,10 +92,13 @@ class TaskUser < ApplicationRecord
     uri += '&' if parent_id.present? && previous_id.present?
     uri += 'previous=' + previous_id if previous_id.present?
 
-    HTTParty.post(uri, headers: api_headers.as_json)
+    response = HTTParty.post(uri, headers: api_headers.as_json)
+    return false unless response.present?
 
     # then get rid of the previous_id as a move in the API will negate it
-    # self.update_column(previous_id: nil)
+    self.update_column(previous_id: nil)
+
+    response
   end
 
   private

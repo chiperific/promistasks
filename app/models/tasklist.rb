@@ -17,18 +17,16 @@ class Tasklist < ApplicationRecord
     return false unless user.oauth_id.present?
     user.refresh_token!
     response = HTTParty.get('https://www.googleapis.com/tasks/v1/lists/' + google_id + '/tasks/', headers: api_headers)
-
-    response['id'] = sequence_google_id(response['id']) if Rails.env.test?
-
-    update_columns(google_id: response['id'], updated_at: response['updated'])
-
+    return false unless response.present?
     response
   end
 
   def api_get
     return false unless user.oauth_id.present? && google_id.present?
     user.refresh_token!
-    HTTParty.get(BASE_URI + '/' + google_id, headers: api_headers)
+    response = HTTParty.get(BASE_URI + '/' + google_id, headers: api_headers)
+    return false unless response.present?
+    response
   end
 
   def api_insert
@@ -36,6 +34,8 @@ class Tasklist < ApplicationRecord
     user.refresh_token!
     body = { title: property.name }.to_json
     response = HTTParty.post(BASE_URI, { headers: api_headers, body: body })
+
+    return false unless response.present?
 
     response['id'] = sequence_google_id(response['id']) if Rails.env.test?
 
@@ -48,6 +48,9 @@ class Tasklist < ApplicationRecord
     user.refresh_token!
     body = { title: property.name }.to_json
     response = HTTParty.patch(BASE_URI + '/' + google_id, { headers: api_headers, body: body })
+
+    return false unless response.present?
+
     update_columns(updated_at: response['updated'])
     response
   end
@@ -55,7 +58,10 @@ class Tasklist < ApplicationRecord
   def api_delete
     return false unless user.oauth_id.present? && google_id.present?
     user.refresh_token!
-    HTTParty.delete(BASE_URI + '/' + google_id, headers: api_headers)
+    response = HTTParty.delete(BASE_URI + '/' + google_id, headers: api_headers)
+
+    return false unless response.present?
+    response
   end
 
   private
