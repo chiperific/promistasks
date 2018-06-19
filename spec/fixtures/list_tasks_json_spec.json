@@ -1,0 +1,87 @@
+{
+ "kind": "tasks#tasks",
+ "etag": "\"-fake3jKFsqNjDtcscX9ImH8hVU/LTM2NDE0MzE4Mg\"",
+ "items": [
+  {
+   "kind": "tasks#task",
+   "id": "FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDoyMTA5ODkyNTk4MDE0ODcz",
+   "etag": "\"-7OFI3jKFsqNjDtcscX9ImH8hVU/NTE4OTQwOTE\"",
+   "title": "Gut the bathroom",
+   "updated": "2018-06-10T15:15:27.000Z",
+   "selfLink": "https://www.googleapis.com/tasks/v1/lists/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDow/tasks/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDoyMTA5ODkyNTk4MDE0ODcz",
+   "position": "00000000002147483647",
+   "status": "needsAction"
+  },
+  {
+   "kind": "tasks#task",
+   "id": "FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDo1MzIwNjIzODMxNDAzMjMz",
+   "etag": "\"-7OFI3jKFsqNjDtcscX9ImH8hVU/MzIzMzg2MzI2\"",
+   "title": "Remove the trash",
+   "updated": "2018-06-10T15:15:34.000Z",
+   "selfLink": "https://www.googleapis.com/tasks/v1/lists/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDow/tasks/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDo1MzIwNjIzODMxNDAzMjMz",
+   "position": "00000000002684354560",
+   "status": "needsAction"
+  },
+  {
+   "kind": "tasks#task",
+   "id": "FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDo5NzEyOTM5NzgyMDM4NjA4",
+   "etag": "\"-7OFI3jKFsqNjDtcscX9ImH8hVU/MTQ3NjAwNTI5Nw\"",
+   "title": "Re-work the vent stacks",
+   "updated": "2018-06-10T15:15:45.000Z",
+   "selfLink": "https://www.googleapis.com/tasks/v1/lists/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDow/tasks/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDo5NzEyOTM5NzgyMDM4NjA4",
+   "position": "00000000003060164198",
+   "status": "needsAction"
+  },
+  {
+   "kind": "tasks#task",
+   "id": "FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDo4MDY4NTYxNDA0NDExOTEz",
+   "etag": "\"-7OFI3jKFsqNjDtcscX9ImH8hVU/OTE1OTk3NDky\"",
+   "title": "Un-duplicate the HVAC runs",
+   "updated": "2018-06-10T15:23:34.000Z",
+   "selfLink": "https://www.googleapis.com/tasks/v1/lists/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDow/tasks/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDo4MDY4NTYxNDA0NDExOTEz",
+   "position": "00000000003189908002",
+   "status": "needsAction"
+  },
+  {
+   "kind": "tasks#task",
+   "id": "FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDo4Nzg3NjQ1NjIzNDkzNzQ0",
+   "etag": "\"-7OFI3jKFsqNjDtcscX9ImH8hVU/LTcwMDg5ODg2OA\"",
+   "title": "Sand the floors",
+   "updated": "2018-06-10T15:15:57.000Z",
+   "selfLink": "https://www.googleapis.com/tasks/v1/lists/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDow/tasks/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDo4Nzg3NjQ1NjIzNDkzNzQ0",
+   "position": "00000000003319651806",
+   "status": "needsAction"
+  },
+  {
+   "kind": "tasks#task",
+   "id": "FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDo2ODAwMTM4ODM0MjA2NzUw",
+   "etag": "\"-7OFI3jKFsqNjDtcscX9ImH8hVU/LTQwNjQ0NDc0NA\"",
+   "title": "Stain and varnish the floors",
+   "updated": "2018-06-10T15:23:26.000Z",
+   "selfLink": "https://www.googleapis.com/tasks/v1/lists/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDow/tasks/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDo2ODAwMTM4ODM0MjA2NzUw",
+   "parent": "FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDo4Nzg3NjQ1NjIzNDkzNzQ0",
+   "position": "00000000002147483647",
+   "status": "needsAction"
+  },
+  {
+   "kind": "tasks#task",
+   "id": "FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDoxNjcxMjk1MDU1MDYwNjUy",
+   "etag": "\"-7OFI3jKFsqNjDtcscX9ImH8hVU/Nzk2NTcwOTQz\"",
+   "title": "Move in the stuff",
+   "updated": "2018-06-10T15:16:06.000Z",
+   "selfLink": "https://www.googleapis.com/tasks/v1/lists/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDow/tasks/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDoxNjcxMjk1MDU1MDYwNjUy",
+   "position": "00000000003629311279",
+   "status": "needsAction"
+  },
+  {
+   "kind": "tasks#task",
+   "id": "FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDo4OTIzNTQ3MjcxODM2MjYy",
+   "etag": "\"-7OFI3jKFsqNjDtcscX9ImH8hVU/MTc2NzIyMzU1MA\"",
+   "title": "Make the kitchen bigger",
+   "updated": "2018-06-10T15:16:13.000Z",
+   "selfLink": "https://www.googleapis.com/tasks/v1/lists/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDow/tasks/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDA1NTU3Nzg4MzU0MDI2MDo4OTIzNTQ3MjcxODM2MjYy",
+   "position": "00000000003723529993",
+   "status": "needsAction"
+  }
+ ]
+}

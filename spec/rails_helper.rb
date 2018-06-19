@@ -44,7 +44,8 @@ RSpec.configure do |config|
   config.include Devise::Test::IntegrationHelpers, type: :system
   config.include FormHelper, type: :system
 
-  config.fixture_path = "#{::Rails.root}/spec/fixtures"
+  # config.fixture_path = "#{::Rails.root}/spec/fixtures"
+  config.file_fixture_path = "#{::Rails.root}/spec/fixtures"
   config.use_transactional_fixtures = true
   config.infer_spec_type_from_file_location!
   config.filter_rails_from_backtrace!
@@ -56,6 +57,39 @@ RSpec.configure do |config|
   config.before(:suite) do
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
+  end
+
+  config.before(:each) do
+    WebMock.stub_request(:post, 'https://accounts.google.com/o/oauth2/token').to_return(
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:user_json).marshal_dump.to_json
+    )
+    WebMock.stub_request(:any, Constant::Regex::TASK).to_return(
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:task_json).marshal_dump.to_json
+    )
+    WebMock.stub_request(:get, Constant::Regex::LIST_TASKS).to_return(
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: file_fixture('list_tasks_json_spec.json').read
+    )
+    WebMock.stub_request(:any, Constant::Regex::TASKLIST).to_return(
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
+    )
+    WebMock.stub_request(:get, Constant::Regex::LIST_TASKLISTS).to_return(
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: file_fixture('list_tasklists_json_spec.json').read
+    )
+    WebMock.stub_request(:get, Constant::Regex::DEFAULT_TASKLIST).to_return(
+      headers: { 'Content-Type'=> 'application/json' },
+      status: 200,
+      body: FactoryBot.create(:default_tasklist_json).marshal_dump.to_json
+    )
   end
 
   config.around(:each) do |example|
@@ -77,7 +111,6 @@ end
 Shoulda::Matchers.configure do |config|
   config.integrate do |with|
     with.test_framework :rspec
-
     with.library :active_record
     with.library :active_model
     with.library :action_controller

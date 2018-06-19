@@ -15,6 +15,6 @@ class RegistrationsController < Devise::RegistrationsController
                                  :rate, :rate_cents, :rate_currency,
                                  :phone1, :phone2, :address1, :address2, :city, :state, :postal_code,
                                  :email, :password, :password_confirmation,
-                                 :system_admin, :deus_ex_machina, :discarded_at)
+                                 :system_admin, :discarded_at)
   end
 end

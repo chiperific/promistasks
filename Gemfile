@@ -10,6 +10,7 @@ end
 
 gem 'bootstrap-sass'
 gem 'coffee-rails', '~> 4.2'
+gem 'delayed_job_active_record'
 gem 'devise'
 gem 'discard', '~> 1.0'
 gem 'font-awesome-rails'
@@ -29,7 +30,7 @@ gem 'therubyracer', platforms: :ruby
 gem 'turbolinks', '~> 5'
 gem 'twitter-bootstrap-rails'
 gem 'uglifier', '>= 1.3.0'
-gem 'webmock'
+gem 'webmock', git: 'https://github.com/bblimke/webmock.git', branch: 'master'
 
 group :development, :test do
   gem 'better_errors'
@@ -37,8 +38,13 @@ group :development, :test do
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
   gem 'cucumber-rails', require: false
   gem 'factory_bot_rails'
+  gem 'foreman'
+  gem 'listen', '>= 3.0.5', '< 3.2'
   gem 'pry-byebug'
+  gem 'pry-remote'
   gem 'rubocop'
+  gem 'spring'
+  gem 'spring-watcher-listen', '~> 2.0.0'
 end
 
 group :test do
@@ -53,9 +59,6 @@ group :test do
 end
 
 group :development do
-  gem 'listen', '>= 3.0.5', '< 3.2'
-  gem 'spring'
-  gem 'spring-watcher-listen', '~> 2.0.0'
   gem 'web-console', '>= 3.3.0'
 end
 

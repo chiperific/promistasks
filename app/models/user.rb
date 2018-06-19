@@ -42,15 +42,27 @@ class User < ApplicationRecord
 
   monetize :rate_cents, allow_nil: true
 
-  after_create :propegate_tasklists, if: -> { oauth_id.present? }
+  after_create :propegate_tasklists, if: -> { oauth_id.present? && discarded_at.blank? }
 
+  # rubocop:disable Layout/IndentationConsistency
   scope :staff, -> { undiscarded.where.not(oauth_id: nil) }
-  scope :staff_except, ->(user) { undiscarded.where.not(id: user) }
+  scope :staff_except, ->(user) { undiscarded.staff.where.not(id: user) }
   scope :not_staff, -> { undiscarded.where(oauth_id: nil) }
+  scope :with_tasks_for, ->(property) { created_tasks_for(property).or(owned_tasks_for(property)) }
+    scope :created_tasks_for, ->(property) { undiscarded.where(id: Task.select(:creator_id).where(property: property)) }
+    scope :owned_tasks_for, ->(property) { undiscarded.where(id: Task.select(:owner_id).where(property: property)) }
+  scope :without_tasks_for, ->(property) { without_created_tasks_for(property).without_owned_tasks_for(property) }
+    scope :without_created_tasks_for, ->(property) { undiscarded.where.not(id: Task.select(:creator_id).where(property: property)) }
+    scope :without_owned_tasks_for, ->(property) { undiscarded.where.not(id: Task.select(:owner_id).where(property: property)) }
+  # rubocop:enable Layout/IndentationConsistency
 
   class << self
     alias archived discarded
     alias active kept
+  end
+
+  def register_as
+    # handles grouping of booleans as radial buttons on Devise::registration#new
   end
 
   def type
@@ -95,6 +107,11 @@ class User < ApplicationRecord
     end
   end
 
+  # Devise's active needs to be adjusted to account for discarded_at soft-delete
+  def active_for_authentication?
+    super && !discarded_at
+  end
+
   def refresh_token!
     return false unless token_expired? && oauth_id.present? && oauth_refresh_token.present?
     data = {
@@ -113,13 +130,35 @@ class User < ApplicationRecord
     Time.at(oauth_expires_at) < Time.now
   end
 
-  def register_as
-    # handles grouping of booleans as radial buttons on Devise::registration#new
+  def list_api_tasklists
+    return false unless oauth_id.present?
+    response = HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists', headers: api_headers)
+
+    return false if response.nil?
+    response
   end
 
-  def active_for_authentication?
-    super && !discarded_at
+  def fetch_default_tasklist
+    return false unless oauth_id.present?
+    response = HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists/@default', headers: api_headers)
+
+    return false if response.nil?
+    response
   end
+
+  def sync_with_api
+    return false unless oauth_id.present?
+
+    TasklistsClient.sync(self)
+
+    Property.visible_to(self).each do |property|
+      tasklist = property.tasklists.where(user: self).first
+      # next unless tasklist&.google_id.present?
+      TasksClient.sync(self, tasklist)
+    end
+  end
+
+  # handle_asynchronously :sync_with_api
 
   private
 
@@ -145,8 +184,13 @@ class User < ApplicationRecord
   end
 
   def propegate_tasklists
-    Property.public_visible.each do |property|
-      property.create_tasklist_for(self)
+    Property.visible_to(self).each do |property|
+      property.ensure_tasklist_exists_for(self)
     end
+  end
+
+  def api_headers
+    { 'Authorization': 'OAuth ' + oauth_token,
+      'Content-type': 'application/json' }
   end
 end

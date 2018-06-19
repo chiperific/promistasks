@@ -12,22 +12,31 @@ class Property < ApplicationRecord
 
   has_many :tasks, inverse_of: :property, dependent: :destroy
 
-  validates_presence_of :creator_id
   validates :name, :address, uniqueness: true, presence: true
+  validates_presence_of :creator_id
   validates_uniqueness_of :certificate_number, :serial_number, allow_nil: true
-  validates_inclusion_of :is_private, in: [true, false]
+  validates_inclusion_of :is_private, :is_default, :created_from_api, in: [true, false]
 
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
 
-  before_validation :name_and_address, if: :unsynced_name_address?
-  before_save :default_budget
-  after_create :create_with_api, if: -> { discarded_at.blank? }
-  after_update :propagate_to_api_by_privacy, if: -> { saved_change_to_is_private? }
-  after_update :update_with_api, unless: -> { saved_change_to_is_private? }
-  after_update :delete_with_api, if: -> { discarded_at.present? }
+  before_validation :name_and_address,              if: :unsynced_name_address?
+  before_validation :only_one_default,              if: -> { is_default? }
+  before_validation :default_must_be_private,       if: -> { discarded_at.nil? && is_default? && !is_private? }
+  before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
+  before_save  :default_budget,                     if: -> { budget.blank? }
+  after_create :create_tasklists,                   unless: -> { discarded_at.present? || created_from_api? }
+  after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }
+  after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? }
+  after_update :update_tasklists,                   if: -> { discarded_at.nil? && saved_change_to_name? }
 
-  scope :needs_title, -> { undiscarded.where(certificate_number: nil) }
-  scope :public_visible, -> { undiscarded.where(is_private: false) }
+  scope :needs_title,    ->       { undiscarded.where(certificate_number: nil) }
+  scope :public_visible, ->       { undiscarded.where(is_private: false) }
+  scope :created_by,     ->(user) { undiscarded.where(creator: user) }
+  scope :with_tasks_for, ->(user) { undiscarded.where(id: Task.select(:property_id).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id)) }
+  scope :related_to,     ->(user) { created_by(user).or(with_tasks_for(user)) }
+  scope :visible_to,     ->(user) { related_to(user).or(public_visible) }
+  # there can be only one, highlander, regardless of user
+  # scope :default_for,    ->(user) { created_by(user).where(is_default: true) }
 
   class << self
     alias archived discarded
@@ -47,18 +56,12 @@ class Property < ApplicationRecord
     self.budget - tasks.map(&:cost).sum
   end
 
-  def default_budget
-    self.budget = Money.new(7_500_00) if budget.blank?
-  end
-
-  def create_tasklist_for(user, action = :insert)
-    tasklist = tasklists.where(user: user).first_or_create
-    if tasklist.google_id.nil?
-      response = TasklistClient.new.send(action, user, tasklist)
-      tasklist.google_id = response['id']
-      tasklist.save
-    end
-    tasklist
+  def ensure_tasklist_exists_for(user)
+    return false if user.oauth_id.nil?
+    tasklist = tasklists.where(user: user).first_or_initialize
+    return tasklist unless tasklist.new_record? || tasklist.google_id.nil?
+    tasklist.save
+    tasklist.reload
   end
 
   private
@@ -75,76 +78,77 @@ class Property < ApplicationRecord
     true
   end
 
-  def create_with_api
+  def default_budget
+    self.budget = Money.new(7_500_00)
+  end
+
+  def only_one_default
+    return true if Property.where(is_default: true).count == 0
+    return true if Property.where(is_default: true).count == 1 && self == Property.where(is_default: true).first
+    self.is_default = false
+  end
+
+  def default_must_be_private
+    self.is_private = true
+  end
+
+  def refuse_to_discard_default
+    self.discarded_at = nil
+  end
+
+  def create_tasklists
     if is_private?
-      create_tasklist_for(creator)
+      ensure_tasklist_exists_for(creator)
     else
       User.staff.each do |user|
-        create_tasklist_for(user)
+        ensure_tasklist_exists_for(user)
       end
     end
   end
 
-  def update_with_api
-    return true unless saved_change_to_name? || saved_change_to_is_private?
-
-    if is_private?
-      tasklist = tasklists.where(user: creator).first_or_create
-      action = tasklist.google_id.present? ? :update : :insert
-      response = TasklistClient.new.send(action, creator, tasklist)
-      tasklist.google_id = response['id']
-      tasklist.save
-    else
-      User.staff.each do |user|
-        tasklist = tasklists.where(user: user).first_or_create
-        action = tasklist.google_id.present? ? :update : :insert
-        response = TasklistClient.new.send(action, user, tasklist)
-        tasklist.google_id = response['id']
-        tasklist.save
-      end
-    end
-  end
-
-  def delete_with_api
-    return true if discarded_at.blank?
-
-    if is_private?
-      tasklist = tasklists.where(user: creator).first
-      TasklistClient.new.delete(creator, tasklist)
-      tasklist.destroy! unless tasklist.new_record?
-    else
-      User.staff.each do |user|
-        tasklist = tasklists.where(user: user).first
-        TasklistClient.new.delete(user, tasklist)
-        tasklist.destroy! unless tasklist.new_record?
-      end
-    end
-
-    discard_tasks!
-  end
-
-  def propagate_to_api_by_privacy
+  def cascade_by_privacy
     if is_private? # became private
-      User.staff_except(creator).each do |user|
+      # Only remove the tasklist from users without related tasks
+      User.without_tasks_for(self).each do |user|
         tasklist = tasklists.where(user: user).first_or_initialize
-        TasklistClient.new.delete(user, tasklist) unless tasklist.new_record?
+        next if tasklist.new_record?
         tasklist.destroy
-        tasks.task_users.where(user: user).destroy_all if tasks.exists? && tasks.task_users.exists?
       end
+
     else # became public
       User.staff_except(creator).each do |user|
-        tasklist = tasklists.where(user: user).first_or_initialize
-        action = tasklist.new_record? ? :insert : :update
-        response = TasklistClient.new.send(action, user, tasklist)
-        tasklist.google_id = response['id']
-        tasklist.save
+        tasklist = ensure_tasklist_exists_for(user)
+        next unless tasklist.new_record? || tasklist.google_id.nil?
+        tasklist.api_insert
       end
     end
   end
 
-  def discard_tasks!
+  def discard_tasks_and_delete_tasklists
+    Tasklist.where(property: self).each do |tasklist|
+      tasklist.api_delete
+      tasklist.destroy
+    end
+    # this feels like the wrong place for this
+    # maybe trigger on task#after_update, if: -> { discarded_at.present }
+    # but update_all skips callbacks
     tasks.each do |task|
-      task.update(discarded_at: discarded_at)
+      task.task_users.destroy_all if task.present? && task.task_users.present?
+    end
+    tasks.update_all(discarded_at: discarded_at)
+  end
+
+  def update_tasklists
+    # since tasklist is only { property, user, google_id }, changing other details about the property won't trigger an api call from tasklist
+    # however, if the user changes, then a new tasklist will be created, which triggers the #api_create on after_create callback
+    if is_private?
+      tasklist = ensure_tasklist_exists_for(creator)
+      tasklist.api_update
+    else
+      User.staff.each do |user|
+        tasklist = ensure_tasklist_exists_for(user)
+        tasklist.api_update
+      end
     end
   end
 end

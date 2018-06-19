@@ -1,7 +1,10 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-2. WTF are feature tests and does the folder really need to live above specs?
+
+1. Write more tests:
+  - tasklists_client_spec: @property_ary
+  - tasks_client_spec: write them
 3. Relationships between users, properties and tasks
   - Make controllers
   - Set policies
@@ -30,6 +33,10 @@
 1. Destroy PropertyTracker
 
 ## Keep in mind
+--**--**--**
+- If you rename your default tasklist, it will rename the property and everyone else's default tasklist. HMMMM. Can probably be handled through TasklistsClient (don't ever update the Property)
+- Shouldn't I be calling Property.where(is_default: true).first in TasklistClient.sync?!???!
+--**--**--**
 - PRIVATE properties must take self.tasks.map(&:owners &:creators) into account before removing
 - Bring in tasklists and tasks from the app on user.create
 - initialization_template tasks will use property.creator for task.creator && task.owner
@@ -45,3 +52,9 @@
 4. git remote prune origin --dry-run
 5. Tasks API: https://developers.google.com/tasks/v1/reference/
 6. OAuth2 Developer Playground: https://developers.google.com/oauthplayground
+7. API auth: https://console.developers.google.com/apis/dashboard?project=tasks-api-202522
+8. Pry-remote:
+  - Drop binding.remote_pry where desired;
+  - app halts, but won't open an interactive session automatically
+  - open an additional terminal session (i.e. a new shell)
+  - enter pry-remote and the state is loaded

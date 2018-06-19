@@ -9,28 +9,20 @@ FactoryBot.define do
     sequence(:email) { |n| "user#{n}@email.computer" }
   end
 
-  factory :program_user, class: User do
-    sequence(:name) { |n| "Program #{n}" }
-    password 'password'
-    password_confirmation 'password'
-    sequence(:email) { |n| "program#{n}@email.computer" }
-    program_staff true
-  end
-
-  factory :project_user, class: User do
-    sequence(:name) { |n| "Project #{n}" }
-    password 'password'
-    password_confirmation 'password'
-    sequence(:email) { |n| "project#{n}@email.computer" }
+  factory :project_user, class: User  do
+    sequence(:name) { |n| "User #{n}" }
     project_staff true
-  end
-
-  factory :admin_user, class: User do
-    sequence(:name) { |n| "Admin #{n}" }
     password 'password'
     password_confirmation 'password'
-    sequence(:email) { |n| "admin#{n}@email.computer" }
+    sequence(:email) { |n| "project_user#{n}@email.computer" }
+  end
+
+  factory :admin_user, class: User  do
+    sequence(:name) { |n| "User #{n}" }
     admin_staff true
+    password 'password'
+    password_confirmation 'password'
+    sequence(:email) { |n| "admin_user#{n}@email.computer" }
   end
 
   factory :client_user, class: User do

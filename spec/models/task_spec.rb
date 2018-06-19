@@ -4,49 +4,43 @@ require 'rails_helper'
 
 RSpec.describe Task, type: :model do
   before :each do
-    stub_request(:any, Constant::Regex::TASKLIST).to_return(
-      headers: { 'Content-Type'=> 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
-    )
-    stub_request(:any, Constant::Regex::TASK).to_return(
-      headers: { 'Content-Type'=> 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:task_json).marshal_dump.to_json
-    )
     @creator        = FactoryBot.create(:oauth_user)
     @owner          = FactoryBot.create(:oauth_user)
     @property       = FactoryBot.create(:property)
     @task           = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner)
-    @no_title       = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner, title: nil)
-    @bad_priority   = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner, priority: 'wrong thing')
-    @no_creator     = FactoryBot.build(:task, property: @property, owner: @owner, creator_id: nil)
-    @no_owner       = FactoryBot.build(:task, property: @property, creator: @creator, owner_id: nil)
-    @no_property    = FactoryBot.build(:task, property_id: nil, creator: @creator, owner: @owner)
-    @bad_visibility = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner, visibility: 4)
     @completed_task = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner, completed_at: Time.now - 1.hour)
-    WebMock::RequestRegistry.instance.reset!
+    @updated_task   = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
+    WebMock.reset_executed_requests!
   end
 
-  describe 'must be valid against the schema' do
-    it 'in order to save' do
-      expect(@task.save!(validate: false)).to eq true
-      expect { @no_title.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { @no_creator.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { @no_owner.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { @no_property.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+  describe 'must be valid' do
+    let(:no_title)       { build :task, property: @property, creator: @creator, owner: @owner, title: nil }
+    let(:no_creator)     { build :task, property: @property, owner: @owner, creator_id: nil }
+    let(:no_owner)       { build :task, property: @property, creator: @creator, owner_id: nil }
+    let(:no_property)    { build :task, property_id: nil, creator: @creator, owner: @owner }
+    let(:bad_visibility) { build :task, property: @property, creator: @creator, owner: @owner, visibility: 4 }
+    let(:bad_priority)   { build :task, property: @property, creator: @creator, owner: @owner, priority: 'wrong thing' }
+
+    context 'against the schema' do
+      it 'in order to save' do
+        expect(@task.save!(validate: false)).to eq true
+        expect { no_title.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { no_creator.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { no_owner.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { no_property.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      end
     end
-  end
 
-  describe 'must be valid against the model' do
-    it 'in order to save' do
-      expect(@task.save!).to eq true
-      expect { @no_title.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { @no_creator.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { @no_owner.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { @no_property.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { @bad_visibility.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { @bad_priority.save! }.to raise_error ActiveRecord::RecordInvalid
+    context 'against the model' do
+      it 'in order to save' do
+        expect(@task.save!).to eq true
+        expect { no_title.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_creator.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_owner.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_property.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { bad_visibility.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { bad_priority.save! }.to raise_error ActiveRecord::RecordInvalid
+      end
     end
   end
 
@@ -64,7 +58,7 @@ RSpec.describe Task, type: :model do
     let(:bad_license)       { build :task, property: @property, creator: @creator, owner: @owner, license_required: nil }
     let(:bad_needs_no_info) { build :task, property: @property, creator: @creator, owner: @owner, needs_more_info: nil, due: Time.now + 3.hours, budget: Money.new(300_00), priority: 'low' }
     let(:bad_needs_info)    { build :task, property: @property, creator: @creator, owner: @owner, needs_more_info: nil }
-    let(:bad_initilization) { build :task, property: @property, creator: @creator, owner: @owner, initialization_template: nil }
+    let(:bad_created)       { build :task, property: @property, creator: @creator, owner: @owner, created_from_api: nil }
 
     it 'license_required' do
       expect { bad_license.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
@@ -79,56 +73,69 @@ RSpec.describe Task, type: :model do
       expect { bad_needs_info.save! }.not_to raise_error
     end
 
-    it 'initialization_template' do
-      expect { bad_initilization.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_initilization.save! }.to raise_error ActiveRecord::RecordInvalid
+    it 'created_from_api' do
+      expect { bad_created.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { bad_created.save! }.to raise_error ActiveRecord::RecordInvalid
     end
   end
 
   describe 'limits records by scope' do
-    let(:initialization_template) { create :task, property: @property, creator: @creator, owner: @owner, initialization_template: true }
-    let(:has_good_info)           { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 3.days, priority: 'medium', budget: 500 }
-    let(:visibility_1)            { create :task, property: @property, creator: @creator, owner: @owner, visibility: 1 }
-    let(:visibility_2)            { create :task, property: @property, creator: @creator, owner: @owner, visibility: 2 }
+    let(:has_good_info1) { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 3.days, priority: 'medium', budget: 500 }
+    let(:has_good_info2) { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 2.days, priority: 'high', budget: 800 }
+    let(:visibility_1)   { create :task, property: @property, creator: @creator, owner: @owner, visibility: 1 }
+    let(:visibility_2)   { create :task, property: @property, creator: @creator, owner: @owner, visibility: 2 }
+    let(:user) { create :user }
+    let(:related_one) { create :task, creator: user }
+    let(:related_two) { create :task, creator: user }
 
-    it '#needs_more_info returns only non-initialization tasks where needs_more_info is false' do
+    it '#needs_more_info returns only tasks where needs_more_info is false' do
       @task.save
-      has_good_info.save
-      initialization_template.save
 
       expect(Task.needs_more_info).to include @task
-      expect(Task.needs_more_info).not_to include has_good_info
-      expect(Task.needs_more_info).not_to include initialization_template
+      expect(Task.needs_more_info).not_to include @completed_task
+      expect(Task.needs_more_info).not_to include has_good_info1
+      expect(Task.needs_more_info).not_to include has_good_info2
     end
 
-    it '#in_process returns only non-initialization tasks where completed is nil' do
+    it '#in_process returns only tasks where completed is nil' do
       @task.save
       @completed_task.save
-      initialization_template.save
 
       expect(Task.in_process).to include @task
+      expect(Task.in_process).to include has_good_info1
       expect(Task.in_process).not_to include @completed_task
-      expect(Task.in_process).not_to include initialization_template
     end
 
-    it '#complete returns only non-initialization tasks where completed is not nil' do
+    it '#complete returns only tasks where completed is not nil' do
       @completed_task.save
       @task.save
-      initialization_template.save
 
       expect(Task.complete).to include @completed_task
       expect(Task.complete).not_to include @task
-      expect(Task.complete).not_to include initialization_template
+      expect(Task.complete).not_to include has_good_info1
     end
 
     it '#public_visible returns only undiscarded tasks where visibility is set to everyone' do
-      visibility_1.save
-      visibility_2.save
       @task.save
 
       expect(Task.public_visible).to include visibility_1
       expect(Task.public_visible).not_to include visibility_2
       expect(Task.public_visible).not_to include @task
+    end
+
+    it '#related_to shows records where the user is the creator, owner or subject' do
+      expect(Task.related_to(user)).to include related_one
+      expect(Task.related_to(user)).to include related_two
+      expect(Task.related_to(user)).not_to include has_good_info1
+      expect(Task.related_to(user)).not_to include @task
+    end
+
+    it '#visible_to shows a combo of #related_to and public_visible' do
+      expect(Task.visible_to(user)).to include related_one
+      expect(Task.visible_to(user)).to include related_two
+      expect(Task.visible_to(user)).to include visibility_1
+      expect(Task.visible_to(user)).not_to include visibility_2
+      expect(Task.visible_to(user)).not_to include has_good_info1
     end
   end
 
@@ -153,40 +160,236 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#assign_from_api_fields!' do
+  describe '#assign_from_api_fields' do
+    it 'returns false if task_json is null' do
+      task = Task.new
+      expect(task.assign_from_api_fields(nil)).to eq false
+    end
+
     it 'uses a json hash to assign record values' do
       task = Task.new
       task_json = JSON.parse(file_fixture('task_json_spec.json').read)
 
+      expect(task.title).to eq nil
       expect(task.notes).to eq nil
       expect(task.due).to eq nil
       expect(task.completed_at).to eq nil
 
-      task.assign_from_api_fields!(task_json)
+      task.assign_from_api_fields(task_json)
 
+      expect(task.title).not_to eq nil
       expect(task.notes).not_to eq nil
       expect(task.due).not_to eq nil
       expect(task.completed_at).not_to eq nil
     end
   end
 
-  describe '#create_taskuser_for' do
-    it 'doesn\'t make an API call if it already exists' do
+  describe '#ensure_task_user_exists_for' do
+    let(:volunteer) { create :volunteer_user }
+    let(:contractor) { create :contractor_user }
+
+    it 'returns false for non-oauth_users' do
       @task.save
-      WebMock::RequestRegistry.instance.reset!
-      @task.update(title: 'New title!')
-      expect(WebMock).not_to have_requested(:post, Constant::Regex::TASK)
+      expect(@task.ensure_task_user_exists_for(volunteer)).to eq false
     end
 
-    it 'makes an API call through TaskClient for the creator and owner' do
+    it 'doesn\'t make task_users if they already exists' do
       @task.save
-      expect(WebMock).to have_requested(:post, Constant::Regex::TASK).twice
+      count = TaskUser.count
+      @task.ensure_task_user_exists_for(@task.creator)
+      @task.ensure_task_user_exists_for(@task.owner)
+      expect(TaskUser.count).to eq count
     end
 
-    it 'creates a task_user record for the creator and owner' do
-      first_count = TaskUser.count
+    it 'creates task_user records for the creator and owner' do
+      count = TaskUser.count
       @task.save
-      expect(TaskUser.count).to eq first_count + 2
+      expect(TaskUser.count).to eq count + 2
+    end
+  end
+
+  describe '#create_task_users' do
+    it 'only fires on record creation' do
+      expect(@task).to receive(:create_task_users)
+      @task.save
+      expect(@task).not_to receive(:create_task_users)
+      @task.update(title: 'New title')
+    end
+
+    it 'creates task_user records for creator and owner' do
+      count = TaskUser.count
+      @task.save
+      expect(TaskUser.count).to eq count + 2
+    end
+  end
+
+  describe '#update_task_users' do
+    before :each do
+      @no_api_change  = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
+      @new_user       = FactoryBot.create(:oauth_user, name: 'New user')
+      @new_property   = FactoryBot.create(:property, name: 'New property', is_private: false, creator: @new_user)
+      WebMock.reset_executed_requests!
+    end
+
+    it 'should only fire if an api field is changed' do
+      @no_api_change.tap do |t|
+        t.priority = 'low'
+        t.creator = @new_user
+        t.owner = @new_user
+        t.subject = @new_user
+        t.property = @new_property
+        t.budget = 50_00
+        t.cost = 48_00
+        t.visibility = 1
+        t.license_required = true
+        t.owner_type = 'Admin Staff'
+      end
+      expect(@no_api_change).not_to receive(:update_task_users)
+      @no_api_change.save!
+    end
+
+    it 'returns false if the users have changed' do
+      @task.save
+      expect(@task).to receive(:update_task_users).and_return false
+      @task.update(creator: @new_user, owner: @new_user, title: 'new title')
+    end
+
+    it 'fires task_user.api_update' do
+      @updated_task.update(title: 'new title')
+      expect(WebMock).to have_requested(:patch, Constant::Regex::TASK).twice
+    end
+  end
+
+  describe '#relocate' do
+    let(:property) { create :property, creator: @creator }
+
+    it 'won\'t fire if property_id hasn\'t changed' do
+      expect(@updated_task).not_to receive(:relocate)
+      @updated_task.update(owner: @creator)
+    end
+
+    it 'only fires if property_id has changed' do
+      expect(@updated_task).to receive(:relocate)
+      @updated_task.update(property: property)
+    end
+
+    it 'updates task_user.tasklist_gid for creator and owner' do
+      old_tasklist_gid = @updated_task.task_users.where(user: @creator).first.tasklist_gid
+      @updated_task.update(property: property)
+      new_taskist_gid = @updated_task.task_users.where(user: @creator).first.tasklist_gid
+      expect(new_taskist_gid).not_to eq old_tasklist_gid
+    end
+  end
+
+  describe '#change_task_users' do
+    let(:new_creator) { create :oauth_user }
+    let(:new_owner) { create :oauth_user }
+
+    it 'won\'t fires if creator or owner hasn\'t changed' do
+      @task.save
+      expect(@task).not_to receive(:change_task_users)
+      @task.update(title: 'new title entry')
+    end
+
+    it 'only fires if creator or owner has changed' do
+      @task.save
+      expect(@task).to receive(:change_task_users)
+      @task.update(creator: new_creator)
+
+      expect(@task).to receive(:change_task_users)
+      @task.update(owner: new_owner)
+    end
+
+    context 'when creator has changed' do
+      it 'deletes the old task_user' do
+        @task.save
+        @task.reload
+        task_user = @task.task_users.where(user: @task.creator).first
+        @task.update(creator: new_creator)
+        expect { task_user.reload }.to raise_error ActiveRecord::RecordNotFound
+      end
+
+      it 'creates a new task_user' do
+        @task.save
+        @task.update(creator: new_creator)
+        @task.reload
+        task_user = @task.task_users.where(user: @task.creator).first
+        expect(task_user.reload.user_id).not_to eq @task.creator_id_before_last_save
+      end
+    end
+
+    context 'when owner has changed' do
+      it 'deletes the old task_user' do
+        @task.save
+        @task.reload
+        task_user = @task.task_users.where(user: @task.owner).first
+        @task.update(owner: new_owner)
+        expect { task_user.reload }.to raise_error ActiveRecord::RecordNotFound
+      end
+
+      it 'creates a new task_user' do
+        @task.save
+        @task.update(owner: new_owner)
+        @task.reload
+        task_user = @task.task_users.where(user: @task.owner).first
+        expect(task_user.reload.user_id).not_to eq @task.owner_id_before_last_save
+      end
+    end
+  end
+
+  describe '#cascade_completed' do
+    let(:completed_task) { create :task, completed_at: Time.now }
+
+    it 'won\'t fire if completed_at wasn\'t just set' do
+      expect(completed_task).not_to receive(:cascade_completed)
+      completed_task.update(title: 'did not change completed at')
+
+      expect(@task).not_to receive(:cascade_completed)
+      @task.save
+    end
+
+    it 'only fires if completed_at was just set' do
+      @task.save
+      expect(@task).to receive(:cascade_completed)
+      @task.update(completed_at: Time.now)
+    end
+
+    it 'sets completed_at on all related task_user records' do
+      @task.save
+      @task.reload
+      task_user_comps = @task.task_users.map(&:completed_at)
+      expect(task_user_comps.include?(nil)).to eq true
+
+      @task.update(completed_at: Time.now)
+      task_user_comps = @task.task_users.map(&:completed_at)
+      expect(task_user_comps.include?(nil)).to eq false
+    end
+  end
+
+  describe '#delete_task_users' do
+    let(:discarded_task) { create :task, discarded_at: Time.now }
+
+    it 'won\'t fire if discarded_at was not just set' do
+      expect(discarded_task).not_to receive(:delete_task_users)
+      discarded_task.update(title: 'Im discarded')
+
+      @task.save
+      expect(@task).not_to receive(:delete_task_users)
+      @task.update(title: 'Im not discarded')
+    end
+
+    it 'only fires if discarded_at was just set' do
+      @task.save
+      expect(@task).to receive(:delete_task_users)
+      @task.discard
+    end
+
+    it 'destroys all related task_user records' do
+      @task.save
+      @task.reload
+      count = TaskUser.count
+      @task.discard
+      expect(TaskUser.count).to eq count - 2
     end
   end
 
@@ -234,7 +437,6 @@ RSpec.describe Task, type: :model do
         t.visibility = 1
         t.license_required = true
         t.needs_more_info = true
-        t.initialization_template = true
         t.owner_type = 'Admin Staff'
       end
       no_api_change.save!
@@ -329,113 +531,6 @@ RSpec.describe Task, type: :model do
       expect(two_strikes.needs_more_info).to eq false
       expect(one_strike.needs_more_info).to eq false
       expect(zero_strikes.needs_more_info).to eq false
-    end
-  end
-
-  describe '#prepare_for_api' do
-    context 'when tasklists and task_users already exist' do
-      it 'ensures tasklists exist for each user field' do
-        @task.save
-        first_count = Tasklist.count
-        @task.update(title: 'New title!')
-        expect(Tasklist.count).to eq first_count
-      end
-      it 'ensures task_users exist for each user field' do
-        @task.save
-        first_count = TaskUser.count
-        @task.update(title: 'New title!')
-        expect(TaskUser.count).to eq first_count
-      end
-    end
-    context 'when tasklists and task_users don\'t exist' do
-      it 'creates tasklists for each user field' do
-        first_count = Tasklist.count
-        @task.save
-        expect(Tasklist.count).to eq first_count + 2
-      end
-      it 'creates task_users for each user field' do
-        first_count = TaskUser.count
-        @task.save
-        expect(TaskUser.count).to eq first_count + 2
-      end
-    end
-    context 'when the property has changed' do
-      it 'ensures tasklists exist for the old property for each user field' do
-        @task.save
-        new_property = FactoryBot.create(:property)
-        first_count = Tasklist.count
-        @task.update(property: new_property)
-        expect(Tasklist.count).to eq first_count + 2
-      end
-    end
-  end
-
-  describe '#create_with_api' do
-    before :each do
-      @new_task = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner)
-      WebMock::RequestRegistry.instance.reset!
-    end
-
-    it 'creates a task for the owner and creator' do
-      @new_task.save!
-      expect(WebMock).to have_requested(:post, Constant::Regex::TASK).twice
-    end
-  end
-
-  describe '#update_with_api' do
-    before :each do
-      @updated_task   = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
-      @no_api_change  = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
-      @new_user       = FactoryBot.create(:oauth_user, name: 'New user')
-      @new_property   = FactoryBot.create(:property, name: 'New property', is_private: false, creator: @new_user)
-      WebMock::RequestRegistry.instance.reset!
-    end
-
-    it 'should only fire if an api field is changed' do
-      @no_api_change.tap do |t|
-        t.priority = 'low'
-        t.creator = @new_user
-        t.owner = @new_user
-        t.subject = @new_user
-        t.property = @new_property
-        t.budget = 50_00
-        t.cost = 48_00
-        t.visibility = 1
-        t.license_required = true
-        t.initialization_template = true
-        t.owner_type = 'Admin Staff'
-      end
-      expect(@no_api_change).not_to receive(:update_with_api)
-      @no_api_change.save!
-    end
-
-    it 'updates the task for the owner and creator' do
-      @updated_task.update(title: 'I have an updated title')
-      expect(WebMock).to have_requested(:patch, Constant::Regex::TASK).twice
-    end
-  end
-
-  describe '#relocate' do
-    let(:updated_task)      { create :task, property: @property, creator: @creator, owner: @owner }
-    let(:new_property_task) { create :task, property: @property, creator: @creator, owner: @owner }
-    let(:new_property)      { create :property }
-
-    it 'should only fire if the property changes' do
-      updated_task.save!
-      new_property_task.save!
-      expect(updated_task).not_to receive(:relocate)
-      updated_task.update(title: 'I won\'t relocate')
-
-      expect(new_property_task).to receive(:relocate)
-      new_property_task.update(property: new_property)
-    end
-
-    it 'relocates the task for the owner and creator' do
-      new_property_task.save!
-      WebMock::RequestRegistry.instance.reset!
-      new_property_task.update(property: new_property, title: 'Move me!')
-      expect(WebMock).to have_requested(:delete, Constant::Regex::TASK).twice
-      expect(WebMock).to have_requested(:post, Constant::Regex::TASK).twice
     end
   end
 end

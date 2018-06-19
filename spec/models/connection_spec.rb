@@ -4,7 +4,6 @@ require 'rails_helper'
 
 RSpec.describe Connection, type: :model do
   before :each do
-    stub_request(:any, Constant::Regex::TASKLIST).to_return(body: 'You did it!', status: 200)
     @connection      = FactoryBot.build(:connection)
     @no_property     = FactoryBot.build(:connection, property_id: nil)
     @no_user         = FactoryBot.build(:connection, user_id: nil)
@@ -48,7 +47,8 @@ RSpec.describe Connection, type: :model do
 
     duplicate = FactoryBot.build(:connection, property_id: property.id, user_id: user.id)
 
-    expect { duplicate.save! }.to raise_error ActiveRecord::RecordNotUnique
+    expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
+    expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
   end
 
   describe '#relationship_appropriate_for_stage' do
@@ -62,12 +62,12 @@ RSpec.describe Connection, type: :model do
   end
 
   describe '#relationship_must_match_user_type' do
-    let(:program)    { create :program_user }
+    let(:program)    { create :user, name: 'program user', email: 'program_user@email.computer' }
     let(:project)    { create :project_user }
     let(:admin)      { create :admin_user }
+    let(:client)     { create :client_user }
     let(:volunteer)  { create :volunteer_user }
     let(:contractor) { create :contractor_user }
-    let(:client)     { create :client_user }
 
     let(:good_tennant)    { build :connection, relationship: 'tennant', user: client }
     let(:bad_tennant)     { build :connection, relationship: 'tennant', user: admin }

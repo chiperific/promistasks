@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180510150150) do
+ActiveRecord::Schema.define(version: 20180610153731) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,6 +30,21 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.index ["stage"], name: "index_connections_on_stage"
     t.index ["user_id", "property_id"], name: "index_connections_on_user_id_and_property_id", unique: true
     t.index ["user_id"], name: "index_connections_on_user_id"
+  end
+
+  create_table "delayed_jobs", force: :cascade do |t|
+    t.integer "priority", default: 0, null: false
+    t.integer "attempts", default: 0, null: false
+    t.text "handler", null: false
+    t.text "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string "locked_by"
+    t.string "queue"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.index ["priority", "run_at"], name: "delayed_jobs_priority"
   end
 
   create_table "properties", force: :cascade do |t|
@@ -54,7 +69,9 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.string "certification_label1"
     t.string "certification_label2"
     t.bigint "creator_id", null: false
-    t.boolean "is_private", default: true, null: false
+    t.boolean "is_private", default: false, null: false
+    t.boolean "is_default", default: false, null: false
+    t.boolean "created_from_api", default: false, null: false
     t.datetime "discarded_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -106,7 +123,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
   create_table "task_users", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "task_id", null: false
-    t.string "tasklist_id"
+    t.string "tasklist_gid", null: false
     t.string "google_id"
     t.string "position"
     t.bigint "position_int", default: 0
@@ -120,7 +137,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.index ["position_int"], name: "index_task_users_on_position_int"
     t.index ["task_id", "user_id"], name: "index_task_users_on_task_id_and_user_id", unique: true
     t.index ["task_id"], name: "index_task_users_on_task_id"
-    t.index ["tasklist_id"], name: "index_task_users_on_tasklist_id"
+    t.index ["tasklist_gid"], name: "index_task_users_on_tasklist_gid"
     t.index ["user_id", "task_id"], name: "index_task_users_on_user_id_and_task_id", unique: true
     t.index ["user_id"], name: "index_task_users_on_user_id"
   end
@@ -131,7 +148,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.string "google_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["google_id"], name: "index_tasklists_on_google_id", unique: true
+    t.index ["google_id"], name: "index_tasklists_on_google_id"
     t.index ["property_id", "user_id"], name: "index_tasklists_on_property_id_and_user_id", unique: true
     t.index ["property_id"], name: "index_tasklists_on_property_id"
     t.index ["user_id", "property_id"], name: "index_tasklists_on_user_id_and_property_id", unique: true
@@ -156,7 +173,7 @@ ActiveRecord::Schema.define(version: 20180510150150) do
     t.boolean "needs_more_info", default: false, null: false
     t.datetime "discarded_at"
     t.datetime "completed_at"
-    t.boolean "initialization_template", default: false, null: false
+    t.boolean "created_from_api", default: false, null: false
     t.string "owner_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
