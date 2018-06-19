@@ -1,12 +1,17 @@
 # frozen_string_literal: true
 
-class SyncTasksClient
-  def initialize(user, tasklist)
-    user.refresh_token!
+class TasksClient
+  def self.sync(user, tasklist)
+    @user = User.find(user.id)
+    @tasklist = Tasklist.find(tasklist.id)
 
-    tasks = tasklist.list_api_tasks
+    return self
+    # just until I clean up this mess:
 
-    return unless tasks['items'].present?
+    @user.refresh_token!
+    tasks = @tasklist.list_api_tasks
+
+    return false unless tasks.present?
 
     tasks['items'].each do |task_json|
       task_user = TaskUser.where(google_id: task_json['id']).first_or_initialize

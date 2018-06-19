@@ -1,15 +1,13 @@
 # frozen_string_literal: true
 
 class TasklistsClient
-  # what about properties that aren't a part of the tasklist json? E.g. deleted in Google?
-
-  def initialize(user)
+  def self.sync(user)
     @user = User.find(user.id)
-  end
-
-  def sync
     return false unless @user.oauth_id.present?
     @user.refresh_token!
+
+    @property_ary = []
+
     @default_tasklist_json = @user.fetch_default_tasklist
     handle_tasklist(@default_tasklist_json, true)
 
@@ -18,9 +16,12 @@ class TasklistsClient
     @tasklists['items'].each do |tasklist_json|
       handle_tasklist(tasklist_json)
     end
+
+    # what about properties that aren't a part of the tasklist json? E.g. deleted in Google?
+    @property_ary
   end
 
-  def handle_tasklist(tasklist_json, default = false)
+  def self.handle_tasklist(tasklist_json, default = false)
     tasklist = Tasklist.where(user: @user, google_id: tasklist_json['id']).first_or_initialize
     if tasklist.new_record?
       property = create_property(tasklist_json['title'], default)
@@ -29,15 +30,17 @@ class TasklistsClient
     else
       case tasklist.updated_at.utc < Time.parse(tasklist_json['updated'])
       when true
-        update_property(tasklist.property, tasklist_json['title'], default)
+        # default tasklist can differ in name/title between API and this app
+        update_property(tasklist.property, tasklist_json['title']) unless default
         tasklist.update(updated_at: tasklist_json['updated'])
       when false
-        tasklist.api_update unless tasklist.property.name == tasklist_json['title']
+        tasklist.api_update unless default
       end
     end
+    @property_ary << tasklist.reload.property.id
   end
 
-  def create_property(title, default = false)
+  def self.create_property(title, default = false)
     Property.create(
       name: title,
       creator: @user,
@@ -47,11 +50,10 @@ class TasklistsClient
     )
   end
 
-  def update_property(property, title, default = false)
+  def self.update_property(property, title)
     property.tap do |prop|
       prop.name = title
       prop.creator ||= @user
-      prop.is_default = default
       prop.save
     end
     property.reload

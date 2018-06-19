@@ -4,16 +4,6 @@ require 'rails_helper'
 
 RSpec.describe User, type: :model do
   before :each do
-    stub_request(:any, Constant::Regex::TASKLIST).to_return(
-      headers: { 'Content-Type'=> 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
-    )
-    stub_request(:any, Constant::Regex::TASK).to_return(
-      headers: { 'Content-Type'=> 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:task_json).marshal_dump.to_json
-    )
     @user = FactoryBot.build(:user)
     @oauth_user = FactoryBot.build(:oauth_user)
     WebMock.reset_executed_requests!
@@ -172,7 +162,7 @@ RSpec.describe User, type: :model do
       expect(User.not_staff).not_to include @oauth_user
     end
 
-    context do
+    context 'property-related scopes' do
       before :each do
         @user.save
         @oauth_user.save
@@ -180,6 +170,16 @@ RSpec.describe User, type: :model do
         FactoryBot.create(:task, property: property, creator: @oauth_user, owner: volunteer)
         FactoryBot.create(:task, property: property, creator: oauth_user2, owner: contractor)
         FactoryBot.create(:task, property: property, creator: project, owner: @user)
+      end
+
+      it '#with_tasks_for returns only Users that are related to tasks of the property' do
+        expect(User.with_tasks_for(property)).to include @oauth_user
+        expect(User.with_tasks_for(property)).to include volunteer
+        expect(User.with_tasks_for(property)).to include contractor
+        expect(User.with_tasks_for(property)).to include @user
+        expect(User.with_tasks_for(property)).to include oauth_user2
+        expect(User.with_tasks_for(property)).to include project
+        expect(User.with_tasks_for(property)).not_to include program
       end
 
       it '#created_tasks_for returns only Users that are creators of tasks related to property' do
@@ -202,16 +202,6 @@ RSpec.describe User, type: :model do
         expect(User.owned_tasks_for(property)).not_to include program
       end
 
-      it '#with_tasks_for returns only Users that are related to tasks of the property' do
-        expect(User.with_tasks_for(property)).to include @oauth_user
-        expect(User.with_tasks_for(property)).to include volunteer
-        expect(User.with_tasks_for(property)).to include contractor
-        expect(User.with_tasks_for(property)).to include @user
-        expect(User.with_tasks_for(property)).to include oauth_user2
-        expect(User.with_tasks_for(property)).to include project
-        expect(User.with_tasks_for(property)).not_to include program
-      end
-
       it '#without_tasks_for returns Users that aren\'t related to tasks of the property' do
         expect(User.without_tasks_for(property)).to include program
         expect(User.without_tasks_for(property)).not_to include @oauth_user
@@ -220,6 +210,16 @@ RSpec.describe User, type: :model do
         expect(User.without_tasks_for(property)).not_to include @user
         expect(User.without_tasks_for(property)).not_to include oauth_user2
         expect(User.without_tasks_for(property)).not_to include project
+      end
+
+      context 'know that if without_task_for works then' do
+        it 'without_created_tasks_for works too' do
+          expect(true).to eq true
+        end
+
+        it 'without_owned_tasks_for works too' do
+          expect(true).to eq true
+        end
       end
     end
   end
@@ -249,6 +249,18 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe 'self#new_with_session' do
+    it 'came from google omniauth readme' do
+      expect(true).to eq true
+    end
+  end
+
+  describe '#active_for_authentication?' do
+    it 'came from Discard readme' do
+      expect(true).to eq true
+    end
+  end
+
   describe '#refresh_token!' do
     let(:token_expired) { create :oauth_user, oauth_expires_at: Time.now - 1.hour }
     let(:token_fresh)   { create :oauth_user, oauth_expires_at: Time.now + 6.hours }
@@ -262,25 +274,16 @@ RSpec.describe User, type: :model do
     end
 
     it 'contacts Google for a new token if it\'s expired' do
-      stub_request(:post, 'https://accounts.google.com/o/oauth2/token').to_return(body: 'You did it!', status: 200)
-
       token_expired.refresh_token!
       expect(WebMock).to have_requested(:post, 'https://accounts.google.com/o/oauth2/token')
     end
 
     it 'updates the user\'s oauth_token and oauth_expires_at' do
-      return_json = { 'access_token': 'ya29.Gly7BRLVu0wJandalotlonger...',
-                      'expires_in': 3600,
-                      'id_token': 'eyJhbGciOiJSUzI1NiIsIandalotlonger...',
-                      'token_type': 'Bearer' }
-
-      stub_request(:post, 'https://accounts.google.com/o/oauth2/token').to_return(body: return_json.to_json, status: 200, headers: { 'Content-Type' => 'application/json' })
-
       old_token = token_expired.oauth_token
       token_expired.refresh_token!
 
       expect(token_expired.oauth_token).not_to eq old_token
-      expect(token_expired.oauth_token).to eq return_json[:access_token]
+      expect(token_expired.oauth_token).to eq 'ya29.Gly7BRLVu0wJandalotlonger...'
     end
   end
 
@@ -301,14 +304,6 @@ RSpec.describe User, type: :model do
   end
 
   describe '#list_api_tasklists' do
-    before :each do
-      stub_request(:get, 'https://www.googleapis.com/tasks/v1/users/@me/lists').to_return(
-        headers: { 'Content-Type'=> 'application/json' },
-        status: 200,
-        body: file_fixture('list_tasklists_json_spec.json').read
-      )
-    end
-
     it 'returns false if oauth_id is missing' do
       @user.save
       expect(@user.list_api_tasklists).to eq false
@@ -323,36 +318,55 @@ RSpec.describe User, type: :model do
     it 'returns a hash of google tasklist objects' do
       @oauth_user.save
       response = @oauth_user.list_api_tasklists
-      expect(response['kind']).to eq 'tasks#taskList'
+      expect(response['kind']).to eq 'tasks#taskLists'
     end
   end
 
   describe '#fetch_default_tasklist' do
-    pending 'does stuff'
+    it 'returns false if oauth_id is missing' do
+      @user.save
+      expect(@user.fetch_default_tasklist).to eq false
+    end
+
+    it 'makes an API call' do
+      @oauth_user.save
+      @oauth_user.fetch_default_tasklist
+      expect(WebMock).to have_requested(:get, 'https://www.googleapis.com/tasks/v1/users/@me/lists/@default')
+    end
+
+    it 'returns a json tasklist object' do
+      @oauth_user.save
+      response = @oauth_user.fetch_default_tasklist
+      expect(response['kind']).to eq 'tasks#taskList'
+    end
   end
 
-  describe 'sync_with_api' do
+  describe '#sync_with_api' do
     before :each do
       @oauth_user.save
       3.times { FactoryBot.create(:property, creator: @oauth_user) }
     end
 
-    pending 'runs in the background'
+    it 'runs in the background' do
+      pending('user.rb 161 -- leaving active while building controllers')
+      expect { @oauth_user.sync_with_api }.to change { DelayedJob.count }
+    end
 
     it 'returns false unless oauth_id is present' do
       @user.save
       expect(@user.sync_with_api).to eq false
     end
 
-    it 'calls the SyncTasklistClient' do
-      expect(SyncTasklistsClient).to receive(:new).with(@oauth_user)
+    it 'calls the TasklistClient' do
+      expect(TasklistsClient).to receive(:sync)
       @oauth_user.sync_with_api
     end
 
-    it 'calls the SyncTasksClient' do
-      Property.all.each(&:reload)
+    it 'calls the TasksClient' do
+      TasklistsClient.sync(@oauth_user)
+      count = Property.visible_to(@oauth_user).count
 
-      expect(SyncTasksClient).to receive(:new).exactly(3).times
+      expect(TasksClient).to receive(:sync).exactly(count).times
       @oauth_user.sync_with_api
     end
   end

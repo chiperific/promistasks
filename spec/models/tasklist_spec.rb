@@ -4,16 +4,6 @@ require 'rails_helper'
 
 RSpec.describe Tasklist, type: :model do
   before :each do
-    stub_request(:any, Constant::Regex::TASK).to_return(
-      headers: { 'Content-Type'=> 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:task_json).marshal_dump.to_json
-    )
-    stub_request(:any, Constant::Regex::TASKLIST).to_return(
-      headers: { 'Content-Type'=> 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
-    )
     @user = FactoryBot.create(:oauth_user)
     @property = FactoryBot.create(:property, creator: @user, is_private: true)
     @tasklist = @property.reload.tasklists.first
@@ -75,11 +65,6 @@ RSpec.describe Tasklist, type: :model do
 
   describe '#list_api_tasks' do
     before :each do
-      stub_request(:get, Constant::Regex::TASK).to_return(
-        headers: { 'Content-Type'=> 'application/json' },
-        status: 200,
-        body: file_fixture('list_tasks_json_spec.json').read
-      )
       @local_user = FactoryBot.create(:user)
       @local_tasklist = FactoryBot.create(:tasklist, user: @local_user)
     end

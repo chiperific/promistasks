@@ -132,12 +132,18 @@ class User < ApplicationRecord
 
   def list_api_tasklists
     return false unless oauth_id.present?
-    HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists', headers: api_headers)
+    response = HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists', headers: api_headers)
+
+    return false if response.nil?
+    response
   end
 
   def fetch_default_tasklist
     return false unless oauth_id.present?
-    HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists/@default', headers: api_headers)
+    response = HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists/@default', headers: api_headers)
+
+    return false if response.nil?
+    response
   end
 
   def sync_with_api
@@ -147,7 +153,7 @@ class User < ApplicationRecord
 
     Property.visible_to(self).each do |property|
       tasklist = property.tasklists.where(user: self).first
-      next unless tasklist.present? && tasklist.google_id.present?
+      # next unless tasklist&.google_id.present?
       TasksClient.sync(self, tasklist)
     end
   end

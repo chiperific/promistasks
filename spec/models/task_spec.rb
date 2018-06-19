@@ -4,16 +4,6 @@ require 'rails_helper'
 
 RSpec.describe Task, type: :model do
   before :each do
-    stub_request(:any, Constant::Regex::TASKLIST).to_return(
-      headers: { 'Content-Type'=> 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
-    )
-    stub_request(:any, Constant::Regex::TASK).to_return(
-      headers: { 'Content-Type'=> 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:task_json).marshal_dump.to_json
-    )
     @creator        = FactoryBot.create(:oauth_user)
     @owner          = FactoryBot.create(:oauth_user)
     @property       = FactoryBot.create(:property)

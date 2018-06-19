@@ -2,7 +2,7 @@
 
 class Tasklist < ApplicationRecord
   include HTTParty
-  BASE_URI = 'https://www.googleapis.com/tasks/v1/users/@me/lists'
+  BASE_URI = 'https://www.googleapis.com/tasks/v1/users/@me/lists/'
 
   belongs_to :user,     inverse_of: :tasklists
   belongs_to :property, inverse_of: :tasklists
@@ -24,7 +24,7 @@ class Tasklist < ApplicationRecord
   def api_get
     return false unless user.oauth_id.present? && google_id.present?
     user.refresh_token!
-    response = HTTParty.get(BASE_URI + '/' + google_id, headers: api_headers)
+    response = HTTParty.get(BASE_URI + google_id, headers: api_headers)
     return false unless response.present?
     response
   end
@@ -47,7 +47,7 @@ class Tasklist < ApplicationRecord
     return false unless user.oauth_id.present? && google_id.present?
     user.refresh_token!
     body = { title: property.name }.to_json
-    response = HTTParty.patch(BASE_URI + '/' + google_id, { headers: api_headers, body: body })
+    response = HTTParty.patch(BASE_URI + google_id, { headers: api_headers, body: body })
 
     return false unless response.present?
 
@@ -58,7 +58,7 @@ class Tasklist < ApplicationRecord
   def api_delete
     return false unless user.oauth_id.present? && google_id.present?
     user.refresh_token!
-    response = HTTParty.delete(BASE_URI + '/' + google_id, headers: api_headers)
+    response = HTTParty.delete(BASE_URI + google_id, headers: api_headers)
 
     return false unless response.present?
     response

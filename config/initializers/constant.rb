@@ -22,7 +22,10 @@ module Constant
   end
 
   class Regex
-    TASKLIST = %r{https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists(\/||)\w{0,130}}
-    TASK =     %r{https:\/\/www.googleapis.com\/tasks\/v1\/lists\/.{0,245}}
+    TASK =             %r{https:\/\/www.googleapis.com\/tasks\/v1\/lists\/.{0,245}}
+    LIST_TASKS =       %r{https:\/\/www.googleapis.com\/tasks\/v1\/lists\/.{0,245}\/tasks(\/||)$}
+    TASKLIST =         %r{https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists\/($|[^@].{0,130})}
+    LIST_TASKLISTS =   %r{https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists$}
+    DEFAULT_TASKLIST = %r{https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists\/@default$}
   end
 end
