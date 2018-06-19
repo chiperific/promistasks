@@ -100,28 +100,6 @@ RSpec.describe TaskUser, type: :model do
     end
   end
 
-  describe '#saved_changes_to_placement?' do
-    it 'returns false if no placements have changed' do
-      @task_user.update(updated_at: Time.now)
-      expect(@task_user.saved_changes_to_placement?).to eq false
-    end
-
-    it 'returns true if position changed' do
-      @task_user.update(position: '100010100101001')
-      expect(@task_user.saved_changes_to_placement?).to eq true
-    end
-
-    it 'returns true if parent_id changed' do
-      @task_user.update(parent_id: '100010100101001')
-      expect(@task_user.saved_changes_to_placement?).to eq true
-    end
-
-    it 'returns true if previous_id changed' do
-      @task_user.update(previous_id: '100010100101001')
-      expect(@task_user.saved_changes_to_placement?).to eq true
-    end
-  end
-
   describe 'api interactions' do
     before :each do
       non_oauth_user = FactoryBot.create(:user)
@@ -245,7 +223,7 @@ RSpec.describe TaskUser, type: :model do
       it 'only fires if saved_changes_to_placement? is true' do
         @unsaved_task_user.save!
         expect(@unsaved_task_user).not_to receive(:api_move)
-        @unsaved_task_user.update(completed_at: Time.now)
+        @unsaved_task_user.update(position: 'positionID')
 
         expect(@task_user).to receive(:api_move)
         @task_user.update(parent_id: '100101001010011010')
@@ -255,18 +233,8 @@ RSpec.describe TaskUser, type: :model do
         expect(@local_task_user.api_move).to eq false
       end
 
-      it 'returns false if there\'s no google_id' do
+      it 'returns false unless api_fields_are_present?' do
         @task_user.google_id = nil
-        expect(@task_user.api_move).to eq false
-      end
-
-      it 'returns false if there\'s no tasklist_gid' do
-        @task_user.tasklist_gid = nil
-        expect(@task_user.api_move).to eq false
-      end
-
-      it 'returns false if none of the placement fields are present' do
-        @task_user.position = nil
         expect(@task_user.api_move).to eq false
       end
 
@@ -278,6 +246,111 @@ RSpec.describe TaskUser, type: :model do
       it 'returns the API response' do
         response = @task_user.api_move
         expect(response['kind']).to eq 'tasks#task'
+      end
+    end
+  end
+
+  describe '#saved_changes_to_placement?' do
+    before :each do
+      @task_user.update_column(:position, '00000000002147483647')
+    end
+
+    it 'requires at_least_one_placement_is_present?' do
+      @task_user.update_column(:parent_id, nil)
+      expect(@task_user.send(:saved_changes_to_placement?)).to eq false
+
+      @task_user.update(parent_id: '00000000002147483647')
+      expect(@task_user.send(:saved_changes_to_placement?)).to eq true
+    end
+    it 'returns false if no placements have changed' do
+      @task_user.update(updated_at: Time.now)
+      expect(@task_user.send(:saved_changes_to_placement?)).to eq false
+    end
+
+    it 'returns true if parent_id changed' do
+      @task_user.update(parent_id: '100010100101001')
+      expect(@task_user.send(:saved_changes_to_placement?)).to eq true
+    end
+
+    it 'returns true if previous_id changed' do
+      @task_user.update(previous_id: '100010100101001')
+      expect(@task_user.send(:saved_changes_to_placement?)).to eq true
+    end
+  end
+
+  describe '#at_least_one_placement_is_present?' do
+    let(:task_user_none)     { build :task_user }
+    let(:task_user_parent)   { build :task_user, parent_id: 'parent' }
+    let(:task_user_previous) { build :task_user, previous_id: 'previous' }
+
+    it 'returns false if none are present' do
+      expect(task_user_none.send(:at_least_one_placement_is_present?)).to eq false
+    end
+
+    it 'returns true if parent_id is present' do
+      expect(task_user_parent.send(:at_least_one_placement_is_present?)).to eq true
+    end
+
+    it 'returns true if previous_id is present' do
+      expect(task_user_previous.send(:at_least_one_placement_is_present?)).to eq true
+    end
+  end
+
+  describe '#api_fields_are_present?' do
+    let(:api_ready) { build :task_user, google_id: 'googleID', tasklist_gid: 'taslistGID' }
+    let(:local_user) { create :user }
+    let(:bare_task_user) { build :task_user, user: local_user }
+    let(:oauth_task_user) { build :task_user }
+
+    it 'returns true if all three are present' do
+      expect(api_ready.send(:api_fields_are_present?)).to eq true
+    end
+
+    it 'returns false if only user.oauth_id is present' do
+      expect(oauth_task_user.send(:api_fields_are_present?)).to eq false
+    end
+
+    it 'returns false if only google_id is present' do
+      bare_task_user.google_id = 'something'
+      expect(bare_task_user.send(:api_fields_are_present?)).to eq false
+    end
+
+    it 'returns false if only tasklist_gid is present' do
+      bare_task_user.tasklist_gid = 'something'
+      expect(bare_task_user.send(:api_fields_are_present?)).to eq false
+    end
+  end
+
+  describe '#move_uri_builder' do
+    context 'when no placements are present' do
+      let(:placementless) { build :task_user, google_id: 'googleID', tasklist_gid: 'taslistGID' }
+
+      it 'builds a URI' do
+        expect(placementless.send(:move_uri_builder)).to eq 'https://www.googleapis.com/tasks/v1/lists/taslistGID/tasks/googleID/move?'
+      end
+    end
+
+    context 'when parent_id is present' do
+      let(:parentful) { build :task_user, google_id: 'googleID', tasklist_gid: 'taslistGID', parent_id: 'parentID' }
+
+      it 'builds a URI' do
+        expect(parentful.send(:move_uri_builder)).to eq 'https://www.googleapis.com/tasks/v1/lists/taslistGID/tasks/googleID/move?parent=parentID'
+      end
+    end
+
+    context 'when previous_id is present' do
+      let(:previousful) { build :task_user, google_id: 'googleID', tasklist_gid: 'taslistGID', previous_id: 'previousID' }
+
+      it 'builds a URI' do
+        expect(previousful.send(:move_uri_builder)).to eq 'https://www.googleapis.com/tasks/v1/lists/taslistGID/tasks/googleID/move?previous=previousID'
+      end
+    end
+
+    context 'when both placements are present' do
+      let(:placementful) { build :task_user, google_id: 'googleID', tasklist_gid: 'taslistGID', parent_id: 'parentID', previous_id: 'previousID' }
+
+      it 'builds a URI' do
+        expect(placementful.send(:move_uri_builder)).to eq 'https://www.googleapis.com/tasks/v1/lists/taslistGID/tasks/googleID/move?parent=parentID&previous=previousID'
       end
     end
   end

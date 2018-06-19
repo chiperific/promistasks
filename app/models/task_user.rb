@@ -39,12 +39,6 @@ class TaskUser < ApplicationRecord
     self
   end
 
-  def saved_changes_to_placement?
-    !!saved_change_to_position? ||
-      !!saved_change_to_parent_id? ||
-      !!saved_change_to_previous_id?
-  end
-
   def api_get
     return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
     user.refresh_token!
@@ -82,26 +76,40 @@ class TaskUser < ApplicationRecord
 
   def api_move
     # set or clear the new parent and previous before calling
-    # what about when position changes? Must get precursing task's id and set to previous_id
-    return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
-    return false if position.nil? && parent_id.nil? && previous_id.nil?
+    # position value always come from API
+    return false unless api_fields_are_present?
     user.refresh_token!
+
+    response = HTTParty.post(move_uri_builder, headers: api_headers.as_json)
+    return false unless response.present?
+    update_column(:position, response['position'])
+    response
+  end
+
+  private
+
+  def saved_changes_to_placement?
+    at_least_one_placement_is_present? &&
+      (!!saved_change_to_parent_id? || !!saved_change_to_previous_id?)
+  end
+
+  def at_least_one_placement_is_present?
+    parent_id.present? || previous_id.present?
+  end
+
+  def api_fields_are_present?
+    user.oauth_id.present? && google_id.present? && tasklist_gid.present?
+  end
+
+  def move_uri_builder
+    return false unless api_fields_are_present?
 
     uri = BASE_URI + tasklist_gid + '/tasks/' + google_id + '/move?'
     uri += 'parent=' + parent_id if parent_id.present?
     uri += '&' if parent_id.present? && previous_id.present?
     uri += 'previous=' + previous_id if previous_id.present?
-
-    response = HTTParty.post(uri, headers: api_headers.as_json)
-    return false unless response.present?
-
-    # then get rid of the previous_id as a move in the API will negate it
-    self.update_column(previous_id: nil)
-
-    response
+    uri
   end
-
-  private
 
   def sequence_google_id(response_id)
     return response_id if task&.title == 'validate'
