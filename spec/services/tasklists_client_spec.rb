@@ -4,57 +4,37 @@ require 'rails_helper'
 
 RSpec.describe TasklistsClient, type: :service do
   before :each do
-    stub_request(:any, Constant::Regex::TASK).to_return(
-      headers: { 'Content-Type'=> 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:task_json).marshal_dump.to_json
-    )
-    stub_request(:any, Constant::Regex::TASKLIST).to_return(
-      headers: { 'Content-Type'=> 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
-    )
-    stub_request(:get, 'https://www.googleapis.com/tasks/v1/users/@me/lists').to_return(
-      headers: { 'Content-Type'=> 'application/json' },
-      status: 200,
-      body: file_fixture('list_tasklists_json_spec.json').read
-    )
-    stub_request(:get, 'https://www.googleapis.com/tasks/v1/users/@me/lists/@default').to_return(
-      headers: { 'Content-Type'=> 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:default_tasklist_json).marshal_dump.to_json
-    )
     @user = FactoryBot.create(:oauth_user)
     @local_user = FactoryBot.create(:user)
-    @tlc = TasklistsClient.new(@user)
-    @tlc_l = TasklistsClient.new(@local_user)
   end
 
   describe '#sync' do
     it 'returns false if the user isn\'t oauth' do
-      expect(@tlc_l.sync).to eq false
+      expect(TasklistsClient.sync(@local_user)).to eq false
     end
 
     it 'refreshes the user token' do
-      expect_any_instance_of(User).to receive(:refresh_token!)
-      @tlc.sync
+      expect(@user).to receive(:refresh_token!)
+      TasklistsClient.sync(@user)
     end
 
     it 'fetches the default tasklist' do
-      # expect_any_instance_of(User).to receive(:fetch_default_tasklist) # huh?!?
-      @tlc.sync
+      # expect(@user).to receive(:fetch_default_tasklist) # ARGHHHH!
+      TasklistsClient.sync(@user)
       expect(WebMock).to have_requested(:get, 'https://www.googleapis.com/tasks/v1/users/@me/lists/@default').once
     end
 
     it 'calls user.list_api_tasklists' do
-      expect_any_instance_of(User).to receive(:list_api_tasklists)
-      @tlc.sync
+      expect(@user).to receive(:list_api_tasklists)
+      TasklistsClient.sync(@user)
     end
 
     it 'calls handle_tasklist' do
-      expect(@tlc).to receive(:handle_tasklist).exactly(4).times
-      @tlc.sync
+      expect(TasklistsClient).to receive(:handle_tasklist).exactly(4).times
+      TasklistsClient.sync(@user)
     end
+
+    pending 'returns an array of property IDs that were synced'
   end
 
   describe '#handle_tasklist' do
@@ -71,16 +51,16 @@ RSpec.describe TasklistsClient, type: :service do
         end
 
         it 'creates a default property' do
-          expect { @tlc.handle_tasklist(@tasklist_json, true) }.to change { Property.where(is_default: true).count }.by 1
+          expect { TasklistsClient.handle_tasklist(@tasklist_json, true) }.to change { Property.where(is_default: true).count }.by 1
         end
 
         it 'creates a tasklists for the property' do
-          expect { @tlc.handle_tasklist(@tasklist_json, true) }.to change { Tasklist.count }.by 1
+          expect { TasklistsClient.handle_tasklist(@tasklist_json, true) }.to change { Tasklist.count }.by 1
         end
 
         it 'doesn\'t call tasklist.api_insert' do
           expect_any_instance_of(Tasklist).not_to receive(:api_insert)
-          @tlc.handle_tasklist(@tasklist_json, true)
+          TasklistsClient.handle_tasklist(@tasklist_json, true)
         end
       end
 
@@ -106,20 +86,20 @@ RSpec.describe TasklistsClient, type: :service do
             tasklist.update_column(:updated_at, '2018-06-08T23:22:03.000Z')
           end
 
-          it 'updates the property' do
-            expect { @tlc.handle_tasklist(@tasklist_json, true) }.to change { @default_property.reload.name }
+          it 'doesn\'t change the property\'s name' do
+            expect { TasklistsClient.handle_tasklist(@tasklist_json, true) }.not_to change { @default_property.reload.name }
           end
 
-          it 'updates the tasklist' do
-            expect { @tlc.handle_tasklist(@tasklist_json, true) }.to change { @default_property.reload.tasklists.first.updated_at }
+          it 'updates the tasklist\'s updated_at field' do
+            expect { TasklistsClient.handle_tasklist(@tasklist_json, true) }.to change { @default_property.reload.tasklists.first.updated_at }
           end
         end
 
         context 'when the API record is older' do
-          it 'updates the API version' do
+          it 'doesn\'t change the API version\'s name' do
             @default_property.update_column(:name, 'Not My Tasks')
-            expect_any_instance_of(Tasklist).to receive(:api_update).once
-            @tlc.handle_tasklist(@tasklist_json, true)
+            expect_any_instance_of(Tasklist).not_to receive(:api_update)
+            TasklistsClient.handle_tasklist(@tasklist_json, true)
           end
         end
       end
@@ -138,11 +118,11 @@ RSpec.describe TasklistsClient, type: :service do
 
       context 'and tasklist doesn\'t exist' do
         it 'creates a default property' do
-          expect { @tlc.handle_tasklist(@tasklist_json) }.to change { Property.where(is_default: false).count }.by 1
+          expect { TasklistsClient.handle_tasklist(@tasklist_json) }.to change { Property.where(is_default: false).count }.by 1
         end
 
         it 'creates a tasklists for the property' do
-          expect { @tlc.handle_tasklist(@tasklist_json) }.to change { Tasklist.count }.by 1
+          expect { TasklistsClient.handle_tasklist(@tasklist_json) }.to change { Tasklist.count }.by 1
         end
       end
 
@@ -161,18 +141,18 @@ RSpec.describe TasklistsClient, type: :service do
           end
 
           it 'updates the property' do
-            expect { @tlc.handle_tasklist(@tasklist_json) }.to change { @existing_property.reload.name }
+            expect { TasklistsClient.handle_tasklist(@tasklist_json) }.to change { @existing_property.reload.name }
           end
 
           it 'updates the tasklist' do
-            expect { @tlc.handle_tasklist(@tasklist_json) }.to change { @existing_property.reload.tasklists.first.updated_at }
+            expect { TasklistsClient.handle_tasklist(@tasklist_json) }.to change { @existing_property.reload.tasklists.first.updated_at }
           end
         end
 
         context 'when the API record is older' do
           it 'updates the API version' do
             expect_any_instance_of(Tasklist).to receive(:api_update).once
-            @tlc.handle_tasklist(@tasklist_json)
+            TasklistsClient.handle_tasklist(@tasklist_json)
           end
         end
       end

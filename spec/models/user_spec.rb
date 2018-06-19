@@ -349,7 +349,8 @@ RSpec.describe User, type: :model do
 
     it 'runs in the background' do
       pending('user.rb 161 -- leaving active while building controllers')
-      expect { @oauth_user.sync_with_api }.to change { DelayedJob.count }
+      @oauth_user.sync_with_api
+      expect(Delayed::Worker.new.work_off).to eq [1, 0]
     end
 
     it 'returns false unless oauth_id is present' do

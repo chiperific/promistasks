@@ -158,7 +158,7 @@ class User < ApplicationRecord
     end
   end
 
-  # handle_asynchronously :sync_with_api
+  handle_asynchronously :sync_with_api
 
   private
 

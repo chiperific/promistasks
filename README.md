@@ -2,11 +2,9 @@
 
 # To do:
 
-1. TasklistsClient is ready, but in the process I changed lots of models:
-- Property
-- Task
-- User
-- Tasklist
+1. Write more tests:
+  - tasklists_client_spec: @property_ary
+  - tasks_client_spec: write them
 3. Relationships between users, properties and tasks
   - Make controllers
   - Set policies
