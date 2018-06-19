@@ -348,24 +348,25 @@ RSpec.describe Property, type: :model do
     end
 
     it 'only fires if discarded_at is blank' do
+      expect(@discarded_private_property).not_to receive(:create_tasklists)
       @discarded_private_property.save!
-      expect(WebMock).not_to have_requested(:any, 'https://www.googleapis.com/tasks/v1/users/@me/lists')
 
+      expect(@private_property).to receive(:create_tasklists)
       @private_property.save!
-      expect(WebMock).to have_requested(:post, 'https://www.googleapis.com/tasks/v1/users/@me/lists')
     end
 
     context 'when private' do
       it 'creates a new Tasklist for the Creator' do
+        expect(@private_property).to receive(:ensure_tasklist_exists_for).with(@private_property.creator)
         @private_property.save!
-        expect(WebMock).to have_requested(:post, 'https://www.googleapis.com/tasks/v1/users/@me/lists').once
       end
     end
+
     context 'when public' do
       it 'creates a new Tasklist for all User.staff' do
-        @public_property.save!
         user_count = User.count
-        expect(WebMock).to have_requested(:post, 'https://www.googleapis.com/tasks/v1/users/@me/lists').times(user_count)
+        expect(@public_property).to receive(:ensure_tasklist_exists_for).exactly(user_count).times
+        @public_property.save!
       end
     end
   end
