@@ -347,11 +347,9 @@ RSpec.describe User, type: :model do
       3.times { FactoryBot.create(:property, creator: @oauth_user) }
     end
 
-    it 'runs in the background' do
-      pending('user.rb 161 -- leaving active while building controllers')
-      @oauth_user.sync_with_api
-      expect(Delayed::Worker.new.work_off).to eq [1, 0]
-    end
+    pending 'runs in the background'
+      # @oauth_user.sync_with_api
+      # expect(Delayed::Worker.new.work_off).to eq [1, 0]
 
     it 'returns false unless oauth_id is present' do
       @user.save
