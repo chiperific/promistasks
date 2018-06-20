@@ -13,23 +13,25 @@ class TasklistsClient
 
     @tasklists = user.list_api_tasklists
     return false unless @tasklists.present?
+
     @tasklists['items'].each do |tasklist_json|
       handle_tasklist(tasklist_json)
     end
 
-    # what about properties that aren't a part of the tasklist json? E.g. deleted in Google?
-    @property_ary
-    ## put more code here!!!
+    Property.visible_to(@user).where.not(id: @property_ary.uniq).each do |property|
+      property.tasklists.where(user: @user).first.api_insert
+    end
+
+    @property_ary.uniq
   end
 
   def self.handle_tasklist(tasklist_json, default = false)
-    @user = User.first if Rails.env.test?
-    @property_ary = [] if Rails.env.test?
+    @user ||= User.first if Rails.env.test?
+    @property_ary ||= [] if Rails.env.test?
 
     tasklist = Tasklist.where(user: @user, google_id: tasklist_json['id']).first_or_initialize
     if tasklist.new_record?
-      property = create_property(tasklist_json['title'], default)
-      tasklist.property = property.reload
+      tasklist.property = create_property(tasklist_json['title'], default)
       tasklist.save!
     else
       case tasklist.updated_at.utc < Time.parse(tasklist_json['updated'])

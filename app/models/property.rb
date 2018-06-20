@@ -56,6 +56,20 @@ class Property < ApplicationRecord
     self.budget - tasks.map(&:cost).sum
   end
 
+  def update_tasklists
+    # since tasklist is only { property, user, google_id }, changing other details about the property won't trigger an api call from tasklist
+    # however, if the user changes, then a new tasklist will be created, which triggers the #api_create on after_create callback
+    if is_private?
+      tasklist = ensure_tasklist_exists_for(creator)
+      tasklist.api_update
+    else
+      User.staff.each do |user|
+        tasklist = ensure_tasklist_exists_for(user)
+        tasklist.api_update
+      end
+    end
+  end
+
   def ensure_tasklist_exists_for(user)
     return false if user.oauth_id.nil?
     tasklist = tasklists.where(user: user).first_or_initialize
@@ -136,19 +150,5 @@ class Property < ApplicationRecord
       task.task_users.destroy_all if task.present? && task.task_users.present?
     end
     tasks.update_all(discarded_at: discarded_at)
-  end
-
-  def update_tasklists
-    # since tasklist is only { property, user, google_id }, changing other details about the property won't trigger an api call from tasklist
-    # however, if the user changes, then a new tasklist will be created, which triggers the #api_create on after_create callback
-    if is_private?
-      tasklist = ensure_tasklist_exists_for(creator)
-      tasklist.api_update
-    else
-      User.staff.each do |user|
-        tasklist = ensure_tasklist_exists_for(user)
-        tasklist.api_update
-      end
-    end
   end
 end
