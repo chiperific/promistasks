@@ -2,72 +2,83 @@
 
 class TasksClient
   def self.sync(user, tasklist)
-    @user = User.find(user.id)
-    @tasklist = Tasklist.find(tasklist.id)
+    @user = user
+    @tasklist = tasklist
+    return false unless user.oauth_id.present? && tasklist.google_id.present?
+    user.refresh_token!
 
-    return self
-    # just until I clean up this mess:
+    @task_ary = []
 
-    @user.refresh_token!
-    tasks = @tasklist.list_api_tasks
-
+    tasks = tasklist.list_api_tasks
     return false unless tasks.present?
 
     tasks['items'].each do |task_json|
-      task_user = TaskUser.where(google_id: task_json['id']).first_or_initialize
+      handle_task(task_json)
+    end
 
-      if task_user.new_record?
-        task = create_local_task(user, task_json, tasklist)
-        create_local_task_user(user, task_json, task, task_user)
-      else
-        # compare dates, most recent wins
-        case task_user.updated_at.utc < Time.parse(task_json['updated'])
-        when true
-          update_local_task(user, task_json, task_user, tasklist)
-          update_local_task_user(user, task_json, task_user)
-        when false
-          task_user.api_update
-        end
+    Task.visible_to(@user).where.not(id: @task_ary).each do |task|
+      task.task_users.where(user: @user).first.api_insert
+    end
+
+    @task_ary
+  end
+
+  def self.handle_task(task_json)
+    if Rails.env.test?
+      @user ||= User.where(name: 'this').first
+      @task_ary ||= []
+      @tasklist ||= Tasklist.where(user: @user).first
+      @user.save
+      @tasklist.save
+    end
+
+    task_user = TaskUser.where(google_id: task_json['id']).first_or_initialize
+    if task_user.new_record?
+      task_user.task = create_task(task_json)
+      task_user = update_task_user(task_user, task_json)
+    else
+      case task_user.updated_at.utc < Time.parse(task_json['updated'])
+      when true
+        update_task(task_user.task, task_json)
+        update_task_user(task_user, task_json)
+      when false
+        task_user.api_update
       end
     end
-    # what to do with tasks that aren't returned from the tasklist?
+    @task_ary << task_user.reload.task.id
   end
 
-  def create_local_task(user, task_json, tasklist)
-    task = Task.new.assign_from_api_fields(task_json)
+  def self.create_task(task_json)
+    task = Task.new
     task.tap do |t|
-      t.creator = user
-      t.owner = user
-      t.property = tasklist.property
-    end
-    task.save
-    task.reload
-  end
-
-  def create_local_task_user(user, task_json, task, task_user)
-    task_user.user = user
-    task_user.task = task
-    task_user.assign_from_api_fields(task_json)
-    task_user.save
-    task_user.reload
-  end
-
-  def update_local_task(user, task_json, task_user, tasklist)
-    task_user.task.tap do |t|
-      t.creator ||= user
-      t.owner ||= user
-      t.property = tasklist.property
+      t.creator = @user
+      t.owner = @user
+      t.property = @tasklist.property
       t.assign_from_api_fields(task_json)
+      t.save
     end
-    task.save
     task.reload
   end
 
-  def update_local_task_user(user, task_json, task_user)
-    task_user.task = task
-    task_user.user = user
-    task_user.assign_from_api_fields(task_json)
-    task_user.save
+  def self.update_task(task, task_json)
+    task.tap do |t|
+      t.creator ||= @user
+      t.owner ||= @user
+      t.property = @tasklist.property
+      t.assign_from_api_fields(task_json)
+      t.save
+    end
+    task.reload
+  end
+
+  def self.update_task_user(task_user, task_json)
+    @user.save
+    task_user.tap do |t|
+      t.user = @user
+      t.assign_from_api_fields(task_json)
+      t.tasklist_gid = @tasklist.google_id
+      t.save
+    end
     task_user.reload
   end
 end

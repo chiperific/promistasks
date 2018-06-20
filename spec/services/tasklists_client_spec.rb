@@ -6,6 +6,7 @@ RSpec.describe TasklistsClient, type: :service do
   before :each do
     @user = FactoryBot.create(:oauth_user)
     @local_user = FactoryBot.create(:user)
+    @missing_property = FactoryBot.create(:property, creator: @user, is_private: true)
   end
 
   describe '#sync' do
@@ -34,7 +35,15 @@ RSpec.describe TasklistsClient, type: :service do
       TasklistsClient.sync(@user)
     end
 
-    pending 'returns an array of property IDs that were synced'
+    it 'calls tasklist.api_update for missing properties' do
+      expect_any_instance_of(Tasklist).to receive(:api_insert)
+      TasklistsClient.sync(@user)
+    end
+
+    it 'returns an array of property IDs that were synced from the API' do
+      ary = TasklistsClient.sync(@user)
+      expect(ary.uniq.length).to eq 3
+    end
   end
 
   describe '#handle_tasklist' do
@@ -117,7 +126,7 @@ RSpec.describe TasklistsClient, type: :service do
       end
 
       context 'and tasklist doesn\'t exist' do
-        it 'creates a default property' do
+        it 'creates a property' do
           expect { TasklistsClient.handle_tasklist(@tasklist_json) }.to change { Property.where(is_default: false).count }.by 1
         end
 

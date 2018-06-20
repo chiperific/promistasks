@@ -16,6 +16,7 @@ require 'capybara/rspec'
 require 'selenium-webdriver'
 require 'webmock/rspec'
 require 'support/form_helper'
+require 'database_cleaner'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 # Add additional requires below this line. Rails is not loaded until this point!
@@ -46,7 +47,7 @@ RSpec.configure do |config|
 
   # config.fixture_path = "#{::Rails.root}/spec/fixtures"
   config.file_fixture_path = "#{::Rails.root}/spec/fixtures"
-  config.use_transactional_fixtures = true
+  config.use_transactional_fixtures = false
   config.infer_spec_type_from_file_location!
   config.filter_rails_from_backtrace!
 
@@ -55,7 +56,7 @@ RSpec.configure do |config|
   end
 
   config.before(:suite) do
-    DatabaseCleaner.strategy = :transaction
+    DatabaseCleaner.strategy = [:truncation, pre_count: true, reset_ids: true]
     DatabaseCleaner.clean_with(:truncation)
   end
 
