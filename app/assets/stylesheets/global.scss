@@ -1,68 +1,123 @@
-@import 'variables';
-
 body {
-  background-color: $light-blue !important;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background-color: #fcfcfc;
 }
 
-.container {
-  background-color: white;
-  height: 100%;
+aside {
+  .background img {
+    width: 100%;
+  }
 }
 
-// ALERTS
-.flash-alert {
-  padding: 15px;
-  margin-bottom: 20px;
-  border-radius: 4px;
-  border-width: 1px;
-  border-style: solid;
+main {
+  flex: 1 0 auto;
 }
 
-.success {
-  background-image: -webkit-linear-gradient($blue, $light-blue);
-  border-color: $blue;
-  color: white;
-  text-align: center;
+.main-logo {
+  height: 3rem;
+  margin-top: 0.5rem;
 }
 
-.danger {
-  background-image: -webkit-linear-gradient($red, $light-red);
-  border-color: $red;
-  color: white;
-  text-align: center;
+.cover {
+  background-color: #fff;
 }
 
-.warning {
-  background-image: -webkit-linear-gradient($yellow, $light-yellow);
-  border-color: $yellow;
-  text-align: center;
+.icon-container .icon-preview span {
+    text-align: left;
+    display: block;
+    font-size: 12px;
 }
 
-// BUTTONS
+.icon-container i {
+    font-size: 3em;
+    margin-bottom: 10px;
+}
+
 .btn {
-  border-radius: 0;
-  border: 0;
-  font-weight: bold;
+  margin-left: 10px;
 }
 
-.btn.blue {
-  color: white;
-  background-image: -webkit-linear-gradient($blue, $light-blue);
-  border: 1px solid $blue;
-  &:hover {
-    background-image: -webkit-linear-gradient(lighten($blue, 10%), lighten($light-blue, 10%));
-    border: 1px solid darken($blue, 10%);
-    color: white;
-  }
+:not(pre) > code[class*="language-"] {
+    border-radius: 0.3em;
+    padding: 0.1em;
+}
+:not(pre) > code[class*="language-"], pre[class*="language-"] {
+    background: #f5f2f0 none repeat scroll 0 0;
 }
 
-.btn.yellow {
-  color: white;
-  background-image: -webkit-linear-gradient($yellow, $light-yellow);
-  border: 1px solid $yellow;
-  &:hover {
-    background-image: -webkit-linear-gradient(lighten($yellow, 10%), lighten($light-yellow, 10%));
-    border: 1px solid darken($yellow, 10%);
-    color: white;
-  }
+
+.toc {
+  position: sticky;
+  top: 4rem;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
 }
+
+// body {
+//   background-color: $light-blue !important;
+// }
+
+// .container {
+//   background-color: white;
+//   height: 100%;
+// }
+
+// // ALERTS
+// .flash-alert {
+//   padding: 15px;
+//   margin-bottom: 20px;
+//   border-radius: 4px;
+//   border-width: 1px;
+//   border-style: solid;
+// }
+
+// .success {
+//   background-image: -webkit-linear-gradient($blue, $light-blue);
+//   border-color: $blue;
+//   color: white;
+//   text-align: center;
+// }
+
+// .danger {
+//   background-image: -webkit-linear-gradient($red, $light-red);
+//   border-color: $red;
+//   color: white;
+//   text-align: center;
+// }
+
+// .warning {
+//   background-image: -webkit-linear-gradient($yellow, $light-yellow);
+//   border-color: $yellow;
+//   text-align: center;
+// }
+
+// // BUTTONS
+// .btn {
+//   border-radius: 0;
+//   border: 0;
+//   font-weight: bold;
+// }
+
+// .btn.blue {
+//   color: white;
+//   background-image: -webkit-linear-gradient($blue, $light-blue);
+//   border: 1px solid $blue;
+//   &:hover {
+//     background-image: -webkit-linear-gradient(lighten($blue, 10%), lighten($light-blue, 10%));
+//     border: 1px solid darken($blue, 10%);
+//     color: white;
+//   }
+// }
+
+// .btn.yellow {
+//   color: white;
+//   background-image: -webkit-linear-gradient($yellow, $light-yellow);
+//   border: 1px solid $yellow;
+//   &:hover {
+//     background-image: -webkit-linear-gradient(lighten($yellow, 10%), lighten($light-yellow, 10%));
+//     border: 1px solid darken($yellow, 10%);
+//     color: white;
+//   }
+// }

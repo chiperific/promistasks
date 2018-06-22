@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class User < ApplicationRecord
+class User < ActiveRecord::Base
   include HTTParty
   include Discard::Model
 
@@ -9,6 +9,8 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :rememberable, :trackable, :validatable,
          :omniauthable, omniauth_providers: [:google_oauth2]
+
+  has_many :jobs, as: :record, class_name: 'Delayed::Job'
 
   has_many :created_tasks,  class_name: 'Task', inverse_of: :creator, foreign_key: 'creator_id'
   has_many :owned_tasks,    class_name: 'Task', inverse_of: :owner,   foreign_key: 'owner_id'
@@ -48,12 +50,12 @@ class User < ApplicationRecord
   scope :staff, -> { undiscarded.where.not(oauth_id: nil) }
   scope :staff_except, ->(user) { undiscarded.staff.where.not(id: user) }
   scope :not_staff, -> { undiscarded.where(oauth_id: nil) }
-  scope :with_tasks_for, ->(property) { created_tasks_for(property).or(owned_tasks_for(property)) }
+  scope :with_tasks_for,      ->(property) { created_tasks_for(property).or(owned_tasks_for(property)) }
     scope :created_tasks_for, ->(property) { undiscarded.where(id: Task.select(:creator_id).where(property: property)) }
-    scope :owned_tasks_for, ->(property) { undiscarded.where(id: Task.select(:owner_id).where(property: property)) }
-  scope :without_tasks_for, ->(property) { without_created_tasks_for(property).without_owned_tasks_for(property) }
+    scope :owned_tasks_for,           ->(property) { undiscarded.where(id: Task.select(:owner_id).where(property: property)) }
+  scope :without_tasks_for,           ->(property) { without_created_tasks_for(property).without_owned_tasks_for(property) }
     scope :without_created_tasks_for, ->(property) { undiscarded.where.not(id: Task.select(:creator_id).where(property: property)) }
-    scope :without_owned_tasks_for, ->(property) { undiscarded.where.not(id: Task.select(:owner_id).where(property: property)) }
+    scope :without_owned_tasks_for,   ->(property) { undiscarded.where.not(id: Task.select(:owner_id).where(property: property)) }
   # rubocop:enable Layout/IndentationConsistency
 
   class << self
@@ -80,6 +82,10 @@ class User < ApplicationRecord
     end
 
     ary
+  end
+
+  def fname
+    name.split(' ')[0].capitalize
   end
 
   def self.from_omniauth(auth)
@@ -145,20 +151,6 @@ class User < ApplicationRecord
     return false if response.nil?
     response
   end
-
-  def sync_with_api
-    return false unless oauth_id.present?
-
-    TasklistsClient.sync(self)
-
-    Property.visible_to(self).each do |property|
-      tasklist = property.tasklists.where(user: self).first
-      # next unless tasklist&.google_id.present?
-      TasksClient.sync(self, tasklist)
-    end
-  end
-
-  # handle_asynchronously :sync_with_api
 
   private
 

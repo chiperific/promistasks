@@ -78,6 +78,12 @@ class Property < ApplicationRecord
     tasklist.reload
   end
 
+  def can_be_viewed_by(user)
+    creator == user ||
+      tasks.where('creator_id = ? OR owner_id = ?', user.id, user.id).present? ||
+      !is_private?
+  end
+
   private
 
   def unsynced_name_address?

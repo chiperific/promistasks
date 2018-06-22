@@ -1,11 +1,6 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-
-1. Write more tests:
-  - tasklists_client_spec: @property_ary
-  - tasks_client_spec: write them
-    - property.ensure_tasklist_exists_for(user) is failing???
 3. Relationships between users, properties and tasks
   - Make controllers
   - Set policies

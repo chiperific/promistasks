@@ -1,6 +1,18 @@
 # frozen_string_literal: true
 
 class TasklistsClient
+  # think about breaking up methods for job:
+  # connect(user) - just the refresh_token
+  # fetch(user) - return the json blob
+  # sync_default(user) - handle_tasklist(json, true)
+  # sync(user) - handle_tasklist(json)
+  # push(user) - push un-found tasklists via api_update
+  # THEN I could:
+  # - create an instance in the job
+  # - get rid of self.methods
+  # - go back to using @user from initialize
+  # - would probably help with the tests too
+
   def self.sync(user)
     @user = user
     return false unless user.oauth_id.present?

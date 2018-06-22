@@ -27,37 +27,41 @@ example_id                                            | status  | run_time      
 ./spec/models/property_spec.rb[1:6:1]                 | passed  | 0.11073 seconds |
 ./spec/models/property_spec.rb[1:6:2]                 | passed  | 0.12071 seconds |
 ./spec/models/property_spec.rb[1:6:3]                 | passed  | 0.17282 seconds |
-./spec/models/property_spec.rb[1:7:1]                 | passed  | 0.11793 seconds |
-./spec/models/property_spec.rb[1:7:2]                 | passed  | 0.11912 seconds |
-./spec/models/property_spec.rb[1:7:3]                 | passed  | 0.17613 seconds |
+./spec/models/property_spec.rb[1:7:1]                 | passed  | 0.25075 seconds |
+./spec/models/property_spec.rb[1:7:2]                 | passed  | 1.12 seconds    |
+./spec/models/property_spec.rb[1:7:3]                 | passed  | 0.38689 seconds |
+./spec/models/property_spec.rb[1:7:4]                 | passed  | 0.34242 seconds |
 ./spec/models/property_spec.rb[1:8:1]                 | passed  | 0.40787 seconds |
+./spec/models/property_spec.rb[1:8:2]                 | unknown |                 |
+./spec/models/property_spec.rb[1:8:3]                 | unknown |                 |
 ./spec/models/property_spec.rb[1:9:1]                 | passed  | 0.20791 seconds |
-./spec/models/property_spec.rb[1:9:2]                 | passed  | 0.19003 seconds |
-./spec/models/property_spec.rb[1:10:1:1]              | passed  | 0.3277 seconds  |
-./spec/models/property_spec.rb[1:10:1:2]              | passed  | 0.12531 seconds |
-./spec/models/property_spec.rb[1:10:1:3]              | passed  | 0.17065 seconds |
-./spec/models/property_spec.rb[1:10:1:4]              | passed  | 0.32154 seconds |
-./spec/models/property_spec.rb[1:10:2:1]              | passed  | 0.12922 seconds |
-./spec/models/property_spec.rb[1:10:2:2]              | passed  | 0.19798 seconds |
-./spec/models/property_spec.rb[1:10:2:3]              | passed  | 0.16667 seconds |
-./spec/models/property_spec.rb[1:10:2:4]              | passed  | 0.20075 seconds |
-./spec/models/property_spec.rb[1:10:2:5]              | passed  | 0.17227 seconds |
-./spec/models/property_spec.rb[1:10:3:1]              | passed  | 0.20248 seconds |
-./spec/models/property_spec.rb[1:10:3:2]              | passed  | 0.12814 seconds |
-./spec/models/property_spec.rb[1:10:3:3]              | passed  | 0.14224 seconds |
-./spec/models/property_spec.rb[1:10:3:4]              | passed  | 0.12539 seconds |
-./spec/models/property_spec.rb[1:11:1]                | passed  | 0.25415 seconds |
+./spec/models/property_spec.rb[1:10:1]                | unknown |                 |
+./spec/models/property_spec.rb[1:10:2]                | unknown |                 |
+./spec/models/property_spec.rb[1:11:1:1]              | unknown |                 |
+./spec/models/property_spec.rb[1:11:1:2]              | unknown |                 |
+./spec/models/property_spec.rb[1:11:1:3]              | unknown |                 |
+./spec/models/property_spec.rb[1:11:1:4]              | unknown |                 |
 ./spec/models/property_spec.rb[1:11:2:1]              | passed  | 0.23738 seconds |
+./spec/models/property_spec.rb[1:11:2:2]              | unknown |                 |
+./spec/models/property_spec.rb[1:11:2:3]              | unknown |                 |
+./spec/models/property_spec.rb[1:11:2:4]              | unknown |                 |
+./spec/models/property_spec.rb[1:11:2:5]              | unknown |                 |
 ./spec/models/property_spec.rb[1:11:3:1]              | passed  | 0.24796 seconds |
-./spec/models/property_spec.rb[1:12:1:1]              | passed  | 0.17276 seconds |
+./spec/models/property_spec.rb[1:11:3:2]              | unknown |                 |
+./spec/models/property_spec.rb[1:11:3:3]              | unknown |                 |
+./spec/models/property_spec.rb[1:11:3:4]              | unknown |                 |
+./spec/models/property_spec.rb[1:12:1]                | unknown |                 |
 ./spec/models/property_spec.rb[1:12:2:1]              | passed  | 0.17053 seconds |
 ./spec/models/property_spec.rb[1:12:3:1]              | passed  | 0.2064 seconds  |
-./spec/models/property_spec.rb[1:12:4:1]              | passed  | 0.54101 seconds |
-./spec/models/property_spec.rb[1:13:1]                | passed  | 0.22466 seconds |
-./spec/models/property_spec.rb[1:13:2]                | passed  | 1.66 seconds    |
+./spec/models/property_spec.rb[1:13:1:1]              | unknown |                 |
+./spec/models/property_spec.rb[1:13:2:1]              | unknown |                 |
+./spec/models/property_spec.rb[1:13:3:1]              | unknown |                 |
+./spec/models/property_spec.rb[1:13:4:1]              | unknown |                 |
 ./spec/models/property_spec.rb[1:14:1]                | passed  | 0.49596 seconds |
-./spec/models/property_spec.rb[1:14:2:1]              | passed  | 0.45401 seconds |
-./spec/models/property_spec.rb[1:14:3:1]              | passed  | 0.5637 seconds  |
+./spec/models/property_spec.rb[1:14:2]                | unknown |                 |
+./spec/models/property_spec.rb[1:15:1]                | unknown |                 |
+./spec/models/property_spec.rb[1:15:2:1]              | unknown |                 |
+./spec/models/property_spec.rb[1:15:3:1]              | unknown |                 |
 ./spec/models/skill_spec.rb[1:1:1]                    | passed  | 0.02023 seconds |
 ./spec/models/skill_spec.rb[1:2:1]                    | passed  | 0.01443 seconds |
 ./spec/models/skill_spec.rb[1:2:2]                    | passed  | 0.01603 seconds |

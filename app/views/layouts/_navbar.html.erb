@@ -1,26 +1,32 @@
-<div class="row" id="custom_nav">
-  <div class="col-xs-5 col-sm-3 col-md-2">
-    <a href="/">
-      <%= image_tag 'fpgr_logo.png', class: 'nav-logo' %>
-    </a>
-  </div>
-  <div class="col-xs-7 col-sm-9 col-md-10">
-    <ul class="nav nav-pills">
-      <li class="nav-title">
-        Tasks
-      </li>
-      <% if current_user %>
+<header class="navbar-fixed">
+  <nav class="light-blue lighten-1">
+    <div class="nav-wrapper container">
+      <a href="#" id="sidenav" data-target="slide-out" class="button-collapse sidenav-trigger show-on-large">
+        <i class="material-icons right">menu</i>
+      </a>
+      <a href="/lists" id="logo-container" class="brand-logo">
+        <span>PromiseTasks</span>
+      </a>
+
+      <ul class="right" id="nav-mobile">
         <li>
-          Signed in as <strong><%= current_user.name %></strong>
+          <a href="#">
+            <i class="material-icons">notification_important</i>
+          </a>
         </li>
+
         <li>
-          <%= link_to "Sign out", destroy_user_session_path, id: "sign_out" %>
+          <a href="#">
+            <i class="material-icons">refresh</i>
+          </a>
         </li>
-      <% else %>
+
         <li>
-          <%= link_to "Sign in", new_user_session_path %>
+          <a href="#">
+            <i class="material-icons">exit_to_app</i>
+          </a>
         </li>
-      <% end %>
-    </ul>
-  </div>
-</div>
+      </ul>
+    </div>
+  </nav>
+</header>

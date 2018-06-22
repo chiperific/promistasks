@@ -2,8 +2,6 @@
 
 class TasksController < ApplicationController
   def public
-    props = Property.public_visible
-    tasks = props.tasks.public_visible if props.present?
-    @tasks = tasks || 'No tasks found'
+    @tasks = Task.public_visible.present? ? Task.public_visible : 'No tasks found'
   end
 end

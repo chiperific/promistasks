@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180610153731) do
+ActiveRecord::Schema.define(version: 20180621035211) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -44,7 +44,20 @@ ActiveRecord::Schema.define(version: 20180610153731) do
     t.string "queue"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string "identifier"
+    t.string "record_type"
+    t.integer "record_id"
+    t.string "handler_class"
+    t.integer "progress_current", default: 0, null: false
+    t.integer "progress_max", default: 100, null: false
+    t.string "message"
+    t.string "error_message"
+    t.datetime "completed_at"
+    t.index ["completed_at"], name: "index_delayed_jobs_on_completed_at"
+    t.index ["handler_class"], name: "index_delayed_jobs_on_handler_class"
+    t.index ["identifier"], name: "index_delayed_jobs_on_identifier"
     t.index ["priority", "run_at"], name: "delayed_jobs_priority"
+    t.index ["record_type", "record_id"], name: "index_delayed_jobs_on_record_type_and_record_id"
   end
 
   create_table "properties", force: :cascade do |t|

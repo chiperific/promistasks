@@ -193,6 +193,37 @@ RSpec.describe Property, type: :model do
     end
   end
 
+  describe '#can_be_viewed_by(user)' do
+    let(:user)               { create :user }
+    let(:creator_prop)       { create :property, creator: user, is_private: true }
+    let(:tasks_creator_prop) { create :property, is_private: true }
+    let(:tasks_owner_prop)   { create :property, is_private: true }
+    let(:public_prop)        { create :property, is_private: false }
+    let(:failing_prop)       { create :property, is_private: true }
+
+    it 'returns true if user is the creator' do
+      expect(creator_prop.can_be_viewed_by(user)).to eq true
+    end
+
+    it 'returns true if the property has tasks related to the user' do
+      FactoryBot.create(:task, creator: user, property: tasks_creator_prop)
+      FactoryBot.create(:task, owner: user, property: tasks_owner_prop)
+      tasks_creator_prop.reload
+      tasks_owner_prop.reload
+
+      expect(tasks_creator_prop.can_be_viewed_by(user)).to eq true
+      expect(tasks_owner_prop.can_be_viewed_by(user)).to eq true
+    end
+
+    it 'returns true if the property is public' do
+      expect(public_prop.can_be_viewed_by(user)).to eq true
+    end
+
+    it 'returns false if none are true' do
+      expect(failing_prop.can_be_viewed_by(user)).to eq false
+    end
+  end
+
   describe '#unsynced_name_address?' do
     let(:both) { build :property }
     let(:neither) { build :property, name: nil, address: nil }
