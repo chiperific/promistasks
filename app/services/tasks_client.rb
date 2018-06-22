@@ -17,7 +17,8 @@ class TasksClient
     end
 
     Task.visible_to(@user).where.not(id: @task_ary).each do |task|
-      task.task_users.where(user: @user).first.api_insert
+      tu = task.task_users.where(user: @user).first
+      tu.api_insert if tu.present?
     end
 
     @task_ary
@@ -32,6 +33,7 @@ class TasksClient
       @tasklist.save
     end
 
+    return false if task_json['title'] == ''
     task_user = TaskUser.where(google_id: task_json['id']).first_or_initialize
     if task_user.new_record?
       task_user.task = create_task(task_json)
@@ -57,6 +59,7 @@ class TasksClient
       t.assign_from_api_fields(task_json)
       t.save
     end
+    return false if task.id.nil?
     task.reload
   end
 

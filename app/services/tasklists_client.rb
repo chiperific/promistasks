@@ -25,7 +25,6 @@ class TasklistsClient
 
     @tasklists = user.list_api_tasklists
     return false unless @tasklists.present?
-
     @tasklists['items'].each do |tasklist_json|
       handle_tasklist(tasklist_json)
     end
@@ -50,7 +49,7 @@ class TasklistsClient
       when true
         # default tasklist can differ in name/title between API and this app
         update_property(tasklist.property, tasklist_json['title']) unless default
-        tasklist.update(updated_at: tasklist_json['updated'])
+        tasklist.update(updated_at: tasklist_json['updated']) unless tasklist_json['updated'].nil?
       when false
         tasklist.api_update unless default
       end

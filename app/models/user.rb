@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
          :rememberable, :trackable, :validatable,
          :omniauthable, omniauth_providers: [:google_oauth2]
 
-  has_many :jobs, as: :record, class_name: 'Delayed::Job'
+  has_many :jobs, as: :record, class_name: '::Delayed::Job'
 
   has_many :created_tasks,  class_name: 'Task', inverse_of: :creator, foreign_key: 'creator_id'
   has_many :owned_tasks,    class_name: 'Task', inverse_of: :owner,   foreign_key: 'owner_id'

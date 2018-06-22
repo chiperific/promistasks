@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
   </head>
 
   <body>
@@ -17,11 +18,12 @@
       <%= render partial: 'layouts/sidebar' %>
     </aside>
     <main>
-      <%= flash_messages %>
+      <% flash.each do |message_type, message| %>
+        <%= javascript_tag "M.toast({html: '#{message}'})" %>
+      <% end %>
       <div class="container">
         <%= yield %>
       </div>
     </main>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
   </body>
 </html>

@@ -33,7 +33,7 @@ class TaskUser < ApplicationRecord
       t.parent_id = task_json['parent']
       t.deleted = task_json['deleted'] || false
       t.completed_at = task_json['completed']
-      t.updated_at = task_json['updated']
+      t.updated_at = task_json['updated'] || Time.now
     end
 
     self
@@ -63,7 +63,8 @@ class TaskUser < ApplicationRecord
     user.refresh_token!
     response = HTTParty.patch(BASE_URI + tasklist_gid + '/tasks/' + google_id, { headers: api_headers.as_json, body: api_body.to_json })
     return false unless response.present?
-    update_columns(updated_at: response['updated'], position: response['position'], parent_id: response['parent'])
+    updated = response['updated'] || Time.now
+    update_columns(updated_at: updated, position: response['position'], parent_id: response['parent'])
     response
   end
 

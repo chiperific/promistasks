@@ -5,8 +5,9 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     @user = User.from_omniauth(request.env['omniauth.auth'])
 
     if @user.persisted?
-      flash[:notice] = I18n.t 'devise.omniauth_callbacks.success', kind: 'Google'
+      # flash[:notice] = I18n.t 'devise.omniauth_callbacks.success', kind: 'Google'
       sign_in @user
+      flash[:success] = "Welcome back, #{current_user.fname}"
 
       Delayed::Job.enqueue SyncUserWithApiJob.new(@user.id)
       redirect_to properties_path

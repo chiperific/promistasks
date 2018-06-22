@@ -4,6 +4,7 @@ class PropertiesController < ApplicationController
   def index
     # my_properties = policy_scope(Property)
     @properties = Property.visible_to(current_user)
+    flash[:success] = "Welcome back, #{current_user.fname}"
   end
 
   def show
