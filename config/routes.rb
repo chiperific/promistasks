@@ -11,7 +11,10 @@ Rails.application.routes.draw do
     get 'discarded', on: :collection
   end
 
-  resources :users
+  resources :users do
+    get 'discarded', on: :collection
+    get 'api_sync', on: :member
+  end
   # mount RailsAdmin::Engine => '/admin', as: 'rails_admin'
 
   devise_for :users, controllers: { omniauth_callbacks: 'users/omniauth_callbacks', registrations: 'registrations' }

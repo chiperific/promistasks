@@ -31,4 +31,10 @@ class UsersController < ApplicationController
   def discarded
     @users = User.discarded
   end
+
+  def api_sync
+    @user = User.find(params[:id])
+    Delayed::Job.enqueue SyncUserWithApiJob.new(@user.id)
+    redirect_to properties_path(syncing: true)
+  end
 end

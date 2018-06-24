@@ -69,8 +69,8 @@ class TasksClient
       t.owner ||= @user
       t.property = @tasklist.property
       t.assign_from_api_fields(task_json)
-      t.save
     end
+    task.save!
     task.reload
   end
 
@@ -80,8 +80,10 @@ class TasksClient
       t.user = @user
       t.assign_from_api_fields(task_json)
       t.tasklist_gid = @tasklist.google_id
-      t.save
     end
+    task_user.save!
+    # WTF???
+    # undefined method `marked_for_destruction?` on false:FalseClass
     task_user.reload
   end
 end

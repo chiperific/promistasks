@@ -4,7 +4,8 @@ class PropertiesController < ApplicationController
   def index
     # my_properties = policy_scope(Property)
     @properties = Property.visible_to(current_user)
-    flash[:success] = "Welcome back, #{current_user.fname}"
+    @syncing = params[:syncing] == 'true' ? 'show' : 'hide'
+    @job = current_user.jobs.where(completed_at: nil).last
   end
 
   def show
@@ -30,7 +31,7 @@ class PropertiesController < ApplicationController
   def destroy
     @property = Property.find(params[:id])
     @property.discard
-    redirect_to properties_url, notice: "Property discarded"
+    redirect_to properties_url, notice: 'Property discarded'
   end
 
   def discarded

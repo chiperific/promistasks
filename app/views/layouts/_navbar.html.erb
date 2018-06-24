@@ -16,9 +16,7 @@
         </li>
 
         <li>
-          <a href="#">
-            <i class="material-icons">refresh</i>
-          </a>
+          <%= link_to '<i class="material-icons">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button'  %>
         </li>
 
         <li>
