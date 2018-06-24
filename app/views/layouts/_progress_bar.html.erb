@@ -1,10 +1,10 @@
-<div id="sync_bar_indeterminate" class="progress <%= @syncing %>">
+<div id="sync_bar_indeterminate" class="progress">
   <div class="indeterminate"></div>
 </div>
 
-<div id="sync_bar_determinate" class="progress hide">
-  <div class="determinate" style="width: 70%"></div>
+<div id="sync_bar_determinate" class="progress">
+  <div class="determinate" style="width: 1%"></div>
 </div>
 
-<div id="results"></div>
-<input type="text" id="job_id" value="<%= @job&.id %>">
+<p id="status" class="center-align"></p>
+<input type="text" id="job_id" value="<%= @job_id %>">

@@ -9,16 +9,16 @@ class TasksClient
 
     @task_ary = []
 
-    tasks = tasklist.list_api_tasks
-    return false unless tasks.present?
+    @tasks = tasklist.list_api_tasks
+    return false unless @tasks.present?
 
-    tasks['items'].each do |task_json|
+    @tasks['items'].each do |task_json|
       handle_task(task_json)
     end
 
-    Task.visible_to(@user).where.not(id: @task_ary).each do |task|
+    @tasklist.property.tasks.visible_to(@user).where.not(id: @task_ary).each do |task|
       tu = task.task_users.where(user: @user).first
-      tu.api_insert if tu.present?
+      tu.api_insert unless tu.nil? || tu.google_id.present?
     end
 
     @task_ary
@@ -57,9 +57,8 @@ class TasksClient
       t.owner = @user
       t.property = @tasklist.property
       t.assign_from_api_fields(task_json)
-      t.save
     end
-    return false if task.id.nil?
+    task.save
     task.reload
   end
 
@@ -82,8 +81,6 @@ class TasksClient
       t.tasklist_gid = @tasklist.google_id
     end
     task_user.save!
-    # WTF???
-    # undefined method `marked_for_destruction?` on false:FalseClass
     task_user.reload
   end
 end

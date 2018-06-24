@@ -13,6 +13,23 @@ class TasklistsClient
   # - go back to using @user from initialize
   # - would probably help with the tests too
 
+  def self.pre_count(user)
+    return false unless user.oauth_id.present?
+    user.refresh_token!
+
+    tasklists = user.list_api_tasklists
+    @count = tasklists['items'].count
+
+    @api_headers = { 'Authorization': 'OAuth ' + user.oauth_token, 'Content-type': 'application/json' }.as_json
+
+    tasklists['items'].each do |tasklist|
+      tasks = HTTParty.get('https://www.googleapis.com/tasks/v1/lists/' + tasklist['id'] + '/tasks/', headers: @api_headers)
+      @count += tasks['items'].count
+    end
+
+    @count
+  end
+
   def self.sync(user)
     @user = user
     return false unless user.oauth_id.present?

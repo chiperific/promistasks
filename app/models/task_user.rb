@@ -13,8 +13,8 @@ class TaskUser < ApplicationRecord
 
   before_validation :set_tasklist_gid, if: -> { tasklist_gid.nil? }
   before_save       :set_position_as_integer, if: -> { position.present? }
-  before_destroy    :api_delete
-  after_create      :api_insert,              unless: -> { task&.created_from_api? }
+  # before_destroy    :api_delete
+  after_create      :api_insert,              unless: -> { task.created_from_api? && google_id.present? }
   after_update      :relocate,                if: -> { saved_change_to_tasklist_gid? }
   after_update      :api_move,                if: -> { saved_changes_to_placement? }
   after_save        :elevate_completeness,    if: -> { completed_at.present? && task.completed_at.nil? }
