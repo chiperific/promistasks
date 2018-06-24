@@ -1,9 +1,13 @@
 #sync_bar_indeterminate, #sync_bar_determinate  {
-  margin-bottom: -11px;
+  margin-bottom: -12px;
   .hide {
     display: none;
   }
   .show {
     display: inline;
   }
+}
+
+#job_id {
+  display: none;
 }

@@ -1,17 +1,27 @@
 pollDelayedJobs = (jobId) ->
   $.ajax(url: "/delayed/jobs/" + jobId).done (response) ->
-    if response.error_message != undefined
-      M.toast({html: response.error_message })
-      $('#sync_bar_indeterminate').removeClass('show')
-      $('#sync_bar_indeterminate').addClass('hide')
+    $('#sync_bar_indeterminate').hide()
+    $('#sync_bar_determinate').show()
+    if response.length == 0
+      uri = window.location.origin + window.location.pathname
+      window.location.replace(uri)
+      M.toast({html: 'Nothing left. There\'s nothing left!!' })
+      $('#sync_bar_determinate').hide()
+    else if response.error_message != null
+      toastMsg = 'Uh oh, an error occured: <br /> ' + response.error_message
+      M.toast({html: toastMsg})
+      $('#sync_bar_determinate').hide()
     else
-      $('#sync_bar_indeterminate').removeClass('show')
-      $('#sync_bar_indeterminate').addClass('hide')
-      $('#sync_bar_determinate').removeClass('hide')
-      $('#sync_bar_determinate').addClass('show')
-      M.toast({html: response.message })
+      M.toast({html: response.message, displayLength: 1000 })
+      repeater(jobId)
+      true
+
+repeater = (jobId) ->
+  setTimeout(pollDelayedJobs, 5000, jobId)
+  true
 
 $(document).on 'turbolinks:load', ->
   if getParameterByName('syncing') == "true"
     jobId = $('#job_id').attr("value")
     pollDelayedJobs(jobId)
+    true
