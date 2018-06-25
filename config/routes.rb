@@ -7,7 +7,7 @@ Rails.application.routes.draw do
     get 'discarded', on: :collection
   end
 
-  resources :properties, path: 'lists' do
+  resources :properties do
     get 'discarded', on: :collection
   end
 

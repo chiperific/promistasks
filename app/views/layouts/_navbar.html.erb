@@ -1,30 +1,52 @@
-<header class="navbar-fixed">
-  <nav class="light-blue lighten-1">
-    <div class="nav-wrapper container">
-      <a href="#" id="sidenav" data-target="slide-out" class="button-collapse sidenav-trigger show-on-large">
-        <i class="material-icons right">menu</i>
-      </a>
-      <a href="/lists" id="logo-container" class="brand-logo">
-        <span>PromiseTasks</span>
-      </a>
+<nav class="light-blue lighten-1">
+  <div class="nav-wrapper container">
+    <a href="#" id="sidenav" data-target="slide-out" class="button-collapse sidenav-trigger show-on-large">
+      <i class="material-icons right">menu</i>
+    </a>
+    <a href="/lists" id="logo-container" class="brand-logo">
+      <span>PromiseTasks</span>
+    </a>
 
-      <ul class="right" id="nav-mobile">
-        <li>
-          <a href="#">
-            <i class="material-icons">notification_important</i>
-          </a>
-        </li>
+    <ul class="right" id="nav-mobile">
+      <li>
+        <a href="#" id='alert_btn' class="btn-floating pulse red lighten-2 prevent_default dropdown-trigger" data-target='context_alerts'>
+          <i class="material-icons">notification_important</i>
+        </a>
+      </li>
 
-        <li>
-          <%= link_to '<i class="material-icons">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button'  %>
-        </li>
+      <li>
+        <%= link_to '<i class="material-icons">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: 'dropdown-trigger', 'data-target' => 'context_refresh'  %>
+      </li>
 
-        <li>
-          <a href="#">
-            <i class="material-icons">exit_to_app</i>
-          </a>
-        </li>
-      </ul>
-    </div>
-  </nav>
-</header>
+      <li>
+        <% if current_user %>
+          <%= link_to '<i class="material-icons">exit_to_app</i>'.html_safe, destroy_user_session_path, class: 'dropdown-trigger', 'data-target' => 'context_signout'  %>
+        <% else %>
+          <%= link_to '<i class="material-icons">lock_open</i>'.html_safe, new_user_session_path, class: 'dropdown-trigger', 'data-target' => 'context_signin' %>
+        <% end %>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<ul id='context_signout' class="dropdown-content">
+  <li>
+    <span class="grey-text">Sign out</span>
+  </li>
+</ul>
+
+<ul id='context_signin' class="dropdown-content">
+  <li>
+    <span class="grey-text">Sign in</span>
+  </li>
+</ul>
+
+<ul id='context_refresh' class="dropdown-content">
+  <li>
+    <span class="grey-text">Sync Google Tasks</span>
+  </li>
+</ul>
+
+<ul id="context_alerts" class="dropdown-content collection">
+  <%= render partial: 'shared/notifications' %>
+</ul>

@@ -5,7 +5,8 @@
   - Make controllers
   - Set policies
 4. Methodically interact with the API
-  - Through the models
+  - Accepting and syncing works through Task(list)sClient
+  - What about pushing and syncing?
 5. Assign tasks to another user (who is authenticated)
   - User.tasklists should show creator && owner relationships (regardless of property.is_private )
 5. Properties are TaskLists

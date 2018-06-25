@@ -10,7 +10,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       flash[:success] = "Welcome back, #{current_user.fname}"
 
       Delayed::Job.enqueue SyncUserWithApiJob.new(@user.id)
-      redirect_to properties_path
+      redirect_to tasks_path
     else
       session['devise.google_data'] = request.env['omniauth.auth'].except(:extra) # Removing extra as it can overflow some session stores
       redirect_to new_user_registration_url, alert: @user.errors.full_messages.join("\n")

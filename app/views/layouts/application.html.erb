@@ -13,7 +13,9 @@
   </head>
 
   <body>
-    <%= render partial: 'layouts/navbar' %>
+    <header class="navbar-fixed">
+      <%= render partial: 'layouts/navbar' %>
+    </header>
     <aside>
       <%= render partial: 'layouts/sidebar' %>
     </aside>
@@ -30,5 +32,8 @@
         <%= yield %>
       </div>
     </main>
+    <footer>
+      <%= render partial: 'layouts/footer' %>
+    </footer>
   </body>
 </html>
