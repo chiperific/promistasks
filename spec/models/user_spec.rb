@@ -224,6 +224,19 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#staff?' do
+    pending 'returns false if no staff-type booleans are set'
+    pending 'returns true if program_staff? is true'
+    pending 'returns true if project_staff? is true'
+    pending 'returns true if admin_staff? is true'
+    pending 'returns true if system_admin? is true'
+  end
+
+  describe '#oauth?' do
+    pending 'returns true if user has oauth_id'
+    pending 'returns false if user doesn\'t have oauth_id'
+  end
+
   describe '#type' do
     let(:several_types) { create :user, program_staff: true, admin_staff: true, project_staff: true }
     let(:volunteer)     { create :volunteer_user }

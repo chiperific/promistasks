@@ -36,6 +36,10 @@ class TasksController < ApplicationController
   end
 
   def public
-    @tasks = Task.public_visible.present? ? Task.public_visible : 'No tasks found'
+    if current_user
+      @tasks = Task.visible_to(current_user)
+    else
+      @tasks = Task.public_visible
+    end
   end
 end

@@ -1,4 +1,8 @@
-<h1>Editing User</h1>
+<% if current_user == @user %>
+  <h3>Edit your profile</h3>
+<% else %>
+  <h3>Edit <%= @user.name %>'s profile</h3>
+<% end %>
 
 <%= render 'form', user: @user %>
 
