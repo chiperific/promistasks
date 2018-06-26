@@ -27,6 +27,10 @@ class PropertyPolicy < ApplicationPolicy
     user&.staff? && property.can_be_viewed_by(user)
   end
 
+  def reports?
+    user&.staff?
+  end
+
   def discarded?
     user&.staff?
   end

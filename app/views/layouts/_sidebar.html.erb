@@ -4,66 +4,40 @@
       <div class="background">
         <%= image_tag "grass-bg.jpg" %>
       </div>
-        <%= link_to image_tag(current_user.oauth_image_link, class: "circle"), user_path(current_user)  %>
-        <a href="#">
-          <span class="white-text name">User Name</span>
-        </a>
-        <a href="#">
-          <span class="white-text email">email@digital.computer</span>
-        </a>
+      <%= image_tag current_user.oauth_image_link, class: "circle"  %>
+      <span class="white-text name">
+        <%= current_user.name %>
+      </span>
+      <span class="white-text email">email@digital.computer</span>
     </div>
   </li>
-  <li><div class="divider"></div></li>
   <li class="no-padding">
     <ul class="collapsible collapsible-accordion">
       <li>
-        <a href="#">
-          Profile
-        </a>
+        <%= link_to '<i class="material-icons">account_circle</i>Profile'.html_safe, edit_user_path(current_user)  %>
       </li>
     </ul>
   </li>
 
   <li>
-    <a href="#">
-      <i class="material-icons">format_list_bulleted</i>
-      <span>Summary</span>
-    </a>
+    <%= link_to '<i class="material-icons">format_list_bulleted</i><span>Tasks</span>'.html_safe, tasks_path %>
   </li>
 
   <li>
-    <a href="#">
-      <i class="material-icons">home</i>
-      <span>Properties</span>
-    </a>
+    <%= link_to '<i class="material-icons">home</i><span>Properties</span>'.html_safe, properties_path  %>
   </li>
+
+  <% if current_user.system_admin? %>
+    <li>
+      <%= link_to '<i class="material-icons">people</i><span>People</span>'.html_safe, users_path  %>
+    </li>
+
+    <li>
+      <%= link_to '<i class="material-icons">build</i><span>Skills</span>'.html_safe, skills_path  %>
+    </li>
+  <% end %>
 
   <li>
-    <a href="#">
-      <i class="material-icons">check_circle_outline</i>
-      <span>Tasks</span>
-    </a>
+    <%= link_to '<i class="material-icons">table_chart</i><span>Reports</span>'.html_safe, reports_properties_path  %>
   </li>
-
-  <li>
-    <a href="#">
-      <i class="material-icons">people</i>
-      <span>People</span>
-    </a>
-  </li>
-
-  <li>
-    <a href="#">
-      <i class="material-icons">build</i>
-      <span>Skills</span>
-    </a>
-  </li>
-
-  <li>
-    <a href="#">
-      <i class="material-icons">table_chart</i>
-      <span>Reports</span>
-    </a>
-  </li>
-
 </ul>

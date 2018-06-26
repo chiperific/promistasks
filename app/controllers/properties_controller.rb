@@ -34,6 +34,11 @@ class PropertiesController < ApplicationController
     redirect_to properties_url, notice: 'Property discarded'
   end
 
+  def reports
+    @properties = Property.undiscarded
+    @discarded_properties = Property.discarded
+  end
+
   def discarded
     @properties = Property.discarded
   end

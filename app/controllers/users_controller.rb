@@ -1,11 +1,14 @@
 # frozen_string_literal: true
 
 class UsersController < ApplicationController
+  # https://github.com/plataformatec/devise/wiki/How-To:-Manage-users-through-a-CRUD-interface
+
   def index
+    @users = User.undiscarded
   end
 
   def show
-    @users = User.undiscarded
+    @user = User.find(params[:id])
   end
 
   def new

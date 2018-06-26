@@ -2,14 +2,10 @@
 <html>
   <head>
     <title>Promisetasks</title>
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'true' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'true' %>
     <%= csrf_meta_tags %>
-
-    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
   </head>
 
   <body>
@@ -17,7 +13,9 @@
       <%= render partial: 'layouts/navbar' %>
     </header>
     <aside>
-      <%= render partial: 'layouts/sidebar' %>
+      <% if current_user %>
+        <%= render partial: 'layouts/sidebar' %>
+      <% end %>
     </aside>
     <main>
       <% flash.each do |message_type, message| %>
@@ -33,7 +31,9 @@
       </div>
     </main>
     <footer>
-      <%= render partial: 'layouts/footer' %>
+      <% if current_user %>
+        <%= render partial: 'layouts/footer' %>
+      <% end %>
     </footer>
   </body>
 </html>

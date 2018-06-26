@@ -42,7 +42,6 @@ class SyncUserWithApiJob < ApplicationJob
     finish = @job.progress_max
     @job.update_columns(progress_current: finish)
     @job.update_columns(message: 'Processed ' + @task_ary.flatten.length.to_s + @prop_ary.length.to_s + ' objects')
-    sleep 1
   end
 
   def max_attempts
