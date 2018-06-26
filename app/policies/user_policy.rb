@@ -16,7 +16,8 @@ class UserPolicy < ApplicationPolicy
   end
 
   def create?
-    user&.system_admin?
+    # devise registrations for new users
+    true
   end
 
   def edit?

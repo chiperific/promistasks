@@ -18,11 +18,10 @@
       <%= f.button :submit, "Log in", class: 'btn' %>
     </div>
     <div class="col s4">
-      <%= link_to "Staff Sign In",user_google_oauth2_omniauth_authorize_path, class: 'btn' %>
+      <%= link_to "Staff Sign In", user_google_oauth2_omniauth_authorize_path, class: 'btn' %>
     </div>
     <div class="col s4">
       <%= render "devise/shared/links" %>
     </div>
   </div>
 <% end %>
-

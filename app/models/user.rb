@@ -4,6 +4,8 @@ class User < ActiveRecord::Base
   include HTTParty
   include Discard::Model
 
+  attr_accessor :register_as
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :recoverable
   devise :database_authenticatable, :registerable,
@@ -47,6 +49,7 @@ class User < ActiveRecord::Base
   after_create :propegate_tasklists, if: -> { oauth_id.present? && discarded_at.blank? }
 
   # rubocop:disable Layout/IndentationConsistency
+  # rubocop:disable Layout/IndentationWidth
   scope :staff,                       -> { undiscarded.where.not(oauth_id: nil) }
   scope :staff_except,                ->(user) { undiscarded.staff.where.not(id: user) }
   scope :not_staff,                   -> { undiscarded.where(oauth_id: nil) }
@@ -57,9 +60,10 @@ class User < ActiveRecord::Base
     scope :without_created_tasks_for, ->(property) { undiscarded.where.not(id: Task.select(:creator_id).where(property: property)) }
     scope :without_owned_tasks_for,   ->(property) { undiscarded.where.not(id: Task.select(:owner_id).where(property: property)) }
   # rubocop:enable Layout/IndentationConsistency
+  # rubocop:enable Layout/IndentationWidth
 
   def register_as
-    # handles grouping of booleans as radial buttons on Devise::registration#new
+    # handles dropdown on Devise::registration#new
   end
 
   def staff?
@@ -67,6 +71,10 @@ class User < ActiveRecord::Base
       project_staff? ||
       admin_staff? ||
       system_admin?
+  end
+
+  def oauth?
+    oauth_id.present?
   end
 
   def type
@@ -159,7 +167,7 @@ class User < ActiveRecord::Base
   def must_have_type
     return true if oauth_id.present? # skip this if it's an oauth user
     if type.empty?
-      errors.add(:register_as, ': Must have at least one type.')
+      errors.add(:register_as, 'Please select from list')
       false
     else
       true
