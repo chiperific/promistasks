@@ -20,11 +20,15 @@ class PropertyPolicy < ApplicationPolicy
   end
 
   def edit?
-    user&.staff? && property.can_be_viewed_by(user)
+    user&.staff? || property.can_be_viewed_by(user)
+  end
+
+  def update?
+    user&.staff? || property.can_be_viewed_by(user)
   end
 
   def destroy?
-    user&.staff? && property.can_be_viewed_by(user)
+    user&.staff? || property.can_be_viewed_by(user)
   end
 
   def reports?

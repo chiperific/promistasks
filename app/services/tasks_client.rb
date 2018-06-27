@@ -4,13 +4,14 @@ class TasksClient
   def self.sync(user, tasklist)
     @user = user
     @tasklist = tasklist
-    return false unless user.oauth_id.present? && tasklist.google_id.present?
+    return false unless user.oauth_refresh_token.present? && tasklist.google_id.present?
     user.refresh_token!
 
     @task_ary = []
 
     @tasks = tasklist.list_api_tasks
-    return false unless @tasks.present?
+    # what is returned if there's no internet connection?
+    return @tasks if @tasks.nil? || @tasks['error'].present?
 
     @tasks['items'].each do |task_json|
       handle_task(task_json)

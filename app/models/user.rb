@@ -167,7 +167,7 @@ class User < ActiveRecord::Base
   def must_have_type
     return true if oauth_id.present? # skip this if it's an oauth user
     if type.empty?
-      errors.add(:register_as, 'Please select from list')
+      errors.add(:register_as, 'a user type from the list')
       false
     else
       true

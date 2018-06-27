@@ -12,7 +12,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def new?
-    user&.system_admin?
+    user&.system_admin? || user.staff?
   end
 
   def create?
@@ -24,7 +24,23 @@ class UserPolicy < ApplicationPolicy
     user&.system_admin? || user == record
   end
 
+  def update?
+    user&.system_admin? || user == record
+  end
+
   def destroy?
     user&.system_admin?
+  end
+
+  def discarded?
+    user&.system_admin?
+  end
+
+  def api_sync?
+    user&.system_admin? || user == record
+  end
+
+  def alerts?
+    user&.system_admin? || user == record
   end
 end

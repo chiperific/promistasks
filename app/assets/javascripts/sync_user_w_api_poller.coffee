@@ -8,8 +8,7 @@ pollDelayedJobs = (jobId) ->
       toastMsg = 'Uh oh, an error occured: <br /> ' + response.error_message
       M.toast({html: toastMsg})
     else if response.status == 'completed'
-      uri = window.location.origin + window.location.pathname
-      window.location.replace(uri)
+      clearTheUri
       M.toast({html: 'Done!'})
     else
       $('#sync_bar_determinate').show()
@@ -23,9 +22,16 @@ repeater = (jobId) ->
   setTimeout(pollDelayedJobs, 1000, jobId)
   true
 
+clearTheUri = ->
+  uri = window.location.origin + window.location.pathname
+  window.location.replace(uri)
+
 $(document).on 'turbolinks:load', ->
   if getParameterByName('syncing') == "true"
     $('#sync_bar_indeterminate').show()
     jobId = $('#job_id').attr("value")
-    repeater(jobId) if jobId != "0"
+    if jobId == "0"
+      clearTheUri
+    else
+      repeater(jobId)
     true

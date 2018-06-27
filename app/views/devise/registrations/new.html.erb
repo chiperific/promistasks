@@ -1,34 +1,40 @@
 <h2>Sign up</h2>
 
-<%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-  <%= f.error_notification %>
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+  <%= render 'shared/form_errors', object: resource %>
 
   <div class="form-inputs">
-    <%= f.input :name, required: true, autofocus: true %>
-    <%= f.input :email, required: true %>
-    <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length) %>
-    <%= f.input :password_confirmation, required: true %>
-    <% if resource.errors[:register_as].present? %>
-      <div class="input-field field_with_errors">
-    <% else %>
-      <div class="input-field">
-    <% end %>
+    <div class="input-field">
+      <i class="material-icons prefix">face</i>
+      <%= f.text_field :name, placeholder: 'Name' %>
+    </div>
+    <div class="input-field">
+      <i class="material-icons prefix">alternate_email</i>
+      <%= f.text_field :email, placeholder: 'email@example.com' %>
+    </div>
+    <div class="input-field">
+      <i class="material-icons prefix">vpn_key</i>
+      <%= f.password_field :password, placeholder: "#{@minimum_password_length} characters minimum" %>
+    </div>
+    <div class="input-field">
+      <i class="material-icons prefix">vpn_key</i>
+      <%= f.password_field :password_confirmation, placeholder: 'password again' %>
+    </div>
+
+    <div class="input-field <%= 'field_with_errors' if resource.errors[:register_as].present? %>">
+      <i class="material-icons prefix">account_box</i>
       <select name="user[register_as]" id="user_register_as" class="required" required="required" aria-required="true">
-        <option value="0" disabled selected>User Type</option>
+        <option value="0" disabled selected>I am a..</option>
         <option value="Volunteer">Volunteer</option>
         <option value="Contractor">Contractor</option>
         <option value="Client">Client</option>
       </select>
-      <label class="required">Register as:</label>
-      <% if resource.errors[:register_as].present? %>
-        <span class='error'><%= resource.errors[:register_as][0] %></span>
-      <% end %>
     </div>
   </div>
 
   <div class="form-actions row">
     <div class="col s4 offset-s2">
-      <%= f.button :submit, "Sign up" %>
+      <%= f.submit 'Sign up', class: 'btn green' %>
     </div>
     <div class="col s4">
       <%= render "devise/shared/links" %>

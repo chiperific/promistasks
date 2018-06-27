@@ -21,6 +21,7 @@ Rails.application.routes.draw do
   resources :users do
     get 'discarded', on: :collection
     get 'api_sync', on: :member
+    get 'alerts', on: :member
   end
 
   mount DelayedJobProgress::Engine => '/delayed'

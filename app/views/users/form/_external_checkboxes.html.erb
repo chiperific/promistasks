@@ -1,0 +1,30 @@
+<input type="hidden" value="0" name="user[volunteer]">
+<input type="hidden" value="0" name="user[contractor]">
+<input type="hidden" value="0" name="user[client]">
+
+<div class="row">
+  <div class="col m4">
+    <p>
+      <label>
+        <input type="checkbox" value="1" name="user[volunteer]" <%= 'checked' if @user.volunteer? %>>
+        <span>Volunteer</span>
+      </label>
+    </p>
+  </div>
+  <div class="col m4">
+    <p>
+      <label id="contractor_check">
+        <input type="checkbox" value="1" name="user[contractor]" <%= 'checked' if @user.contractor? %>>
+        <span>Contractor</span>
+      </label>
+    </p>
+  </div>
+  <div class="col m4">
+    <p>
+      <label>
+        <input type="checkbox" value="1" name="user[client]" <%= 'checked' if @user.client? %>>
+        <span>Client</span>
+      </label>
+    </p>
+  </div>
+</div>

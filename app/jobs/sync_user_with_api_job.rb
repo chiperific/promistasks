@@ -19,10 +19,11 @@ class SyncUserWithApiJob < ApplicationJob
   end
 
   def perform
-    return false unless @user.oauth_id.present?
+    return false unless @user.oauth_refresh_token.present?
     sleep 2
     @job.update_column(:progress_max, TasklistsClient.pre_count(@user))
     sleep 2
+    # handle error being returned
     @prop_ary = TasklistsClient.sync(@user)
     @job.update_columns(progress_current: @prop_ary.length)
     @job.update_column(:message, 'Processed ' + @prop_ary.length.to_s + ' tasklists')
@@ -33,6 +34,7 @@ class SyncUserWithApiJob < ApplicationJob
     sleep 1
     Property.visible_to(@user).each do |property|
       tasklist = property.tasklists.where(user: @user).first
+      # handle error being returned
       @task_ary << TasksClient.sync(@user, tasklist)
       @job.update_columns(progress_current: @task_ary.flatten.length + @prop_ary.length)
       @job.update_column(:message, 'Processed ' + @task_ary.flatten.length.to_s + ' tasks')

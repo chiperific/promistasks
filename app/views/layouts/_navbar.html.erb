@@ -5,12 +5,12 @@
         <i class="material-icons right">menu</i>
       </a>
     <% end %>
-    <a href="/lists" id="logo-container" class="brand-logo">
+    <a href="/lists" id="logo-container" class="brand-logo hide-on-small-only">
       <span>PromiseTasks</span>
     </a>
 
     <ul class="right" id="nav-mobile">
-      <% if current_user&.staff? %>
+      <% if current_user %>
         <li>
           <a href="#" id='alert_btn' class="btn-floating pulse red lighten-2 prevent_default dropdown-trigger" data-target='context_alerts'>
             <i class="material-icons">notification_important</i>

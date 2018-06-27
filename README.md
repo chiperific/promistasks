@@ -1,9 +1,18 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-3. Relationships between users, properties and tasks
-  - Make controllers
-  - Set policies
+1.1 WHY do I keep loosing my refresh_token?
+1.2 rescue from errors in TasksClient and TasklistsClient
+1.3 rescue from returned errors in SyncUserWithApiJob
+
+2. Write system tests:
+  - tasks#public
+  - tasks#index
+  - sessions#new
+  - registrations#new
+  - user#edit
+3. Write model tests:
+  - User has 2 pending methods
 4. Methodically interact with the API
   - Accepting and syncing works through Task(list)sClient
   - What about pushing and syncing?

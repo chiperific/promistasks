@@ -14,10 +14,11 @@ class TasklistsClient
   # - would probably help with the tests too
 
   def self.pre_count(user)
-    return false unless user.oauth_id.present?
+    return false unless user.oauth_refresh_token.present?
     user.refresh_token!
 
     tasklists = user.list_api_tasklists
+    return tasklists if tasklists['error'].present?
     @count = tasklists['items'].count
 
     @api_headers = { 'Authorization': 'OAuth ' + user.oauth_token, 'Content-type': 'application/json' }.as_json
@@ -32,16 +33,17 @@ class TasklistsClient
 
   def self.sync(user)
     @user = user
-    return false unless user.oauth_id.present?
+    return false unless user.oauth_refresh_token.present?
     user.refresh_token!
 
     @property_ary = []
 
     @default_tasklist_json = user.fetch_default_tasklist
+    return @default_tasklist_json if @default_tasklist_json['error'].present?
     handle_tasklist(@default_tasklist_json, true)
 
     @tasklists = user.list_api_tasklists
-    return false unless @tasklists.present?
+    return @tasklists if @tasklists['error'].present?
     @tasklists['items'].each do |tasklist_json|
       handle_tasklist(tasklist_json)
     end
@@ -60,6 +62,7 @@ class TasklistsClient
     tasklist = Tasklist.where(user: @user, google_id: tasklist_json['id']).first_or_initialize
     if tasklist.new_record?
       tasklist.property = create_property(tasklist_json['title'], default)
+      binding.pry
       tasklist.save!
     else
       case tasklist.updated_at.utc < Time.parse(tasklist_json['updated'])
