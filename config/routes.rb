@@ -20,6 +20,7 @@ Rails.application.routes.draw do
 
   resources :users do
     get 'discarded', on: :collection
+    get 'clear_completed_jobs', on: :collection
     get 'api_sync', on: :member
     get 'alerts', on: :member
   end

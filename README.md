@@ -1,6 +1,7 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
+1. Sync...Job: Using "?syncing=true" is only problematic if the user clicks a link while the sync is happening. They loose the status poller and maybe the other JS messes up?
 2. Write system tests:
   - tasks#public
   - tasks#index

@@ -41,7 +41,7 @@ class TasklistsClient
       tasklist_ids << handle_tasklist(tasklist_json)
     end
 
-    Tasklist.where(id: tasklist_ids)
+    Tasklist.where(id: tasklist_ids.uniq)
   end
 
   def not_in_api

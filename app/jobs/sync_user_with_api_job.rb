@@ -19,7 +19,7 @@ class SyncUserWithApiJob < ApplicationJob
   end
 
   def perform
-    sleep 1 # catch connecting to Google message
+    sleep 1 # catch 'connecting to Google' message
     @job.update_columns(message: 'Assessing the situation...')
 
     # pre-fetch and count tasklists from Google and those missing from Google
@@ -33,9 +33,9 @@ class SyncUserWithApiJob < ApplicationJob
     t_count_missing_ary = []
     tls_ids.each do |gid|
       found = TasksClient.fetch_with_tasklist_gid_and_user(gid, @user)
-      t_count_ary << found['items'].count
+      t_count_ary << found['items'].count if found.present?
       missing = TasksClient.not_in_api_with_tasklist_gid_and_user(gid, @user)
-      t_count_missing_ary << missing['items'].count
+      t_count_missing_ary << missing['items'].count if missing.present?
     end
 
     max = tls_count + t_count_ary.sum + tls_count_missing + t_count_missing_ary.sum
@@ -69,40 +69,39 @@ class SyncUserWithApiJob < ApplicationJob
     sleep 1
 
     # process remaining tasklists
-
-
-
-
-
     @job.update_columns(message: 'Fetching properties...')
-    sleep 2
+    sleep 1
 
     tasklists = @tasklists_client.sync
     progress += tls_count - 1
     @job.update_columns(message: 'Properties done', progress_current: progress)
-    sleep 2
+    sleep 1
 
-    tasklists.each do |t|
-      @job.update_columns(message: 'Fetching property tasks...')
-      sleep 2
+    # process tasks for each tasklist
+    tasklists.each_with_index do |t, i|
+      i += 1
+      msg = 'Fetching ' + i.ordinalize + ' property\'s tasks...'
+      @job.update_columns(message: msg)
+      sleep 1
 
+      # process tasks from Google
       tc = TasksClient.new(t)
       tc.sync
       count = tc.count
       msg = 'Processed ' + count.to_s + '  task'.pluralize(count)
       progress += count
       @job.update_columns(message: msg, progress_current: progress)
-      sleep 2
+      sleep 1
 
+      # process tasks from app
       @job.update_columns(message: 'Looking for missing tasks...')
-      sleep 2
+      sleep 1
 
       missing = tc.not_in_api
       if missing.present?
         msg = 'Found ' + missing.count.to_s + ' missing task'.pluralize(missing.count)
-        max = @job.progress_max + missing.count
-        @job.update_columns(message: msg, progress_max: max)
-        sleep 2
+        @job.update_columns(message: msg)
+        sleep 1
 
         tc.push
         msg = 'Processed ' + missing.count.to_s + ' missing task'.pluralize(missing.count)
@@ -111,55 +110,54 @@ class SyncUserWithApiJob < ApplicationJob
       else
         @job.update_columns(message: 'No missing tasks!')
       end
-      sleep 2
+      sleep 1
     end
 
-    @job.update_columns(message: 'Property tasks done')
-    sleep 2
-
+    # process tasklists from app
     @job.update_columns(message: 'Looking for missing properties...')
-    sleep 2
+    sleep 1
 
     missing_tasklists = @tasklists_client.not_in_api
     if missing_tasklists.present?
       msg = 'Found ' + missing_tasklists.count.to_s + ' missing property'.pluralize(missing_tasklists.count)
-      max = @job.progress_max + missing_tasklists.count
-      @job.update_columns(message: msg, progress_max: max)
-      sleep 2
+      @job.update_columns(message: msg)
+      sleep 1
 
       tc.push
       msg = 'Processed ' + missing_tasklists.count.to_s + ' missing property'.pluralize(missing_tasklists.count)
       progress += missing_tasklists.count
       @job.update_columns(message: msg, progress_current: progress)
 
-      # now do the tasks for that property missing.each do |t|
+      # process tasks from app
       @job.update_columns(message: 'Sending tasks from missing properties...')
-      sleep 2
-
+      sleep 1
       missing_tasklists.each do |t|
         tc = TasksClient.new(t)
-        tc.sync
         count = tc.count
-        max = @job.progress_max + count
         msg = 'Collected ' + count.to_s + ' missing task'.pluralize(count)
-        @job.update_columns(message: msg, progress_max: max)
-        sleep 2
+        @job.update_columns(message: msg)
+        sleep 1
 
+        tc.sync
         msg = 'Sent ' + count.to_s + ' missing task'.pluralize(count)
         progress += count
         @job.update_columns(message: msg, progress_current: progress)
-        sleep 2
+        sleep 1
       end
     else
       @job.update_columns(message: 'No missing properties!')
+      sleep 1
     end
-    sleep 2
 
     progress = @job.progress_max
     @job.update_columns(message: 'Wrapping up...', progress_current: progress )
-    sleep 2
+    sleep 1
     @job.update_columns(message: 'Done!')
-    sleep 2
+    sleep 1
+  end
+
+  def success(job)
+    # job.destroy(:force)
   end
 
   def max_attempts

@@ -2,10 +2,7 @@
 
 class PropertiesController < ApplicationController
   def index
-    # my_properties = policy_scope(Property)
     authorize @properties = Property.visible_to(current_user)
-    job = current_user.jobs.where(completed_at: nil).last
-    @job_id = job&.id || 0
   end
 
   def show

@@ -12,7 +12,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def new?
-    user&.system_admin? || user.staff?
+    user&.system_admin? || user&.staff?
   end
 
   def create?
@@ -38,6 +38,10 @@ class UserPolicy < ApplicationPolicy
 
   def api_sync?
     user&.system_admin? || user == record
+  end
+
+  def clear_completed_jobs?
+    user&.staff?
   end
 
   def alerts?

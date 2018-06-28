@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class UsersController < ApplicationController
+  include UsersHelper
   # https://github.com/plataformatec/devise/wiki/How-To:-Manage-users-through-a-CRUD-interface
 
   def index
@@ -53,8 +54,13 @@ class UsersController < ApplicationController
   def api_sync
     authorize @user = User.find(params[:id])
     Delayed::Job.enqueue SyncUserWithApiJob.new(@user.id)
-    # redirect_back fallback_location: root_path, allow_other_host: false, syncing: true
-    redirect_to properties_path(syncing: true)
+    redirect_back_for_sync
+  end
+
+  def clear_completed_jobs
+    authorize User.first
+    Delayed::Job.where.not(completed_at: nil).delete_all
+    redirect_back fallback_location: properties_path
   end
 
   def alerts
