@@ -1,44 +1,74 @@
 # frozen_string_literal: true
 
 class TasksClient
-  def self.sync(user, tasklist)
-    @user = user
+  attr_reader :tasklist
+  attr_reader :user
+
+  def initialize(tasklist)
     @tasklist = tasklist
-    return false unless user.oauth_refresh_token.present? && tasklist.google_id.present?
-    user.refresh_token!
-
-    @task_ary = []
-
-    @tasks = tasklist.list_api_tasks
-    # what is returned if there's no internet connection?
-    return @tasks if @tasks.nil? || @tasks['error'].present?
-
-    @tasks['items'].each do |task_json|
-      handle_task(task_json)
-    end
-
-    @tasklist.property.tasks.visible_to(@user).where.not(id: @task_ary).each do |task|
-      tu = task.task_users.where(user: @user).first
-      tu.api_insert unless tu.nil? || tu.google_id.present?
-    end
-
-    @task_ary
+    @user = @tasklist.user
   end
 
-  def self.handle_task(task_json)
-    if Rails.env.test?
-      @user ||= User.where(name: 'this').first
-      @task_ary ||= []
-      @tasklist ||= Tasklist.where(user: @user).first
-      @user.save
-      @tasklist.save
-    end
+  def connect
+    @user.refresh_token!
+  end
 
-    return false if task_json['title'] == ''
+  def fetch
+    connect
+    @tasklist.list_api_tasks
+  end
+
+  def self.fetch_with_tasklist_gid_and_user(google_id, user)
+    return false unless user.oauth_token.present?
+    user.refresh_token!
+
+    api_header = { 'Authorization': 'OAuth ' + user.oauth_token,
+                   'Content-type': 'application/json' }.as_json
+
+    response = HTTParty.get('https://www.googleapis.com/tasks/v1/lists/' + google_id + '/tasks/', headers: api_header)
+    response
+  end
+
+  def sync
+    tasks_json = fetch
+    return tasks_json if tasks_json.nil? || tasks_json['errors'].present?
+
+    tasks_json['items'].each do |task_json|
+      next if task_json['title'] == ''
+      handle_task(task_json)
+    end
+  end
+
+  def not_in_api
+    tasks_json = fetch
+    TaskUser.where(user: @user)
+            .where(tasklist_gid: @tasklist.google_id)
+            .where.not(google_id: tasks_json['items'].map { |i| i['id'] })
+  end
+
+  def self.not_in_api_with_tasklist_gid_and_user(google_id, user)
+    tasks_json = fetch_with_tasklist_gid_and_user(google_id, user)
+    TaskUser.where(user: @user)
+            .where(tasklist_gid: google_id)
+            .where.not(google_id: tasks_json['items'].map { |i| i['id'] })
+  end
+
+  def push
+    pushable = not_in_api
+    return false unless pushable.present?
+    pushable.each(&:api_insert)
+  end
+
+  def count
+    task_json = fetch
+    task_json['items'].count
+  end
+
+  def handle_task(task_json)
     task_user = TaskUser.where(google_id: task_json['id']).first_or_initialize
     if task_user.new_record?
       task_user.task = create_task(task_json)
-      task_user = update_task_user(task_user, task_json)
+      update_task_user(task_user, task_json)
     else
       case task_user.updated_at.utc < Time.parse(task_json['updated'])
       when true
@@ -48,22 +78,20 @@ class TasksClient
         task_user.api_update
       end
     end
-    @task_ary << task_user.reload.task.id
   end
 
-  def self.create_task(task_json)
-    task = Task.new
-    task.tap do |t|
+  def create_task(task_json)
+    task = Task.create.tap do |t|
       t.creator = @user
       t.owner = @user
       t.property = @tasklist.property
       t.assign_from_api_fields(task_json)
     end
-    task.save
+    task.save!
     task.reload
   end
 
-  def self.update_task(task, task_json)
+  def update_task(task, task_json)
     task.tap do |t|
       t.creator ||= @user
       t.owner ||= @user
@@ -74,7 +102,7 @@ class TasksClient
     task.reload
   end
 
-  def self.update_task_user(task_user, task_json)
+  def update_task_user(task_user, task_json)
     @user.save
     task_user.tap do |t|
       t.user = @user

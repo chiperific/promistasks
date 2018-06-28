@@ -3,14 +3,17 @@
 class Property < ApplicationRecord
   include Discard::Model
 
-  has_many :connections, inverse_of: :property, dependent: :destroy
-  has_many :users, through: :connections
-  accepts_nested_attributes_for :connections, allow_destroy: true
-
-  belongs_to :creator, class_name: 'User', inverse_of: :created_properties
   has_many :tasklists, inverse_of: :property, dependent: :destroy
+  has_many :users, through: :tasklists
+  accepts_nested_attributes_for :tasklists
 
   has_many :tasks, inverse_of: :property, dependent: :destroy
+
+  belongs_to :creator, class_name: 'User', inverse_of: :created_properties
+
+  has_many :connections, inverse_of: :property, dependent: :destroy
+  has_many :connected_users, class_name: 'User', through: :connections
+  accepts_nested_attributes_for :connections, allow_destroy: true
 
   validates :name, :address, uniqueness: true, presence: true
   validates_presence_of :creator_id

@@ -18,17 +18,20 @@ class User < ActiveRecord::Base
   has_many :owned_tasks,    class_name: 'Task', inverse_of: :owner,   foreign_key: 'owner_id'
   has_many :subject_tasks,  class_name: 'Task', inverse_of: :subject, foreign_key: 'subject_id'
 
-  has_many :connections, inverse_of: :user, dependent: :destroy
-  has_many :properties, through: :connections
-  accepts_nested_attributes_for :connections, allow_destroy: true
-
   has_many :created_properties, class_name: 'Property', inverse_of: :creator, foreign_key: 'creator_id'
-  has_many :tasklists, inverse_of: :user, dependent: :destroy
-  accepts_nested_attributes_for :created_properties, allow_destroy: true
+  accepts_nested_attributes_for :created_properties
 
-  has_many :task_users, inverse_of: :user, dependent: :destroy
+  has_many :tasklists, inverse_of: :user
+  has_many :properties, through: :tasklists
+  accepts_nested_attributes_for :tasklists
+
+  has_many :task_users, inverse_of: :user
   has_many :tasks, through: :task_users
-  accepts_nested_attributes_for :task_users, allow_destroy: true
+  accepts_nested_attributes_for :task_users
+
+  has_many :connections, inverse_of: :user, dependent: :destroy
+  has_many :connected_properties, class_name: 'Property', through: :connections
+  accepts_nested_attributes_for :connections, allow_destroy: true
 
   has_many :skill_users, inverse_of: :user, dependent: :destroy
   has_many :skills, through: :skill_users
@@ -102,13 +105,15 @@ class User < ActiveRecord::Base
     @user = where(email: auth.info.email).first_or_create.tap do |user|
       user.name = auth.info.name
       user.password = Devise.friendly_token[0, 20]
+      user.oauth_provider = auth.provider
       user.oauth_id = auth.uid
       user.oauth_image_link = auth.info.image
+      user.oauth_token = auth.credentials.token
+      user.oauth_refresh_token ||= auth.credentials.refresh_token if auth.credentials.refresh_token.present?
       user.oauth_expires_at = Time.at(auth.credentials.expires_at)
-      user.save
     end
-    @user.update(oauth_token: auth.credentials.token, oauth_refresh_token: auth.credentials.refresh_token)
-    @user
+    @user.save
+    @user.reload
   end
 
   # Devise's RegistrationsController by default calls User.new_with_session
@@ -129,7 +134,7 @@ class User < ActiveRecord::Base
   end
 
   def refresh_token!
-    return false unless token_expired? && oauth_id.present? && oauth_refresh_token.present?
+    return false unless token_expired? && oauth_id.present? && oauth_token.present? && oauth_refresh_token.present?
     data = {
       grant_type: 'refresh_token',
       client_id: Rails.application.secrets.google_client_id,

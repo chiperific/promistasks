@@ -10,11 +10,11 @@ class Tasklist < ApplicationRecord
   validates :property, presence: true, uniqueness: { scope: :user }
   validates_uniqueness_of :google_id, allow_nil: true
 
-  before_destroy :api_delete
+  # before_destroy :api_delete
   after_create   :api_insert, unless: -> { google_id.present? }
 
   def list_api_tasks
-    return false unless user.oauth_id.present?
+    return false unless user.oauth_token.present?
     user.refresh_token!
     response = HTTParty.get('https://www.googleapis.com/tasks/v1/lists/' + google_id + '/tasks/', headers: api_headers)
     return false unless response.present?

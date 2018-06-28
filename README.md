@@ -1,10 +1,6 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-1.1 WHY do I keep loosing my refresh_token?
-1.2 rescue from errors in TasksClient and TasklistsClient
-1.3 rescue from returned errors in SyncUserWithApiJob
-
 2. Write system tests:
   - tasks#public
   - tasks#index
@@ -13,6 +9,7 @@
   - user#edit
 3. Write model tests:
   - User has 2 pending methods
+3.5 Re-write services tests -- because I nerfed them both
 4. Methodically interact with the API
   - Accepting and syncing works through Task(list)sClient
   - What about pushing and syncing?
@@ -36,13 +33,8 @@
 6. Get data from Google:
   - On a cron job every hour
   - On staff user login. Update everything in the background (delayed_job)
-1. Destroy PropertyTracker
 
 ## Keep in mind
---**--**--**
-- If you rename your default tasklist, it will rename the property and everyone else's default tasklist. HMMMM. Can probably be handled through TasklistsClient (don't ever update the Property)
-- Shouldn't I be calling Property.where(is_default: true).first in TasklistClient.sync?!???!
---**--**--**
 - PRIVATE properties must take self.tasks.map(&:owners &:creators) into account before removing
 - Bring in tasklists and tasks from the app on user.create
 - initialization_template tasks will use property.creator for task.creator && task.owner
