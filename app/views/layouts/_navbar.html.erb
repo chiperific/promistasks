@@ -1,7 +1,7 @@
 <nav class="light-blue lighten-1">
   <div class="nav-wrapper container">
     <% if current_user %>
-      <a href="#" id="sidenav" data-target="slide-out" class="button-collapse sidenav-trigger show-on-large">
+      <a href="#" id="sidenav" data-target="slide-out" class="button-collapse sidenav-trigger show-on-large prevent_default">
         <i class="material-icons right">menu</i>
       </a>
     <% end %>
@@ -18,15 +18,15 @@
         </li>
 
         <li>
-          <%= link_to '<i class="material-icons">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: 'dropdown-trigger', 'data-target' => 'context_refresh'  %>
+          <%= link_to '<i class="material-icons">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: 'dropdown-trigger-hover', 'data-target' => 'context_refresh'  %>
         </li>
       <% end %>
 
       <li>
         <% if current_user %>
-          <%= link_to '<i class="material-icons">exit_to_app</i>'.html_safe, destroy_user_session_path, method: :delete, class: 'dropdown-trigger', 'data-target' => 'context_signout'  %>
+          <%= link_to '<i class="material-icons">exit_to_app</i>'.html_safe, destroy_user_session_path, method: :delete, class: 'dropdown-trigger-hover', 'data-target' => 'context_signout'  %>
         <% else %>
-          <%= link_to '<i class="material-icons">lock_open</i>'.html_safe, new_user_session_path, class: 'dropdown-trigger', 'data-target' => 'context_signin' %>
+          <%= link_to '<i class="material-icons">lock_open</i>'.html_safe, new_user_session_path, class: 'dropdown-trigger-hover', 'data-target' => 'context_signin' %>
         <% end %>
       </li>
     </ul>

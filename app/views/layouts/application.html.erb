@@ -9,10 +9,10 @@
   </head>
 
   <body>
-    <header class="navbar-fixed">
+    <header class="navbar-fixed" id="navbar" data-turbolinks-permanent>
       <%= render partial: 'layouts/navbar' %>
     </header>
-    <aside>
+    <aside id="sidebar" data-turbolinks-permanent>
       <% if current_user %>
         <%= render partial: 'layouts/sidebar' %>
       <% end %>
@@ -30,7 +30,7 @@
         <%= yield %>
       </div>
     </main>
-    <footer>
+    <footer id="footer" data-turbolinks-permanent>
       <% if current_user %>
         <%= render partial: 'layouts/footer' %>
       <% end %>

@@ -24,3 +24,12 @@ function getParameterByName(name, url) {
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
+
+function addSyncToLink(link) {
+  target = $(link).attr('href');
+  if (target !== '#') {
+    $(link).attr('href', target + '?syncing=true');
+  };
+}
+
+
