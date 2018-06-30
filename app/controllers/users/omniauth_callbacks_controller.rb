@@ -7,7 +7,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     if @user.persisted?
       # flash[:notice] = I18n.t 'devise.omniauth_callbacks.success', kind: 'Google'
       sign_in @user
-      flash[:success] = "Welcome back, #{current_user.fname}"
+      flash[:success] = "Welcome, #{current_user.fname}"
 
       Delayed::Job.enqueue SyncUserWithApiJob.new(@user.id)
       redirect_to tasks_path
@@ -19,5 +19,6 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def failure
     redirect_to root_path
+    flash[:alert] = 'Failed to authenticate from Google.'
   end
 end

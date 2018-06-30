@@ -28,7 +28,9 @@ function getParameterByName(name, url) {
 function addSyncToLink(link) {
   target = $(link).attr('href');
   if (target !== '#') {
-    $(link).attr('href', target + '?syncing=true');
+    if (getParameterByName('syncing', target) !== true) {
+      $(link).attr('href', target + '?syncing=true');
+    };
   };
 }
 

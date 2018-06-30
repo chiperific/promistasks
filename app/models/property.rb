@@ -18,7 +18,7 @@ class Property < ApplicationRecord
   validates :name, :address, uniqueness: true, presence: true
   validates_presence_of :creator_id
   validates_uniqueness_of :certificate_number, :serial_number, allow_nil: true
-  validates_inclusion_of :is_private, :is_default, :created_from_api, in: [true, false]
+  validates_inclusion_of :is_private, :is_default, :ignore_budget_warning, :created_from_api, in: [true, false]
 
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
 
@@ -38,8 +38,7 @@ class Property < ApplicationRecord
   scope :with_tasks_for, ->(user) { undiscarded.where(id: Task.select(:property_id).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id)) }
   scope :related_to,     ->(user) { created_by(user).or(with_tasks_for(user)) }
   scope :visible_to,     ->(user) { related_to(user).or(public_visible) }
-  # there can be only one, highlander, regardless of user
-  # scope :default_for,    ->(user) { created_by(user).where(is_default: true) }
+  # scope :over_budget,    ->       { undiscarded.where('budget <= ?', self.tasks.select(:cost).sum) }
 
   class << self
     alias archived discarded

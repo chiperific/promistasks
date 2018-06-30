@@ -15,7 +15,7 @@ class RegistrationsController < Devise::RegistrationsController
 
     if @user.save
       flash[:success] = "Welcome, #{@user.fname}"
-      redirect_to root_path
+      redirect_to @return_path
     else
       flash[:warning] = 'Oops, found some errors'
       render 'new'

@@ -15,6 +15,7 @@ class TasksController < ApplicationController
 
   def create
     authorize @task = Task.find(params[:id])
+    # redirect_to @return_path, notice: 'Task created'
   end
 
   def edit
@@ -23,12 +24,13 @@ class TasksController < ApplicationController
 
   def update
     authorize @task = Task.find(params[:id])
+    # redirect_to @return_path, notice: 'Task updated'
   end
 
   def destroy
     authorize @task = Task.find(params[:id])
     @task.discard
-    redirect_to tasks_url, notice: 'Task discarded'
+    redirect_to @return, notice: 'Task discarded'
   end
 
   def discarded

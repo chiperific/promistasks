@@ -15,6 +15,7 @@ class PropertiesController < ApplicationController
 
   def create
     authorize @property = Property.find(params[:id])
+    # redirect_to @return_path, notice: 'Property created'
   end
 
   def edit
@@ -23,12 +24,13 @@ class PropertiesController < ApplicationController
 
   def update
     authorize @property = Property.find(params[:id])
+    # redirect_to @return_path, notice: 'Property updated'
   end
 
   def destroy
     authorize @property = Property.find(params[:id])
     authorize @property.discard
-    redirect_to properties_url, notice: 'Property discarded'
+    redirect_to @return_path, notice: 'Property discarded'
   end
 
   def reports

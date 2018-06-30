@@ -73,7 +73,8 @@ class User < ActiveRecord::Base
     program_staff? ||
       project_staff? ||
       admin_staff? ||
-      system_admin?
+      system_admin? ||
+      oauth_id.present?
   end
 
   def oauth?

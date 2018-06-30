@@ -20,6 +20,7 @@ class UsersController < ApplicationController
 
   def create
     authorize @user = User.find(params[:id])
+    # redirect_to @return_path, notice: 'User created'
   end
 
   def edit
@@ -35,8 +36,7 @@ class UsersController < ApplicationController
       modified_params = user_params.except :password, :password_confirmation, :archive
     end
     if @user.update(modified_params)
-      flash[:success] = 'Update succesful'
-      redirect_to edit_user_path(@user)
+      redirect_to @return_path, notice: 'Update successful'
     else
       flash[:warning] = 'Oops, found some errors'
       render 'edit'
@@ -45,6 +45,8 @@ class UsersController < ApplicationController
 
   def destroy
     authorize @user = User.find(params[:id])
+    @user.discard
+    redirect_to @return_path, notice: 'User discarded'
   end
 
   def discarded
@@ -65,6 +67,7 @@ class UsersController < ApplicationController
 
   def alerts
     authorize @user = User.find(params[:id])
+    # json this view
     # alerts include:
     # past-due tasks
     # properties over budget (if creator)

@@ -48,6 +48,10 @@ RSpec.describe Property, type: :model do
       expect { bad_private.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { bad_private.save! }.to raise_error ActiveRecord::RecordInvalid
     end
+
+    pending 'is_default'
+    pending 'ignore_budget_warning'
+    pending 'created_from_api'
   end
 
   describe 'limits records by scope' do

@@ -15,6 +15,7 @@ class SkillsController < ApplicationController
 
   def create
     authorize @skill = Skill.find(params[:id])
+    # redirect_to @return_path, notice: 'Skill created'
   end
 
   def edit
@@ -23,12 +24,13 @@ class SkillsController < ApplicationController
 
   def update
     authorize @skill = Skill.find(params[:id])
+    # redirect_to @return_path, notice: 'Skill updated'
   end
 
   def destroy
     authorize @skill = Skill.find(params[:id])
     @skill.discard
-    redirect_to skills_url, notice: 'Skill discarded'
+    redirect_to @return_path, notice: 'Skill discarded'
   end
 
   def discarded

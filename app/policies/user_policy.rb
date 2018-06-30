@@ -29,7 +29,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def destroy?
-    user&.system_admin?
+    user&.system_admin? && user != record
   end
 
   def discarded?

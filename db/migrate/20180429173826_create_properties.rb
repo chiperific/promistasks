@@ -23,6 +23,7 @@ class CreateProperties < ActiveRecord::Migration[5.1]
       t.references :creator, references: :users, null: false
       t.boolean :is_private,       default: false, null: false
       t.boolean :is_default,       default: false, null: false
+      t.boolean :ignore_budget_warning, default: false, null: false
       t.boolean :created_from_api, default: false, null: false
       t.datetime :discarded_at
       t.timestamps

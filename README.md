@@ -1,6 +1,9 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
+1.1 use ajax to get notification working
+  - addCSS('color') based upon items [green, yellow, orange, red]
+  - addCSS('pulse') to flash if color is orange or red (except maybe over-budget properties, which could be dismissed?)
 1. Get model tests to green
 2. Write system tests:
   - tasks#public
