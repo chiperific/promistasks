@@ -88,15 +88,6 @@ RSpec.describe Task, type: :model do
     let(:related_one) { create :task, creator: user }
     let(:related_two) { create :task, creator: user }
 
-    it '#needs_more_info returns only tasks where needs_more_info is false' do
-      @task.save
-
-      expect(Task.needs_more_info).to include @task
-      expect(Task.needs_more_info).not_to include @completed_task
-      expect(Task.needs_more_info).not_to include has_good_info1
-      expect(Task.needs_more_info).not_to include has_good_info2
-    end
-
     it '#in_process returns only tasks where completed is nil' do
       @task.save
       @completed_task.save
@@ -104,6 +95,15 @@ RSpec.describe Task, type: :model do
       expect(Task.in_process).to include @task
       expect(Task.in_process).to include has_good_info1
       expect(Task.in_process).not_to include @completed_task
+    end
+
+    it '#needs_more_info returns only tasks where needs_more_info is false' do
+      @task.save
+
+      expect(Task.needs_more_info).to include @task
+      expect(Task.needs_more_info).not_to include @completed_task
+      expect(Task.needs_more_info).not_to include has_good_info1
+      expect(Task.needs_more_info).not_to include has_good_info2
     end
 
     it '#complete returns only tasks where completed is not nil' do
@@ -114,6 +114,8 @@ RSpec.describe Task, type: :model do
       expect(Task.complete).not_to include @task
       expect(Task.complete).not_to include has_good_info1
     end
+
+    pending '#has_cost'
 
     it '#public_visible returns only undiscarded tasks where visibility is set to everyone' do
       @task.save
@@ -137,6 +139,11 @@ RSpec.describe Task, type: :model do
       expect(Task.visible_to(user)).not_to include visibility_2
       expect(Task.visible_to(user)).not_to include has_good_info1
     end
+
+    pending '#newly_created'
+    pending '#due_within'
+    pending '#due_before'
+    pending '#past_due'
   end
 
   describe '#budget_remaining' do

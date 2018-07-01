@@ -137,6 +137,8 @@ RSpec.describe Property, type: :model do
       expect(Property.visible_to(user)).to include not_this_user
     end
 
+    pending '#over_budget'
+
     it '#archived is alias of #discarded' do
       expect(Property.archived).to eq Property.discarded
     end

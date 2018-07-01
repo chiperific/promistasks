@@ -38,7 +38,8 @@ class Property < ApplicationRecord
   scope :with_tasks_for, ->(user) { undiscarded.where(id: Task.select(:property_id).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id)) }
   scope :related_to,     ->(user) { created_by(user).or(with_tasks_for(user)) }
   scope :visible_to,     ->(user) { related_to(user).or(public_visible) }
-  # scope :over_budget,    ->       { undiscarded.where('budget <= ?', self.tasks.select(:cost).sum) }
+  scope :over_budget,    ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents') }
+  scope :nearing_budget, ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
 
   class << self
     alias archived discarded

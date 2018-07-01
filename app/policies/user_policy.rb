@@ -36,6 +36,10 @@ class UserPolicy < ApplicationPolicy
     user&.system_admin?
   end
 
+  def current_user_id?
+    user.present?
+  end
+
   def api_sync?
     user&.system_admin? || user == record
   end

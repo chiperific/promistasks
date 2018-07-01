@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
   include ErrorHandler
 
   protect_from_forgery with: :exception
-  after_action :verify_authorized, unless: :devise_controller?
+  # after_action :verify_authorized, unless: :devise_controller?
 
   before_action :set_job_id_for_progress_bar_div
   before_action :set_return_path

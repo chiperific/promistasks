@@ -53,6 +53,12 @@ class UsersController < ApplicationController
     authorize @users = User.discarded
   end
 
+  def current_user_id
+    id = current_user&.id || 0
+    @id = { id: id }
+    render json: @id.as_json
+  end
+
   def api_sync
     authorize @user = User.find(params[:id])
     Delayed::Job.enqueue SyncUserWithApiJob.new(@user.id)
@@ -66,16 +72,45 @@ class UsersController < ApplicationController
   end
 
   def alerts
-    authorize @user = User.find(params[:id])
-    # json this view
-    # alerts include:
-    # past-due tasks
-    # properties over budget (if creator)
-    # properties nearing budget (if creator)
-    # Tasks due this week
-    # Tasks due next week
-    # tasks missing info
-    # newly-assigned tasks (since last_sign_in_at?)
+    user = User.find(params[:id])
+    tasks = Task.related_to(user)
+    properties = Property.related_to(user)
+
+    @notification_json = {
+      show_alert: show_alert(tasks, properties),
+      pulse_alert: pulse_alert(tasks, properties),
+      alert_color: alert_color(tasks, properties),
+      tasks_past_due: {
+        count: tasks.past_due.count,
+        msg: tasks.past_due.count.to_s + ' past dues task'.pluralize(tasks.past_due.count)
+      },
+      properties_over_budget: {
+        count: properties.over_budget.length,
+        msg: properties.over_budget.length.to_s + ' property'.pluralize(properties.over_budget.length) + ' over budget'
+      },
+      properties_nearing_budget: {
+        count: properties.nearing_budget.length,
+        msg: properties.nearing_budget.length.to_s + ' property'.pluralize(properties.nearing_budget.length) + ' nearing budget'
+      },
+      tasks_due_7: {
+        count: tasks.due_within(7).count,
+        msg: tasks.due_within(7).count.to_s + ' task'.pluralize(tasks.due_within(7).count) + ' due in next 7 days'
+      },
+      tasks_missing_info: {
+        count: tasks.needs_more_info.count,
+        msg: tasks.needs_more_info.count.to_s + ' task'.pluralize(tasks.needs_more_info.count) + ' missing info'
+      },
+      tasks_due_14: {
+        count: tasks.due_within(14).count,
+        msg: tasks.due_within(14).count.to_s + ' task'.pluralize(tasks.due_within(14).count) + ' due in next 14 days'
+      },
+      tasks_new: {
+        count: tasks.created_since(user.last_sign_in_at).count,
+        msg: tasks.created_since(user.last_sign_in_at).count.to_s + ' newly created task'.pluralize(tasks.created_since(user.last_sign_in_at).count)
+      }
+    }
+
+    render json: @notification_json.as_json
   end
 
   private

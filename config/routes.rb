@@ -3,6 +3,8 @@
 Rails.application.routes.draw do
   root to: 'tasks#public'
 
+  get 'current_user_id', to: 'users#current_user_id'
+
   resources :tasks do
     get 'discarded', on: :collection
   end

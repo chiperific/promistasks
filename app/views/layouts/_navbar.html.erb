@@ -5,14 +5,14 @@
         <i class="material-icons right">menu</i>
       </a>
     <% end %>
-    <a href="/lists" id="logo-container" class="brand-logo hide-on-small-only">
+    <a href="/properties" id="logo-container" class="brand-logo hide-on-small-only">
       <span>PromiseTasks</span>
     </a>
 
-    <ul class="right" id="nav-mobile">
+    <ul class="right valign-wrapper" id="nav-mobile">
       <% if current_user %>
         <li>
-          <a href="#" id='alert_btn' class="btn-floating pulse red lighten-2 prevent_default dropdown-trigger" data-target='context_alerts'>
+          <a href="#" id='alert_btn' class="btn-floating lighten-2 prevent_default dropdown-trigger" data-target='context_alerts'>
             <i class="material-icons">notification_important</i>
           </a>
         </li>
@@ -52,5 +52,5 @@
 </ul>
 
 <ul id="context_alerts" class="dropdown-content collection">
-  <%= render partial: 'shared/notifications' %>
+  <%= render partial: 'shared/alerts' %>
 </ul>

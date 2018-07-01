@@ -40,11 +40,16 @@ class Task < ApplicationRecord
   after_save        :delete_task_users,    if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
 
   scope :in_process,      -> { undiscarded.where(completed_at: nil) }
-  scope :needs_more_info, -> { undiscarded.in_process.where(needs_more_info: true) }
+  scope :needs_more_info, -> { in_process.where(needs_more_info: true) }
   scope :complete,        -> { undiscarded.where.not(completed_at: nil) }
+  scope :has_cost,        -> { undiscarded.where.not(cost_cents: nil) }
   scope :public_visible,  -> { undiscarded.where(visibility: 1) }
   scope :related_to,      ->(user) { undiscarded.where('creator_id = ? OR owner_id = ?', user.id, user.id) }
-  scope :visible_to,      ->(user) { undiscarded.related_to(user).or(public_visible) }
+  scope :visible_to,      ->(user) { related_to(user).or(public_visible) }
+  scope :created_since,   ->(time) { in_process.where('created_at >= ?', time) }
+  scope :due_within,      ->(days) { in_process.where('due <= ?', Time.now + days) }
+  scope :due_before,      ->(date) { in_process.where('due <= ?', date) }
+  scope :past_due,        -> { in_process.where('due < ?', Time.now) }
 
   def budget_remaining
     return nil if budget.nil? && cost.nil?

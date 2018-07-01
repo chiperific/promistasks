@@ -3,7 +3,10 @@ $(document).on 'turbolinks:load', ->
   M.Sidenav.init(sideNav)
 
   fixedActionBtn = document.querySelectorAll('.fixed-action-btn')
-  M.FloatingActionButton.init(fixedActionBtn)
+  M.FloatingActionButton.init(fixedActionBtn, {
+    'hoverEnabled': false,
+    'direction': 'top'
+    })
 
   dDHoverElems = document.querySelectorAll('.dropdown-trigger-hover')
   M.Dropdown.init(dDHoverElems, {
