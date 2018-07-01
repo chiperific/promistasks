@@ -46,9 +46,9 @@ class Task < ApplicationRecord
   scope :public_visible,  -> { undiscarded.where(visibility: 1) }
   scope :related_to,      ->(user) { undiscarded.where('creator_id = ? OR owner_id = ?', user.id, user.id) }
   scope :visible_to,      ->(user) { related_to(user).or(public_visible) }
-  scope :created_since,   ->(time) { in_process.where('created_at >= ?', time) }
-  scope :due_within,      ->(days) { in_process.where('due <= ?', Time.now + days) }
-  scope :due_before,      ->(date) { in_process.where('due <= ?', date) }
+  scope :created_since,   ->(time) { where('created_at >= ?', time) }
+  scope :due_within,      ->(day_num) { where('due <= ?', Time.now + day_num.days) }
+  scope :due_before,      ->(date) { where('due <= ?', date) }
   scope :past_due,        -> { in_process.where('due < ?', Time.now) }
 
   def budget_remaining

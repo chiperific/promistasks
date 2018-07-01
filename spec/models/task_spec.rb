@@ -82,11 +82,15 @@ RSpec.describe Task, type: :model do
   describe 'limits records by scope' do
     let(:has_good_info1) { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 3.days, priority: 'medium', budget: 500 }
     let(:has_good_info2) { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 2.days, priority: 'high', budget: 800 }
+    let(:has_cost)       { create :task, property: @property, creator: @creator, owner: @owner, cost: 25 }
     let(:visibility_1)   { create :task, property: @property, creator: @creator, owner: @owner, visibility: 1 }
     let(:visibility_2)   { create :task, property: @property, creator: @creator, owner: @owner, visibility: 2 }
     let(:user) { create :user }
     let(:related_one) { create :task, creator: user }
     let(:related_two) { create :task, creator: user }
+    let(:old)         { create :task, property: @property, creator: @creator, owner: @owner, created_at: Time.now - 8.days }
+    let(:due_later)   { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 10.days }
+    let(:past_due)    { create :task, property: @property, creator: @creator, owner: @owner }
 
     it '#in_process returns only tasks where completed is nil' do
       @task.save
@@ -115,7 +119,14 @@ RSpec.describe Task, type: :model do
       expect(Task.complete).not_to include has_good_info1
     end
 
-    pending '#has_cost'
+    it '#has_cost' do
+      @task.save
+      @completed_task.save
+
+      expect(Task.has_cost).to include has_cost
+      expect(Task.has_cost).not_to include @task
+      expect(Task.has_cost).not_to include @completed_task
+    end
 
     it '#public_visible returns only undiscarded tasks where visibility is set to everyone' do
       @task.save
@@ -140,10 +151,43 @@ RSpec.describe Task, type: :model do
       expect(Task.visible_to(user)).not_to include has_good_info1
     end
 
-    pending '#newly_created'
-    pending '#due_within'
-    pending '#due_before'
-    pending '#past_due'
+    it '#created_since(time)' do
+      @task.save
+      @completed_task.save
+      time = Time.now - 2.days
+
+      expect(Task.created_since(time)).not_to include old
+      expect(Task.created_since(time)).to include @task
+      expect(Task.created_since(time)).to include @completed_task
+    end
+
+    it '#due_within(day_num)' do
+      day_num = 7
+
+      expect(Task.due_within(day_num)).not_to include due_later
+      expect(Task.due_within(day_num)).not_to include visibility_1
+      expect(Task.due_within(day_num)).to include has_good_info1
+      expect(Task.due_within(day_num)).to include has_good_info2
+    end
+
+    it '#due_before' do
+      date = Time.now + 5.days
+
+      expect(Task.due_before(date)).not_to include due_later
+      expect(Task.due_before(date)).not_to include visibility_1
+      expect(Task.due_before(date)).to include has_good_info1
+      expect(Task.due_before(date)).to include has_good_info2
+    end
+
+    it '#past_due' do
+      past_due.update_columns(due: Time.now - 2.days)
+
+      expect(Task.past_due).to include past_due
+      expect(Task.past_due).not_to include due_later
+      expect(Task.past_due).not_to include visibility_1
+      expect(Task.past_due).not_to include has_good_info1
+      expect(Task.past_due).not_to include has_good_info2
+    end
   end
 
   describe '#budget_remaining' do
@@ -464,6 +508,60 @@ RSpec.describe Task, type: :model do
     end
   end
 
+  describe '#visibility_must_be_2' do
+    let(:default_property) { create :property, is_default: true }
+    let(:default_task) { build :task, property: default_property }
+
+    it 'only fires if parent property is default and visibility is not 2' do
+      expect(default_task).to receive(:visibility_must_be_2)
+      default_task.save
+
+      expect(@task).not_to receive(:visibility_must_be_2)
+      @task.save
+    end
+
+    it 'sets the visibility to 2' do
+      expect(default_task.visibility).not_to eq 2
+
+      default_task.save
+      default_task.reload
+
+      expect(default_task.visibility).to eq 2
+    end
+  end
+
+  describe '#decide_record_completeness' do
+    let(:five_strikes)  { build :task, property: @property, creator: @creator, owner: @owner }
+    let(:four_strikes)  { build :task, property: @property, creator: @creator, owner: @owner, budget: 50_00 }
+    let(:three_strikes) { build :task, property: @property, creator: @creator, owner: @owner, priority: 'medium', budget: 50_00 }
+    let(:two_strikes)   { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour }
+    let(:one_strike)    { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour, priority: 'medium' }
+    let(:zero_strikes)  { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour, priority: 'medium', budget: 50_00 }
+
+    it 'sets needs_more_info based on strikes' do
+      expect(five_strikes.needs_more_info).to eq false
+      expect(four_strikes.needs_more_info).to eq false
+      expect(three_strikes.needs_more_info).to eq false
+      expect(two_strikes.needs_more_info).to eq false
+      expect(one_strike.needs_more_info).to eq false
+      expect(zero_strikes.needs_more_info).to eq false
+
+      five_strikes.save
+      four_strikes.save
+      three_strikes.save
+      two_strikes.save
+      one_strike.save
+      zero_strikes.save
+
+      expect(five_strikes.needs_more_info).to eq true
+      expect(four_strikes.needs_more_info).to eq true
+      expect(three_strikes.needs_more_info).to eq false
+      expect(two_strikes.needs_more_info).to eq false
+      expect(one_strike.needs_more_info).to eq false
+      expect(zero_strikes.needs_more_info).to eq false
+    end
+  end
+
   describe '#require_cost' do
     let(:complete_w_budget) { build :task, property: @property, creator: @creator, owner: @owner, completed_at: Time.now, budget: 400 }
     let(:complete_w_both)   { build :task, property: @property, creator: @creator, owner: @owner, completed_at: Time.now, budget: 400, cost: 250 }
@@ -506,38 +604,6 @@ RSpec.describe Task, type: :model do
     it 'returns true if due is in the future' do
       future_due.save
       expect(future_due.errors[:due].empty?).to eq true
-    end
-  end
-
-  describe '#decide_record_completeness' do
-    let(:five_strikes)  { build :task, property: @property, creator: @creator, owner: @owner }
-    let(:four_strikes)  { build :task, property: @property, creator: @creator, owner: @owner, budget: 50_00 }
-    let(:three_strikes) { build :task, property: @property, creator: @creator, owner: @owner, priority: 'medium', budget: 50_00 }
-    let(:two_strikes)   { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour }
-    let(:one_strike)    { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour, priority: 'medium' }
-    let(:zero_strikes)  { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour, priority: 'medium', budget: 50_00 }
-
-    it 'sets needs_more_info based on strikes' do
-      expect(five_strikes.needs_more_info).to eq false
-      expect(four_strikes.needs_more_info).to eq false
-      expect(three_strikes.needs_more_info).to eq false
-      expect(two_strikes.needs_more_info).to eq false
-      expect(one_strike.needs_more_info).to eq false
-      expect(zero_strikes.needs_more_info).to eq false
-
-      five_strikes.save
-      four_strikes.save
-      three_strikes.save
-      two_strikes.save
-      one_strike.save
-      zero_strikes.save
-
-      expect(five_strikes.needs_more_info).to eq true
-      expect(four_strikes.needs_more_info).to eq true
-      expect(three_strikes.needs_more_info).to eq false
-      expect(two_strikes.needs_more_info).to eq false
-      expect(one_strike.needs_more_info).to eq false
-      expect(zero_strikes.needs_more_info).to eq false
     end
   end
 end

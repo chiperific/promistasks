@@ -225,16 +225,44 @@ RSpec.describe User, type: :model do
   end
 
   describe '#staff?' do
-    pending 'returns false if no staff-type booleans are set'
-    pending 'returns true if program_staff? is true'
-    pending 'returns true if project_staff? is true'
-    pending 'returns true if admin_staff? is true'
-    pending 'returns true if system_admin? is true'
+    let(:not_staff)    { create :volunteer_user }
+    let(:project_user) { create :project_user }
+    let(:admin_user)   { create :admin_user }
+    let(:system_admin) { create :system_admin }
+
+    it 'returns false if no staff-type booleans are set' do
+      expect(not_staff.staff?).to eq false
+    end
+
+    it 'returns true if program_staff? is true' do
+      expect(@user.staff?).to eq true
+    end
+
+    it 'returns true if project_staff? is true' do
+      expect(project_user.staff?).to eq true
+    end
+
+    it 'returns true if admin_staff? is true' do
+      expect(admin_user.staff?).to eq true
+    end
+
+    it 'returns true if system_admin? is true' do
+      expect(system_admin.staff?).to eq true
+    end
+
+    it 'returns true if oauth_id is present' do
+      expect(@oauth_user.staff?).to eq true
+    end
   end
 
   describe '#oauth?' do
-    pending 'returns true if user has oauth_id'
-    pending 'returns false if user doesn\'t have oauth_id'
+    it 'returns true if user has oauth_id' do
+      expect(@user.oauth?).to eq false
+    end
+
+    it 'returns false if user doesn\'t have oauth_id' do
+      expect(@oauth_user.oauth?).to eq true
+    end
   end
 
   describe '#type' do
@@ -366,7 +394,7 @@ RSpec.describe User, type: :model do
 
     it 'adds an error if the user has no types' do
       no_type.send(:must_have_type)
-      expect(no_type.errors[:register_as]).to eq [': Must have at least one type.']
+      expect(no_type.errors[:register_as]).to eq ['a user type from the list']
     end
   end
 

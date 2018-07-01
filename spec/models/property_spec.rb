@@ -43,15 +43,29 @@ RSpec.describe Property, type: :model do
 
   describe 'requires booleans to be in a state:' do
     let(:bad_private) { build :property, is_private: nil }
+    let(:bad_default) { build :property, is_default: nil }
+    let(:bad_ignore)  { build :property, ignore_budget_warning: nil }
+    let(:bad_created) { build :property, created_from_api: nil }
 
     it 'is_private' do
       expect { bad_private.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { bad_private.save! }.to raise_error ActiveRecord::RecordInvalid
     end
 
-    pending 'is_default'
-    pending 'ignore_budget_warning'
-    pending 'created_from_api'
+    it 'is_default' do
+      expect { bad_default.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { bad_default.save! }.to raise_error ActiveRecord::RecordInvalid
+    end
+
+    it 'ignore_budget_warning' do
+      expect { bad_ignore.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { bad_ignore.save! }.to raise_error ActiveRecord::RecordInvalid
+    end
+
+    it 'created_from_api' do
+      expect { bad_created.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { bad_created.save! }.to raise_error ActiveRecord::RecordInvalid
+    end
   end
 
   describe 'limits records by scope' do
@@ -137,7 +151,37 @@ RSpec.describe Property, type: :model do
       expect(Property.visible_to(user)).to include not_this_user
     end
 
-    pending '#over_budget'
+    it '#over_budget' do
+      @property
+      this_user_also
+      this_user
+      archived_property
+      not_this_user
+      user
+      task_creator
+      task_owner
+      over_budget = FactoryBot.create(:property, budget: 10)
+      FactoryBot.create(:task, property: over_budget, cost: 12)
+
+      expect(Property.over_budget).to include over_budget
+      expect(Property.over_budget).not_to include @property
+    end
+
+    it '#nearing_budget' do
+      @property
+      this_user_also
+      this_user
+      archived_property
+      not_this_user
+      user
+      task_creator
+      task_owner
+      nearing_budget = FactoryBot.create(:property, budget: 20)
+      FactoryBot.create(:task, property: nearing_budget, cost: 12)
+
+      expect(Property.nearing_budget).to include nearing_budget
+      expect(Property.nearing_budget).not_to include @property
+    end
 
     it '#archived is alias of #discarded' do
       expect(Property.archived).to eq Property.discarded
