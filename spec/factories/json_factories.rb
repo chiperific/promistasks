@@ -27,7 +27,9 @@ FactoryBot.define do
     sequence(:selfLink) { |n| "https://www.googleapis.com/tasks/v1/lists/fakeMDQ5NTUwMTk3NjU1MjE3MTU6MDow/tasks/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDoz#{n}" }
     position '00000000001261646641'
     status 'needsAction'
-    due (Time.now + 2.days).utc.rfc3339(3)
+    parent 'fakeQ5NTUwMTk3NjU1MjE3MTU6MDozOTU2Nzc3NTgwNjE0NTM3'
+    due 2.days.from_now.utc.rfc3339(3)
+    completed Time.now.utc.rfc3339(3)
   end
 
   factory :user_json, class: OpenStruct do

@@ -219,7 +219,7 @@ RSpec.describe Task, type: :model do
 
     it 'uses a json hash to assign record values' do
       task = Task.new
-      task_json = JSON.parse(file_fixture('task_json_spec.json').read)
+      task_json = FactoryBot.create(:task_json)
 
       expect(task.title).to eq nil
       expect(task.notes).to eq nil
