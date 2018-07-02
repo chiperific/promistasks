@@ -81,7 +81,7 @@ RSpec.describe TaskUser, type: :model do
 
     it 'uses a json hash to assign record values' do
       task_user = TaskUser.new
-      task_json = JSON.parse(file_fixture('task_json_spec.json').read)
+      task_json = FactoryBot.create(:task_json)
 
       expect(task_user.google_id).to eq nil
       expect(task_user.position).to eq nil

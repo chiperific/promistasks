@@ -17,9 +17,11 @@
           </a>
         </li>
 
-        <li>
-          <%= link_to '<i class="material-icons">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: 'dropdown-trigger-hover', 'data-target' => 'context_refresh'  %>
-        </li>
+        <% if current_user.staff? %>
+          <li>
+            <%= link_to '<i class="material-icons">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: 'dropdown-trigger-hover', 'data-target' => 'context_refresh'  %>
+          </li>
+        <% end %>
       <% end %>
 
       <li>
