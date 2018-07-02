@@ -2,17 +2,38 @@
 <html>
   <head>
     <title>Promisetasks</title>
+    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'true' %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'true' %>
     <%= csrf_meta_tags %>
-
-    <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
-    <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   </head>
 
   <body>
-    <div class="container">
+    <header class="navbar-fixed" id="navbar" data-turbolinks-permanent>
       <%= render partial: 'layouts/navbar' %>
-      <%= flash_messages %>
-    <%= yield %>
-    </div>
+    </header>
+    <aside id="sidebar" data-turbolinks-permanent>
+      <% if current_user %>
+        <%= render partial: 'layouts/sidebar' %>
+      <% end %>
+    </aside>
+    <main>
+      <% flash.each do |message_type, message| %>
+        <%= javascript_tag "M.toast({html: '#{message}'})" %>
+      <% end %>
+      <div class="container">
+        <div class="row">
+          <div class="col s3 offset-s9">
+            <%= render partial: 'layouts/progress_bar' %>
+          </div>
+        </div>
+        <%= yield %>
+      </div>
+    </main>
+    <footer id="footer" data-turbolinks-permanent>
+      <% if current_user %>
+        <%= render partial: 'layouts/footer' %>
+      <% end %>
+    </footer>
   </body>
 </html>

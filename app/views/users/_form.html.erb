@@ -1,0 +1,126 @@
+<%= form_for user do |f| %>
+  <%= render 'shared/form_errors', object: user %>
+
+  <div class="input-field">
+    <i class="material-icons prefix">face</i>
+    <% if user.oauth? %>
+      <%= f.text_field :name, disabled: true %>
+    <% else %>
+      <%= f.text_field :name, placeholder: 'Name' %>
+    <% end %>
+  </div>
+  <div class="input-field">
+    <i class="material-icons prefix">alternate_email</i>
+    <% if user.oauth? %>
+      <%= f.text_field :email, disabled: true %>
+      <div class="row center-align">
+        <i>Your name, email, and password are linked to your Google account</i>
+      </div>
+    <% else %>
+      <%= f.text_field :email, placeholder: 'email@example.com' %>
+    <% end %>
+  </div>
+  <div class="spacer fat"></div>
+  <% unless user.oauth? %>
+    <div class="row">
+      <div class="input-field col m6">
+        <i class="material-icons prefix">vpn_key</i>
+        <%= f.password_field :password, placeholder: 'password' %>
+        <% unless user.new_record? %>
+          <i>Leave blank to keep it as-is</i>
+        <% end %>
+      </div>
+      <div class="input-field col m6">
+        <i class="material-icons prefix">vpn_key</i>
+        <%= f.password_field :password_confirmation, placeholder: 'password again' %>
+      </div>
+    </div>
+  <% end %>
+  <div class="spacer fat"></div>
+  <div class="input-field">
+    <i class="material-icons prefix">feedback</i>
+    <%= f.text_field :title, placeholder: 'Title' %>
+  </div>
+  <div class="row">
+    <div class="input-field col m6">
+      <i class="material-icons prefix">phone</i>
+      <%= f.phone_field :phone1, placeholder: 'Primary phone' %>
+    </div>
+    <div class="input-field col m6">
+      <i class="material-icons prefix">phone</i>
+      <%= f.phone_field :phone2, placeholder: 'Secondary Phone' %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col m8 input-field">
+      <i class="material-icons prefix">place</i>
+      <%= f.text_field :address1, placeholder: 'Address' %>
+    </div>
+    <div class="col m4 input-field">
+      <%= f.text_field :address2, placeholder: 'Address 2' %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col m8 input-field">
+      <i class="material-icons prefix">domain</i>
+      <%= f.text_field :city, placeholder: 'City' %>
+    </div>
+    <div class="col m1 input-field">
+      <%= f.text_field :state %>
+    </div>
+    <div class="col m3 input-field">
+      <%= f.text_field :postal_code, placeholder: 'Postal Code' %>
+    </div>
+  </div>
+  <% if current_user&.staff? %>
+    <div class="spacer fat"></div>
+    <% if user.oauth? %>
+      <%= render partial: 'users/form/internal_checkboxes' %>
+    <% else %>
+      <%= render partial: 'users/form/external_checkboxes' %>
+    <% end %>
+  <% end %>
+  <div class="row input-field scale-transition <%= @hide_rate %>" id="rate_div">
+    <i class="material-icons prefix">build</i>
+    <%= f.number_field :rate, label: 'Contractor Hourly Rate' %>
+  </div>
+
+  <% if current_user&.system_admin? && current_user == user %>
+    <div class="row center-align">
+      <i>You are a system administrator. You can't disabled your own account or downgrade your own status.</i>
+    </div>
+  <% end %>
+  <% if current_user&.system_admin? && current_user != user %>
+    <div class="row">
+      <input type="hidden" value="0" name="user[system_admin]">
+      <input type="hidden" value="0" name="user[archive]">
+      <div class="col s6">
+        <p>
+          <label>
+            <input type="checkbox" value="1" name="user[system_admin]" <%= 'checked' if user.system_admin? %>>
+            <span>System Administrator</span>
+          </label>
+        </p>
+      </div>
+      <div class="col s6">
+        <p>
+          <label>
+            <input type="checkbox" value="1" name="user[archive]" <%= 'checked' if user.discarded? %> <%= 'disabled' if user.new_record? %>>
+            <span>Archive User</span>
+          </label>
+        </p>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row center-align">
+    <div class="col m6">
+      <%= f.submit 'Save', class: 'btn green' %>
+    </div>
+    <div class="col m6">
+      <%= link_to 'Cancel', @return_path, class: 'btn red lighten-1' %>
+    </div>
+  </div>
+<% end %>

@@ -1,26 +1,44 @@
 <h2>Sign up</h2>
 
-<%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-  <%= f.error_notification %>
+<%= form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+  <%= render 'shared/form_errors', object: resource %>
 
   <div class="form-inputs">
-    <%= f.input :name, required: true, autofocus: true %>
-    <%= f.input :email, required: true %>
-    <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length) %>
-    <%= f.input :password_confirmation, required: true %>
-    <div class="user-types">
-      <%= f.input :register_as, as: :radio_buttons, collection: Constant::User::EXT_TYPES %>
+    <div class="input-field">
+      <i class="material-icons prefix">face</i>
+      <%= f.text_field :name, placeholder: 'Name' %>
     </div>
-    <div id="hidden_booleans">
-      <%= f.input :client, as: :hidden %>
-      <%= f.input :volunteer, as: :hidden %>
-      <%= f.input :contractor, as: :hidden %>
+    <div class="input-field">
+      <i class="material-icons prefix">alternate_email</i>
+      <%= f.text_field :email, placeholder: 'email@example.com' %>
+    </div>
+    <div class="input-field">
+      <i class="material-icons prefix">vpn_key</i>
+      <%= f.password_field :password, placeholder: "#{@minimum_password_length} characters minimum" %>
+    </div>
+    <div class="input-field">
+      <i class="material-icons prefix">vpn_key</i>
+      <%= f.password_field :password_confirmation, placeholder: 'password again' %>
+    </div>
+
+    <div class="input-field <%= 'field_with_errors' if resource.errors[:register_as].present? %>">
+      <i class="material-icons prefix">account_box</i>
+      <select name="user[register_as]" id="user_register_as" class="required" required="required" aria-required="true">
+        <option value="0" disabled selected>I am a..</option>
+        <option value="Volunteer">Volunteer</option>
+        <option value="Contractor">Contractor</option>
+        <option value="Client">Client</option>
+      </select>
     </div>
   </div>
 
-  <div class="form-actions">
-    <%= f.button :submit, "Sign up" %>
+  <div class="form-actions row">
+    <div class="col s4 offset-s2">
+      <%= f.submit 'Sign up', class: 'btn green' %>
+    </div>
+    <div class="col s4">
+      <%= render "devise/shared/links" %>
+    </div>
   </div>
 <% end %>
 
-<%= render "devise/shared/links" %>

@@ -224,6 +224,47 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#staff?' do
+    let(:not_staff)    { create :volunteer_user }
+    let(:project_user) { create :project_user }
+    let(:admin_user)   { create :admin_user }
+    let(:system_admin) { create :system_admin }
+
+    it 'returns false if no staff-type booleans are set' do
+      expect(not_staff.staff?).to eq false
+    end
+
+    it 'returns true if program_staff? is true' do
+      expect(@user.staff?).to eq true
+    end
+
+    it 'returns true if project_staff? is true' do
+      expect(project_user.staff?).to eq true
+    end
+
+    it 'returns true if admin_staff? is true' do
+      expect(admin_user.staff?).to eq true
+    end
+
+    it 'returns true if system_admin? is true' do
+      expect(system_admin.staff?).to eq true
+    end
+
+    it 'returns true if oauth_id is present' do
+      expect(@oauth_user.staff?).to eq true
+    end
+  end
+
+  describe '#oauth?' do
+    it 'returns true if user has oauth_id' do
+      expect(@user.oauth?).to eq false
+    end
+
+    it 'returns false if user doesn\'t have oauth_id' do
+      expect(@oauth_user.oauth?).to eq true
+    end
+  end
+
   describe '#type' do
     let(:several_types) { create :user, program_staff: true, admin_staff: true, project_staff: true }
     let(:volunteer)     { create :volunteer_user }
@@ -341,35 +382,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#sync_with_api' do
-    before :each do
-      @oauth_user.save
-      3.times { FactoryBot.create(:property, creator: @oauth_user) }
-    end
-
-    pending 'runs in the background'
-      # @oauth_user.sync_with_api
-      # expect(Delayed::Worker.new.work_off).to eq [1, 0]
-
-    it 'returns false unless oauth_id is present' do
-      @user.save
-      expect(@user.sync_with_api).to eq false
-    end
-
-    it 'calls the TasklistClient' do
-      expect(TasklistsClient).to receive(:sync)
-      @oauth_user.sync_with_api
-    end
-
-    it 'calls the TasksClient' do
-      TasklistsClient.sync(@oauth_user)
-      count = Property.visible_to(@oauth_user).count
-
-      expect(TasksClient).to receive(:sync).exactly(count).times
-      @oauth_user.sync_with_api
-    end
-  end
-
   describe '#must_have_type' do
     let(:no_type) { build :user, program_staff: nil }
     let(:several_types) { create :user, program_staff: true, admin_staff: true, project_staff: true }
@@ -382,7 +394,7 @@ RSpec.describe User, type: :model do
 
     it 'adds an error if the user has no types' do
       no_type.send(:must_have_type)
-      expect(no_type.errors[:register_as]).to eq [': Must have at least one type.']
+      expect(no_type.errors[:register_as]).to eq ['a user type from the list']
     end
   end
 

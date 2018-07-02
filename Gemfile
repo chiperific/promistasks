@@ -8,12 +8,11 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'bootstrap-sass'
 gem 'coffee-rails', '~> 4.2'
 gem 'delayed_job_active_record'
+gem 'delayed_job_progress'
 gem 'devise'
 gem 'discard', '~> 1.0'
-gem 'font-awesome-rails'
 # gem 'google-api-client' # use instead of HTTParty when I can figure it out
 gem 'httparty'
 gem 'jbuilder', '~> 2.5'
@@ -24,11 +23,10 @@ gem 'pg'
 gem 'puma', '~> 3.7'
 gem 'pundit'
 gem 'rails', '~> 5.1.6'
+gem 'rspec-activemodel-mocks'
 gem 'sass-rails', '~> 5.0'
-gem 'simple_form'
 gem 'therubyracer', platforms: :ruby
 gem 'turbolinks', '~> 5'
-gem 'twitter-bootstrap-rails'
 gem 'uglifier', '>= 1.3.0'
 gem 'webmock', git: 'https://github.com/bblimke/webmock.git', branch: 'master'
 

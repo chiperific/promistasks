@@ -61,4 +61,13 @@ FactoryBot.define do
     oauth_refresh_token '1/FAKEtDf3Qdk9lsbCyTM7AyTHe2PlS_tKqoMlvVsGByk'
     oauth_expires_at Time.now + 24.hours
   end
+
+  factory :system_admin, class: User do
+    sequence(:name) { |n| "System Admin #{n}" }
+    system_admin true
+    sequence(:oauth_id) { |n| "10024006334546302578#{n}" }
+    password 'password'
+    password_confirmation 'password'
+    sequence(:email) { |n| "user#{n}@email.computer" }
+  end
 end

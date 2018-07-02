@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-class User < ApplicationRecord
+class User < ActiveRecord::Base
   include HTTParty
   include Discard::Model
+
+  attr_accessor :register_as
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :recoverable
@@ -10,21 +12,26 @@ class User < ApplicationRecord
          :rememberable, :trackable, :validatable,
          :omniauthable, omniauth_providers: [:google_oauth2]
 
+  has_many :jobs, as: :record, class_name: '::Delayed::Job'
+
   has_many :created_tasks,  class_name: 'Task', inverse_of: :creator, foreign_key: 'creator_id'
   has_many :owned_tasks,    class_name: 'Task', inverse_of: :owner,   foreign_key: 'owner_id'
   has_many :subject_tasks,  class_name: 'Task', inverse_of: :subject, foreign_key: 'subject_id'
 
-  has_many :connections, inverse_of: :user, dependent: :destroy
-  has_many :properties, through: :connections
-  accepts_nested_attributes_for :connections, allow_destroy: true
-
   has_many :created_properties, class_name: 'Property', inverse_of: :creator, foreign_key: 'creator_id'
-  has_many :tasklists, inverse_of: :user, dependent: :destroy
-  accepts_nested_attributes_for :created_properties, allow_destroy: true
+  accepts_nested_attributes_for :created_properties
 
-  has_many :task_users, inverse_of: :user, dependent: :destroy
+  has_many :tasklists, inverse_of: :user
+  has_many :properties, through: :tasklists
+  accepts_nested_attributes_for :tasklists
+
+  has_many :task_users, inverse_of: :user
   has_many :tasks, through: :task_users
-  accepts_nested_attributes_for :task_users, allow_destroy: true
+  accepts_nested_attributes_for :task_users
+
+  has_many :connections, inverse_of: :user, dependent: :destroy
+  has_many :connected_properties, class_name: 'Property', through: :connections
+  accepts_nested_attributes_for :connections, allow_destroy: true
 
   has_many :skill_users, inverse_of: :user, dependent: :destroy
   has_many :skills, through: :skill_users
@@ -45,24 +52,33 @@ class User < ApplicationRecord
   after_create :propegate_tasklists, if: -> { oauth_id.present? && discarded_at.blank? }
 
   # rubocop:disable Layout/IndentationConsistency
-  scope :staff, -> { undiscarded.where.not(oauth_id: nil) }
-  scope :staff_except, ->(user) { undiscarded.staff.where.not(id: user) }
-  scope :not_staff, -> { undiscarded.where(oauth_id: nil) }
-  scope :with_tasks_for, ->(property) { created_tasks_for(property).or(owned_tasks_for(property)) }
-    scope :created_tasks_for, ->(property) { undiscarded.where(id: Task.select(:creator_id).where(property: property)) }
-    scope :owned_tasks_for, ->(property) { undiscarded.where(id: Task.select(:owner_id).where(property: property)) }
-  scope :without_tasks_for, ->(property) { without_created_tasks_for(property).without_owned_tasks_for(property) }
+  # rubocop:disable Layout/IndentationWidth
+  scope :staff,                       -> { undiscarded.where.not(oauth_id: nil) }
+  scope :staff_except,                ->(user) { undiscarded.staff.where.not(id: user) }
+  scope :not_staff,                   -> { undiscarded.where(oauth_id: nil) }
+  scope :with_tasks_for,              ->(property) { created_tasks_for(property).or(owned_tasks_for(property)) }
+    scope :created_tasks_for,         ->(property) { undiscarded.where(id: Task.select(:creator_id).where(property: property)) }
+    scope :owned_tasks_for,           ->(property) { undiscarded.where(id: Task.select(:owner_id).where(property: property)) }
+  scope :without_tasks_for,           ->(property) { without_created_tasks_for(property).without_owned_tasks_for(property) }
     scope :without_created_tasks_for, ->(property) { undiscarded.where.not(id: Task.select(:creator_id).where(property: property)) }
-    scope :without_owned_tasks_for, ->(property) { undiscarded.where.not(id: Task.select(:owner_id).where(property: property)) }
+    scope :without_owned_tasks_for,   ->(property) { undiscarded.where.not(id: Task.select(:owner_id).where(property: property)) }
   # rubocop:enable Layout/IndentationConsistency
-
-  class << self
-    alias archived discarded
-    alias active kept
-  end
+  # rubocop:enable Layout/IndentationWidth
 
   def register_as
-    # handles grouping of booleans as radial buttons on Devise::registration#new
+    # handles dropdown on Devise::registration#new
+  end
+
+  def staff?
+    program_staff? ||
+      project_staff? ||
+      admin_staff? ||
+      system_admin? ||
+      oauth_id.present?
+  end
+
+  def oauth?
+    oauth_id.present?
   end
 
   def type
@@ -82,17 +98,23 @@ class User < ApplicationRecord
     ary
   end
 
+  def fname
+    name.split(' ')[0].capitalize
+  end
+
   def self.from_omniauth(auth)
     @user = where(email: auth.info.email).first_or_create.tap do |user|
       user.name = auth.info.name
       user.password = Devise.friendly_token[0, 20]
+      user.oauth_provider = auth.provider
       user.oauth_id = auth.uid
       user.oauth_image_link = auth.info.image
+      user.oauth_token = auth.credentials.token
+      user.oauth_refresh_token ||= auth.credentials.refresh_token if auth.credentials.refresh_token.present?
       user.oauth_expires_at = Time.at(auth.credentials.expires_at)
-      user.save
     end
-    @user.update(oauth_token: auth.credentials.token, oauth_refresh_token: auth.credentials.refresh_token)
-    @user
+    @user.save
+    @user.reload
   end
 
   # Devise's RegistrationsController by default calls User.new_with_session
@@ -113,7 +135,7 @@ class User < ApplicationRecord
   end
 
   def refresh_token!
-    return false unless token_expired? && oauth_id.present? && oauth_refresh_token.present?
+    return false unless token_expired? && oauth_id.present? && oauth_token.present? && oauth_refresh_token.present?
     data = {
       grant_type: 'refresh_token',
       client_id: Rails.application.secrets.google_client_id,
@@ -126,7 +148,7 @@ class User < ApplicationRecord
   end
 
   def token_expired?
-    return nil unless oauth_id.present?
+    return nil unless oauth_id.present? && oauth_expires_at.present?
     Time.at(oauth_expires_at) < Time.now
   end
 
@@ -146,26 +168,12 @@ class User < ApplicationRecord
     response
   end
 
-  def sync_with_api
-    return false unless oauth_id.present?
-
-    TasklistsClient.sync(self)
-
-    Property.visible_to(self).each do |property|
-      tasklist = property.tasklists.where(user: self).first
-      # next unless tasklist&.google_id.present?
-      TasksClient.sync(self, tasklist)
-    end
-  end
-
-  # handle_asynchronously :sync_with_api
-
   private
 
   def must_have_type
     return true if oauth_id.present? # skip this if it's an oauth user
     if type.empty?
-      errors.add(:register_as, ': Must have at least one type.')
+      errors.add(:register_as, 'a user type from the list')
       false
     else
       true

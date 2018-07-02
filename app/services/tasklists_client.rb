@@ -1,34 +1,66 @@
 # frozen_string_literal: true
 
 class TasklistsClient
-  def self.sync(user)
+  attr_reader :user
+
+  def initialize(user)
     @user = user
-    return false unless user.oauth_id.present?
-    user.refresh_token!
-
-    @property_ary = []
-
-    @default_tasklist_json = user.fetch_default_tasklist
-    handle_tasklist(@default_tasklist_json, true)
-
-    @tasklists = user.list_api_tasklists
-    return false unless @tasklists.present?
-
-    @tasklists['items'].each do |tasklist_json|
-      handle_tasklist(tasklist_json)
-    end
-
-    Property.visible_to(@user).where.not(id: @property_ary.uniq).each do |property|
-      property.tasklists.where(user: @user).first.api_insert
-    end
-
-    @property_ary.uniq
   end
 
-  def self.handle_tasklist(tasklist_json, default = false)
-    @user ||= User.first if Rails.env.test?
-    @property_ary ||= [] if Rails.env.test?
+  def connect
+    @user.refresh_token!
+  end
 
+  def fetch_default
+    connect
+    @user.fetch_default_tasklist
+  end
+
+  def sync_default
+    default_tasklist_json = fetch_default
+    return default_tasklist_json if default_tasklist_json.nil? || default_tasklist_json['errors'].present?
+
+    id = handle_tasklist(default_tasklist_json, true)
+
+    Tasklist.find(id)
+  end
+
+  def fetch
+    connect
+    @user.list_api_tasklists
+  end
+
+  def sync
+    tasklists_json = fetch
+    return tasklists_json if tasklists_json.nil? || tasklists_json['errors'].present?
+    default_id = fetch_default['id']
+    tasklist_ids = []
+
+    tasklists_json['items'].each do |tasklist_json|
+      next if tasklist_json['id'] == default_id
+      tasklist_ids << handle_tasklist(tasklist_json)
+    end
+
+    Tasklist.where(id: tasklist_ids.uniq)
+  end
+
+  def not_in_api
+    tls_json = fetch
+    Tasklist.where(user: @user).where.not(google_id: tls_json['items'].map { |i| i['id'] })
+  end
+
+  def push
+    pushable = not_in_api
+    return false unless pushable.present?
+    pushable.each(&:api_insert)
+  end
+
+  def count
+    tl_json = fetch
+    tl_json['items'].count
+  end
+
+  def handle_tasklist(tasklist_json, default = false)
     tasklist = Tasklist.where(user: @user, google_id: tasklist_json['id']).first_or_initialize
     if tasklist.new_record?
       tasklist.property = create_property(tasklist_json['title'], default)
@@ -38,16 +70,16 @@ class TasklistsClient
       when true
         # default tasklist can differ in name/title between API and this app
         update_property(tasklist.property, tasklist_json['title']) unless default
-        tasklist.update(updated_at: tasklist_json['updated'])
+        tasklist.update(updated_at: tasklist_json['updated']) unless tasklist_json['updated'].nil?
       when false
+        # default tasklist can differ in name/title between API and this app
         tasklist.api_update unless default
       end
     end
-    @property_ary << tasklist.reload.property.id
+    tasklist.reload.id
   end
 
-  def self.create_property(title, default = false)
-    @user = User.first if Rails.env.test?
+  def create_property(title, default)
     Property.create(
       name: title,
       creator: @user,
@@ -57,11 +89,10 @@ class TasklistsClient
     )
   end
 
-  def self.update_property(property, title)
-    @user = User.first if Rails.env.test?
+  def update_property(property, title)
     property.tap do |prop|
       prop.name = title
-      prop.creator ||= @user
+      prop.creator_id ||= @user.id
       prop.save
     end
     property.reload

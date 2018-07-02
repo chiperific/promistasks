@@ -1,26 +1,56 @@
-<div class="row" id="custom_nav">
-  <div class="col-xs-5 col-sm-3 col-md-2">
-    <a href="/">
-      <%= image_tag 'fpgr_logo.png', class: 'nav-logo' %>
+<nav class="light-blue lighten-1">
+  <div class="nav-wrapper container">
+    <% if current_user %>
+      <a href="#" id="sidenav" data-target="slide-out" class="button-collapse sidenav-trigger show-on-large prevent_default">
+        <i class="material-icons right">menu</i>
+      </a>
+    <% end %>
+    <a href="/properties" id="logo-container" class="brand-logo hide-on-small-only">
+      <span>PromiseTasks</span>
     </a>
-  </div>
-  <div class="col-xs-7 col-sm-9 col-md-10">
-    <ul class="nav nav-pills">
-      <li class="nav-title">
-        Tasks
-      </li>
+
+    <ul class="right valign-wrapper" id="nav-mobile">
       <% if current_user %>
         <li>
-          Signed in as <strong><%= current_user.name %></strong>
+          <a href="#" id='alert_btn' class="btn-floating lighten-2 prevent_default dropdown-trigger" data-target='context_alerts'>
+            <i class="material-icons">notification_important</i>
+          </a>
         </li>
+
         <li>
-          <%= link_to "Sign out", destroy_user_session_path, id: "sign_out" %>
-        </li>
-      <% else %>
-        <li>
-          <%= link_to "Sign in", new_user_session_path %>
+          <%= link_to '<i class="material-icons">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: 'dropdown-trigger-hover', 'data-target' => 'context_refresh'  %>
         </li>
       <% end %>
+
+      <li>
+        <% if current_user %>
+          <%= link_to '<i class="material-icons">exit_to_app</i>'.html_safe, destroy_user_session_path, method: :delete, class: 'dropdown-trigger-hover', 'data-target' => 'context_signout'  %>
+        <% else %>
+          <%= link_to '<i class="material-icons">lock_open</i>'.html_safe, new_user_session_path, class: 'dropdown-trigger-hover', 'data-target' => 'context_signin' %>
+        <% end %>
+      </li>
     </ul>
   </div>
-</div>
+</nav>
+
+<ul id='context_signout' class="dropdown-content">
+  <li>
+    <span class="grey-text">Sign out</span>
+  </li>
+</ul>
+
+<ul id='context_signin' class="dropdown-content">
+  <li>
+    <span class="grey-text">Sign in</span>
+  </li>
+</ul>
+
+<ul id='context_refresh' class="dropdown-content">
+  <li>
+    <span class="grey-text">Sync Google Tasks</span>
+  </li>
+</ul>
+
+<ul id="context_alerts" class="dropdown-content collection">
+  <%= render partial: 'shared/alerts' %>
+</ul>

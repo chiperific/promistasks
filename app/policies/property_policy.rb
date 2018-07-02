@@ -8,7 +8,7 @@ class PropertyPolicy < ApplicationPolicy
   end
 
   def show?
-    user&.staff?
+    user&.staff? && property.can_be_viewed_by(user)
   end
 
   def new?
@@ -20,10 +20,22 @@ class PropertyPolicy < ApplicationPolicy
   end
 
   def edit?
-    user&.staff?
+    user&.staff? || property.can_be_viewed_by(user)
+  end
+
+  def update?
+    user&.staff? || property.can_be_viewed_by(user)
   end
 
   def destroy?
+    user&.staff? || property.can_be_viewed_by(user)
+  end
+
+  def reports?
+    user&.staff?
+  end
+
+  def discarded?
     user&.staff?
   end
 end

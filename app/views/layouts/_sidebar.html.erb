@@ -1,0 +1,48 @@
+<ul id="slide-out" class="sidenav">
+  <li>
+    <div class="user-view">
+      <div class="background">
+      </div>
+      <% if current_user.oauth? %>
+        <%= image_tag current_user.oauth_image_link, class: "circle"  %>
+      <% else %>
+        <i class="material-icons white-text no-pic">account_circle</i>
+      <% end %>
+      <span class="white-text name">
+        <%= current_user.name %>
+      </span>
+      <span class="white-text email">
+        <%= current_user.email %>
+      </span>
+    </div>
+  </li>
+  <li class="no-padding">
+    <ul class="collapsible collapsible-accordion">
+      <li>
+        <%= link_to '<i class="material-icons">account_box</i>Profile'.html_safe, edit_user_path(current_user)  %>
+      </li>
+    </ul>
+  </li>
+
+  <li>
+    <%= link_to '<i class="material-icons">format_list_bulleted</i><span>Tasks</span>'.html_safe, tasks_path %>
+  </li>
+
+  <li>
+    <%= link_to '<i class="material-icons">home</i><span>Properties</span>'.html_safe, properties_path  %>
+  </li>
+
+  <% if current_user.system_admin? %>
+    <li>
+      <%= link_to '<i class="material-icons">people</i><span>People</span>'.html_safe, users_path  %>
+    </li>
+
+    <li>
+      <%= link_to '<i class="material-icons">build</i><span>Skills</span>'.html_safe, skills_path  %>
+    </li>
+  <% end %>
+
+  <li>
+    <%= link_to '<i class="material-icons">table_chart</i><span>Reports</span>'.html_safe, reports_properties_path  %>
+  </li>
+</ul>

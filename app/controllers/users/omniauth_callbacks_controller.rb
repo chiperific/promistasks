@@ -5,10 +5,12 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     @user = User.from_omniauth(request.env['omniauth.auth'])
 
     if @user.persisted?
-      flash[:notice] = I18n.t 'devise.omniauth_callbacks.success', kind: 'Google'
+      # flash[:notice] = I18n.t 'devise.omniauth_callbacks.success', kind: 'Google'
       sign_in @user
-      @user.sync_with_api # should be handled by delayed_job
-      redirect_to properties_path
+      flash[:success] = "Welcome, #{current_user.fname}"
+
+      Delayed::Job.enqueue SyncUserWithApiJob.new(@user.id)
+      redirect_to tasks_path
     else
       session['devise.google_data'] = request.env['omniauth.auth'].except(:extra) # Removing extra as it can overflow some session stores
       redirect_to new_user_registration_url, alert: @user.errors.full_messages.join("\n")
@@ -17,5 +19,6 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def failure
     redirect_to root_path
+    flash[:alert] = 'Failed to authenticate from Google.'
   end
 end

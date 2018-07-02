@@ -1,0 +1,15 @@
+aside {
+  .background {
+    background:
+      linear-gradient(
+        rgba(0, 0, 0, 0),
+        rgba(0, 0, 0, 0.7)
+      ),
+      image-url('grass-bg.jpg')
+      no-repeat;
+    background-size: 100% auto
+  }
+  .no-pic {
+    font-size: 64px;
+  }
+}

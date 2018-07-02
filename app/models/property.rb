@@ -3,19 +3,22 @@
 class Property < ApplicationRecord
   include Discard::Model
 
-  has_many :connections, inverse_of: :property, dependent: :destroy
-  has_many :users, through: :connections
-  accepts_nested_attributes_for :connections, allow_destroy: true
-
-  belongs_to :creator, class_name: 'User', inverse_of: :created_properties
   has_many :tasklists, inverse_of: :property, dependent: :destroy
+  has_many :users, through: :tasklists
+  accepts_nested_attributes_for :tasklists
 
   has_many :tasks, inverse_of: :property, dependent: :destroy
+
+  belongs_to :creator, class_name: 'User', inverse_of: :created_properties
+
+  has_many :connections, inverse_of: :property, dependent: :destroy
+  has_many :connected_users, class_name: 'User', through: :connections
+  accepts_nested_attributes_for :connections, allow_destroy: true
 
   validates :name, :address, uniqueness: true, presence: true
   validates_presence_of :creator_id
   validates_uniqueness_of :certificate_number, :serial_number, allow_nil: true
-  validates_inclusion_of :is_private, :is_default, :created_from_api, in: [true, false]
+  validates_inclusion_of :is_private, :is_default, :ignore_budget_warning, :created_from_api, in: [true, false]
 
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
 
@@ -35,8 +38,8 @@ class Property < ApplicationRecord
   scope :with_tasks_for, ->(user) { undiscarded.where(id: Task.select(:property_id).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id)) }
   scope :related_to,     ->(user) { created_by(user).or(with_tasks_for(user)) }
   scope :visible_to,     ->(user) { related_to(user).or(public_visible) }
-  # there can be only one, highlander, regardless of user
-  # scope :default_for,    ->(user) { created_by(user).where(is_default: true) }
+  scope :over_budget,    ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents') }
+  scope :nearing_budget, ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
 
   class << self
     alias archived discarded
@@ -76,6 +79,12 @@ class Property < ApplicationRecord
     return tasklist unless tasklist.new_record? || tasklist.google_id.nil?
     tasklist.save
     tasklist.reload
+  end
+
+  def can_be_viewed_by(user)
+    creator == user ||
+      tasks.where('creator_id = ? OR owner_id = ?', user.id, user.id).present? ||
+      !is_private?
   end
 
   private

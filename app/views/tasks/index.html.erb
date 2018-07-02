@@ -1,10 +1,20 @@
 
-
-<h1>Tasks</h1>
+<div class="row valign-wrapper">
+  <div class="col s10">
+    <h1>Tasks</h1>
+  </div>
+  <div class="col s2">
+    <%= link_to '<i class="material-icons">add</i>'.html_safe, new_task_path, class: 'btn-floating btn-large waves-effect waves-light green darken-2' %>
+  </div>
+</div>
 
 <table>
   <thead>
     <tr>
+      <th>Task</th>
+      <th>Property</th>
+      <th>Owner</th>
+      <th>Creator</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -12,6 +22,10 @@
   <tbody>
     <% @tasks.each do |task| %>
       <tr>
+        <td><%= task.title %></td>
+        <td><%= task.property.name %></td>
+        <td><%= task.creator.name %></td>
+        <td><%= task.owner.name %></td>
         <td><%= link_to 'Show', task %></td>
         <td><%= link_to 'Edit', edit_task_path(task) %></td>
         <td><%= link_to 'Destroy', task, method: :delete, data: { confirm: 'Are you sure?' } %></td>
@@ -19,7 +33,5 @@
     <% end %>
   </tbody>
 </table>
-
-<br>
 
 <%= link_to 'New Task', new_task_path %>
