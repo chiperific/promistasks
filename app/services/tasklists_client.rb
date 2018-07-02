@@ -92,7 +92,7 @@ class TasklistsClient
   def update_property(property, title)
     property.tap do |prop|
       prop.name = title
-      prop.creator ||= @user
+      prop.creator_id ||= @user.id
       prop.save
     end
     property.reload

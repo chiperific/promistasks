@@ -5,7 +5,7 @@ FactoryBot.define do
     kind 'tasks#taskList'
     sequence(:id) { |n| "FAKEmdQ5NTUwMTk3NjU1MjE3MTU6MDo#{n}" }
     sequence(:title) { |n| "JSON Factory tasklist #{n}" }
-    updated '2018-05-16T02:51:39.000Z'
+    updated Time.now.utc.rfc3339(3)
     sequence(:selfLink) { |n| "https://www.googleapis.com/tasks/v1/users/@me/lists/FAKEmdQ5NTUwMTk3NjU1MjE3MTU6MDo#{n}" }
   end
 
@@ -13,7 +13,7 @@ FactoryBot.define do
     kind 'tasks#taskList'
     id 'FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDow'
     title 'My Tasks'
-    updated '2018-06-10T23:22:03.000Z'
+    updated Time.now.utc.rfc3339(3)
     selfLink 'https://www.googleapis.com/tasks/v1/users/@me/lists/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDow'
   end
 
@@ -23,11 +23,11 @@ FactoryBot.define do
     etag '"-7OFI3jKFsqNjDtcscX9ImH8hVU/MTA3NjIyMDI5Mg"'
     sequence(:title) { |n| "JSON Factory task #{n}" }
     notes 'Notes on json factory task'
-    updated '2018-05-16T02:51:39.000Z'
+    updated Time.now.utc.rfc3339(3)
     sequence(:selfLink) { |n| "https://www.googleapis.com/tasks/v1/lists/fakeMDQ5NTUwMTk3NjU1MjE3MTU6MDow/tasks/FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDoz#{n}" }
     position '00000000001261646641'
     status 'needsAction'
-    due '2018-08-16T02:00:42.000Z'
+    due (Time.now + 2.days).utc.rfc3339(3)
   end
 
   factory :user_json, class: OpenStruct do

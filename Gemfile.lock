@@ -278,6 +278,10 @@ GEM
     responders (2.4.0)
       actionpack (>= 4.2.0, < 5.3)
       railties (>= 4.2.0, < 5.3)
+    rspec-activemodel-mocks (1.0.3)
+      activemodel (>= 3.0)
+      activesupport (>= 3.0)
+      rspec-mocks (>= 2.99, < 4.0)
     rspec-core (3.7.1)
       rspec-support (~> 3.7.0)
     rspec-expectations (3.7.0)
@@ -395,6 +399,7 @@ DEPENDENCIES
   rails (~> 5.1.6)
   rails-controller-testing
   rails_12factor
+  rspec-activemodel-mocks
   rspec-rails
   rspec_junit_formatter
   rubocop

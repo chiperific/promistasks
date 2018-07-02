@@ -148,7 +148,7 @@ class User < ActiveRecord::Base
   end
 
   def token_expired?
-    return nil unless oauth_id.present?
+    return nil unless oauth_id.present? && oauth_expires_at.present?
     Time.at(oauth_expires_at) < Time.now
   end
 

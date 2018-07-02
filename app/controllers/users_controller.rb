@@ -62,7 +62,7 @@ class UsersController < ApplicationController
   def api_sync
     authorize @user = User.find(params[:id])
     Delayed::Job.enqueue SyncUserWithApiJob.new(@user.id)
-    redirect_back_for_sync
+    redirect_to url_for_sync
   end
 
   def clear_completed_jobs
@@ -77,7 +77,7 @@ class UsersController < ApplicationController
     properties = Property.related_to(user)
 
     @notification_json = {
-      show_alert: show_alert(tasks, properties),
+      show_alert: show_alert(tasks, properties, user),
       pulse_alert: pulse_alert(tasks, properties),
       alert_color: alert_color(tasks, properties),
       tasks_past_due: {

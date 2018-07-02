@@ -1,7 +1,6 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-1. Get model tests to green
 2. Write system tests:
   - tasks#public
   - tasks#index

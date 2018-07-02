@@ -82,9 +82,9 @@ class TasksClient
 
   def create_task(task_json)
     task = Task.create.tap do |t|
-      t.creator = @user
-      t.owner = @user
-      t.property = @tasklist.property
+      t.creator_id = @user.id
+      t.owner_id = @user.id
+      t.property_id = @tasklist.property.id
       t.assign_from_api_fields(task_json)
     end
     task.save!
@@ -93,9 +93,9 @@ class TasksClient
 
   def update_task(task, task_json)
     task.tap do |t|
-      t.creator ||= @user
-      t.owner ||= @user
-      t.property = @tasklist.property
+      t.creator_id ||= @user.id
+      t.owner_id ||= @user.id
+      t.property_id = @tasklist.property.id
       t.assign_from_api_fields(task_json)
     end
     task.save!
@@ -103,9 +103,8 @@ class TasksClient
   end
 
   def update_task_user(task_user, task_json)
-    @user.save
     task_user.tap do |t|
-      t.user = @user
+      t.user_id = @user.id
       t.assign_from_api_fields(task_json)
       t.tasklist_gid = @tasklist.google_id
     end

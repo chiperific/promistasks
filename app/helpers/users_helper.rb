@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module UsersHelper
-  def redirect_back_for_sync
+  def url_for_sync
     if request.env['HTTP_REFERER'].present? &&
        request.env['HTTP_REFERER'] != request.env['REQUEST_URI']
-      redirect_to request.env['HTTP_REFERER'] + '?syncing=true'
+      request.env['HTTP_REFERER'] + '?syncing=true'
     else
-      redirect_to properties_path(syncing: true)
+      properties_path(syncing: true)
     end
   end
 
@@ -16,7 +16,7 @@ module UsersHelper
       properties.nearing_budget.length.positive?
   end
 
-  def show_alert(tasks, properties)
+  def show_alert(tasks, properties, user)
     pulse_alert(tasks, properties) ||
       tasks.due_within(7).count.positive? ||
       tasks.needs_more_info.count.positive? ||
