@@ -1,3 +1,47 @@
 // Place all the styles related to the Tasks controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
+
+// #public
+.card {
+  border-bottom-right-radius: 24px;
+}
+.card-content {
+  height: 120px;
+
+  .card-title {
+    font-size: 20px;
+    height: 24px;
+    line-height: 24px !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  p {
+    overflow: hidden;
+    position: relative;
+    line-height: 1.2em;
+    max-height: 3.6em;
+    text-align: justify;
+    margin-right: -1em;
+    padding-right: 1em;
+  }
+}
+
+.card-content p:before {
+  content: '...';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.card-content p:after {
+  content: '';
+  position: absolute;
+  right: 0;
+  width: 1em;
+  height: 1em;
+  margin-top: 0.2em;
+  background: white;
+}

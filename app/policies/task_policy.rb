@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class TaskPolicy < ApplicationPolicy
-  attr_reader :user, :task
+  attr_reader :user, :record
 
   def public?
     true
@@ -12,7 +12,7 @@ class TaskPolicy < ApplicationPolicy
   end
 
   def show?
-    user&.staff?
+    record.visible_to?(user)
   end
 
   def new?

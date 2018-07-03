@@ -142,6 +142,23 @@ class Task < ApplicationRecord
       !!saved_change_to_completed_at?
   end
 
+  def public?
+    visibility == 1
+  end
+
+  def related_to(user)
+    creator == user ||
+      owner == user
+  end
+
+  def visible_to?(user)
+    visibility == 1 ||
+      user.system_admin? ||
+      (visibility == 0 && user.staff?) ||
+      (visibility == 2 && related_to(user)) ||
+      (visibility == 3 && !user.client?)
+  end
+
   private
 
   def visibility_must_be_2

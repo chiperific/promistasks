@@ -38,10 +38,6 @@ class TasksController < ApplicationController
   end
 
   def public
-    if current_user
-      authorize @tasks = Task.visible_to(current_user)
-    else
-      authorize @tasks = Task.public_visible
-    end
+    authorize @tasks = Task.public_visible
   end
 end

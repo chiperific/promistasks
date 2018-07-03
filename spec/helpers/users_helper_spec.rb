@@ -122,10 +122,10 @@ RSpec.describe UsersHelper, type: :helper do
       end
 
       it 'returns yellow if there are tasks that need more information but not due within 7 days and pulse_alert is false' do
-        tasks = double(:task, past_due: [], needs_more_info: [1, 2], due_within: [])
-        properties = double(:property, over_budget: [], nearing_budget: [])
+        tasks = double(:task, past_due: [], needs_more_info: [], due_within: [])
+        properties = double(:property, over_budget: [], nearing_budget: [1, 2])
 
-        expect(helper.alert_color(tasks, properties)).to eq 'yellow'
+        expect(helper.alert_color(tasks, properties)).to eq 'orange'
       end
 
       it 'returns green if no tasks need more info or are due within 7 days and pulse_alert is false' do

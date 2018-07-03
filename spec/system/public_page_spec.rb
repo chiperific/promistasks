@@ -2,11 +2,17 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Public Page', type: :system do
+RSpec.describe 'Tasks#Public Page', type: :system do
   context 'when not logged in' do
-    pending 'can be visited'
+    it 'can be visited' do
+      visit '/'
+
+      expect(page).to have_content ''
+    end
     pending 'shows publicly visited tasks'
     pending 'allows for login'
+    pending 'doesn\'t show the sidenav'
+    pending 'doesn\'t show the sync button'
   end
 
   context 'when logged in' do

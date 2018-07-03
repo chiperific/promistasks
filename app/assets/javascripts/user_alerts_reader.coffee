@@ -3,7 +3,6 @@ handleAlertJson = (user_id) ->
   $.ajax(url: alertUrl).done (response) ->
     if response['show_alert'] == true
       $('#alert_btn').show()
-      $('#context_alerts').show()
       $('#alert_btn').addClass(response['alert_color'])
       if response['pulse_alert'] == true
         $('#alert_btn').addClass('pulse')
@@ -39,7 +38,6 @@ handleAlertJson = (user_id) ->
       true
     true
   true
-
 
 $(document).on 'turbolinks:load', ->
   $.get '/current_user_id', (response) ->

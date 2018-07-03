@@ -1,4 +1,4 @@
-<h1>Tasks#public</h1>
-<p>
-  <%= @tasks %>
-</p>
+<h1>Things you can help with...</h1>
+<div class='row' id='public_tasks'>
+  <%= render partial: 'task', collection: @tasks %>
+</div>
