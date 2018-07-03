@@ -23,6 +23,10 @@ class SkillPolicy < ApplicationPolicy
     user&.staff?
   end
 
+  def update?
+    user&.staff?
+  end
+
   def destroy?
     user&.staff?
   end

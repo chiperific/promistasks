@@ -18,7 +18,11 @@ Rails.application.routes.draw do
     get 'discarded', on: :collection
   end
 
-  devise_for :users, controllers: { omniauth_callbacks: 'users/omniauth_callbacks', registrations: 'registrations' }
+  devise_for :users, controllers: {
+    omniauth_callbacks: 'users/omniauth_callbacks',
+    registrations: 'registrations',
+    sessions: 'sessions'
+  }
 
   resources :users do
     get 'discarded', on: :collection

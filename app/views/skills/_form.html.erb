@@ -1,17 +1,46 @@
-<%= form_with(model: skill, local: true) do |form| %>
-  <% if skill.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(skill.errors.count, "error") %> prohibited this skill from being saved:</h2>
+<%= form_for skill do |f| %>
+  <%= render 'shared/form_errors', object: skill %>
 
-      <ul>
-      <% skill.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
+  <div class="input-field">
+    <%= f.text_field :name, placeholder: 'Name' %>
+  </div>
+  <div class="row">
+    <input type="hidden" value="0" name="skill[license_required]">
+    <input type="hidden" value="0" name="skill[volunteerable]">
+    <input type="hidden" value="0" name="skill[archive]">
+      <div class="col s4">
+        <p>
+          <label>
+            <input type="checkbox" value="1" name="skill[license_required]" <%= 'checked' if skill.license_required? %>>
+            <span>License Required?</span>
+          </label>
+        </p>
+      </div>
+      <div class="col s4">
+        <p>
+          <label>
+            <input type="checkbox" value="1" name="skill[volunteerable]" <%= 'checked' if skill.volunteerable? %>>
+            <span>Volunteer-able?</span>
+          </label>
+        </p>
+      </div>
+      <div class="col s4">
+        <p>
+          <label>
+            <input type="checkbox" value="1" name="skill[archive]" <%= 'checked' if skill.discarded? %> <%= 'disabled' if skill.new_record? %>>
+            <span>Archive Skill</span>
+          </label>
+        </p>
+      </div>
     </div>
-  <% end %>
+  </div>
 
-  <div class="actions">
-    <%= form.submit %>
+  <div class="row center-align">
+    <div class="col m6">
+      <%= f.submit class: 'btn green' %>
+    </div>
+    <div class="col m6">
+      <%= link_to 'Cancel', @return_path, class: 'btn red lighten-1' %>
+    </div>
   </div>
 <% end %>

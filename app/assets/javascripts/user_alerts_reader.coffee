@@ -1,5 +1,5 @@
 handleAlertJson = (user_id) ->
-  alertUrl = 'users/' + user_id + '/alerts'
+  alertUrl = window.location.origin + '/users/' + user_id + '/alerts'
   $.ajax(url: alertUrl).done (response) ->
     if response['show_alert'] == true
       $('#alert_btn').show()

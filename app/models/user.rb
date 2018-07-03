@@ -65,10 +65,6 @@ class User < ActiveRecord::Base
   # rubocop:enable Layout/IndentationConsistency
   # rubocop:enable Layout/IndentationWidth
 
-  def register_as
-    # handles dropdown on Devise::registration#new
-  end
-
   def staff?
     program_staff? ||
       project_staff? ||

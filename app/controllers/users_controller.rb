@@ -19,8 +19,15 @@ class UsersController < ApplicationController
   end
 
   def create
-    authorize @user = User.find(params[:id])
-    # redirect_to @return_path, notice: 'User created'
+    modified_params = user_params.except :archive
+    authorize @user = User.new(modified_params)
+
+    if @user.save
+      redirect_back fallback_location: user_path(@user), notice: 'User created'
+    else
+      flash[:warning] = 'Oops, found some errors'
+      render 'new'
+    end
   end
 
   def edit
@@ -36,7 +43,7 @@ class UsersController < ApplicationController
       modified_params = user_params.except :password, :password_confirmation, :archive
     end
     if @user.update(modified_params)
-      redirect_to @return_path, notice: 'Update successful'
+      redirect_back fallback_location: user_path(@user), notice: 'Update successful'
     else
       flash[:warning] = 'Oops, found some errors'
       render 'edit'
