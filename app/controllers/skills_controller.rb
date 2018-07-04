@@ -14,6 +14,7 @@ class SkillsController < ApplicationController
   end
 
   def create
+    binding.pry
     authorize @skill = Skill.new(new_skill_params)
 
     if @skill.save

@@ -32,6 +32,13 @@
     </main>
     <!-- <footer id="footer" data-turbolinks-permanent> -->
     <footer id="footer">
+      Return path: <%= @return_path %>
+      <br>
+      Previous: <%= @view_previous %>
+      <br>
+      Pre-previous: <%= @view_pre_previous %>
+      <br>
+      <%= link_to 'Back', @return_path, class: 'btn' %>
       <% if current_user %>
         <%= render partial: 'layouts/footer' %>
       <% end %>

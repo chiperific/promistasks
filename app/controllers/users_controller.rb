@@ -23,7 +23,7 @@ class UsersController < ApplicationController
     authorize @user = User.new(modified_params)
 
     if @user.save
-      redirect_back fallback_location: user_path(@user), notice: 'User created'
+      redirect_to @return_path, notice: 'User created'
     else
       flash[:warning] = 'Oops, found some errors'
       render 'new'
@@ -42,8 +42,9 @@ class UsersController < ApplicationController
     if params[:password].nil?
       modified_params = user_params.except :password, :password_confirmation, :archive
     end
+
     if @user.update(modified_params)
-      redirect_back fallback_location: user_path(@user), notice: 'Update successful'
+      redirect_to @return_path, notice: 'Update successful'
     else
       flash[:warning] = 'Oops, found some errors'
       render 'edit'

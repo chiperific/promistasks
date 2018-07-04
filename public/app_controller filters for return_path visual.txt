@@ -1,126 +1,123 @@
-before:
-  @@pre_previous = nil
-  @@previous = nil
+# I start the /skills page
+
+before_filter:
+  :pre_previous = nil
+  :previous = nil
   params == /skills
 
 * back = request.referer || root
-  back = @@previous if @@previous.present
-  back = @@pre_previous if @@pre_previous.present? && params_match(@@previous, params)
----------------
-/skills
-
-back: root
----------------
+  back = :previous if :previous.present
+  back = :pre_previous if params_match(:previous, params)
+--------------------
+| /skills          |
+|                  |
+| back: root       |
+--------------------
 after:
-  @@pre_previous = @@previous unless params_match(@@previous, params) => nil
-  @@previous = params (/skills)
+  :pre_previous = :previous unless params_match(:previous, params) => nil
+  :previous = params (/skills)
 
 
+# I click the /properties link
 
 
-before:
-  @@previous == /skills
-  @@pre_previous == nil
+before_filter:
+  :previous == /skills
+  :pre_previous == nil
   params == /properties
 
   back = request.referer || root
-* back = @@previous if @@previous.present
-  back = @@pre_previous if @@pre_previous.present? && params_match(@@previous, params)
----------------
-/properties
-
-back: /skills
----------------
-after:
-  @@pre_previous = @@previous unless params_match(@@previous, params) => /skills
-  @@previous = params (/properties)
-
-
-
-
-before:
-  @@previous == /properties
-  @@pre_previous == /skills
-  params == /skills
-
-  back = request.referer || root
-* back = @@previous if @@previous.present
-  back = @@pre_previous if @@pre_previous.present? && params_match(@@previous, params)
----------------
-/skills
-
-back: /properties
----------------
-after:
-  @@pre_previous = @@previous unless params_match(@@previous, params) => /properties
-  @@previous = params (/skills)
-
-
-
-
-before:
-  @@previous == /skills
-  @@pre_previous = /properties
-  params == /skills
-
-  back = request.referer || root
-  back = @@previous if @@previous.present
-* back = @@pre_previous if @@pre_previous.present? && params_match(@@previous, params)
+* back = :previous if :previous.present
+  back = :pre_previous if params_match(:previous, params)
 --------------------
-|/skills           |
+| /properties      |
 |                  |
-|back: /properties |
+| back: /skills    |
 --------------------
 after:
-  @@pre_previous = @@previous unless params_match(@@previous, params) => /properties
-  @@previous = params (/skills)
+  :pre_previous = :previous unless params_match(:previous, params) => /skills
+  :previous = params (/properties)
 
 
+# I click the /skills link
 
 
-before:
-  @@previous = /skills
-  @@pre_previous = /properties
+before_filter:
+  :previous == /properties
+  :pre_previous == /skills
   params == /skills
 
   back = request.referer || root
-  back = @@previous if @@previous.present
-* back = @@pre_previous if @@pre_previous.present? && params_match(@@previous, params)
----------------
-/skills
-
-back: /properties
----------------
+* back = :previous if :previous.present
+  back = :pre_previous if params_match(:previous, params)
+--------------------
+| /skills          |
+|                  |
+| back: /properties|
+--------------------
 after:
-  @@pre_previous = @@previous unless params_match(@@previous, params) => /properties
-  @@previous = params (/skills)
+  :pre_previous = :previous unless params_match(:previous, params) => /properties
+  :previous = params (/skills)
 
 
+# I click the /skills link again
 
 
-before:
-  @@previous = /skills
-  @@pre_previous = /properties
+before_filter:
+  :previous == /skills
+  :pre_previous = /properties
+  params == /skills
+
+  back = request.referer || root
+  back = :previous if :previous.present
+* back = :pre_previous if params_match(:previous, params)
+--------------------
+| /skills          |
+|                  |
+| back: /properties|
+--------------------
+after:
+  :pre_previous = :previous unless params_match(:previous, params) => /properties
+  :previous = params (/skills)
+
+
+# I click the /skills link again
+
+
+before_filter:
+  :previous = /skills
+  :pre_previous = /properties
+  params == /skills
+
+  back = request.referer || root
+  back = :previous if :previous.present
+* back = :pre_previous if params_match(:previous, params)
+--------------------
+| /skills          |
+|                  |
+| back: /properties|
+--------------------
+after:
+  :pre_previous = :previous unless params_match(:previous, params) => /properties
+  :previous = params (/skills)
+
+
+# I click the /users link
+
+
+before_filter:
+  :previous = /skills
+  :pre_previous = /properties
   params == /user
 
   back = request.referer || root
-* back = @@previous if @@previous.present
-  back = @@pre_previous if @@pre_previous.present? && params_match(@@previous, params)
----------------
-/users
-
-back: /skills
----------------
+* back = :previous if :previous.present
+  back = :pre_previous if params_match(:previous, params)
+--------------------
+| /users           |
+|                  |
+| back: /skills    |
+--------------------
 after:
-  @@pre_previous = @@previous unless params_match(@@previous, params) => /skills
-  @@previous = params (/users)
-
-
-
-
-
-
-
-
-
-
+  :pre_previous = :previous unless params_match(:previous, params) => /skills
+  :previous = params (/users)
