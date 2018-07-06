@@ -10,7 +10,7 @@ class Tasklist < ApplicationRecord
   validates :property, presence: true, uniqueness: { scope: :user }
   validates_uniqueness_of :google_id, allow_nil: true
 
-  before_destroy :api_delete
+  # before_destroy :api_delete
   after_create   :api_insert, unless: -> { google_id.present? }
 
   def list_api_tasks

@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
   # after_action :verify_authorized, unless: :devise_controller?
 
   before_action :set_job_id_for_progress_bar_div
+  before_action :set_notification_for_refresh
 
   after_action :save_old_params
   before_action :set_return_path
@@ -18,26 +19,19 @@ class ApplicationController < ActionController::Base
     @job_id = job&.id || 0
   end
 
-  def save_old_params
-    bad_params =
-      params[:action] == 'current_user_id' ||
-      params[:action] == 'alerts' ||
-      params[:commit].present?
+  def set_notification_for_refresh
+    @just_signed_in = ''
+    @just_signed_in = 'pulse red lighten-2' if current_user && Time.now < current_user.current_sign_in_at + 30.seconds
+  end
 
+  def save_old_params
     return false if bad_params
 
     session[:pre_previous] = session[:previous] unless params_match(session[:previous], params)
     session[:previous] = params.dup
-
-    # @@pre_previous = @@previous.dup if !params_match(@@previous, params)
-    # @@previous = params.dup
-    # binding.pry if @@previous.nil?
   end
 
   def set_return_path
-    # @@previous ||= nil
-    # @@pre_previous ||= nil
-
     @view_previous = session[:previous]
     @view_pre_previous = session[:pre_previous]
 
@@ -46,8 +40,8 @@ class ApplicationController < ActionController::Base
       request.fullpath != URI(request.referer).path
 
     back = conditions ? request.referer : properties_path
-    back = build_url(session[:previous]) if session[:previous].present?
-    back = build_url(session[:pre_previous]) if session[:pre_previous].present? && params_match(session[:previous], params)
+    back = build_url(session[:previous]) unless session[:previous].nil? || bad_params
+    back = build_url(session[:pre_previous]) if session[:pre_previous].present? && params_match(session[:previous], params) && !bad_params
 
     @return_path = URI(back).path
   end
@@ -58,6 +52,15 @@ class ApplicationController < ActionController::Base
       param1['action']   == param2['action'] &&
       param1['id']       == param2['id'] &&
       param1['syncing']  == param2['syncing']
+  end
+
+  def bad_params
+    params[:action] == 'current_user_id' ||
+      params[:action] == 'alerts' ||
+      params[:action] == 'google_oauth2' ||
+      params[:action] == 'api_sync' ||
+      params[:action] == 'clear_completed_jobs' ||
+      params[:commit].present?
   end
 
   def build_url(param)

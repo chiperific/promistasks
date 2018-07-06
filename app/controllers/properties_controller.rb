@@ -2,7 +2,7 @@
 
 class PropertiesController < ApplicationController
   def index
-    authorize @properties = Property.visible_to(current_user)
+    authorize @properties = Property.where(is_default: false).visible_to(current_user)
   end
 
   def show
@@ -14,8 +14,15 @@ class PropertiesController < ApplicationController
   end
 
   def create
-    authorize @property = Property.find(params[:id])
-    # redirect_to @return_path, notice: 'Property created'
+    modified_params = property_params.except :archive
+    authorize @property = Property.new(modified_params)
+
+    if @property.save
+      redirect_to @return_path, notice: 'Property created'
+    else
+      flash[:warning] = 'Oops, found some errors'
+      render 'edit'
+    end
   end
 
   def edit
@@ -24,13 +31,25 @@ class PropertiesController < ApplicationController
 
   def update
     authorize @property = Property.find(params[:id])
-    # redirect_to @return_path, notice: 'Property updated'
+    @property.discard if property_params[:archive].present?
+    modified_params = property_params.except :archive
+
+    if @property.update(modified_params)
+      redirect_to @return_path, notice: 'Property updated'
+    else
+      flash[:warning] = 'Oops, found some errors'
+      render 'edit'
+    end
   end
 
   def destroy
     authorize @property = Property.find(params[:id])
     authorize @property.discard
     redirect_to @return_path, notice: 'Property discarded'
+  end
+
+  def default
+    authorize @property = Property.where(is_default: true, creator: current_user).first
   end
 
   def reports
@@ -44,5 +63,15 @@ class PropertiesController < ApplicationController
 
   def discarded
     authorize @properties = Property.discarded
+  end
+
+  private
+
+  def property_params
+    params.require(:property).permit(:name, :address, :city, :state, :postal_code,
+                                     :description, :acquired_on, :cost, :lot_rent, :budget,
+                                     :certificate_number, :serial_number, :year_manufacture,
+                                     :manufacturer, :model, :certification_label1, :certification_label2,
+                                     :creator, :is_private, :ignore_budget_warning, :archive)
   end
 end

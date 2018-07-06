@@ -22,10 +22,13 @@ class Property < ApplicationRecord
 
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
 
+  geocoded_by :full_address
+
   before_validation :name_and_address,              if: :unsynced_name_address?
-  before_validation :only_one_default,              if: -> { is_default? }
+  # before_validation :only_one_default,              if: -> { is_default? }
   before_validation :default_must_be_private,       if: -> { discarded_at.nil? && is_default? && !is_private? }
   before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
+  after_validation :geocode,                        if: -> { address_has_changed? && !is_default? }
   before_save  :default_budget,                     if: -> { budget.blank? }
   after_create :create_tasklists,                   unless: -> { discarded_at.present? || created_from_api? }
   after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }
@@ -46,6 +49,10 @@ class Property < ApplicationRecord
     alias active kept
   end
 
+  def good_address?
+    address.present? && city.present? && state.present?
+  end
+
   def full_address
     addr = address
     addr += ', ' + city unless city.blank?
@@ -54,9 +61,32 @@ class Property < ApplicationRecord
     addr
   end
 
+  def google_map
+    return 'no_property.jpg' unless good_address?
+    center = [property.latitude, property.longitude].join(',')
+    key = Rails.application.secrets.google_api_key
+    "https://maps.googleapis.com/maps/api/staticmap?key?=#{key}&center=#{center}&size=300x300&zoom=17"
+  end
+
+  def google_street_view
+    return 'no_property.jpg' unless good_address?
+    center = [property.latitude, property.longitude].join(',')
+    key = Rails.application.secrets.google_api_key
+    "https://maps.googleapis.com/maps/api/streetview?key=#{key}&location=#{center}&size=300x300"
+  end
+
+  def address_has_changed?
+    address_changed? ||
+      city_changed? ||
+      state_changed? ||
+      postal_code_changed?
+  end
+
   def budget_remaining
     self.budget ||= default_budget
-    self.budget - tasks.map(&:cost).sum
+    task_ary = tasks.map(&:cost)
+    task_ary.map! { |b| b || 0 }
+    self.budget - task_ary.sum
   end
 
   def update_tasklists
@@ -105,11 +135,11 @@ class Property < ApplicationRecord
     self.budget = Money.new(7_500_00)
   end
 
-  def only_one_default
-    return true if Property.where(is_default: true).count == 0
-    return true if Property.where(is_default: true).count == 1 && self == Property.where(is_default: true).first
-    self.is_default = false
-  end
+  # def only_one_default
+  #   return true if Property.where(is_default: true).count == 0
+  #   return true if Property.where(is_default: true).count == 1 && self == Property.where(is_default: true).first
+  #   self.is_default = false
+  # end
 
   def default_must_be_private
     self.is_private = true

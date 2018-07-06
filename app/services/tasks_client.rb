@@ -48,9 +48,10 @@ class TasksClient
 
   def self.not_in_api_with_tasklist_gid_and_user(google_id, user)
     tasks_json = fetch_with_tasklist_gid_and_user(google_id, user)
+    items = tasks_json['items'].present? ? tasks_json['items'].map { |i| i['id'] } : 0
     TaskUser.where(user: @user)
             .where(tasklist_gid: google_id)
-            .where.not(google_id: tasks_json['items'].map { |i| i['id'] })
+            .where.not(google_id: items)
   end
 
   def push

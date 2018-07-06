@@ -46,7 +46,8 @@ class TasklistsClient
 
   def not_in_api
     tls_json = fetch
-    Tasklist.where(user: @user).where.not(google_id: tls_json['items'].map { |i| i['id'] })
+    items = tls_json['items'].present? ? tls_json['items'].map { |i| i['id'] } : 0
+    Tasklist.where(user: @user).where.not(google_id: items)
   end
 
   def push

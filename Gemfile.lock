@@ -148,6 +148,7 @@ GEM
     ffi (1.9.25)
     foreman (0.85.0)
       thor (~> 0.19.1)
+    geocoder (1.4.9)
     gherkin (5.1.0)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
@@ -385,6 +386,7 @@ DEPENDENCIES
   factory_bot_rails
   faker
   foreman
+  geocoder
   httparty
   jbuilder (~> 2.5)
   jquery-rails

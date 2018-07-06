@@ -23,6 +23,20 @@ $(document).on 'turbolinks:load', ->
     'outDuration': 450
     })
 
+  datePickers = document.querySelectorAll('.datepicker')
+  M.Datepicker.init(datePickers, {
+    'format': 'mmm dd, yy',
+    'defaultDate': Date.now(),
+    'setDefaultDate': true,
+    'showClearBtn': true
+    })
+
+  modals = document.querySelectorAll('.modal')
+  M.Modal.init(modals, {
+    'preventScrolling': true,
+    'dismissable': true
+    })
+
   $('body').on 'click', 'a.prevent_default', ->
     event.preventDefault
     false

@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 class PropertyPolicy < ApplicationPolicy
-  attr_reader :user, :property
+  attr_reader :user, :record
 
   def index?
     user&.staff?
   end
 
   def show?
-    user&.staff? && property.can_be_viewed_by(user)
+    user&.staff? && record.can_be_viewed_by(user)
   end
 
   def new?
@@ -20,15 +20,19 @@ class PropertyPolicy < ApplicationPolicy
   end
 
   def edit?
-    user&.staff? || property.can_be_viewed_by(user)
+    user&.staff? || record.can_be_viewed_by(user)
   end
 
   def update?
-    user&.staff? || property.can_be_viewed_by(user)
+    user&.staff? || record.can_be_viewed_by(user)
   end
 
   def destroy?
-    user&.staff? || property.can_be_viewed_by(user)
+    user&.staff? || record.can_be_viewed_by(user)
+  end
+
+  def default?
+    user&.staff?
   end
 
   def reports?

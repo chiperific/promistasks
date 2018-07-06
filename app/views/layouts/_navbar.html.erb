@@ -4,10 +4,15 @@
       <a href="#" id="sidenav" data-target="slide-out" class="button-collapse sidenav-trigger show-on-large prevent_default">
         <i class="material-icons right">menu</i>
       </a>
+      <a href="/properties" id="logo-container" class="brand-logo hide-on-small-only">
+        <span>PromiseTasks</span>
+      </a>
+    <% else %>
+      <a href="/" id="logo-container" class="brand-logo hide-on-small-only">
+        <span>PromiseTasks</span>
+      </a>
     <% end %>
-    <a href="/properties" id="logo-container" class="brand-logo hide-on-small-only">
-      <span>PromiseTasks</span>
-    </a>
+
 
     <ul class="right valign-wrapper" id="nav-mobile">
       <% if current_user %>
@@ -19,7 +24,7 @@
 
         <% if current_user.staff? %>
           <li>
-            <%= link_to '<i class="material-icons">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: 'dropdown-trigger-hover', 'data-target' => 'context_refresh'  %>
+            <%= link_to '<i class="material-icons #{@just_signed_in}">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: 'dropdown-trigger-hover', 'data-target' => 'context_refresh'  %>
           </li>
         <% end %>
       <% end %>

@@ -18,7 +18,7 @@
     text-overflow: ellipsis;
   }
 
-  p {
+  p.clipped {
     overflow: hidden;
     position: relative;
     line-height: 1.2em;
@@ -29,19 +29,19 @@
   }
 }
 
-.card-content p:before {
+.card-content p.clipped:before {
   content: '...';
   position: absolute;
   right: 0;
   bottom: 0;
 }
 
-.card-content p:after {
+.card-content p.clipped:after {
   content: '';
   position: absolute;
   right: 0;
   width: 1em;
   height: 1em;
   margin-top: 0.2em;
-  background: white;
+  background: #ffc107;
 }

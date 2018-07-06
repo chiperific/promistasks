@@ -37,7 +37,7 @@ class UsersController < ApplicationController
 
   def update
     authorize @user = User.find(params[:id])
-    @user.discarded_at = user_params[:archive] == '1' ? Time.now : nil
+    @user.discard if user_params[:archive].present?
     modified_params = user_params.except :archive
     if params[:password].nil?
       modified_params = user_params.except :password, :password_confirmation, :archive

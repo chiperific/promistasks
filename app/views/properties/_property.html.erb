@@ -1,0 +1,18 @@
+<%= link_to property_path(property) do %>
+  <div class="col s12 m4">
+    <div class="card amber z-depth-3">
+      <div class="card-image">
+        <%= image_tag property.google_street_view, alt: "property street view" %>
+        <a class="btn-floating halfway-fab btn-large waves-effect waves-light green"><i class="material-icons">arrow_forward</i></a>
+      </div>
+      <div class="card-content">
+        <span class="card-title grey-text text-darken-4"><%= property.name %></span>
+
+        <p class='grey-text text-darken-4'>
+          <%= property.tasks.visible_to(current_user).count %> tasks related to you.<br>
+          Budget remaining: <%= property.budget_remaining %>
+        </p>
+      </div>
+    </div>
+  </div>
+<% end %>

@@ -32,6 +32,12 @@
     <%= link_to '<i class="material-icons">home</i><span>Properties</span>'.html_safe, properties_path  %>
   </li>
 
+  <% if current_user.staff? %>
+    <li>
+      <%= link_to '<i class="material-icons">menu</i><span>Default Tasklist</span>'.html_safe, default_properties_path  %>
+    </li>
+  <% end %>
+
   <% if current_user.system_admin? %>
     <li>
       <%= link_to '<i class="material-icons">people</i><span>People</span>'.html_safe, users_path  %>
@@ -44,5 +50,8 @@
 
   <li>
     <%= link_to '<i class="material-icons">table_chart</i><span>Reports</span>'.html_safe, reports_properties_path  %>
+  </li>
+  <li>
+    <%= link_to '<i class="material-icons">apps</i><span>Public Tasks</span>'.html_safe, root_path  %>
   </li>
 </ul>

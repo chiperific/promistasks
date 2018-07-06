@@ -50,3 +50,19 @@ div.spacer {
   height: 0px;
 }
 
+
+a.modal-trigger {
+  color: rgba(0,0,0,0.87);
+
+  i {
+    margin-top: -8px;
+  }
+}
+
+.modal {
+  li {
+    list-style-type: circle !important;
+    margin-left: 2em;
+  }
+}
+

@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   resources :properties do
     get 'discarded', on: :collection
     get 'reports', on: :collection
+    get 'default', on: :collection
   end
 
   resources :skills do
