@@ -2,12 +2,14 @@
   <%= render 'shared/form_errors', object: property %>
 
   <div class="input-field">
-    <%= f.text_field :name, placeholder: 'Name (leave blank to use address)' %>
+    <%= f.text_field :name %>
+    <label for="property_name">Name (leave blank to use address)</label>
   </div>
 
   <div class="input-field">
     <i class="material-icons prefix">place</i>
-    <%= f.text_field :address, placeholder: 'Address (required)' %>
+    <%= f.text_field :address %>
+    <label for="property_address">Address (required)</label>
   </div>
 
   <div class="row">
@@ -28,12 +30,14 @@
     </div>
   </div>
 
-  <div class="center-align">
-    Created by: <%= property.creator.fname %>
-    <% if property.created_from_api? %>
-      in Google Tasks
-    <% end %>
-  </div>
+  <% unless property.new_record? %>
+    <div class="center-align">
+      Created by: <%= property.creator.fname %>
+      <% if property.created_from_api? %>
+        in Google Tasks
+      <% end %>
+    </div>
+  <% end %>
 
   <div class="row">
     <input type="hidden" value="0" name="property[is_private]">

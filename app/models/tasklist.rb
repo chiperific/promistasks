@@ -8,7 +8,7 @@ class Tasklist < ApplicationRecord
   belongs_to :property, inverse_of: :tasklists
 
   validates :property, presence: true, uniqueness: { scope: :user }
-  validates_uniqueness_of :google_id, allow_nil: true
+  validates_uniqueness_of :google_id, allow_nil: true, allow_blank: true
 
   # before_destroy :api_delete
   after_create   :api_insert, unless: -> { google_id.present? }

@@ -4,13 +4,16 @@ pollDelayedJobs = (jobId) ->
     if response.length == 0
       uri = window.location.origin + window.location.pathname
       window.location.replace(uri)
+      $('#refresh_button').removeClass('prevent_default')
     else if response.error_message != null
       toastMsg = 'Uh oh, an error occured: <br /> ' + response.error_message
       M.toast({html: toastMsg})
+      $('#refresh_button').removeClass('prevent_default')
     else if response.status == 'completed'
       clear_jobs_uri = window.location.origin + "/users/clear_completed_jobs"
       window.location.replace(clear_jobs_uri)
       M.toast({html: 'Done!'})
+      $('#refresh_button').removeClass('prevent_default')
     else
       $('#sync_bar_determinate').show()
       $('#status').html(response.message)
@@ -28,6 +31,7 @@ repeater = (jobId) ->
 $(document).on 'turbolinks:load', ->
   if getParameterByName('syncing') == 'true'
     $('#sync_bar_indeterminate').show()
+    $('#refresh_button').addClass('prevent_default')
     jobId = $('#job_id').attr('value')
     if jobId == "0"
       uri = window.location.origin + window.location.pathname

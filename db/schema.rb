@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180705170016) do
+ActiveRecord::Schema.define(version: 2018_07_05_170016) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -93,10 +93,8 @@ ActiveRecord::Schema.define(version: 20180705170016) do
     t.float "longitude"
     t.index ["acquired_on"], name: "index_properties_on_acquired_on"
     t.index ["address"], name: "index_properties_on_address", unique: true
-    t.index ["certificate_number"], name: "index_properties_on_certificate_number", unique: true
     t.index ["creator_id"], name: "index_properties_on_creator_id"
     t.index ["name"], name: "index_properties_on_name", unique: true
-    t.index ["serial_number"], name: "index_properties_on_serial_number", unique: true
   end
 
   create_table "skill_tasks", force: :cascade do |t|
@@ -149,11 +147,9 @@ ActiveRecord::Schema.define(version: 20180705170016) do
     t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["google_id"], name: "index_task_users_on_google_id", unique: true
     t.index ["position_int"], name: "index_task_users_on_position_int"
     t.index ["task_id", "user_id"], name: "index_task_users_on_task_id_and_user_id", unique: true
     t.index ["task_id"], name: "index_task_users_on_task_id"
-    t.index ["tasklist_gid"], name: "index_task_users_on_tasklist_gid"
     t.index ["user_id", "task_id"], name: "index_task_users_on_user_id_and_task_id", unique: true
     t.index ["user_id"], name: "index_task_users_on_user_id"
   end
@@ -164,7 +160,6 @@ ActiveRecord::Schema.define(version: 20180705170016) do
     t.string "google_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["google_id"], name: "index_tasklists_on_google_id"
     t.index ["property_id", "user_id"], name: "index_tasklists_on_property_id_and_user_id", unique: true
     t.index ["property_id"], name: "index_tasklists_on_property_id"
     t.index ["user_id", "property_id"], name: "index_tasklists_on_user_id_and_property_id", unique: true
@@ -240,7 +235,6 @@ ActiveRecord::Schema.define(version: 20180705170016) do
     t.datetime "discarded_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["name"], name: "index_users_on_name", unique: true
-    t.index ["oauth_id"], name: "index_users_on_oauth_id", unique: true
     t.index ["oauth_token"], name: "index_users_on_oauth_token", unique: true
   end
 

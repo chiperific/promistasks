@@ -1,4 +1,6 @@
 
 
-<%= link_to 'Edit', edit_property_path(@property) %> |
-<%= link_to 'Back', properties_path %>
+<% unless @property.is_default?  %>
+  <%= link_to 'Edit', edit_property_path(@property), 'data-turbolinks'=> 'false' %>
+<% end %>|
+<%= link_to 'Back', @return_path %>

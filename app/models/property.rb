@@ -17,7 +17,7 @@ class Property < ApplicationRecord
 
   validates :name, :address, uniqueness: true, presence: true
   validates_presence_of :creator_id
-  validates_uniqueness_of :certificate_number, :serial_number, allow_nil: true
+  validates_uniqueness_of :certificate_number, :serial_number, allow_nil: true, allow_blank: true
   validates_inclusion_of :is_private, :is_default, :ignore_budget_warning, :created_from_api, in: [true, false]
 
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
@@ -63,16 +63,16 @@ class Property < ApplicationRecord
 
   def google_map
     return 'no_property.jpg' unless good_address?
-    center = [property.latitude, property.longitude].join(',')
-    key = Rails.application.secrets.google_api_key
-    "https://maps.googleapis.com/maps/api/staticmap?key?=#{key}&center=#{center}&size=300x300&zoom=17"
+    center = [latitude, longitude].join(',')
+    key = Rails.application.secrets.google_maps_api_key
+    "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&center=#{center}&size=355x266&zoom=17"
   end
 
   def google_street_view
     return 'no_property.jpg' unless good_address?
-    center = [property.latitude, property.longitude].join(',')
-    key = Rails.application.secrets.google_api_key
-    "https://maps.googleapis.com/maps/api/streetview?key=#{key}&location=#{center}&size=300x300"
+    center = [latitude, longitude].join(',')
+    key = Rails.application.secrets.google_maps_api_key
+    "https://maps.googleapis.com/maps/api/streetview?key=#{key}&location=#{center}&size=355x266"
   end
 
   def address_has_changed?

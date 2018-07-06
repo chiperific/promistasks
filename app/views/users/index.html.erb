@@ -1,25 +1,40 @@
-
-
-<h1>Users</h1>
+<div class="row valign-wrapper">
+  <div class="col s10">
+    <h1>Users</h1>
+  </div>
+  <div class="col s2">
+    <%= link_to '<i class="material-icons">add</i>'.html_safe, new_user_path, class: 'btn-floating btn-large waves-effect waves-light green darken-2' %>
+  </div>
+</div>
 
 <table>
   <thead>
     <tr>
-      <th colspan="3"></th>
+      <th></th>
+      <th>Name</th>
+      <th>Type</th>
+      <th></th>
+      <th></th>
     </tr>
   </thead>
 
   <tbody>
     <% @users.each do |user| %>
       <tr>
-        <td><%= link_to 'Show', user %></td>
-        <td><%= link_to 'Edit', edit_user_path(user) %></td>
-        <td><%= link_to 'Destroy', user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td class='table-profile-pic'>
+          <%= link_to user do  %>
+            <% if current_user.oauth? %>
+              <i class="material-icons no-pic">account_circle</i>
+            <% else %>
+              <%= image_tag user.oauth_image_link, alt: 'Profile pic', class: 'circle' %>
+            <% end %>
+          <% end %>
+        </td>
+        <td><%= user.name %></td>
+        <td><%= user.readable_type %></td>
+        <td><%= link_to 'Show', user, class: 'btn green waves-effect waves-light right' %></td>
+        <td><%= link_to 'Edit', edit_user_path(user), class: 'btn amber waves-effect waves-light right', 'data-turbolinks'=> 'false' %></td>
       </tr>
     <% end %>
   </tbody>
 </table>
-
-<br>
-
-<%= link_to 'New User', new_user_path %>

@@ -30,8 +30,6 @@ class CreateProperties < ActiveRecord::Migration[5.1]
 
       t.index :name,               unique: true
       t.index :address,            unique: true
-      t.index :certificate_number, unique: true
-      t.index :serial_number,      unique: true
       t.index :acquired_on
     end
   end

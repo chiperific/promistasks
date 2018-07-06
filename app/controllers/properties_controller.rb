@@ -31,7 +31,7 @@ class PropertiesController < ApplicationController
 
   def update
     authorize @property = Property.find(params[:id])
-    @property.discard if property_params[:archive].present?
+    @property.discard if property_params[:archive] == '1'
     modified_params = property_params.except :archive
 
     if @property.update(modified_params)
@@ -49,7 +49,7 @@ class PropertiesController < ApplicationController
   end
 
   def default
-    authorize @property = Property.where(is_default: true, creator: current_user).first
+    authorize @property = Property.where(is_default: true, creator: current_user)
   end
 
   def reports

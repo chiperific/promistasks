@@ -8,7 +8,7 @@ class TaskUser < ApplicationRecord
 
   validates :task, presence: true, uniqueness: { scope: :user }
   validates_presence_of :tasklist_gid
-  validates_uniqueness_of :google_id, allow_nil: true
+  validates_uniqueness_of :google_id, allow_nil: true, allow_blank: true
   validates_inclusion_of :deleted, in: [true, false]
 
   before_validation :set_tasklist_gid, if: -> { tasklist_gid.nil? }

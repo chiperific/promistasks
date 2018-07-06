@@ -12,6 +12,9 @@
     <header class="navbar-fixed" id="navbar" data-turbolinks-permanent>
       <%= render partial: 'layouts/navbar' %>
     </header>
+    <ul id="context_alerts" class="dropdown-content collection right">
+      <%= render partial: 'shared/alerts' %>
+    </ul>
     <aside id="sidebar" data-turbolinks-permanent>
       <% if current_user %>
         <%= render partial: 'layouts/sidebar' %>
@@ -25,6 +28,7 @@
         <div class="row">
           <div class="col s3 offset-s9">
             <%= render partial: 'layouts/progress_bar' %>
+
           </div>
         </div>
         <%= yield %>

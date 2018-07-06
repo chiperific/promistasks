@@ -47,7 +47,7 @@ class User < ActiveRecord::Base
   validate :clients_are_singular
   validate :system_admin_must_be_internal, if: -> { system_admin? }
 
-  monetize :rate_cents, allow_nil: true
+  monetize :rate_cents, allow_nil: true, allow_blank: true
 
   after_create :propegate_tasklists, if: -> { oauth_id.present? && discarded_at.blank? }
 
@@ -94,6 +94,12 @@ class User < ActiveRecord::Base
     ary
   end
 
+  def readable_type
+    # return 'System Admin' if system_admin?
+    return 'Staff' if oauth_id.present? && type.empty?
+    type.to_s
+  end
+
   def fname
     name.split(' ')[0].capitalize
   end
@@ -106,7 +112,7 @@ class User < ActiveRecord::Base
       user.oauth_id = auth.uid
       user.oauth_image_link = auth.info.image
       user.oauth_token = auth.credentials.token
-      user.oauth_refresh_token ||= auth.credentials.refresh_token if auth.credentials.refresh_token.present?
+      user.oauth_refresh_token ||= auth.credentials.refresh_token
       user.oauth_expires_at = Time.at(auth.credentials.expires_at)
     end
     @user.save

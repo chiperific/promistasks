@@ -27,5 +27,12 @@ module Constant
     TASKLIST =         %r{https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists\/($|[^@].{0,130})}
     LIST_TASKLISTS =   %r{https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists$}
     DEFAULT_TASKLIST = %r{https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists\/@default$}
+    STATIC_MAP =       %r{https:\/\/maps.googleapis.com\/maps\/api\/staticmap\?key=.{1,20}&center=.{1,20},.{1,20}&size=.{1,4}x.{1,4}&zoom=.{1,2}}
+    STREET_MAP =       %r{https:\/\/maps.googleapis.com\/maps\/api\/streetview\?key=.{1,20}&location=.{1,20},.{1,20}&size=.{1,4}x.{1,4}}
+    GEOCODE =          %r{https:\/\/maps.googleapis.com\/maps\/api\/geocode\/json\?address=.{1,40}&key=.{1,40}&language=en&sensor=false}
+  end
+
+  class Params
+    ACTIONS = %w[alerts api_sync clear_completed_jobs current_user_id destroy edit google_oauth2 new].freeze
   end
 end

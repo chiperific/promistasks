@@ -7,6 +7,7 @@ Rails.application.routes.draw do
 
   resources :tasks do
     get 'discarded', on: :collection
+    get 'public', on: :collection
   end
 
   resources :properties do

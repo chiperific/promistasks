@@ -18,7 +18,7 @@ class Task < ApplicationRecord
   accepts_nested_attributes_for :task_users, allow_destroy: true
 
   validates_presence_of :creator_id, :owner_id, :property_id
-  validates :priority, inclusion: { in: Constant::Task::PRIORITY, allow_blank: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}" }
+  validates :priority, inclusion: { in: Constant::Task::PRIORITY, allow_blank: true, allow_nil: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}" }
   validates_inclusion_of  :license_required, :needs_more_info, :created_from_api,
                           in: [true, false]
   validates_inclusion_of :visibility, in: [0, 1, 2, 3]
@@ -28,7 +28,7 @@ class Task < ApplicationRecord
   validate :require_cost, if: -> { budget.present? && cost.nil? && completed_at.present? }
   validate :due_cant_be_past
 
-  monetize :budget_cents, :cost_cents, allow_nil: true
+  monetize :budget_cents, :cost_cents, allow_nil: true, allow_blank: true
 
   before_validation :visibility_must_be_2, if: -> { property&.is_default? && visibility != 2 }
   before_save       :decide_record_completeness

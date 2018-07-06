@@ -25,7 +25,7 @@ class ApplicationController < ActionController::Base
   end
 
   def save_old_params
-    return false if bad_params
+    return false if bad_param(params)
 
     session[:pre_previous] = session[:previous] unless params_match(session[:previous], params)
     session[:previous] = params.dup
@@ -40,8 +40,8 @@ class ApplicationController < ActionController::Base
       request.fullpath != URI(request.referer).path
 
     back = conditions ? request.referer : properties_path
-    back = build_url(session[:previous]) unless session[:previous].nil? || bad_params
-    back = build_url(session[:pre_previous]) if session[:pre_previous].present? && params_match(session[:previous], params) && !bad_params
+    back = build_url(session[:previous]) unless session[:previous].nil? || bad_param(session[:previous])
+    back = build_url(session[:pre_previous]) if session[:pre_previous].present? && (params_match(session[:previous], params) || bad_param(session[:previous]))
 
     @return_path = URI(back).path
   end
@@ -54,16 +54,15 @@ class ApplicationController < ActionController::Base
       param1['syncing']  == param2['syncing']
   end
 
-  def bad_params
-    params[:action] == 'current_user_id' ||
-      params[:action] == 'alerts' ||
-      params[:action] == 'google_oauth2' ||
-      params[:action] == 'api_sync' ||
-      params[:action] == 'clear_completed_jobs' ||
-      params[:commit].present?
+  def bad_param(param)
+    (Constant::Params::ACTIONS.include? param['action']) ||
+      param['commit'].present?
   end
 
   def build_url(param)
+    # CLEAR out the old controller var since url_for will append when nested
+    # https://apidock.com/rails/ActionDispatch/Routing/UrlFor/url_for
+    url_options[:_recall][:controller] = nil
     url_for(
       controller: param['controller'],
       action: param['action'],

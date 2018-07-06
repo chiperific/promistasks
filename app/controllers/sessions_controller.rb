@@ -14,7 +14,7 @@ class SessionsController < Devise::SessionsController
     set_flash_message!(:notice, :signed_in)
     sign_in(resource_name, resource)
     yield resource if block_given?
-    #if there's a custom_path, go to that.
+    # if there's a custom_path, go to that.
     if resource_params[:custom_path].present?
       respond_with resource, location: resource_params[:custom_path]
     else

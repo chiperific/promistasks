@@ -19,7 +19,7 @@
   <li class="no-padding">
     <ul class="collapsible collapsible-accordion">
       <li>
-        <%= link_to '<i class="material-icons">account_box</i>Profile'.html_safe, edit_user_path(current_user)  %>
+        <%= link_to '<i class="material-icons">account_box</i>Profile'.html_safe, edit_user_path(current_user), 'data-turbolinks'=> 'false' %>
       </li>
     </ul>
   </li>
