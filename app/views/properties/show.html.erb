@@ -1,6 +1,168 @@
+<div class="row center-align">
+  <%= render @property %>
+  <div class="col s12 m6 l8">
+    <table class="striped">
+      <tbody>
+        <% @primary_info_hash.each do |k,v| %>
+          <%= render partial: 'info_table', locals: { k: k, v: v } %>
+        <% end %>
+        <tr>
+          <td>
+            <strong>Visibility:</strong>
+            <a href="#private_explanation" class="modal-trigger">
+              <i class="material-icons">live_help</i>
+            </a>
+          </td>
+          <td>
+            <%= @property.is_private? ? 'Private' : 'Public' %>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Ignore budget</strong>
+            <a href="#budget_warning_explanation" class="modal-trigger">
+              <i class="material-icons">live_help</i>
+            </a>
+          </td>
+          <td>
+            <%= human_boolean(@property.ignore_budget_warning) %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
+<div class="row section">
+  <div class="col s12">
+    <% if @property.description.present? %>
+      <div class="row">
+        <div class="col s12">
+          <h5>Description</h5>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col s12">
+          <%= @property.description %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
 
-<% unless @property.is_default?  %>
-  <%= link_to 'Edit', edit_property_path(@property), 'data-turbolinks'=> 'false' %>
-<% end %>|
-<%= link_to 'Back', @return_path %>
+<div class="row section">
+  <div class="col s12">
+    <div class="row valign-wrapper">
+      <div class="col s12 m10">
+          <h4>Tasks</h4>
+      </div>
+      <div class="col s12 m2">
+        <%= link_to new_task_path(property: @property), class: 'btn waves-effect waves-light green darken 2' do %>
+          <i class="material-icons">add</i>
+          <i class="material-icons">check_circle_outline</i>
+        <% end %>
+      </div>
+    </div>
+    <div class="row center-align">
+      <ul class="pagination" id="task_pagination">
+        <li class="waves-effect active purple">
+          <%= link_to 'Yours', tasks_filter_property_path(@property, tasks: 'your'), id: 'tasks_your', class: 'paginate_btn', remote: true %>
+        </li>
+        <li class="waves-effect">
+          <%= link_to 'All', tasks_filter_property_path(@property, tasks: 'all'), id: 'tasks_all', class: 'paginate_btn', remote: true %>
+        </li>
+        <li class="waves-effect">
+          <%= link_to 'Completed', tasks_filter_property_path(@property, tasks: 'completed'), id: 'tasks_completed', class: 'paginate_btn', remote: true %>
+        </li>
+        <li class="waves-effect">
+          <%= link_to 'Archived', tasks_filter_property_path(@property, tasks: 'archived'), id: 'tasks_archived', class: 'paginate_btn', remote: true %>
+        </li>
+      </ul>
+    </div>
+    <div class="row">
+      <table class='highlight responsive-table' id='task_table'>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Owner</th>
+            <th>Priorioty</th>
+            <th>Due</th>
+            <th>Budget</th>
+            <th>Cost</th>
+            <th>Needs Info</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id='task_table_body'>
+          <% if @tasks.count.positive? %>
+            <%= render partial: 'tasks/tasks_table', locals: { tasks: @tasks } %>
+          <% else %>
+            <tr>
+              <td colspan="8" class="center-align">
+                No tasks
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="row section">
+  <div class="col s12">
+    <div class="row valign-wrapper">
+      <div class="col s12 m10">
+        <h4>Connections</h4>
+      </div>
+      <div class="col s12 m2">
+        <%= link_to new_connection_path(property: @property), class: 'btn waves-effect waves-light green darken 2' do %>
+          <i class="material-icons">add</i>
+          <i class="material-icons">how_to_reg</i>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="row center-align">
+      <% if @connections.any? %>
+        <table class='striped responsive-table'>
+          <thead>
+            <tr>
+              <th>Person</th>
+              <th>Relationship</th>
+              <th>Relation date</th>
+              <th>Stage</th>
+              <th>Stage Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <%= render partial: 'connection', collection: @connections %>
+          </tbody>
+        </table>
+      <% else %>
+        <p>No connections</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="row">
+    <div class="col s12">
+      <h4>More info:</h4>
+    </div>
+  </div>
+  <div class="row">
+    <table class="striped">
+      <tbody>
+        <% @secondary_info_hash.each do |k,v| %>
+          <%= render partial: 'info_table', locals: { k: k, v: v } %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%= render partial: 'properties/explanations' %>

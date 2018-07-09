@@ -58,7 +58,7 @@ class TasklistsClient
 
   def count
     tl_json = fetch
-    tl_json['items'].count
+    tl_json['items'].present? ? tl_json['items'].count : 0
   end
 
   def handle_tasklist(tasklist_json, default = false)

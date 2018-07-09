@@ -222,6 +222,20 @@ RSpec.describe Property, type: :model do
     end
   end
 
+  describe '#needs_title?' do
+    context 'when certificate_number is blank' do
+      pending 'returns false'
+    end
+
+    context 'when certificate_number is nil' do
+      pending 'returns false'
+    end
+
+    context 'when certificate_number is not nil or blank' do
+      pending 'returns true'
+    end
+  end
+
   describe '#google_map' do
     context 'when address is bad' do
       pending 'returns a string'

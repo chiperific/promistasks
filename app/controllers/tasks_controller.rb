@@ -30,7 +30,7 @@ class TasksController < ApplicationController
   def destroy
     authorize @task = Task.find(params[:id])
     @task.discard
-    redirect_to @return, notice: 'Task discarded'
+    redirect_to @return_path, notice: 'Task discarded'
   end
 
   def discarded
@@ -39,5 +39,17 @@ class TasksController < ApplicationController
 
   def public
     authorize @tasks = Task.public_visible
+  end
+
+  def complete
+    authorize @task = Task.find(params[:id])
+    @task.update(completed_at: nil)
+    redirect_to @return_path, notice: 'Task marked complete'
+  end
+
+  def un_complete
+    authorize @task = Task.find(params[:id])
+    @task.update(completed_at: Time.now)
+    redirect_to @return_path, notice: 'Task marked in-process'
   end
 end

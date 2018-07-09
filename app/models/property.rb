@@ -61,11 +61,15 @@ class Property < ApplicationRecord
     addr
   end
 
+  def needs_title?
+    certificate_number.blank? || certificate_number.nil?
+  end
+
   def google_map
     return 'no_property.jpg' unless good_address?
     center = [latitude, longitude].join(',')
     key = Rails.application.secrets.google_maps_api_key
-    "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&center=#{center}&size=355x266&zoom=17"
+    "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&size=355x266&zoom=17&markers=color:red%7C#{center}"
   end
 
   def google_street_view

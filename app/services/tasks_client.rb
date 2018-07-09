@@ -31,7 +31,9 @@ class TasksClient
 
   def sync
     tasks_json = fetch
-    return tasks_json if tasks_json.nil? || tasks_json['errors'].present?
+    return tasks_json if tasks_json.nil? ||
+                         tasks_json['errors'].present? ||
+                         tasks_json['items'].nil?
 
     tasks_json['items'].each do |task_json|
       next if task_json['title'] == ''
@@ -62,7 +64,7 @@ class TasksClient
 
   def count
     task_json = fetch
-    task_json['items'].count
+     task_json['items'].present? ? task_json['items'].count : 0
   end
 
   def handle_task(task_json)

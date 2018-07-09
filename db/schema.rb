@@ -78,9 +78,7 @@ ActiveRecord::Schema.define(version: 2018_07_05_170016) do
     t.string "serial_number"
     t.integer "year_manufacture"
     t.string "manufacturer"
-    t.string "model"
-    t.string "certification_label1"
-    t.string "certification_label2"
+    t.string "bed_bath"
     t.bigint "creator_id", null: false
     t.boolean "is_private", default: false, null: false
     t.boolean "is_default", default: false, null: false

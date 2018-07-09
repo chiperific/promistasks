@@ -51,6 +51,11 @@ class Task < ApplicationRecord
   scope :due_before,      ->(date) { where('due <= ?', date) }
   scope :past_due,        -> { in_process.where('due < ?', Time.now) }
 
+  class << self
+    alias archived discarded
+    alias active kept
+  end
+
   def budget_remaining
     return nil if budget.nil? && cost.nil?
     temp_budget = budget || Money.new(0)

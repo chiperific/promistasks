@@ -8,15 +8,22 @@ Rails.application.routes.draw do
   resources :tasks do
     get 'discarded', on: :collection
     get 'public', on: :collection
+    get 'complete', on: :member
+    get 'un_complete', on: :member
   end
 
   resources :properties do
     get 'discarded', on: :collection
     get 'reports', on: :collection
     get 'default', on: :collection
+    get 'tasks_filter', on: :member
   end
 
   resources :skills do
+    get 'discarded', on: :collection
+  end
+
+  resources :connections do
     get 'discarded', on: :collection
   end
 

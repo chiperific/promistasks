@@ -1,6 +1,12 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
+1. Property#show Task section:
+  - Checkbox for completion
+  - Ajax completion checkbox: http://guides.rubyonrails.org/working_with_javascript_in_rails.html#link-to
+  - Edit task form (which will cascade in to New task form)
+1.1 A Tasklist without tasks causes errors in tasks_client
+  - Fix them
 2. Write system tests:
   - tasks#public
   - tasks#index

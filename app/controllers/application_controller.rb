@@ -3,6 +3,7 @@
 class ApplicationController < ActionController::Base
   include Pundit
   include ErrorHandler
+  include ApplicationHelper
 
   protect_from_forgery with: :exception
   # after_action :verify_authorized, unless: :devise_controller?

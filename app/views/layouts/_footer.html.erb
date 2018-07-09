@@ -4,7 +4,9 @@
   </a>
   <ul>
     <li>
-      <%= link_to '<i class="material-icons">check_circle_outline</i>'.html_safe, new_task_path, class: 'btn-floating light-blue lighten-1', 'data-turbolinks'=> 'false' %>
+      <%= link_to new_task_path, class: 'btn-floating light-blue lighten-1', 'data-turbolinks'=> 'false' do %>
+        <i class="material-icons">check_circle_outline</i>
+      <% end %>
     </li>
 
     <li>

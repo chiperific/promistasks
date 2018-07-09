@@ -1,0 +1,26 @@
+<tr class=<%= identifier %>>
+  <td>
+    <%= task_row.title %>
+  </td>
+  <td>
+    <%= task_row.priority || 'not set' %>
+  </td>
+  <td>
+    <%= task_row.due || 'not set' %>
+  </td>
+  <td>
+    <%= task_row.budget.present? ?  task_row.budget.format : Money.new(0).format %>
+  </td>
+  <td>
+    <%= task_row.cost.present? ? task_row.cost.format : Money.new(0).format %>
+  </td>
+  <td>
+    <%= human_boolean(task_row.needs_more_info) %>
+  </td>
+  <td>
+    complete
+  </td>
+  <td>
+    edit
+  </td>
+</tr>

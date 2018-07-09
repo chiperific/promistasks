@@ -7,6 +7,37 @@ class PropertiesController < ApplicationController
 
   def show
     authorize @property = Property.find(params[:id])
+
+    occupancy = @property.connections.where(relationship: 'tennant').order(stage_date: :desc)
+
+    if occupancy.empty?
+      @occupancy_msg = 'Not recorded'
+    else
+      @occupancy_msg = occupancy.first.user.name + ' ' +
+                       occupancy.first.stage + ' on ' +
+                       occupancy.first.stage_date.strftime('%b %-d, %y')
+    end
+
+    @connections = @property.connections
+
+    @primary_info_hash = {
+      'Occupancy status': @occupancy_msg,
+      'Lot rent': @property.lot_rent || 'Not recorded',
+      'Acquired on': @property.acquired_on.present? ? @property.acquired_on.strftime("%b %-d, %y") : 'Not recorded',
+      'Creator': @property.creator.name
+    }
+
+    @secondary_info_hash = {
+      'Certificate #': @property.certificate_number.present? ? @property.certificate_number : 'Not recorded',
+      'Cost': @property.cost.present? ? @property.cost.format : 'Not recorded',
+      'Created on': @property.created_at.strftime('%b %-d, %y'),
+      'Created in': @property.created_from_api? ? 'Google Tasks' : 'PromiseTasks',
+      'Year manufactured': @property.year_manufacture || 'Not recorded',
+      'Manufacturer': @property.manufacturer.present? ? @property.manufacturer : 'Not recorded',
+      'Serial #': @property.serial_number.present? ? @property.serial_number : 'Not recorded'
+    }
+
+    @tasks = @property.tasks.visible_to(current_user)
   end
 
   def new
@@ -65,6 +96,31 @@ class PropertiesController < ApplicationController
     authorize @properties = Property.discarded
   end
 
+  def tasks_filter
+    # from Property#show, ajax to update views/tasks/_tasks_table partial
+
+    @property = Property.find(params[:id])
+
+    case params[:tasks]
+    when nil || 'your'
+      @tasks = @property.tasks.visible_to(current_user)
+      @empty_msg = 'No active tasks'
+    when 'all'
+      @tasks = @property.tasks.undiscarded
+      @empty_msg = 'No active tasks'
+    when 'completed'
+      @tasks = @property.tasks.complete
+      @empty_msg = 'No completed tasks'
+    when 'archived'
+      @tasks = @property.tasks.archived
+      @empty_msg = 'No archived tasks'
+    end
+
+    respond_to do |format|
+      format.js
+    end
+  end
+
   private
 
   def property_params
@@ -72,6 +128,6 @@ class PropertiesController < ApplicationController
                                      :description, :acquired_on, :cost, :lot_rent, :budget,
                                      :certificate_number, :serial_number, :year_manufacture,
                                      :manufacturer, :model, :certification_label1, :certification_label2,
-                                     :creator, :is_private, :ignore_budget_warning, :archive)
+                                     :creator_id, :is_private, :ignore_budget_warning, :archive)
   end
 end

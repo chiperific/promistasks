@@ -1,0 +1,23 @@
+<tr>
+  <td>
+    <%= link_to connection.user, class: 'btn-flat waves-effect' do %>
+      <i class="material-icons left">exit_to_app</i>
+      <%= connection.user.name %>
+    <% end %>
+  </td>
+  <td>
+    <%= connection.relationship.capitalize %>
+  </td>
+  <td>
+    <%= connection.updated_at.strftime("%b %-d, %y") %>
+  </td>
+  <td>
+    <%= connection.stage || 'N/A' %>
+  </td>
+  <td>
+    <%= connection.stage_date.present? ? connection.stage_date.strftime("%b %-d, %y") : 'N/A' %>
+  </td>
+  <td>
+    <%= link_to 'Edit', edit_connection_path(connection), class: 'btn amber waves-effect'  %>
+  </td>
+</tr>

@@ -1,5 +1,6 @@
 <%= form_for property do |f| %>
   <%= render 'shared/form_errors', object: property %>
+  <%= f.hidden_field :creator_id, value: current_user.id %>
 
   <div class="input-field">
     <%= f.text_field :name %>
@@ -32,10 +33,12 @@
 
   <% unless property.new_record? %>
     <div class="center-align">
-      Created by: <%= property.creator.fname %>
-      <% if property.created_from_api? %>
-        in Google Tasks
-      <% end %>
+      <h5>
+        Created by: <%= property.creator.fname %>
+        <% if property.created_from_api? %>
+          in Google Tasks
+        <% end %>
+      </h5>
     </div>
   <% end %>
 
@@ -107,7 +110,7 @@
 
   <div class="row">
     <div class="input-field col m2 s12">
-      <%= f.number_field :year_manufacture, value: Time.now.year, min: Time.now.year - 10, max: Time.now.year + 1, step: 1 %>
+      <%= f.number_field :year_manufacture, value: Time.now.year, min: Time.now.year - 100, max: Time.now.year + 1, step: 1 %>
       <label for="property_year_maufacture">Year Manufactured</label>
     </div>
 
@@ -117,32 +120,20 @@
     </div>
 
     <div class="input-field col m5 s12">
-      <%= f.text_field :model %>
-      <label for="property_model">Model</label>
+      <%= f.text_field :bed_bath %>
+      <label for="property_model">Bed & Bath</label>
     </div>
   </div>
 
   <div class="row">
-    <div class="input-field col s12">
+    <div class="input-field col m6 s12">
       <%= f.text_field :certificate_number %>
       <label for="property_certificate_number">Certificate # (Title)</label>
     </div>
-  </div>
 
-  <div class="row">
-    <div class="input-field col m4 s12">
+    <div class="input-field col m6 s12">
       <%= f.text_field :serial_number %>
       <label for="property_serial_number">Serial #</label>
-    </div>
-
-    <div class="input-field col m4 s12">
-      <%= f.text_field :certification_label1 %>
-      <label for="property_certificate_label1">Certification Label</label>
-    </div>
-
-    <div class="input-field col m4 s12">
-      <%= f.text_field :certification_label2 %>
-      <label for="property_certificate_label2">Certification Label 2 (double wides)</label>
     </div>
   </div>
 
@@ -151,7 +142,7 @@
       <%= f.submit class: 'btn green' %>
     </div>
     <div class="col m6">
-      <%= link_to 'Cancel', @return_path, class: 'btn red lighten-1' %>
+      <%= link_to 'Cancel', @return_path, class: 'btn red lighten-1', 'data-turbolinks'=> 'false' %>
     </div>
   </div>
 <% end %>
