@@ -69,10 +69,10 @@
           <%= link_to 'Yours', tasks_filter_property_path(@property, tasks: 'your'), id: 'tasks_your', class: 'paginate_btn', remote: true %>
         </li>
         <li class="waves-effect">
-          <%= link_to 'All', tasks_filter_property_path(@property, tasks: 'all'), id: 'tasks_all', class: 'paginate_btn', remote: true %>
+          <%= link_to 'Completed', tasks_filter_property_path(@property, tasks: 'completed'), id: 'tasks_completed', class: 'paginate_btn', remote: true %>
         </li>
         <li class="waves-effect">
-          <%= link_to 'Completed', tasks_filter_property_path(@property, tasks: 'completed'), id: 'tasks_completed', class: 'paginate_btn', remote: true %>
+          <%= link_to 'All', tasks_filter_property_path(@property, tasks: 'all'), id: 'tasks_all', class: 'paginate_btn', remote: true %>
         </li>
         <li class="waves-effect">
           <%= link_to 'Archived', tasks_filter_property_path(@property, tasks: 'archived'), id: 'tasks_archived', class: 'paginate_btn', remote: true %>

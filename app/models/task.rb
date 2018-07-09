@@ -56,6 +56,14 @@ class Task < ApplicationRecord
     alias active kept
   end
 
+  def status
+    completed_at.nil? ? 'active' : 'complete'
+  end
+
+  def complete?
+    completed_at.present?
+  end
+
   def budget_remaining
     return nil if budget.nil? && cost.nil?
     temp_budget = budget || Money.new(0)

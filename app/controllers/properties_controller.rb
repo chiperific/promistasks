@@ -37,7 +37,7 @@ class PropertiesController < ApplicationController
       'Serial #': @property.serial_number.present? ? @property.serial_number : 'Not recorded'
     }
 
-    @tasks = @property.tasks.visible_to(current_user)
+    @tasks = @property.tasks.in_process.visible_to(current_user)
   end
 
   def new
@@ -103,7 +103,7 @@ class PropertiesController < ApplicationController
 
     case params[:tasks]
     when nil || 'your'
-      @tasks = @property.tasks.visible_to(current_user)
+      @tasks = @property.tasks.in_process.visible_to(current_user)
       @empty_msg = 'No active tasks'
     when 'all'
       @tasks = @property.tasks.undiscarded

@@ -30,4 +30,12 @@ class TaskPolicy < ApplicationPolicy
   def destroy?
     user&.staff?
   end
+
+  def complete?
+    record.visible_to?(user) || user.system_admin?
+  end
+
+  def un_complete?
+    record.visible_to?(user) || user.system_admin?
+  end
 end

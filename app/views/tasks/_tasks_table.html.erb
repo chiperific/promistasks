@@ -24,7 +24,7 @@
     <td>
       <p>
         <label>
-          <input type="checkbox" class="filled-in complete_bool">
+          <input type="checkbox" class="filled-in complete_bool" <%= 'checked' if task.complete? %>>
           <span class="complete_span">&nbsp;</span>
           <span class="task_id">
             <%= task.id %>
