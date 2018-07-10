@@ -16,6 +16,8 @@ Rails.application.routes.draw do
     get 'discarded', on: :collection
     get 'reports', on: :collection
     get 'default', on: :collection
+    get 'property_enum', on: :collection
+    get 'find_id_by_name', on: :collection
     get 'tasks_filter', on: :member
   end
 
@@ -36,6 +38,9 @@ Rails.application.routes.draw do
   resources :users do
     get 'discarded', on: :collection
     get 'clear_completed_jobs', on: :collection
+    get 'owner_enum', on: :collection
+    get 'subject_enum', on: :collection
+    get 'find_id_by_name', on: :collection
     get 'api_sync', on: :member
     get 'alerts', on: :member
   end

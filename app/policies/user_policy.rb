@@ -37,7 +37,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def current_user_id?
-    user.present?
+    user.not_client?
   end
 
   def api_sync?
@@ -50,5 +50,17 @@ class UserPolicy < ApplicationPolicy
 
   def alerts?
     user&.system_admin? || user == record
+  end
+
+  def owner_enum?
+    user&.not_client?
+  end
+
+  def subject_enum?
+    user&.not_client?
+  end
+
+  def find_id_by_name?
+    user&.not_client?
   end
 end

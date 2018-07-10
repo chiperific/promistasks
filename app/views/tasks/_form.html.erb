@@ -1,0 +1,141 @@
+<%= form_for task do |f| %>
+  <%= render 'shared/form_errors', object: task %>
+
+  <div class="row">
+    <div class="input-field col s12">
+      <%= f.text_field :title %>
+      <label for="task_title">Title</label>
+    </div>
+    <div class="input-field col s12">
+      <%= f.text_area :notes, class: 'materialize-textarea' %>
+      <label for="task_notes">Notes</label>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col s12 m6 l3">
+      <div class="input-field">
+        <%= f.select :priority, Constant::Task::PRIORITY, { include_blank: true, selected: 'someday'} %>
+        <label for="task_priority">Priority</label>
+      </div>
+    </div>
+
+    <div class="col s12 m6 l3">
+      <div class="input-field">
+        <%= f.select :visibility, Constant::Task::VISIBILITY_ENUM %>
+        <label for="task_visibility">Visibility</label>
+      </div>
+    </div>
+
+    <div class="col s12 m6 l3">
+      <div class="input-field">
+        <%= f.text_field :due, value: human_date(task.due), class: 'datepicker' %>
+        <label for="task_due">Due date</label>
+      </div>
+    </div>
+
+    <div class="col s12 m6 l3">
+      <div class="input-field">
+        <%= f.text_field :completed_at, class: 'datepicker' %>
+        <label for="task_completed_at">Completed date</label>
+      </div>
+    </div>
+  </div>
+
+  <% unless task.new_record? %>
+    <div class="row center-align">
+      <input type="hidden" value="0" name="task[archive]">
+      <div class="col s6">
+        <p>
+          Created by: <%= task.creator.fname %>
+          <% if task.created_from_api? %>
+            in Google Tasks
+          <% end %>
+        </p>
+      </div>
+
+      <div class="col s6">
+        <p>
+          <label>
+            <input type="checkbox" value="1" name="task[archive]" <%= 'checked' if task.archived? %>>
+            <span>Archive</span>
+          </label>
+        </p>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="section row">
+    <div class="col s12">
+      <h5>People</h5>
+    </div>
+
+    <div class="col s12 m6 l3">
+      <div class="input-field">
+        <%= text_field_tag 'owner_lkup', task.owner&.name || current_user.name, class: "autocomplete-owners" %>
+        <label for="owner_lkup">Owner</label>
+        <%= f.hidden_field :owner_id, value: current_user.id %>
+      </div>
+    </div>
+
+    <div class="col s12 m6 l3">
+      <div class="input-field">
+        <%= text_field_tag 'subject_lkup', task.subject&.name, class: "autocomplete-subjects" %>
+        <label for="subject_lkup">Subject</label>
+        <%= f.hidden_field :subject_id %>
+      </div>
+    </div>
+
+    <div class="col s12 m6 l3">
+      <div class="input-field">
+        <%= text_field_tag 'property_lkup', task.property&.name, class: "autocomplete-properties" %>
+        <label for="property_lkup">Property</label>
+        <%= f.hidden_field :property_id %>
+      </div>
+    </div>
+
+    <% if current_user&.system_admin? %>
+      <div class="col s12 m6 l3">
+        <div class="input-field">
+          <%= text_field_tag 'creator_lkup', task.creator&.name || current_user.name, class: "autocomplete-owners" %>
+          <label for="creator_lkup">Creator</label>
+          <i>Only change if user must be deleted.</i>
+          <%= f.hidden_field :creator_id, value: current_user.id %>
+        </div>
+      </div>
+    <% else %>
+      <%= f.hidden_field :creator_id, value: current_user.id %>
+    <% end %>
+  </div>
+
+  <div class="section row">
+    <div class="col s12">
+      <h5>Money</h5>
+    </div>
+
+    <div class="col s6">
+      <div class="input-field">
+        <i class="material-icons prefix">attach_money</i>
+        <%= f.number_field :budget, min: 0, step: 0.01 %>
+        <label for="task_budget">Budget</label>
+      </div>
+    </div>
+
+    <div class="col s6">
+      <div class="input-field">
+        <i class="material-icons prefix">attach_money</i>
+        <%= f.number_field :cost, min: 0, step: 0.01 %>
+        <label for="task_cost">Cost</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="row center-align">
+    <div class="col m6">
+      <%= f.submit class: 'btn green' %>
+    </div>
+    <div class="col m6">
+      <%= link_to 'Cancel', @return_path, class: 'btn red lighten-1', 'data-turbolinks'=> 'false' %>
+    </div>
+  </div>
+<% end %>

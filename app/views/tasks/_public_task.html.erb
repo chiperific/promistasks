@@ -6,7 +6,7 @@
         <p class='grey-text text-darken-4 clipped'><%= public_task.notes %></p>
       </div>
       <div class="card-action">
-        <%= link_to public_task.due || 'Flexible', task_path(public_task), class: 'blue-text text-darken-3' %>
+        <%= link_to 'DUE: ' + human_date(public_task.due) || 'Flexible', task_path(public_task), class: 'blue-text text-darken-3' %>
         <%= link_to 'Learn more', task_path(public_task), class: 'right blue-text text-darken-3' %>
       </div>
     </div>

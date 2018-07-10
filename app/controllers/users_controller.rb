@@ -62,6 +62,7 @@ class UsersController < ApplicationController
   end
 
   def current_user_id
+    authorize current_user
     id = current_user&.id || 0
     @id = { id: id }
     render json: @id.as_json
@@ -80,7 +81,7 @@ class UsersController < ApplicationController
   end
 
   def alerts
-    user = User.find(params[:id])
+    authorize user = User.find(params[:id])
     tasks = Task.related_to(user)
     properties = Property.related_to(user)
 
@@ -119,6 +120,29 @@ class UsersController < ApplicationController
     }
 
     render json: @notification_json.as_json
+  end
+
+  def owner_enum
+    authorize current_user
+    user_list = User.not_clients.pluck(:name, :oauth_image_link).to_h
+
+    render json: user_list
+  end
+
+  def subject_enum
+    authorize current_user
+    user_list = User.pluck(:name, :oauth_image_link).to_h
+
+    render json: user_list
+  end
+
+  def find_id_by_name
+    authorize current_user
+    users = User.where(name: params[:name])
+
+    user_id = users.present? ? users.first.id : 0
+
+    render json: user_id
   end
 
   private

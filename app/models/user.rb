@@ -54,6 +54,7 @@ class User < ActiveRecord::Base
   # rubocop:disable Layout/IndentationConsistency
   # rubocop:disable Layout/IndentationWidth
   scope :staff,                       -> { undiscarded.where.not(oauth_id: nil) }
+  scope :not_clients,                 -> { undiscarded.where(client: false) }
   scope :staff_except,                ->(user) { undiscarded.staff.where.not(id: user) }
   scope :not_staff,                   -> { undiscarded.where(oauth_id: nil) }
   scope :with_tasks_for,              ->(property) { created_tasks_for(property).or(owned_tasks_for(property)) }
@@ -71,6 +72,11 @@ class User < ActiveRecord::Base
       admin_staff? ||
       system_admin? ||
       oauth_id.present?
+  end
+
+  def not_client?
+    !client? &&
+      (type.present? || system_admin?)
   end
 
   def oauth?
@@ -97,7 +103,7 @@ class User < ActiveRecord::Base
   def readable_type
     # return 'System Admin' if system_admin?
     return 'Staff' if oauth_id.present? && type.empty?
-    type.to_s
+    type.join(', ')
   end
 
   def fname

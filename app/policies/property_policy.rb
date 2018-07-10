@@ -42,4 +42,12 @@ class PropertyPolicy < ApplicationPolicy
   def discarded?
     user&.staff?
   end
+
+  def tasks_filter?
+    user&.not_client?
+  end
+
+  def property_enum?
+    user&.not_client?
+  end
 end

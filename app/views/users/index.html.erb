@@ -11,6 +11,7 @@
   <thead>
     <tr>
       <th></th>
+      <th></th>
       <th>Name</th>
       <th>Type</th>
       <th></th>
@@ -23,11 +24,16 @@
       <tr>
         <td class='table-profile-pic'>
           <%= link_to user do  %>
-            <% if current_user.oauth? %>
-              <i class="material-icons no-pic">account_circle</i>
-            <% else %>
+            <% if user.oauth? %>
               <%= image_tag user.oauth_image_link, alt: 'Profile pic', class: 'circle' %>
+            <% else %>
+              <i class="material-icons no-pic">account_circle</i>
             <% end %>
+          <% end %>
+        </td>
+        <td>
+          <% if user.system_admin? %>
+            <i class="material-icons">verified_user</i>
           <% end %>
         </td>
         <td><%= user.name %></td>

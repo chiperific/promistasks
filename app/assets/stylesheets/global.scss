@@ -21,10 +21,8 @@ form {
     color: #e53935;
   }
 
-  div.field_with_errors {
-    input {
+  .field_with_errors {
       background-color: rgba(229, 57, 53, .3) !important;
-    }
   }
 }
 
@@ -64,5 +62,9 @@ a.modal-trigger {
     list-style-type: circle !important;
     margin-left: 2em;
   }
+}
+
+.field_with_errors {
+  display: inline
 }
 

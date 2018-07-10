@@ -13,7 +13,7 @@ module Constant
     ALERTS = ['due soon', 'urgent priority', 'high priority', 'data entry'].freeze
     OWNER_TYPES = ['Program Staff', 'Project Staff', 'Admin Staff'].freeze
     VISIBILITY = ['Staff', 'Public', 'Only associated people', 'Not clients'].freeze
-    VISIBILITY_ENUM = [[0, 'Staff'], [1, 'Everyone'], [2, 'Only associated people'], [3, 'Not clients']].freeze
+    VISIBILITY_ENUM = [['Staff', 0], ['Everyone', 1], ['Only associated people', 2], ['Not clients', 3]].freeze
   end
 
   class Connection
@@ -33,6 +33,6 @@ module Constant
   end
 
   class Params
-    ACTIONS = %w[alerts api_sync clear_completed_jobs current_user_id destroy edit google_oauth2 new].freeze
+    ACTIONS = %w[alerts api_sync clear_completed_jobs complete current_user_id destroy edit find_id_by_name google_oauth2 new owner_enum property_enum subject_enum tasks_filter un_complete].freeze
   end
 end

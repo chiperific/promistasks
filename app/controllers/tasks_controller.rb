@@ -11,11 +11,23 @@ class TasksController < ApplicationController
 
   def new
     authorize @task = Task.new
+    @task.property_id = params[:property] if params[:property].present?
   end
 
   def create
-    authorize @task = Task.find(params[:id])
-    # redirect_to @return_path, notice: 'Task created'
+    modified_params = task_params.except :archive
+
+    modified_params.delete :budget if task_params[:budget].blank?
+    modified_params.delete :cost if task_params[:cost].blank?
+
+    authorize @task = Task.new(modified_params)
+
+    if @task.save
+      redirect_to @return_path, notice: 'Task created'
+    else
+      flash[:warning] = 'Oops, found some errors'
+      render 'new'
+    end
   end
 
   def edit
@@ -24,7 +36,16 @@ class TasksController < ApplicationController
 
   def update
     authorize @task = Task.find(params[:id])
-    # redirect_to @return_path, notice: 'Task updated'
+
+    @task.discard if task_params[:archive] == '1'
+
+    modified_params = task_params.except :archive
+    if @task.update(modified_params)
+      redirect_to @return_path, notice: 'Task updated'
+    else
+      flash[:warning] = 'Oops, found some errors'
+      render 'edit'
+    end
   end
 
   def destroy
@@ -53,5 +74,13 @@ class TasksController < ApplicationController
     @task.update(completed_at: nil)
     status = @task.reload.completed_at.nil? ? 'inProcess' : 'completed'
     render json: { id: @task.id.to_s, status: status }
+  end
+
+  private
+
+  def task_params
+    params.require(:task).permit(:title, :notes, :priority, :due, :visibility, :completed_at,
+                                 :creator_id, :owner_id, :subject_id, :property_id,
+                                 :budget, :cost, :archive)
   end
 end

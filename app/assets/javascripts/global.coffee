@@ -25,9 +25,7 @@ $(document).on 'turbolinks:load', ->
 
   datePickers = document.querySelectorAll('.datepicker')
   M.Datepicker.init(datePickers, {
-    'format': 'mmm dd, yy',
-    'defaultDate': Date.now(),
-    'setDefaultDate': true,
+    'format': 'mmm dd, yyyy',
     'showClearBtn': true
     })
 

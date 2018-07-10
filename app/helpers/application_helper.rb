@@ -10,4 +10,8 @@ module ApplicationHelper
   def human_boolean(boolean)
     boolean ? 'Yes' : 'No'
   end
+
+  def human_date(date)
+    date&.strftime('%b %-d, %Y')
+  end
 end

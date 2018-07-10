@@ -15,7 +15,7 @@ class PropertiesController < ApplicationController
     else
       @occupancy_msg = occupancy.first.user.name + ' ' +
                        occupancy.first.stage + ' on ' +
-                       occupancy.first.stage_date.strftime('%b %-d, %y')
+                       human_date(occupancy.first.stage_date)
     end
 
     @connections = @property.connections
@@ -23,14 +23,14 @@ class PropertiesController < ApplicationController
     @primary_info_hash = {
       'Occupancy status': @occupancy_msg,
       'Lot rent': @property.lot_rent || 'Not recorded',
-      'Acquired on': @property.acquired_on.present? ? @property.acquired_on.strftime("%b %-d, %y") : 'Not recorded',
+      'Acquired on': human_date(@property.acquired_on) || 'Not recorded',
       'Creator': @property.creator.name
     }
 
     @secondary_info_hash = {
       'Certificate #': @property.certificate_number.present? ? @property.certificate_number : 'Not recorded',
       'Cost': @property.cost.present? ? @property.cost.format : 'Not recorded',
-      'Created on': @property.created_at.strftime('%b %-d, %y'),
+      'Created on': human_date(@property.created_at),
       'Created in': @property.created_from_api? ? 'Google Tasks' : 'PromiseTasks',
       'Year manufactured': @property.year_manufacture || 'Not recorded',
       'Manufacturer': @property.manufacturer.present? ? @property.manufacturer : 'Not recorded',
@@ -52,7 +52,7 @@ class PropertiesController < ApplicationController
       redirect_to @return_path, notice: 'Property created'
     else
       flash[:warning] = 'Oops, found some errors'
-      render 'edit'
+      render 'new'
     end
   end
 
@@ -98,27 +98,45 @@ class PropertiesController < ApplicationController
 
   def tasks_filter
     # from Property#show, ajax to update views/tasks/_tasks_table partial
-
-    @property = Property.find(params[:id])
+    authorize @property = Property.find(params[:id])
 
     case params[:tasks]
     when nil || 'your'
       @tasks = @property.tasks.in_process.visible_to(current_user)
       @empty_msg = 'No active tasks'
     when 'all'
-      @tasks = @property.tasks.undiscarded
+      @tasks = @property.tasks.active
       @empty_msg = 'No active tasks'
     when 'completed'
       @tasks = @property.tasks.complete
       @empty_msg = 'No completed tasks'
     when 'archived'
-      @tasks = @property.tasks.archived
+      @tasks = @property.tasks.visible_to(current_user).archived
       @empty_msg = 'No archived tasks'
     end
 
     respond_to do |format|
       format.js
     end
+  end
+
+  def property_enum
+    authorize properties = Property.active.where(is_default: false).select(:name)
+
+    hsh = {}
+    properties.each do |property|
+      hsh[property.name] = nil
+    end
+    render json: hsh
+  end
+
+  def find_id_by_name
+    authorize current_user
+    properties = Property.where(name: params[:name])
+
+    property_id = properties.present? ? properties.first.id : 0
+
+    render json: property_id
   end
 
   private

@@ -8,7 +8,7 @@ class TaskPolicy < ApplicationPolicy
   end
 
   def index?
-    user&.staff?
+    user&.not_client?
   end
 
   def show?
@@ -16,26 +16,22 @@ class TaskPolicy < ApplicationPolicy
   end
 
   def new?
-    user&.staff?
+    user&.not_client?
   end
 
   def create?
-    user&.staff?
+    user&.not_client?
   end
 
   def edit?
-    user&.staff?
+    user&.not_client?
+  end
+
+  def update?
+    user&.not_client?
   end
 
   def destroy?
     user&.staff?
-  end
-
-  def complete?
-    record.visible_to?(user) || user.system_admin?
-  end
-
-  def un_complete?
-    record.visible_to?(user) || user.system_admin?
   end
 end

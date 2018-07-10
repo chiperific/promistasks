@@ -9,13 +9,13 @@
     <%= connection.relationship.capitalize %>
   </td>
   <td>
-    <%= connection.updated_at.strftime("%b %-d, %y") %>
+    <%= human_date(connection.updated_at) %>
   </td>
   <td>
     <%= connection.stage || 'N/A' %>
   </td>
   <td>
-    <%= connection.stage_date.present? ? connection.stage_date.strftime("%b %-d, %y") : 'N/A' %>
+    <%= human_date(connection.stage_date) || 'N/A' %>
   </td>
   <td>
     <%= link_to 'Edit', edit_connection_path(connection), class: 'btn amber waves-effect'  %>

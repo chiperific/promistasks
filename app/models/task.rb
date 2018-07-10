@@ -64,6 +64,10 @@ class Task < ApplicationRecord
     completed_at.present?
   end
 
+  def archived?
+    discarded_at.present?
+  end
+
   def budget_remaining
     return nil if budget.nil? && cost.nil?
     temp_budget = budget || Money.new(0)
@@ -108,7 +112,7 @@ class Task < ApplicationRecord
       task_user = ensure_task_user_exists_for(user)
       # changing details about the task won't trigger an api call from task_user
       # so it must be triggered here
-      task_user.api_update
+      task_user.api_update if task_user.present?
     end
   end
 
@@ -116,18 +120,20 @@ class Task < ApplicationRecord
     [creator, owner].each do |user|
       tasklist = property.ensure_tasklist_exists_for(user)
       task_user = ensure_task_user_exists_for(user)
-      task_user.update(tasklist_gid: tasklist.google_id)
+      task_user.update(tasklist_gid: tasklist.google_id) if task_user.present?
     end
   end
 
   def change_task_users
     if creator_id != creator_id_before_last_save
-      task_users.where(user_id: creator_id_before_last_save).first.destroy
+      old_tu = task_users.where(user_id: creator_id_before_last_save)
+      old_tu.first.destroy if old_tu.present?
       ensure_task_user_exists_for(creator)
     end
 
     if owner_id != owner_id_before_last_save
-      task_users.where(user_id: owner_id_before_last_save).first.destroy
+      old_tu = task_users.where(user_id: owner_id_before_last_save)
+      old_tu.first.destroy if old_tu.present?
       ensure_task_user_exists_for(owner)
     end
   end

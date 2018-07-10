@@ -14,12 +14,11 @@ class CreateTasks < ActiveRecord::Migration[5.1]
       t.monetize :budget, amount: { null: true, default: nil }
       t.monetize :cost,   amount: { null: true, default: nil }
       t.integer :visibility,       default: 0,     null: false # [[0, 'Staff'], [1, 'Everyone'], [2, 'Only associated people'], [3, 'Not clients']]
-      t.boolean :license_required, default: false, null: false
       t.boolean :needs_more_info,  default: false, null: false
       t.datetime :discarded_at
       t.datetime :completed_at                                 # google field -- completed, lives on this model because completing from one staff should complete for all
-      t.boolean :created_from_api, default: false, null: false
       t.string :owner_type                                     # ['Program Staff', 'Project Staff', 'Admin Staff']
+      t.boolean :created_from_api, default: false, null: false
       t.timestamps
 
       t.index :title

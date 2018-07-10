@@ -2,17 +2,14 @@
 
 # To do:
 1. Property#show Task section:
-  - Checkbox for completion
-  - Ajax completion checkbox: http://guides.rubyonrails.org/working_with_javascript_in_rails.html#link-to
   - Edit task form (which will cascade in to New task form)
-1.1 A Tasklist without tasks causes errors in tasks_client
-  - Fix them
+1.1 Property _form name blank
+1.2 Task.skills should show on task#public as tags?
+  - https://materializecss.com/chips.html
+1.3
 2. Write system tests:
-  - tasks#public
-  - tasks#index
-  - sessions#new
-  - registrations#new
-  - user#edit
+  - Every view
+  - Every AJAX (use controllers or policies to find)
 3. Write model tests:
   - User has 2 pending methods
 3.5 Re-write services tests -- because I nerfed them both

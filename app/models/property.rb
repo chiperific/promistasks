@@ -183,15 +183,11 @@ class Property < ApplicationRecord
 
   def discard_tasks_and_delete_tasklists
     Tasklist.where(property: self).each do |tasklist|
-      tasklist.api_delete
       tasklist.destroy
     end
-    # this feels like the wrong place for this
-    # maybe trigger on task#after_update, if: -> { discarded_at.present }
-    # but update_all skips callbacks
-    tasks.each do |task|
-      task.task_users.destroy_all if task.present? && task.task_users.present?
+
+    Task.where(property: self).each do |task|
+      task.discard
     end
-    tasks.update_all(discarded_at: discarded_at)
   end
 end
