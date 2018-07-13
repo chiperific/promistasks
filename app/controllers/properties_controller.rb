@@ -6,7 +6,36 @@ class PropertiesController < ApplicationController
   end
 
   def list
-    authorize @properties = Property.where(is_default: false).visible_to(current_user)
+    authorize properties = Property.where(is_default: false).related_to(current_user)
+
+    case params[:filter]
+    when 'tasks'
+      @properties = Property.where(is_default: false).with_tasks_for(current_user)
+      @empty_msg = 'No properties with tasks for you'
+    when 'over'
+      @properties = properties.over_budget
+      @empty_msg = 'No properties over budget!'
+    when 'near'
+      @properties = properties.nearing_budget
+      @empty_msg = 'No properties within $500 of budget!'
+    when 'title'
+      @properties = properties.needs_title
+      @empty_msg = 'No properties missing titles'
+    when 'admin'
+      @properties = Property.where(is_default: false)
+      @empty_msg = 'No properties in system'
+    when 'all'
+      @properties = Property.where(is_default: false).visible_to(current_user)
+      @empty_msg = 'No properties visible to you'
+    else # 'yours' || nil
+      @properties = properties
+      @empty_msg = 'No properties related to you'
+    end
+
+    respond_to do |format|
+      format.js
+      format.html
+    end
   end
 
   def show

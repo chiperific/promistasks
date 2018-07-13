@@ -1,4 +1,3 @@
-
 <div class="row valign-wrapper">
   <div class="col s10">
     <h1>Your Tasks</h1>
@@ -11,7 +10,7 @@
 </div>
 
 <div class="row center-align">
-  <ul class="pagination" id="task_pagination">
+  <ul class="pagination" id="tasks_pagination" name="tasks">
     <% if @show_new %>
       <li class="waves-effect">
         <%= link_to 'New', tasks_path(filter: 'new'), id: 'tasks_new', class: 'paginate_btn', remote: true %>
@@ -51,9 +50,9 @@
         <th></th>
         <th>Title</th>
         <th>Assigned to</th>
-        <th>Due</th>
-        <th>Budget</th>
-        <th>Cost</th>
+        <th class="center-align">Due</th>
+        <th class="center-align">Budget</th>
+        <th class="center-align">Cost</th>
         <th></th>
         <th></th>
         <th></th>

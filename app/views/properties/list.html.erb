@@ -14,6 +14,35 @@
   </div>
 </div>
 
+<div class="row center-align">
+  <ul class="pagination" id="properties_pagination" name="properties">
+    <li class="waves-effect active purple">
+      <%= link_to 'Yours', list_properties_path(filter: 'yours'), id: 'properties_yours', class: 'paginate_btn', remote: true  %>
+    </li>
+    <li class="waves-effect">
+      <%= link_to 'Have Your Tasks', list_properties_path(filter: 'tasks'), id: 'properties_tasks', class: 'paginate_btn', remote: true  %>
+    </li>
+    <li class="waves-effect">
+      <%= link_to 'Over budget', list_properties_path(filter: 'over'), id: 'properties_over', class: 'paginate_btn', remote: true  %>
+    </li>
+    <li class="waves-effect">
+      <%= link_to 'Nearing budget', list_properties_path(filter: 'near'), id: 'properties_near', class: 'paginate_btn', remote: true  %>
+    </li>
+    <li class="waves-effect">
+      <%= link_to 'Missing title', list_properties_path(filter: 'title'), id: 'properties_title', class: 'paginate_btn', remote: true  %>
+    </li>
+    <% if current_user.system_admin? %>
+      <li class="waves-effect">
+        <%= link_to 'All', list_properties_path(filter: 'admin'), id: 'properties_admin', class: 'paginate_btn', remote: true  %>
+      </li>
+    <% elsif current_user.staff? %>
+      <li class="waves-effect">
+        <%= link_to 'All', list_properties_path(filter: 'all'), id: 'properties_all', class: 'paginate_btn', remote: true  %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+
 <div class="row">
   <table class="striped">
     <thead>
@@ -28,7 +57,7 @@
         <th></th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="property_table_body">
       <%= render partial: 'properties', collection: @properties %>
     </tbody>
   </table>

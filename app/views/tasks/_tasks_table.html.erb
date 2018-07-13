@@ -13,13 +13,19 @@
     <td>
       <%= task.owner.name %>
     </td>
-    <td>
-      <%= human_date(task.due) || 'not set' %>
+    <td class="center-align">
+      <% if task.past_due? %>
+        <span class="btn red darken-2 white-text">
+          <%= human_date(task.due) || 'not set' %>
+        </span>
+      <% else %>
+        <%= human_date(task.due) || 'not set' %>
+      <% end %>
     </td>
-    <td>
+    <td class="center-align">
       <%= task.budget&.format || 'not set' %>
     </td>
-    <td>
+    <td class="center-align">
       <%= task.cost&.format || 'not set' %>
     </td>
     <td>

@@ -64,7 +64,7 @@
       </div>
     </div>
     <div class="row center-align">
-      <ul class="pagination" id="task_pagination">
+      <ul class="pagination" id="tasks_pagination" name="tasks">
         <li class="waves-effect active purple">
           <%= link_to 'Yours', tasks_filter_property_path(@property, tasks: 'your'), id: 'tasks_your', class: 'paginate_btn', remote: true %>
         </li>

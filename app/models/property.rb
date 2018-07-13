@@ -34,7 +34,7 @@ class Property < ApplicationRecord
   after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? }
   after_update :update_tasklists,                   if: -> { discarded_at.nil? && saved_change_to_name? }
 
-  scope :needs_title,    ->       { undiscarded.where(certificate_number: nil) }
+  scope :needs_title,    ->       { undiscarded.where(certificate_number: '').or(where(certificate_number: nil)) }
   scope :public_visible, ->       { undiscarded.where(is_private: false) }
   scope :created_by,     ->(user) { undiscarded.where(creator: user) }
   scope :with_tasks_for, ->(user) { undiscarded.where(id: Task.select(:property_id).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id)) }
@@ -132,12 +132,6 @@ class Property < ApplicationRecord
     self.budget = Money.new(7_500_00)
   end
 
-  # def only_one_default
-  #   return true if Property.where(is_default: true).count == 0
-  #   return true if Property.where(is_default: true).count == 1 && self == Property.where(is_default: true).first
-  #   self.is_default = false
-  # end
-
   def default_must_be_private
     self.is_private = true
   end
@@ -175,12 +169,7 @@ class Property < ApplicationRecord
   end
 
   def discard_tasks_and_delete_tasklists
-    Tasklist.where(property: self).each do |tasklist|
-      tasklist.destroy
-    end
-
-    Task.where(property: self).each do |task|
-      task.discard
-    end
+    Tasklist.where(property: self).each(&:destroy)
+    Task.where(property: self).each(&:discard)
   end
 end

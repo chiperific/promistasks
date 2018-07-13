@@ -4,10 +4,14 @@
   <% end %>
 </li>
 <li id="properties_over_budget" class='collection-item red lighten-3'>
-  <span class='red-text'></span>
+  <%= link_to list_properties_path(filter: 'over') do  %>
+    <span class='red-text'></span>
+  <% end %>
 </li>
 <li id="properties_nearing_budget" class='collection-item orange lighten-5'>
-  <span class='orange-text'></span>
+  <%= link_to list_properties_path(filter: 'near') do  %>
+    <span class='orange-text'></span>
+  <% end %>
 </li>
 <li id="tasks_due_7" class='collection-item amber lighten-5'>
   <%= link_to tasks_path(filter: 'due-7') do  %>

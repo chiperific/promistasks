@@ -8,23 +8,31 @@ refreshTasks = (target, checked) ->
     true
   true
 
-setActivePagination = (target) ->
-  $('ul#task_pagination').find('li').removeClass('active')
-  $('ul#task_pagination').find('li').removeClass('purple')
-  targetID = 'a#tasks_' + target
-  $(targetID).parent('li').addClass('active')
-  $(targetID).parent('li').addClass('purple')
+setActivePagination = (target, scope) ->
+  attrSelector = 'ul[name="' + scope + '"]'
+  lis = $(attrSelector).find('li')
+  lis.removeClass('active')
+  lis.removeClass('purple')
+  targetID = 'a#' + scope + '_' + target
+  thisLi = $(targetID).parent('li')
+  thisLi.addClass('active')
+  thisLi.addClass('purple')
 
 
 
 $(document).on 'turbolinks:load', ->
   if getParameterByName('filter') != null
     target = document.location.search.replace('?filter=','')
-    setActivePagination(target)
+    scope = $('ul.pagination').attr('name')
+    setActivePagination(target, scope)
 
+# TASK: Property#show and Task#index
+# PROPERTY: Property#list
   $('a.paginate_btn').click ->
-    target = $(this).attr('id').replace('tasks_', '')
-    setActivePagination(target)
+    scope = $('ul.pagination').attr('name')
+    scopePrecursor = scope + '_'
+    target = $(this).attr('id').replace(scopePrecursor, '')
+    setActivePagination(target, scope)
 
   $('#task_table_body').on 'click', 'input.complete_bool', ->
     taskId = $(this).siblings('.task_id').text().trim()

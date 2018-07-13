@@ -180,6 +180,11 @@ class Task < ApplicationRecord
       (visibility == 3 && !user.client?)
   end
 
+  def past_due?
+    return false unless due.present? && completed_at.blank?
+    due < Time.now
+  end
+
   private
 
   def visibility_must_be_2

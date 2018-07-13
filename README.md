@@ -1,8 +1,7 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-1.1 Property _form allows name to be blank?
-1.2 Task.skills should show on task#public as tags?
+1.3 Task.skills should show on task#public
   - https://materializecss.com/chips.html
 1.3 Skills need integration into Users and Tasks
 2. Write system tests:
