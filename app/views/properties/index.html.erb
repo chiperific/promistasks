@@ -1,9 +1,16 @@
 <div class="row valign-wrapper">
-  <div class="col s10">
-    <h1>Properties</h1>
+  <div class="col s8">
+    <h2>Properties</h2>
   </div>
   <div class="col s2">
-    <%= link_to '<i class="material-icons">add</i>'.html_safe, new_property_path, class: 'btn-floating btn-large waves-effect waves-light green darken-2' %>
+    <%= link_to list_properties_path, class: 'btn-floating waves-effect waves-light blue darken-2' do %>
+      <i class="material-icons">menu</i>
+    <% end %>
+  </div>
+  <div class="col s2">
+    <%= link_to new_property_path, class: 'btn-floating btn-large waves-effect waves-light green darken-2' do %>
+      <i class="material-icons">add</i>
+    <% end %>
   </div>
 </div>
 

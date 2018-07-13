@@ -1,5 +1,124 @@
+<div class="row center-align">
+  <div class="hide-on-small-only">
+    <%= render @task.property %>
+  </div>
+  <div class="col s12 m6 l8">
+    <div class="row valign-wrapper">
+      <div class="col s10">
+        <h4><%= @task.title %></h4>
+      </div>
+      <div class="col s2">
+        <%= link_to edit_task_path(@task), class: 'btn-floating waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false' do  %>
+          <i class="material-icons">edit</i>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="col s12 m6 l8">
+    <table class="striped">
+      <tbody>
+        <% @primary_info_hash.each do |k,v| %>
+          <%= render partial: 'info_table', locals: { k: k, v: v } %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
 
+<% if @task.needs_more_info? %>
+  <div class="row section center-align">
+    <div class="col s12">
+      <%= link_to edit_task_path(@task), class: 'grey-text text-darken-4 btn-large red lighten-2 waves-effect waves-light', 'data-turbolinks'=> 'false' do %>
+        <i class="material-icons right">edit</i>
+        This task needs more detail
+      <% end %>
+    </div>
+  </div>
+<% end %>
 
-<%= link_to :back, class: 'waves-effect waves-light btn' do %>
+<% if @task.notes.present? %>
+  <div class="row section">
+    <div class="col s12">
+      <h5>Notes:</h5>
+    </div>
+    <div class="col s12">
+      <%= @task.notes %>
+    </div>
+  </div>
+<% end %>
+
+<div class="row section">
+  <div class="col s12">
+    <h5>Connections:</h5>
+  </div>
+  <div class="col s12">
+    <table class="striped">
+      <tbody>
+        <tr>
+          <td>Assigned to:</td>
+          <td>
+            <% if current_user.staff? %>
+              <%= link_to user_path(@task.owner), class: 'waves-effect waves-light btn-flat' do %>
+                <i class="material-icons left">visibility</i>
+                <%= @task.owner.name %>
+              <% end %>
+            <% else %>
+              <%= @task.owner.name %>
+            <% end %>
+          </td>
+        </tr>
+        <tr>
+          <td>Created by:</td>
+          <td>
+            <% if current_user.staff? %>
+              <%= link_to user_path(@task.creator), class: 'waves-effect waves-light btn-flat' do %>
+                <i class="material-icons left">visibility</i>
+                <%= @task.creator.name %>
+              <% end %>
+            <% else %>
+             <%= @task.creator.name %>
+            <% end %>
+          </td>
+        </tr>
+        <% if @task.subject.present? %>
+          <tr>
+            <td>Regarding:</td>
+            <td>
+              <% if current_user.staff? %>
+                <%= link_to user_path(@task.subject), class: 'waves-effect waves-light btn-flat' do %>
+                  <i class="material-icons left">visibility</i>
+                  <%= @task.subject.name %>
+                <% end %>
+              <% else %>
+               <%= @task.subject.name %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <div class="row">
+    <div class="col s12">
+      <h5>More info:</h5>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col s12">
+      <table class="striped">
+        <tbody>
+          <% @secondary_info_hash.each do |k,v| %>
+            <%= render partial: 'info_table', locals: { k: k, v: v } %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<%= link_to @return_path, class: 'waves-effect waves-light btn' do %>
   <i class="material-icons left">arrow_back_ios</i>Back
 <% end %>

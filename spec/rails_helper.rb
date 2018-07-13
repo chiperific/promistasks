@@ -96,11 +96,6 @@ RSpec.configure do |config|
       status: 200,
       body: 'http://localhost:300/assets/images/no_property.png'
     )
-    WebMock.stub_request(:get, Constant::Regex::STREET_MAP).to_return(
-      headers: { 'Content-Type' => 'image/png' },
-      status: 200,
-      body: 'http://localhost:300/assets/images/no_property.png'
-    )
     WebMock.stub_request(:get, Constant::Regex::GEOCODE).to_return(
       headers: { 'Content-Type' => 'application/json' },
       status: 200,

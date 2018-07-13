@@ -11,6 +11,10 @@ class TaskPolicy < ApplicationPolicy
     user&.not_client?
   end
 
+  def admin?
+    user&.system_admin?
+  end
+
   def show?
     record.visible_to?(user)
   end
@@ -33,5 +37,13 @@ class TaskPolicy < ApplicationPolicy
 
   def destroy?
     user&.staff?
+  end
+
+  def complete?
+    record.related_to?(user) || user.staff?
+  end
+
+  def un_complete?
+    record.related_to?(user) || user.staff?
   end
 end

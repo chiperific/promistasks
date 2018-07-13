@@ -10,7 +10,7 @@ class UsersController < ApplicationController
 
   def show
     authorize @user = User.find(params[:id])
-    redirect_to users_path
+    # redirect_to users_path
   end
 
   def new
@@ -91,7 +91,7 @@ class UsersController < ApplicationController
       alert_color: alert_color(tasks, properties),
       tasks_past_due: {
         count: tasks.past_due.count,
-        msg: tasks.past_due.count.to_s + ' past dues task'.pluralize(tasks.past_due.count)
+        msg: tasks.past_due.count.to_s + ' past due task'.pluralize(tasks.past_due.count)
       },
       properties_over_budget: {
         count: properties.over_budget.length,

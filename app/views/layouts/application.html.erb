@@ -13,7 +13,7 @@
       <%= render partial: 'layouts/navbar' %>
     </header>
     <ul id="context_alerts" class="dropdown-content collection right">
-      <%= render partial: 'shared/alerts' %>
+      <%= render partial: 'alerts' %>
     </ul>
     <aside id="sidebar" data-turbolinks-permanent>
       <% if current_user %>
@@ -37,13 +37,9 @@
     <!-- <footer id="footer" data-turbolinks-permanent> -->
     <footer id="footer">
       <% if Rails.env.development? %>
-        Return path: <%= @return_path %>
-        <br>
-        Previous: <%= @view_previous %>
-        <br>
+        Return path: <%= @return_path %> |
+        Previous: <%= @view_previous %> |
         Pre-previous: <%= @view_pre_previous %>
-        <br>
-        <%= link_to 'Back', @return_path, class: 'btn' %>
       <% end %>
       <% if current_user %>
         <%= render partial: 'layouts/footer' %>

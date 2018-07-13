@@ -35,6 +35,11 @@ $(document).on 'turbolinks:load', ->
     'dismissable': true
     })
 
+  tooltips = document.querySelectorAll('.tooltipped')
+  M.Tooltip.init(tooltips, {
+    'enterDelay': 800
+    })
+
   $('body').on 'click', 'a.prevent_default', ->
     event.preventDefault
     false

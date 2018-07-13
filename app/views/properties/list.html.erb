@@ -1,0 +1,35 @@
+<div class="row valign-wrapper">
+  <div class="col s8">
+    <h2>Properties</h2>
+  </div>
+  <div class="col s2">
+    <%= link_to properties_path, class: 'btn-floating waves-effect waves-light blue darken-2' do %>
+      <i class="material-icons">apps</i>
+    <% end %>
+  </div>
+  <div class="col s2">
+    <%= link_to new_property_path, class: 'btn-floating btn-large waves-effect waves-light green darken-2' do %>
+      <i class="material-icons">add</i>
+    <% end %>
+  </div>
+</div>
+
+<div class="row">
+  <table class="striped">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Name</th>
+        <th>Budget remaining</th>
+        <th>Total Tasks</th>
+        <th>Tasks for you</th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render partial: 'properties', collection: @properties %>
+    </tbody>
+  </table>
+</div>

@@ -24,8 +24,7 @@ class Property < ApplicationRecord
 
   geocoded_by :full_address
 
-  before_validation :name_and_address,              if: :unsynced_name_address?
-  # before_validation :only_one_default,              if: -> { is_default? }
+  before_validation :use_address_for_name,          if: -> { name.blank? || name.nil? }
   before_validation :default_must_be_private,       if: -> { discarded_at.nil? && is_default? && !is_private? }
   before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
   after_validation :geocode,                        if: -> { address_has_changed? && !is_default? }
@@ -72,11 +71,9 @@ class Property < ApplicationRecord
     "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&size=355x266&zoom=17&markers=color:red%7C#{center}"
   end
 
-  def google_street_view
-    return 'no_property.jpg' unless good_address?
-    center = [latitude, longitude].join(',')
-    key = Rails.application.secrets.google_maps_api_key
-    "https://maps.googleapis.com/maps/api/streetview?key=#{key}&location=#{center}&size=355x266"
+  def google_map_link
+    base = 'https://www.google.com/maps/?q='
+    base + full_address.tr(' ', '+')
   end
 
   def address_has_changed?
@@ -91,6 +88,10 @@ class Property < ApplicationRecord
     task_ary = tasks.map(&:cost)
     task_ary.map! { |b| b || 0 }
     self.budget - task_ary.sum
+  end
+
+  def over_budget?
+    budget_remaining.negative? && !ignore_budget_warning
   end
 
   def update_tasklists
@@ -123,16 +124,8 @@ class Property < ApplicationRecord
 
   private
 
-  def unsynced_name_address?
-    return false if name.present? && address.present?
-    return false if name.blank? && address.blank?
-    true
-  end
-
-  def name_and_address
-    self.address ||= name
-    self.name ||= address
-    true
+  def use_address_for_name
+    self.name = address
   end
 
   def default_budget

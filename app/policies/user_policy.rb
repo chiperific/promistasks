@@ -4,11 +4,11 @@ class UserPolicy < ApplicationPolicy
   attr_reader :user, :record
 
   def index?
-    user&.system_admin?
+    user&.staff?
   end
 
   def show?
-    user&.system_admin? || user == record
+    user&.staff? || user == record
   end
 
   def new?

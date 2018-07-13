@@ -85,13 +85,13 @@
       <table class='highlight responsive-table' id='task_table'>
         <thead>
           <tr>
+            <th></th>
             <th>Title</th>
-            <th>Owner</th>
-            <th>Priorioty</th>
+            <th>Assigned to</th>
             <th>Due</th>
             <th>Budget</th>
             <th>Cost</th>
-            <th>Needs Info</th>
+            <th></th>
             <th></th>
             <th></th>
           </tr>
@@ -168,3 +168,7 @@
 </div>
 
 <%= render partial: 'properties/explanations' %>
+
+<%= link_to @return_path, class: 'waves-effect waves-light btn' do %>
+  <i class="material-icons left">arrow_back_ios</i>Back
+<% end %>

@@ -2,7 +2,7 @@
 
 class SkillsController < ApplicationController
   def index
-    authorize @skills = Skill.all
+    authorize @skills = Skill.all.order(:name)
   end
 
   def show

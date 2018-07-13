@@ -1,25 +1,26 @@
 <% tasks.each do |task| %>
   <tr>
     <td>
+      <% if task.needs_more_info %>
+        <span class="btn-floating red lighten-2">
+          <i class="material-icons tooltipped" data-position="bottom" data-tooltip="Needs more info!">error_outline</i>
+        </span>
+      <% end %>
+    </td>
+    <td>
       <%= task.title %>
     </td>
     <td>
       <%= task.owner.name %>
     </td>
     <td>
-      <%= task.priority || 'not set' %>
-    </td>
-    <td>
       <%= human_date(task.due) || 'not set' %>
     </td>
     <td>
-      <%= task.budget&.format || Money.new(0).format %>
+      <%= task.budget&.format || 'not set' %>
     </td>
     <td>
-      <%= task.cost&.format || Money.new(0).format %>
-    </td>
-    <td>
-      <%= human_boolean(task.needs_more_info) %>
+      <%= task.cost&.format || 'not set' %>
     </td>
     <td>
       <p>
@@ -31,6 +32,11 @@
           </span>
         </label>
       </p>
+    </td>
+    <td>
+      <%= link_to task_path(task), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false' do  %>
+        <i class="material-icons">arrow_forward</i>
+      <% end %>
     </td>
     <td>
       <%= link_to edit_task_path(task), class: 'btn-floating btn-small blue darken-2', 'data-turbolinks'=> 'false' do  %>

@@ -5,6 +5,10 @@ class PropertiesController < ApplicationController
     authorize @properties = Property.where(is_default: false).visible_to(current_user)
   end
 
+  def list
+    authorize @properties = Property.where(is_default: false).visible_to(current_user)
+  end
+
   def show
     authorize @property = Property.find(params[:id])
 
@@ -145,7 +149,7 @@ class PropertiesController < ApplicationController
     params.require(:property).permit(:name, :address, :city, :state, :postal_code,
                                      :description, :acquired_on, :cost, :lot_rent, :budget,
                                      :certificate_number, :serial_number, :year_manufacture,
-                                     :manufacturer, :model, :certification_label1, :certification_label2,
+                                     :manufacturer, :bed_bath, :certification_label1, :certification_label2,
                                      :creator_id, :is_private, :ignore_budget_warning, :archive)
   end
 end

@@ -1,0 +1,5 @@
+<% if @tasks.count.positive? %>
+  $("#task_table_body").html("<%= escape_javascript(render partial: 'tasks/tasks_table', locals: { tasks: @tasks }) %>");
+<% else %>
+  $("#task_table_body").html("<tr><td colspan='8' class='center-align'><%= @empty_msg %></td></tr>");
+<% end %>

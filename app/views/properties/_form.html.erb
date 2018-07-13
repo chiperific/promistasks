@@ -1,5 +1,5 @@
 <%= form_for property do |f| %>
-  <%= render 'shared/form_errors', object: property %>
+  <%= render 'form_errors', object: property %>
   <%= f.hidden_field :creator_id, value: current_user.id %>
 
   <div class="input-field">
@@ -33,12 +33,12 @@
 
   <% unless property.new_record? %>
     <div class="center-align">
-      <h5>
+      <p class="big-p">
         Created by: <%= property.creator.fname %>
         <% if property.created_from_api? %>
           in Google Tasks
         <% end %>
-      </h5>
+      </p>
     </div>
   <% end %>
 
@@ -121,7 +121,7 @@
 
     <div class="input-field col m5 s12">
       <%= f.text_field :bed_bath %>
-      <label for="property_model">Bed & Bath</label>
+      <label for="property_bed_bath">Bed & Bath</label>
     </div>
   </div>
 

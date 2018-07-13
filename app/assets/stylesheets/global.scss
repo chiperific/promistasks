@@ -7,6 +7,10 @@ body {
 
 main {
   flex: 1 0 auto;
+
+  p.big-p {
+    font-size: 1.175em;
+  }
 }
 
 form {
@@ -66,5 +70,9 @@ a.modal-trigger {
 
 .field_with_errors {
   display: inline
+}
+
+.tooltipped {
+  cursor: context-menu;
 }
 

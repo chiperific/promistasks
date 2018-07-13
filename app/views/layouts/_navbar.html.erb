@@ -24,38 +24,20 @@
 
         <% if current_user.staff? %>
           <li>
-            <%= link_to '<i class="material-icons #{@just_signed_in}">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: 'dropdown-trigger-hover', 'data-target' => 'context_refresh'  %>
+            <%= link_to '<i class="material-icons #{@just_signed_in}">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: 'tooltipped', 'data-position' => 'bottom', 'data-tooltip' => 'Sync Google Tasks'  %>
           </li>
         <% end %>
       <% end %>
 
       <li>
         <% if current_user %>
-          <%= link_to '<i class="material-icons">exit_to_app</i>'.html_safe, destroy_user_session_path, method: :delete, class: 'dropdown-trigger-hover', 'data-target' => 'context_signout'  %>
+          <%= link_to '<i class="material-icons">exit_to_app</i>'.html_safe, destroy_user_session_path, method: :delete, class: 'tooltipped', 'data-position' => 'bottom', 'data-tooltip' => 'Sign out' %>
         <% else %>
-          <%= link_to '<i class="material-icons">lock_open</i>'.html_safe, new_user_session_path, class: 'dropdown-trigger-hover', 'data-target' => 'context_signin' %>
+          <%= link_to '<i class="material-icons">lock_open</i>'.html_safe, new_user_session_path, class: 'tooltipped', 'data-position' => 'bottom', 'data-tooltip' => 'Sign in' %>
         <% end %>
       </li>
     </ul>
   </div>
 </nav>
-
-<ul id='context_signout' class="dropdown-content">
-  <li>
-    <span class="grey-text">Sign out</span>
-  </li>
-</ul>
-
-<ul id='context_signin' class="dropdown-content">
-  <li>
-    <span class="grey-text">Sign in</span>
-  </li>
-</ul>
-
-<ul id='context_refresh' class="dropdown-content">
-  <li>
-    <span class="grey-text">Sync Google Tasks</span>
-  </li>
-</ul>
 
 

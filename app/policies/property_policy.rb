@@ -7,6 +7,10 @@ class PropertyPolicy < ApplicationPolicy
     user&.staff?
   end
 
+  def list?
+    user&.staff?
+  end
+
   def show?
     user&.staff? && record.can_be_viewed_by(user)
   end

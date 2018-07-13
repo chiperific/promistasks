@@ -8,12 +8,14 @@ Rails.application.routes.draw do
   resources :tasks do
     get 'discarded', on: :collection
     get 'public', on: :collection
+    get 'admin', on: :collection
     get 'complete', on: :member
     get 'un_complete', on: :member
   end
 
   resources :properties do
     get 'discarded', on: :collection
+    get 'list', on: :collection
     get 'reports', on: :collection
     get 'default', on: :collection
     get 'property_enum', on: :collection

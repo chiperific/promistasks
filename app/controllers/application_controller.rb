@@ -70,7 +70,8 @@ class ApplicationController < ActionController::Base
       controller: param['controller'],
       action: param['action'],
       id: param['id'],
-      syncing: param['syncing']
+      syncing: param['syncing'],
+      filter: param['filter']
     )
   end
 end

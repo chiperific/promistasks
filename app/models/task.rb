@@ -39,6 +39,8 @@ class Task < ApplicationRecord
   after_update      :cascade_completed,    if: -> { completed_at.present? && completed_at_before_last_save.nil? }
   after_save        :delete_task_users,    if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
 
+  default_scope { order(:due, :created_at) }
+
   scope :in_process,      -> { undiscarded.where(completed_at: nil) }
   scope :needs_more_info, -> { in_process.where(needs_more_info: true) }
   scope :complete,        -> { undiscarded.where.not(completed_at: nil) }
@@ -165,7 +167,7 @@ class Task < ApplicationRecord
     visibility == 1
   end
 
-  def related_to(user)
+  def related_to?(user)
     creator == user ||
       owner == user
   end
@@ -174,7 +176,7 @@ class Task < ApplicationRecord
     visibility == 1 ||
       user.system_admin? ||
       (visibility == 0 && user.staff?) ||
-      (visibility == 2 && related_to(user)) ||
+      (visibility == 2 && related_to?(user)) ||
       (visibility == 3 && !user.client?)
   end
 
