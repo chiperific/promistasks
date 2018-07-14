@@ -22,9 +22,11 @@
           </a>
         </li>
 
-        <% if current_user.staff? %>
+        <% if current_user.oauth? %>
           <li>
-            <%= link_to '<i class="material-icons #{@just_signed_in}">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: 'tooltipped', 'data-position' => 'bottom', 'data-tooltip' => 'Sync Google Tasks'  %>
+            <%= link_to api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: "tooltipped #{@just_signed_in}", 'data-position' => 'bottom', 'data-tooltip' => 'Sync Google Tasks' do %>
+              <i class="material-icons">refresh</i>
+            <% end %>
           </li>
         <% end %>
       <% end %>

@@ -24,13 +24,19 @@ class ApplicationController < ActionController::Base
 
   def set_notification_for_refresh
     @just_signed_in = ''
-    @just_signed_in = 'pulse red lighten-2' if current_user && Time.now < current_user.current_sign_in_at + 30.seconds
+    @just_signed_in = 'btn-floating btn-small pulse red lighten-2' if notification_worthy
+  end
+
+  def notification_worthy
+    return false unless current_user.present?
+    Time.now < current_user.current_sign_in_at + 2.minutes &&
+      current_user.jobs.empty?
   end
 
   def save_old_params
-    return false if bad_param(params)
+    return false if bad_param?(params)
 
-    session[:pre_previous] = session[:previous] unless params_match(session[:previous], params)
+    session[:pre_previous] = session[:previous] unless params_match?(session[:previous], params)
     session[:previous] = params.dup
   end
 
@@ -43,29 +49,32 @@ class ApplicationController < ActionController::Base
       request.fullpath != URI(request.referer).path
 
     back = conditions ? request.referer : properties_path
-    back = build_url(session[:previous]) unless session[:previous].nil? || bad_param(session[:previous])
-    back = build_url(session[:pre_previous]) if session[:pre_previous].present? && (params_match(session[:previous], params) || bad_param(session[:previous]))
+    back = build_url(session[:previous]) unless bad_param?(session[:previous])
+    back = build_url(session[:pre_previous]) if session[:pre_previous].present? && (params_match?(session[:previous], params) || bad_param?(session[:previous]))
 
     @return_path = URI(back).path
   end
 
-  def params_match(param1, param2)
-    return false if param1.nil? || param2.nil?
+  def params_match?(param1, param2)
+    return false if param1.blank? || param2.blank?
     param1['controller'] == param2['controller'] &&
       param1['action']   == param2['action'] &&
       param1['id']       == param2['id'] &&
       param1['syncing']  == param2['syncing']
   end
 
-  def bad_param(param)
+  def bad_param?(param)
+    return false if param.blank?
     (Constant::Params::ACTIONS.include? param['action']) ||
-      param['commit'].present?
+      param['commit'].present? ||
+      param['controller'] == 'sessions'
   end
 
   def build_url(param)
-    # CLEAR out the old controller var since url_for will append when nested
+    # CLEAR out the old controller & action vars since url_for will append when nested
     # https://apidock.com/rails/ActionDispatch/Routing/UrlFor/url_for
     url_options[:_recall][:controller] = nil
+    url_options[:_recall][:action] = nil
     url_for(
       controller: param['controller'],
       action: param['action'],

@@ -15,7 +15,7 @@ class Property < ApplicationRecord
   has_many :connected_users, class_name: 'User', through: :connections
   accepts_nested_attributes_for :connections, allow_destroy: true
 
-  validates :name, :address, uniqueness: true, presence: true
+  validates :name, uniqueness: true, presence: true
   validates_presence_of :creator_id
   validates_uniqueness_of :certificate_number, :serial_number, allow_nil: true, allow_blank: true
   validates_inclusion_of :is_private, :is_default, :ignore_budget_warning, :created_from_api, in: [true, false]
@@ -24,6 +24,7 @@ class Property < ApplicationRecord
 
   geocoded_by :full_address
 
+  before_validation :address_required,              unless: -> { is_default? || created_from_api? }
   before_validation :use_address_for_name,          if: -> { name.blank? || name.nil? }
   before_validation :default_must_be_private,       if: -> { discarded_at.nil? && is_default? && !is_private? }
   before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
@@ -123,6 +124,11 @@ class Property < ApplicationRecord
   end
 
   private
+
+  def address_required
+    return true unless address.blank?
+    errors.add(:address, 'can\'t be blank')
+  end
 
   def use_address_for_name
     self.name = address

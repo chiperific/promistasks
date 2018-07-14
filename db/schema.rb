@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_07_05_170016) do
+ActiveRecord::Schema.define(version: 2018_06_10_153731) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -62,7 +62,7 @@ ActiveRecord::Schema.define(version: 2018_07_05_170016) do
 
   create_table "properties", force: :cascade do |t|
     t.string "name", null: false
-    t.string "address", null: false
+    t.string "address"
     t.string "city"
     t.string "state", default: "MI"
     t.string "postal_code"
@@ -85,10 +85,10 @@ ActiveRecord::Schema.define(version: 2018_07_05_170016) do
     t.boolean "ignore_budget_warning", default: false, null: false
     t.boolean "created_from_api", default: false, null: false
     t.datetime "discarded_at"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
     t.float "latitude"
     t.float "longitude"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["acquired_on"], name: "index_properties_on_acquired_on"
     t.index ["address"], name: "index_properties_on_address", unique: true
     t.index ["creator_id"], name: "index_properties_on_creator_id"
@@ -167,7 +167,7 @@ ActiveRecord::Schema.define(version: 2018_07_05_170016) do
   create_table "tasks", force: :cascade do |t|
     t.string "title", null: false
     t.string "notes"
-    t.string "priority"
+    t.integer "priority"
     t.datetime "due"
     t.bigint "creator_id", null: false
     t.bigint "owner_id", null: false
@@ -178,12 +178,11 @@ ActiveRecord::Schema.define(version: 2018_07_05_170016) do
     t.integer "cost_cents"
     t.string "cost_currency", default: "USD", null: false
     t.integer "visibility", default: 0, null: false
-    t.boolean "license_required", default: false, null: false
     t.boolean "needs_more_info", default: false, null: false
     t.datetime "discarded_at"
     t.datetime "completed_at"
-    t.boolean "created_from_api", default: false, null: false
     t.string "owner_type"
+    t.boolean "created_from_api", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_tasks_on_creator_id"

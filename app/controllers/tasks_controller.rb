@@ -11,13 +11,13 @@ class TasksController < ApplicationController
       @tasks = tasks.created_since(current_user.last_sign_in_at)
       @empty_msg = 'No tasks created since you last signed in'
     when 'past-due'
-      @tasks = tasks.in_process.past_due
+      @tasks = tasks.past_due
       @empty_msg = 'No tasks are over-due!'
     when 'due-7'
-      @tasks = tasks.in_process.due_within(7)
+      @tasks = tasks.due_within(7)
       @empty_msg = 'No tasks due in next 7 days!'
     when 'due-14'
-      @tasks = tasks.in_process.due_within(14)
+      @tasks = tasks.due_within(14)
       @empty_msg = 'No tasks due in next 14 days!'
     when 'completed'
       @tasks = tasks.complete
@@ -29,7 +29,7 @@ class TasksController < ApplicationController
       @tasks = tasks.archived
       @empty_msg = 'No archived tasks'
     when 'missing-info'
-      @tasks = tasks.in_process.needs_more_info
+      @tasks = tasks.needs_more_info
       @empty_msg = 'No tasks missing info!'
     else # nil || 'active'
       @tasks = tasks.in_process
@@ -73,7 +73,7 @@ class TasksController < ApplicationController
   end
 
   def create
-    modified_params = task_params.except :archive
+    modified_params = parse_datetimes(task_params.except(:archive))
 
     modified_params.delete :budget if task_params[:budget].blank?
     modified_params.delete :cost if task_params[:cost].blank?
@@ -97,7 +97,8 @@ class TasksController < ApplicationController
 
     @task.discard if task_params[:archive] == '1'
 
-    modified_params = task_params.except :archive
+    modified_params = parse_datetimes(task_params.except(:archive))
+    badbad
     if @task.update(modified_params)
       redirect_to @return_path, notice: 'Task updated'
     else

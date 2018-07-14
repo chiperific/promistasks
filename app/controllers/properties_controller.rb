@@ -78,7 +78,7 @@ class PropertiesController < ApplicationController
   end
 
   def create
-    modified_params = property_params.except :archive
+    modified_params = parse_datetimes(property_params.except(:archive))
     authorize @property = Property.new(modified_params)
 
     if @property.save
@@ -96,7 +96,7 @@ class PropertiesController < ApplicationController
   def update
     authorize @property = Property.find(params[:id])
     @property.discard if property_params[:archive] == '1'
-    modified_params = property_params.except :archive
+    modified_params = parse_datetimes(property_params.except(:archive))
 
     if @property.update(modified_params)
       redirect_to @return_path, notice: 'Property updated'

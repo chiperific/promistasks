@@ -19,7 +19,7 @@ class UsersController < ApplicationController
   end
 
   def create
-    modified_params = user_params.except :archive
+    modified_params = parse_datetimes(user_params.except(:archive))
     authorize @user = User.new(modified_params)
 
     if @user.save
@@ -38,7 +38,7 @@ class UsersController < ApplicationController
   def update
     authorize @user = User.find(params[:id])
     @user.discard if user_params[:archive] == '1'
-    modified_params = user_params.except :archive
+    modified_params = parse_datetimes(user_params.except(:archive))
     if params[:password].nil?
       modified_params = user_params.except :password, :password_confirmation, :archive
     end
@@ -77,12 +77,12 @@ class UsersController < ApplicationController
   def clear_completed_jobs
     authorize User.first
     Delayed::Job.where.not(completed_at: nil).delete_all
-    redirect_back fallback_location: properties_path
+    redirect_to @return_path
   end
 
   def alerts
     authorize user = User.find(params[:id])
-    tasks = Task.related_to(user)
+    tasks = Task.in_process.related_to(user)
     properties = Property.related_to(user)
 
     @notification_json = {

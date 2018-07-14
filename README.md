@@ -1,9 +1,12 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
+1.1 Something is duplicating tasks on tasklists...changing owner, maybe?
+1.2 How to ignore duplicate tasks (same tasklist) from API?
+  - Rely upon later update val?
 1.3 Task.skills should show on task#public
   - https://materializecss.com/chips.html
-1.3 Skills need integration into Users and Tasks
+1.3.1 Skills need integration into Users and Tasks
 2. Write system tests:
   - Every view
   - Every AJAX (use controllers or policies to find)

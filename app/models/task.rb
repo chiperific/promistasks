@@ -19,7 +19,7 @@ class Task < ApplicationRecord
 
   validates_presence_of :creator_id, :owner_id, :property_id
   validates :priority, inclusion: { in: Constant::Task::PRIORITY, allow_blank: true, allow_nil: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}" }
-  validates_inclusion_of  :license_required, :needs_more_info, :created_from_api,
+  validates_inclusion_of  :needs_more_info, :created_from_api,
                           in: [true, false]
   validates_inclusion_of :visibility, in: [0, 1, 2, 3]
 
@@ -49,9 +49,9 @@ class Task < ApplicationRecord
   scope :related_to,      ->(user) { undiscarded.where('creator_id = ? OR owner_id = ?', user.id, user.id) }
   scope :visible_to,      ->(user) { related_to(user).or(public_visible) }
   scope :created_since,   ->(time) { where('created_at >= ?', time) }
-  scope :due_within,      ->(day_num) { where('due <= ?', Time.now + day_num.days) }
+  scope :due_within,      ->(day_num) { in_process.where('due <= ?', Time.now + day_num.days) }
   scope :due_before,      ->(date) { where('due <= ?', date) }
-  scope :past_due,        -> { in_process.where('due < ?', Time.now) }
+  scope :past_due,        -> { in_process.where('due < ?', Time.now.localtime) }
 
   class << self
     alias archived discarded

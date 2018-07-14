@@ -14,7 +14,7 @@ class SkillsController < ApplicationController
   end
 
   def create
-    binding.pry
+    new_skill_params = parse_datetimes(new_skill_params)
     authorize @skill = Skill.new(new_skill_params)
 
     if @skill.save
@@ -33,6 +33,7 @@ class SkillsController < ApplicationController
     authorize @skill = Skill.find(params[:id])
     @skill.discarded_at = skill_params[:archive] == '1' ? Time.now : nil
 
+    new_skill_params = parse_datetimes(new_skill_params)
     if @skill.update(new_skill_params)
       redirect_to @return_path, notice: 'Update successful'
     else

@@ -2,12 +2,17 @@
 
 module UsersHelper
   def url_for_sync
-    if request.env['HTTP_REFERER'].present? &&
-       request.env['HTTP_REFERER'] != request.env['REQUEST_URI']
+    if url_for_sync_determiner
       request.env['HTTP_REFERER'] + '?syncing=true'
     else
       properties_path(syncing: true)
     end
+  end
+
+  def url_for_sync_determiner
+    request.env['HTTP_REFERER'].present? &&
+      request.env['HTTP_REFERER'] != request.env['REQUEST_URI'] &&
+      request.env['REQUEST_URI'] != '/'
   end
 
   def pulse_alert(tasks, properties)

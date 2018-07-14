@@ -1,4 +1,8 @@
-<h1>Things you can help with...</h1>
+<% if @tasks.count.positive? %>
+  <h1>Things you can help with...</h1>
+<% else %>
+  <h1>No volunteer tasks at the moment...</h1>
+<% end %>
 <div class='row' id='public_tasks'>
   <%= render partial: 'public_task', collection: @tasks %>
 </div>

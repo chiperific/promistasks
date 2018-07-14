@@ -76,7 +76,7 @@ class User < ActiveRecord::Base
 
   def not_client?
     !client? &&
-      (type.present? || system_admin?)
+      (type.present? || system_admin? || oauth?)
   end
 
   def oauth?
@@ -101,8 +101,7 @@ class User < ActiveRecord::Base
   end
 
   def readable_type
-    # return 'System Admin' if system_admin?
-    return 'Staff' if oauth_id.present? && type.empty?
+    return 'Staff' if oauth? && type.empty?
     type.join(', ')
   end
 

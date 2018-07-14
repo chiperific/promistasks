@@ -25,4 +25,11 @@ class SessionsController < Devise::SessionsController
   def update
     super
   end
+
+  def destroy
+    super
+    session[:previous] = nil
+    session[:pre_previous] = nil
+    @return_path = nil
+  end
 end

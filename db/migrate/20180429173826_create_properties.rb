@@ -3,8 +3,8 @@
 class CreateProperties < ActiveRecord::Migration[5.1]
   def change
     create_table :properties do |t|
-      t.string :name,    null: false # google field: tasklist title
-      t.string :address, null: false
+      t.string :name, null: false # google field: tasklist title
+      t.string :address
       t.string :city
       t.string :state, default: 'MI'
       t.string :postal_code

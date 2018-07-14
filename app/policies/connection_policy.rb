@@ -3,6 +3,14 @@
 class ConnectionPolicy < ApplicationPolicy
   attr_reader :user, :record
 
+  def index?
+    user.staff?
+  end
+
+  def show?
+    user.staff?
+  end
+
   def new?
     user.staff?
   end
