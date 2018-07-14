@@ -7,6 +7,8 @@
 1.3 Task.skills should show on task#public
   - https://materializecss.com/chips.html
 1.3.1 Skills need integration into Users and Tasks
+1.4 Connections need to be editable && visible from Users and Properties
+  - will need connection _form
 2. Write system tests:
   - Every view
   - Every AJAX (use controllers or policies to find)
