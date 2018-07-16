@@ -15,7 +15,7 @@
     </td>
     <td class="center-align">
       <% if task.past_due? %>
-        <span class="btn red darken-2 white-text">
+        <span class="btn red lighten-2 white-text">
           <%= human_date(task.due) || 'not set' %>
         </span>
       <% else %>

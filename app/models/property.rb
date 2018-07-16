@@ -73,6 +73,7 @@ class Property < ApplicationRecord
   end
 
   def google_map_link
+    return false if full_address.nil?
     base = 'https://www.google.com/maps/?q='
     base + full_address.tr(' ', '+')
   end

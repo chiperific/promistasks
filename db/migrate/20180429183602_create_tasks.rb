@@ -6,7 +6,7 @@ class CreateTasks < ActiveRecord::Migration[5.1]
       t.string :title, null: false                             # google field
       t.string :notes                                          # google field
       t.integer :priority                                      # [['urgent', 0], ['high', 1], ['medium', 2], ['low', 3], ['someday', 4]]
-      t.datetime :due                                          # google field
+      t.date :due                                              # google field
       t.references :creator,  references: :users, null: false
       t.references :owner,    references: :users, null: false
       t.references :subject,  references: :users, null: true, default: nil

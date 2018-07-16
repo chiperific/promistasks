@@ -17,8 +17,10 @@
   <td><%= properties.tasks.in_process.count %></td>
   <td><%= properties.tasks.in_process.related_to(current_user).count %></td>
   <td>
-    <%= link_to properties.google_map_link, class: 'btn-floating btn-small amber darken-2', target: '_blank' do %>
-      <i class="material-icons">map</i>
+    <% unless properties.google_map_link.blank? %>
+      <%= link_to properties.google_map_link, class: 'btn-floating btn-small amber darken-2', target: '_blank' do %>
+        <i class="material-icons">map</i>
+      <% end %>
     <% end %>
   </td>
   <td>

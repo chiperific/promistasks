@@ -98,7 +98,6 @@ class TasksController < ApplicationController
     @task.discard if task_params[:archive] == '1'
 
     modified_params = parse_datetimes(task_params.except(:archive))
-    badbad
     if @task.update(modified_params)
       redirect_to @return_path, notice: 'Task updated'
     else

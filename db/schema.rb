@@ -168,7 +168,7 @@ ActiveRecord::Schema.define(version: 2018_06_10_153731) do
     t.string "title", null: false
     t.string "notes"
     t.integer "priority"
-    t.datetime "due"
+    t.date "due"
     t.bigint "creator_id", null: false
     t.bigint "owner_id", null: false
     t.bigint "subject_id"

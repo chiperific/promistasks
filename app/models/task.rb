@@ -49,9 +49,9 @@ class Task < ApplicationRecord
   scope :related_to,      ->(user) { undiscarded.where('creator_id = ? OR owner_id = ?', user.id, user.id) }
   scope :visible_to,      ->(user) { related_to(user).or(public_visible) }
   scope :created_since,   ->(time) { where('created_at >= ?', time) }
-  scope :due_within,      ->(day_num) { in_process.where('due <= ?', Time.now + day_num.days) }
+  scope :due_within,      ->(day_num) { in_process.where('due <= ?', Date.today + day_num.days) }
   scope :due_before,      ->(date) { where('due <= ?', date) }
-  scope :past_due,        -> { in_process.where('due < ?', Time.now.localtime) }
+  scope :past_due,        -> { in_process.where('due < ?', Date.today) }
 
   class << self
     alias archived discarded
@@ -182,7 +182,7 @@ class Task < ApplicationRecord
 
   def past_due?
     return false unless due.present? && completed_at.blank?
-    due < Time.now
+    due < Date.today
   end
 
   private

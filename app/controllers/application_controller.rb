@@ -29,7 +29,7 @@ class ApplicationController < ActionController::Base
 
   def notification_worthy
     return false unless current_user.present?
-    Time.now < current_user.current_sign_in_at + 2.minutes &&
+    Time.now < current_user.current_sign_in_at + 1.minute &&
       current_user.jobs.empty?
   end
 
