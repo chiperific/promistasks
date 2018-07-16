@@ -96,6 +96,7 @@ class TasksController < ApplicationController
     authorize @task = Task.find(params[:id])
 
     @task.discard if task_params[:archive] == '1'
+    @task.undiscard if task_params[:archive] == '0' && @task.discarded?
 
     modified_params = parse_datetimes(task_params.except(:archive))
     if @task.update(modified_params)

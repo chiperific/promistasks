@@ -96,6 +96,8 @@ class PropertiesController < ApplicationController
   def update
     authorize @property = Property.find(params[:id])
     @property.discard if property_params[:archive] == '1'
+    @property.undiscard if property_params[:archive] == '0' && @property.discarded
+
     modified_params = parse_datetimes(property_params.except(:archive))
 
     if @property.update(modified_params)

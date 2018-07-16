@@ -14,12 +14,27 @@
     <h5>People with skill:</h5>
   </div>
   <div class="col s12">
-    <% if @users.any? %>
+    <% if @skill_users.any? %>
       <table class="striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Skill assigned</th>
+          </tr>
+        </thead>
         <tbody>
-          <%= @skill_users.each do |su| %>
+          <% @skill_users.each do |su| %>
             <tr>
-              <td><%= su.user.name %></td>
+              <td>
+                <% if current_user.staff? %>
+                  <%= link_to user_path(su.user), class: 'waves-effect waves-light btn-flat' do %>
+                    <i class="material-icons left">visibility</i>
+                    <%= su.user.name %>
+                  <% end %>
+                <% else %>
+                  <%= su.user.name %>
+                <% end %>
+              </td>
               <td><%= human_date(su.created_at) %></td>
             </tr>
           <% end %>
@@ -36,7 +51,32 @@
     <h5>Tasks needing skill:</h5>
   </div>
   <div class="col s12 center-align">
-    <% if @tasks.any? %>
+    <% if @skill_tasks.any? %>
+      <table class="striped">
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Skill assigned</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @skill_tasks.each do |tu| %>
+            <tr>
+              <td>
+                <% if current_user.staff? %>
+                  <%= link_to task_path(tu.task), class: 'waves-effect waves-light btn-flat' do %>
+                    <i class="material-icons left">visibility</i>
+                    <%= tu.task.title %>
+                  <% end %>
+                <% else %>
+                  <%= tu.task.title %>
+                <% end %>
+              </td>
+              <td><%= human_date(tu.created_at) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     <% else %>
       <p>None</p>
     <% end %>

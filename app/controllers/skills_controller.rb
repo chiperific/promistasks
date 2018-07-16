@@ -8,8 +8,8 @@ class SkillsController < ApplicationController
   def show
     authorize @skill = Skill.find(params[:id])
 
-    @skill_users = @skill.skill_users.active
-    @tasks = @skill.tasks.undiscarded
+    @skill_users = @skill.skill_users.kept
+    @skill_tasks = @skill.skill_tasks.kept
   end
 
   def new
@@ -17,8 +17,8 @@ class SkillsController < ApplicationController
   end
 
   def create
-    new_skill_params = parse_datetimes(new_skill_params)
-    authorize @skill = Skill.new(new_skill_params)
+    modified_params = parse_datetimes(skill_params.except(:archive))
+    authorize @skill = Skill.new(modified_params)
 
     if @skill.save
       redirect_to @return_path, notice: 'Skill created'
@@ -34,10 +34,11 @@ class SkillsController < ApplicationController
 
   def update
     authorize @skill = Skill.find(params[:id])
-    @skill.discarded_at = skill_params[:archive] == '1' ? Time.now : nil
+    @skill.discard if skill_params[:archive] == '1'
+    @skill.undiscard if skill_params[:archive] == '0' && @skill.discarded?
 
-    new_skill_params = parse_datetimes(new_skill_params)
-    if @skill.update(new_skill_params)
+    modified_params = parse_datetimes(skill_params.except(:archive))
+    if @skill.update(modified_params)
       redirect_to @return_path, notice: 'Update successful'
     else
       flash[:warning] = 'Oops, found some errors'
@@ -59,9 +60,5 @@ class SkillsController < ApplicationController
 
   def skill_params
     params.require(:skill).permit(:name, :license_required, :volunteerable, :archive)
-  end
-
-  def new_skill_params
-    params.require(:skill).permit(:name, :license_required, :volunteerable)
   end
 end

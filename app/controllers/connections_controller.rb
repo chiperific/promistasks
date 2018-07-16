@@ -14,8 +14,8 @@ class ConnectionsController < ApplicationController
   end
 
   def create
-    new_connection_params = parse_datetimes(new_connection_params)
-    authorize @connection = Connection.new(new_connection_params)
+    modified_params = parse_datetimes(connection_params.except(:archive))
+    authorize @connection = Connection.new(modified_params)
 
     if @connection.save
       redirect_to @return_path, notice: 'Connection created'
@@ -33,9 +33,10 @@ class ConnectionsController < ApplicationController
     authorize @connection = Connection.find(params[:id])
 
     @connection.discard if connection_params[:archive] == '1'
+    @connection.undiscard if connection_params[:archive] == '0' && @connection.discarded?
 
-    new_connection_params = parse_datetimes(new_connection_params)
-    if @connection.update(new_connection_params)
+    modified_params = parse_datetimes(connection_params.except(:archive))
+    if @connection.update(modified_params)
       redirect_to @return_path, notice: 'Update successful'
     else
       flash[:warning] = 'Oops, found some errors'
@@ -57,11 +58,5 @@ class ConnectionsController < ApplicationController
     params.require(:connection).permit(:property_id, :user_id,
                                        :relationship, :stage,
                                        :stage_date, :archive)
-  end
-
-  def new_connection_params
-    params.require(:connection).permit(:property_id, :user_id,
-                                       :relationship, :stage,
-                                       :stage_date)
   end
 end
