@@ -154,7 +154,7 @@ class TaskUser < ApplicationRecord
       status:    task.completed_at.present? ? 'completed' : 'needsAction',
       deleted:   self.deleted,
       completed: task.completed_at.present? ? task.completed_at.utc.rfc3339(3) : nil,
-      due:       task.due.present? ? task.due.utc.rfc3339(3) : nil
+      due:       task.due.present? ? task.due.rfc3339 : nil
     }
   end
 end

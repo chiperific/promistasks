@@ -47,14 +47,7 @@
   <table class='highlight responsive-table' id='task_table'>
     <thead>
       <tr>
-        <th></th>
-        <th>Title</th>
-        <th>Assigned to</th>
-        <th>Property</th>
-        <th class="center-align">Due</th>
-        <th></th>
-        <th></th>
-        <th></th>
+        <%= render partial: 'tasks_table_header' %>
       </tr>
     </thead>
     <tbody id='task_table_body'>

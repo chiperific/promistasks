@@ -50,7 +50,7 @@ class TasksController < ApplicationController
     authorize @task = Task.find(params[:id])
 
     @primary_info_hash = {
-      'Priority': @task.priority || 'Not set',
+      'Priority': @task.priority.present? ? Constant::Task::PRIORITY[@task.priority] : 'Not set',
       'Due': human_date(@task.due) || 'Not set',
       'Visibile to': Constant::Task::VISIBILITY[@task.visibility],
       'Status': @task.status.capitalize
@@ -133,37 +133,6 @@ class TasksController < ApplicationController
     status = @task.reload.completed_at.nil? ? 'inProcess' : 'completed'
     render json: { id: @task.id.to_s, status: status }
   end
-
-  # def filter
-    # authorize tasks = Task.related_to(current_user)
-
-    # case params[:filter]
-    # when 'past-due'
-    #   @tasks = tasks.past_due
-    #   @empty_msg = 'No tasks are over-due!'
-    # when 'due-7'
-    # when 'due-14'
-    # when 'completed'
-    #   @tasks = tasks.complete
-    #   @empty_msg = 'No completed tasks'
-    # when 'all'
-    #   @tasks = tasks.active
-    #   @empty_msg = 'No active tasks'
-    # when 'archived'
-    #   @tasks = tasks.archived
-    #   @empty_msg = 'No archived tasks'
-    # when 'missing-info'
-    #   @tasks = tasks.needs_more_info
-    #   @empty_msg = 'No tasks missing info!'
-    # else # nil || 'active'
-    #   @tasks = tasks.in_process
-    #   @empty_msg = 'No active tasks'
-    # end
-
-    # respond_to do |format|
-    #   format.js
-    # end
-  # end
 
   private
 

@@ -16,7 +16,7 @@ module ApplicationHelper
   end
 
   def parse_datetimes(params)
-    %w[completed_at discarded_at due].each do |key|
+    %w[completed_at discarded_at].each do |key|
       params[key] = Time.parse(params[key]) if params[key].present?
     end
     params

@@ -8,24 +8,41 @@
       <% end %>
     </td>
     <td>
+      <% if task.priority.present? %>
+        <span class="new badge <%= task.priority_color %> white-text" data-badge-caption="">
+          <%= Constant::Task::PRIORITY[task.priority] %>
+        </span>
+      <% end %>
+    </td>
+    <td class="truncate">
       <%= task.title %>
     </td>
     <td>
       <%= task.owner.name %>
     </td>
-    <td>
-      <%= task.property.name %>
-    </td>
+    <% unless controller_name == 'properties' %>
+      <td>
+        <%= task.property.name %>
+      </td>
+    <% end %>
     <td class="center-align">
       <% if task.past_due? %>
-        <span class="btn red lighten-2 white-text">
+        <span class="new badge red lighten-2 white-text" data-badge-caption="">
           <%= human_date(task.due) || 'not set' %>
         </span>
       <% else %>
         <%= human_date(task.due) || 'not set' %>
       <% end %>
     </td>
-    <td>
+    <% if controller_name == 'properties' %>
+      <td class="center-align">
+        <%= task.budget&.format || 'not set' %>
+      </td>
+      <td class="center-align">
+        <%= task.cost&.format || 'not set' %>
+      </td>
+    <% end %>
+    <td class="slim">
       <p>
         <label>
           <input type="checkbox" class="filled-in complete_bool" <%= 'checked' if task.complete? %>>
@@ -36,12 +53,12 @@
         </label>
       </p>
     </td>
-    <td>
+    <td class="slim">
       <%= link_to task_path(task), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false' do  %>
         <i class="material-icons">arrow_forward</i>
       <% end %>
     </td>
-    <td>
+    <td class="slim">
       <%= link_to edit_task_path(task), class: 'btn-floating btn-small blue darken-2', 'data-turbolinks'=> 'false' do  %>
         <i class="material-icons">edit</i>
       <% end %>

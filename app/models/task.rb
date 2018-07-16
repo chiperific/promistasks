@@ -18,10 +18,10 @@ class Task < ApplicationRecord
   accepts_nested_attributes_for :task_users, allow_destroy: true
 
   validates_presence_of :creator_id, :owner_id, :property_id
-  validates :priority, inclusion: { in: Constant::Task::PRIORITY, allow_blank: true, allow_nil: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}" }
   validates_inclusion_of  :needs_more_info, :created_from_api,
                           in: [true, false]
-  validates_inclusion_of :visibility, in: [0, 1, 2, 3]
+  validates_inclusion_of :visibility, in: [0, 1, 2, 3], message: "must be one of these: #{Constant::Task::VISIBILITY.to_sentence}"
+  validates_inclusion_of :priority, in: [0, 1, 2, 3, 4], allow_blank: true, allow_nil: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}"
 
   validates :title, presence: true, uniqueness: { scope: :property }
 
@@ -39,7 +39,7 @@ class Task < ApplicationRecord
   after_update      :cascade_completed,    if: -> { completed_at.present? && completed_at_before_last_save.nil? }
   after_save        :delete_task_users,    if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
 
-  default_scope { order(:due, :created_at) }
+  default_scope { order(:due, :priority, :title) }
 
   scope :in_process,      -> { undiscarded.where(completed_at: nil) }
   scope :needs_more_info, -> { in_process.where(needs_more_info: true) }
@@ -187,6 +187,23 @@ class Task < ApplicationRecord
   def past_due?
     return false unless due.present? && completed_at.blank?
     due < Date.today
+  end
+
+  def priority_color
+    case priority
+    when 0
+      'red lighten-2'
+    when 1
+      'amber'
+    when 2
+      'light-green'
+    when 3
+      'green'
+    when 4
+      'blue'
+    else
+      ''
+    end
   end
 
   private

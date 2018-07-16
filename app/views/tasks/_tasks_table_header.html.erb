@@ -1,0 +1,17 @@
+<tr>
+  <th></th>
+  <th>Priority</th>
+  <th>Title</th>
+  <th>Assigned to</th>
+  <% unless controller_name == 'properties' %>
+    <th>Property</th>
+  <% end %>
+  <th class="center-align">Due</th>
+  <% if controller_name == 'properties' %>
+    <th class="center-align">Budget</th>
+    <th class="center-align">Cost</th>
+  <% end %>
+  <th></th>
+  <th></th>
+  <th></th>
+</tr>

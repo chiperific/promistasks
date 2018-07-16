@@ -55,7 +55,11 @@
           <h5>Skills:</h5>
         </div>
         <div class="col s2">
-          New skill
+          <%= link_to new_skill_path(task: @task), class: 'btn waves-effect waves-light green darken 2' do %>
+            <i class="material-icons">add</i>
+            <i class="material-icons">build</i>
+          <% end %>
+
         </div>
       </div>
     </div>
@@ -63,7 +67,7 @@
 
   <div class="row section">
     <div class="col s12">
-      <h5>Connections:</h5>
+      <h5>Relations:</h5>
     </div>
     <div class="col s12">
       <table class="striped">

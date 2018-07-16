@@ -15,7 +15,7 @@
   <div class="row">
     <div class="col s12 m6 l3">
       <div class="input-field">
-        <%= f.select :priority, Constant::Task::PRIORITY_ENUM, { include_blank: true, selected: 'someday'} %>
+        <%= f.select :priority, Constant::Task::PRIORITY_ENUM, { include_blank: true, selected: task.priority } %>
         <label for="task_priority">Priority</label>
       </div>
     </div>
@@ -24,6 +24,12 @@
       <div class="input-field">
         <%= f.select :visibility, Constant::Task::VISIBILITY_ENUM %>
         <label for="task_visibility">Visibility</label>
+        <% if task.property.is_default? %>
+          <i>Default list task</i>
+          <a href="#visibility_explanation" class='modal-trigger'>
+            <i class="material-icons">live_help</i>
+          </a>
+        <% end %>
       </div>
     </div>
 
@@ -67,7 +73,7 @@
 
   <div class="section row">
     <div class="col s12">
-      <h5>People</h5>
+      <h5>Connections</h5>
     </div>
 
     <div class="col s12 m6 l3">
@@ -139,3 +145,13 @@
     </div>
   </div>
 <% end %>
+
+<div class="modal" id="visibility_explanation">
+  <div class="modal-content">
+    <h4>Visibility in Default Tasklists:</h4>
+    <p>In Google Tasks, there is always a default tasklist. This system imports your default tasklists and associated tasks as a convenience.</p>
+    <p>Due to privacy concerns, tasks on your default tasklists cannot be made visible to anyone beyond the task's creator and owner.</p>
+    <p>Visiblity settings for default tasklist tasks will be ignored.</p>
+    <p>To be able to make these tasks visible to others, you can move this task to a different property in the Connections section.</p>
+  </div>
+</div>
