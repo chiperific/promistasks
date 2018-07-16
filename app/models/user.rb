@@ -50,6 +50,8 @@ class User < ActiveRecord::Base
   monetize :rate_cents, allow_nil: true, allow_blank: true
 
   after_create :propegate_tasklists, if: -> { oauth_id.present? && discarded_at.blank? }
+  after_save :discard_joined,        if: -> { discarded_at.present? }
+  after_save :undiscard_joined,      if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
   # rubocop:disable Layout/IndentationConsistency
   # rubocop:disable Layout/IndentationWidth
@@ -207,5 +209,15 @@ class User < ActiveRecord::Base
   def api_headers
     { 'Authorization': 'OAuth ' + oauth_token,
       'Content-type': 'application/json' }
+  end
+
+  def discard_joined
+    skills.each(&:discard)
+    connections.each(&:discard)
+  end
+
+  def undiscard_joined
+    skills.each(&:undiscard)
+    connections.each(&:undiscard)
   end
 end

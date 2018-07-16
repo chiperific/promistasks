@@ -1,4 +1,44 @@
-<p id="notice"><%= notice %></p>
+<div class="row">
+  <div class="col s10">
+    <h4><%= @skill.name %></h4>
+  </div>
+  <div class="col s2">
+    <%= link_to edit_skill_path(@skill), class: 'btn-floating waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false' do  %>
+      <i class="material-icons">edit</i>
+    <% end %>
+  </div>
+</div>
 
-<%= link_to 'Edit', edit_skill_path(@skill) %> |
-<%= link_to 'Back', skills_path %>
+<div class="row section">
+  <div class="col s12">
+    <h5>People with skill:</h5>
+  </div>
+  <div class="col s12">
+    <% if @users.any? %>
+      <table class="striped">
+        <tbody>
+          <%= @skill_users.each do |su| %>
+            <tr>
+              <td><%= su.user.name %></td>
+              <td><%= human_date(su.created_at) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p>None</p>
+    <% end %>
+  </div>
+</div>
+
+<div class="row section">
+  <div class="col s12">
+    <h5>Tasks needing skill:</h5>
+  </div>
+  <div class="col s12 center-align">
+    <% if @tasks.any? %>
+    <% else %>
+      <p>None</p>
+    <% end %>
+  </div>
+</div>

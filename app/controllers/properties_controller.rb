@@ -51,7 +51,7 @@ class PropertiesController < ApplicationController
                        human_date(occupancy.first.stage_date)
     end
 
-    @connections = @property.connections
+    @connections = @property.connections.active
 
     @primary_info_hash = {
       'Occupancy status': @occupancy_msg,

@@ -12,8 +12,9 @@
     <tr>
       <th>Name</th>
       <th>Requires license?</th>
-      <th>Can be done by volunteers?</th>
-      <th colspan="2"></th>
+      <th>Volunteer?</th>
+      <th></th>
+      <th></th>
     </tr>
   </thead>
 
@@ -23,8 +24,16 @@
         <td><%= skill.name %></td>
         <td><%= skill.license_required? ? 'Yes' : 'No' %></td>
         <td><%= skill.volunteerable? ? 'Yes' : 'No' %></td>
-        <td><%= link_to 'Show', skill %></td>
-        <td><%= link_to 'Edit', edit_skill_path(skill) %></td>
+        <td>
+          <%= link_to skill, class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false' do  %>
+            <i class="material-icons">arrow_forward</i>
+          <% end %>
+        </td>
+        <td>
+          <%= link_to edit_skill_path(skill), class: 'btn-floating btn-small blue darken-2', 'data-turbolinks'=> 'false' do  %>
+            <i class="material-icons">edit</i>
+          <% end %>
+        </td>
       </tr>
     <% end %>
   </tbody>

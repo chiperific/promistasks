@@ -34,6 +34,8 @@ class Property < ApplicationRecord
   after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }
   after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? }
   after_update :update_tasklists,                   if: -> { discarded_at.nil? && saved_change_to_name? }
+  after_save :discard_connections,                  if: -> { discarded_at.present? }
+  after_save :undiscard_connections,                if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
   scope :except_default, ->       { undiscarded.where(is_default: false) }
   scope :needs_title,    ->       { undiscarded.where(certificate_number: '').or(where(certificate_number: nil)) }
@@ -179,5 +181,13 @@ class Property < ApplicationRecord
   def discard_tasks_and_delete_tasklists
     Tasklist.where(property: self).each(&:destroy)
     Task.where(property: self).each(&:discard)
+  end
+
+  def discard_connections
+    connections.each(&:discard)
+  end
+
+  def undiscard_connections
+    connections.each(&:undiscard)
   end
 end

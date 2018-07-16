@@ -38,6 +38,8 @@ class Task < ApplicationRecord
   after_update      :change_task_users,    if: :saved_changes_to_users?
   after_update      :cascade_completed,    if: -> { completed_at.present? && completed_at_before_last_save.nil? }
   after_save        :delete_task_users,    if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
+  after_save        :discard_joined,       if: -> { discarded_at.present? }
+  after_save        :undiscard_joined,     if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
   default_scope { order(:due, :priority, :title) }
 
@@ -237,5 +239,13 @@ class Task < ApplicationRecord
     else
       true
     end
+  end
+
+  def discard_joined
+    skills.each(&:discard)
+  end
+
+  def undiscard_joined
+    skills.each(&:undiscard)
   end
 end

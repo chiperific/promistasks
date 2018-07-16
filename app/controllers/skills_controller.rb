@@ -7,6 +7,9 @@ class SkillsController < ApplicationController
 
   def show
     authorize @skill = Skill.find(params[:id])
+
+    @skill_users = @skill.skill_users.active
+    @tasks = @skill.tasks.undiscarded
   end
 
   def new
