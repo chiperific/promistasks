@@ -1,7 +1,7 @@
 <% tasks.each do |task| %>
   <tr>
     <td>
-      <% if task.needs_more_info %>
+      <% if task.needs_more_info? %>
         <span class="btn-floating red lighten-2">
           <i class="material-icons tooltipped" data-position="bottom" data-tooltip="Needs more info!">error_outline</i>
         </span>
@@ -13,6 +13,9 @@
     <td>
       <%= task.owner.name %>
     </td>
+    <td>
+      <%= task.property.name %>
+    </td>
     <td class="center-align">
       <% if task.past_due? %>
         <span class="btn red lighten-2 white-text">
@@ -21,12 +24,6 @@
       <% else %>
         <%= human_date(task.due) || 'not set' %>
       <% end %>
-    </td>
-    <td class="center-align">
-      <%= task.budget&.format || 'not set' %>
-    </td>
-    <td class="center-align">
-      <%= task.cost&.format || 'not set' %>
     </td>
     <td>
       <p>

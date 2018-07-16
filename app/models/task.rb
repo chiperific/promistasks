@@ -70,6 +70,10 @@ class Task < ApplicationRecord
     discarded_at.present?
   end
 
+  def on_default?
+    property.is_default?
+  end
+
   def budget_remaining
     return nil if budget.nil? && cost.nil?
     temp_budget = budget || Money.new(0)
@@ -197,6 +201,7 @@ class Task < ApplicationRecord
     strikes += 3 if due.nil?
     strikes += 1 if priority.nil?
     strikes += 1 if budget.nil?
+    strikes += -5 if property.is_default?
 
     self.needs_more_info = strikes > 3
     true
