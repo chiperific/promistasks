@@ -10,7 +10,47 @@ class UsersController < ApplicationController
 
   def show
     authorize @user = User.find(params[:id])
-    # redirect_to users_path
+  end
+
+  def tasks
+    authorize @user = User.find(params[:id])
+    tasks = Task.related_to(current_user)
+    @show_new = tasks.created_since(current_user.last_sign_in_at).count.positive?
+
+    case params[:filter]
+    when 'new'
+      @tasks = tasks.created_since(current_user.last_sign_in_at)
+      @empty_msg = 'No tasks created since you last signed in'
+    when 'past-due'
+      @tasks = tasks.past_due
+      @empty_msg = 'No tasks are over-due!'
+    when 'due-7'
+      @tasks = tasks.due_within(7)
+      @empty_msg = 'No tasks due in next 7 days!'
+    when 'due-14'
+      @tasks = tasks.due_within(14)
+      @empty_msg = 'No tasks due in next 14 days!'
+    when 'completed'
+      @tasks = tasks.complete
+      @empty_msg = 'No completed tasks'
+    when 'all'
+      @tasks = tasks.active
+      @empty_msg = 'No active tasks'
+    when 'archived'
+      @tasks = tasks.archived
+      @empty_msg = 'No archived tasks'
+    when 'missing-info'
+      @tasks = tasks.needs_more_info
+      @empty_msg = 'No tasks missing info!'
+    else # nil || 'active'
+      @tasks = tasks.in_process
+      @empty_msg = 'No active tasks'
+    end
+
+    respond_to do |format|
+      format.js
+      format.html
+    end
   end
 
   def new

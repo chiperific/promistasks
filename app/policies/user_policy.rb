@@ -11,8 +11,12 @@ class UserPolicy < ApplicationPolicy
     user&.staff? || user == record
   end
 
+  def tasks?
+    user&.staff? || user == record
+  end
+
   def new?
-    user&.system_admin? || user&.staff?
+    user&.staff?
   end
 
   def create?

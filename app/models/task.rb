@@ -46,7 +46,7 @@ class Task < ApplicationRecord
   scope :complete,        -> { undiscarded.where.not(completed_at: nil) }
   scope :has_cost,        -> { undiscarded.where.not(cost_cents: nil) }
   scope :public_visible,  -> { undiscarded.where(visibility: 1) }
-  scope :related_to,      ->(user) { undiscarded.where('creator_id = ? OR owner_id = ?', user.id, user.id) }
+  scope :related_to,      ->(user) { where('creator_id = ? OR owner_id = ?', user.id, user.id) }
   scope :visible_to,      ->(user) { related_to(user).or(public_visible) }
   scope :created_since,   ->(time) { where('created_at >= ?', time) }
   scope :due_within,      ->(day_num) { in_process.where('due <= ?', Date.today + day_num.days) }

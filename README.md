@@ -2,6 +2,7 @@
 
 # To do:
 1.1 Something is duplicating tasks on tasklists...changing owner, maybe?
+  - Probably because I had api_delete commented out...
 1.2 How to ignore duplicate tasks (same tasklist) from API?
   - Rely upon later update val?
 1.3 Task.skills should show on task#public

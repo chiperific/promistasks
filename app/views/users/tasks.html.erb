@@ -1,6 +1,12 @@
 <div class="row valign-wrapper">
   <div class="col s10">
-    <h1>Tasks</h1>
+    <% if @user == current_user %>
+      <h1>My Tasks</h1>
+    <% else %>
+      <h1>
+        <%= @user.fname %>'s Tasks
+      </h1>
+    <% end %>
   </div>
   <div class="col s2">
     <%= link_to new_task_path, class: 'btn-floating btn-large waves-effect waves-light green darken-2' do %>
@@ -13,32 +19,32 @@
   <ul class="pagination" id="tasks_pagination" name="tasks">
     <% if @show_new %>
       <li class="waves-effect">
-        <%= link_to 'New', tasks_path(filter: 'new'), id: 'tasks_new', class: 'paginate_btn', remote: true %>
+        <%= link_to 'New', tasks_user_path(@user, filter: 'new'), id: 'tasks_new', class: 'paginate_btn', remote: true %>
       </li>
     <% end %>
     <li class="waves-effect active purple">
-      <%= link_to 'Active', tasks_path(filter: 'active'), id: 'tasks_active', class: 'paginate_btn', remote: true %>
+      <%= link_to 'Active', tasks_user_path(@user, filter: 'active'), id: 'tasks_active', class: 'paginate_btn', remote: true %>
     </li>
     <li class="waves-effect">
-      <%= link_to 'Past Due', tasks_path(filter: 'past-due'), id: 'tasks_past-due', class: 'paginate_btn', remote: true %>
+      <%= link_to 'Past Due', tasks_user_path(@user, filter: 'past-due'), id: 'tasks_past-due', class: 'paginate_btn', remote: true %>
     </li>
     <li class="waves-effect">
-      <%= link_to 'Due in 7', tasks_path(filter: 'due-7'), id: 'tasks_due-7', class: 'paginate_btn', remote: true %>
+      <%= link_to 'Due in 7', tasks_user_path(@user, filter: 'due-7'), id: 'tasks_due-7', class: 'paginate_btn', remote: true %>
     </li>
     <li class="waves-effect">
-      <%= link_to 'Due in 14', tasks_path(filter: 'due-14'), id: 'tasks_due-14', class: 'paginate_btn', remote: true %>
+      <%= link_to 'Due in 14', tasks_user_path(@user, filter: 'due-14'), id: 'tasks_due-14', class: 'paginate_btn', remote: true %>
     </li>
     <li class="waves-effect">
-      <%= link_to 'Completed', tasks_path(filter: 'completed'), id: 'tasks_completed', class: 'paginate_btn', remote: true %>
+      <%= link_to 'Completed', tasks_user_path(@user, filter: 'completed'), id: 'tasks_completed', class: 'paginate_btn', remote: true %>
     </li>
     <li class="waves-effect">
-      <%= link_to 'All', tasks_path(filter: 'all'), id: 'tasks_all', class: 'paginate_btn', remote: true %>
+      <%= link_to 'All', tasks_user_path(@user, filter: 'all'), id: 'tasks_all', class: 'paginate_btn', remote: true %>
     </li>
     <li class="waves-effect">
-      <%= link_to 'Archived', tasks_path(filter: 'archived'), id: 'tasks_archived', class: 'paginate_btn', remote: true %>
+      <%= link_to 'Archived', tasks_user_path(@user, filter: 'archived'), id: 'tasks_archived', class: 'paginate_btn', remote: true %>
     </li>
     <li class="waves-effect">
-      <%= link_to 'Missing Info', tasks_path(filter: 'missing-info'), id: 'tasks_missing-info', class: 'paginate_btn', remote: true %>
+      <%= link_to 'Missing Info', tasks_user_path(@user, filter: 'missing-info'), id: 'tasks_missing-info', class: 'paginate_btn', remote: true %>
     </li>
   </ul>
 </div>
@@ -60,7 +66,7 @@
     </thead>
     <tbody id='task_table_body'>
       <% if @tasks.count.positive? %>
-        <%= render partial: 'tasks_table', locals: { tasks: @tasks } %>
+        <%= render partial: 'tasks/tasks_table', locals: { tasks: @tasks } %>
       <% else %>
         <tr>
           <td colspan="8" class="center-align">

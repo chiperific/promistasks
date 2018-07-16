@@ -28,18 +28,20 @@
   </li>
 
   <li>
-    <%= link_to user_path(current_user), 'data-turbolinks'=> 'false' do %>
+    <%= link_to tasks_user_path(current_user), 'data-turbolinks'=> 'false' do %>
       <i class="material-icons">ballot</i>
       <span>My Tasks</span>
     <% end %>
   </li>
 
-  <li>
-    <%= link_to tasks_path, 'data-turbolinks'=> 'false' do %>
-      <i class="material-icons">format_list_bulleted</i>
-      <span>All Tasks</span>
-    <% end %>
-  </li>
+  <% if current_user.staff? %>
+    <li>
+      <%= link_to tasks_path, 'data-turbolinks'=> 'false' do %>
+        <i class="material-icons">format_list_bulleted</i>
+        <span>All Tasks</span>
+      <% end %>
+    </li>
+  <% end %>
 
   <li>
     <%= link_to properties_path, 'data-turbolinks'=> 'false' do %>

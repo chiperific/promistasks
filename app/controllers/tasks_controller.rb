@@ -2,7 +2,7 @@
 
 class TasksController < ApplicationController
   def index
-    authorize tasks = Task.related_to(current_user)
+    authorize tasks = Task.all
 
     @show_new = tasks.created_since(current_user.last_sign_in_at).count.positive?
 

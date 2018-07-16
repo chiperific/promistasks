@@ -70,6 +70,7 @@ class TasksClient
   def handle_task(task_json)
     task_user = TaskUser.where(google_id: task_json['id']).first_or_initialize
     if task_user.new_record?
+      # This assumes the task doesn't exist just because the taskuser doesn't exist.
       task_user.task = create_task(task_json)
       update_task_user(task_user, task_json)
     else

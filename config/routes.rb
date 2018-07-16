@@ -43,6 +43,7 @@ Rails.application.routes.draw do
     get 'owner_enum', on: :collection
     get 'subject_enum', on: :collection
     get 'find_id_by_name', on: :collection
+    get 'tasks', on: :member
     get 'api_sync', on: :member
     get 'alerts', on: :member
   end

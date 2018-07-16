@@ -25,7 +25,7 @@ class Property < ApplicationRecord
   geocoded_by :full_address
 
   before_validation :address_required,              unless: -> { is_default? || created_from_api? }
-  before_validation :use_address_for_name,          if: -> { name.blank? || name.nil? }
+  before_validation :use_address_for_name,          if: -> { name.blank? }
   before_validation :default_must_be_private,       if: -> { discarded_at.nil? && is_default? && !is_private? }
   before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
   after_validation :geocode,                        if: -> { address_has_changed? && !is_default? }
@@ -35,6 +35,7 @@ class Property < ApplicationRecord
   after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? }
   after_update :update_tasklists,                   if: -> { discarded_at.nil? && saved_change_to_name? }
 
+  scope :except_default, ->       { undiscarded.where(is_default: false) }
   scope :needs_title,    ->       { undiscarded.where(certificate_number: '').or(where(certificate_number: nil)) }
   scope :public_visible, ->       { undiscarded.where(is_private: false) }
   scope :created_by,     ->(user) { undiscarded.where(creator: user) }
