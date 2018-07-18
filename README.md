@@ -4,6 +4,7 @@
 1.3 Task.skills should show on task#public
   - https://materializecss.com/chips.html
 1.3.1 Skills need integration into Users and Tasks
+  - Skill#users and Skill#tasks should be a form listing the obvious as booleans
 
 1.1 Something is duplicating tasks on tasklists...changing owner, maybe?
   - Probably because I had api_delete commented out...

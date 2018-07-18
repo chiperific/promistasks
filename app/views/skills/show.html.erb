@@ -10,8 +10,14 @@
 </div>
 
 <div class="row section">
-  <div class="col s12">
+  <div class="col s12 m10">
     <h5>People with skill:</h5>
+  </div>
+  <div class="col s12 m2">
+    <%= link_to users_skill_path(@skill), class: 'btn waves-effect waves-light green darken 2', 'data-turbolinks'=> 'false' do %>
+      <i class="material-icons">add</i>
+      <i class="material-icons">person_outline</i>
+    <% end %>
   </div>
   <div class="col s12">
     <% if @skill_users.any? %>
@@ -47,8 +53,14 @@
 </div>
 
 <div class="row section">
-  <div class="col s12">
+  <div class="col s12 m10">
     <h5>Tasks needing skill:</h5>
+  </div>
+  <div class="col s12 m2">
+    <%= link_to tasks_skill_path(@skill), class: 'btn waves-effect waves-light green darken 2', 'data-turbolinks'=> 'false' do %>
+      <i class="material-icons">add</i>
+      <i class="material-icons">check_circle_outline</i>
+    <% end %>
   </div>
   <div class="col s12 center-align">
     <% if @skill_tasks.any? %>

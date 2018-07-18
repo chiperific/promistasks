@@ -56,9 +56,49 @@ class SkillsController < ApplicationController
     authorize @skills = Skill.discarded
   end
 
+  def users
+    authorize @skill = Skill.find(params[:id])
+
+    @users = User.not_clients.select(:id, :name).order(:name)
+  end
+
+  def update_users
+    authorize @skill = Skill.find(params[:id])
+
+    current = @skill.users.map(&:id)
+    add = skill_user_params[:add_users].split(',').map(&:to_i)
+    existing = current & add
+    add -= existing
+
+    remove = skill_user_params[:remove_users].split(',').map(&:to_i)
+    remove = current & remove
+
+    @skill.users << User.find(add)
+    @skill.users.delete(User.find(remove))
+
+    redirect_to @return_path
+    flash[:alert] = 'Skills updated!'
+  end
+
+  def tasks
+    authorize @skill = Skill.find(params[:id])
+  end
+
+  def update_tasks
+    authorize @skill = Skill.find(params[:id])
+
+    # mimic update_users
+    # redirect_to @return_path
+    # flash[:alert] = 'Skills updated!'
+  end
+
   private
 
   def skill_params
     params.require(:skill).permit(:name, :license_required, :volunteerable, :archive)
+  end
+
+  def skill_user_params
+    params.require(:skill).permit(:add_users, :remove_users)
   end
 end

@@ -25,6 +25,10 @@ Rails.application.routes.draw do
 
   resources :skills do
     get 'discarded', on: :collection
+    get 'users', on: :member
+    post 'update_users', on: :member
+    get 'tasks', on: :member
+    post 'update_tasks', on: :member
   end
 
   resources :connections do
