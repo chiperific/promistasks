@@ -1,1 +1,39 @@
-Skill#tasks
+<div class="row">
+  <div class="col s12">
+    <h4>Tasks with <%= @skill.name %> skill:</h4>
+  </div>
+</div>
+<%= form_tag update_tasks_skill_path(@skill) do %>
+  <table class="striped">
+    <tbody>
+      <% @tasks.each do |task| %>
+        <tr>
+          <td>
+            <%= task.title %>
+          </td>
+          <td>
+            <%= task.property.name %>
+          </td>
+          <td>
+            <div class="switch">
+              <label>
+                <input type="checkbox" class="lever_input" id="<%= task.id %>" <%= 'checked' if @skill.tasks.include? task %>>
+                <span class="lever"></span>
+              </label>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= text_field_tag 'skill[add_tasks]', nil, id: 'add' %>
+  <%= text_field_tag 'skill[remove_tasks]', nil, id: 'remove' %>
+  <div class="row center-align section">
+    <div class="col m6">
+      <%= submit_tag 'Save skills', class: 'btn green' %>
+    </div>
+    <div class="col m6">
+      <%= link_to 'Cancel', @return_path, class: 'btn red lighten-1' %>
+    </div>
+  </div>
+<% end %>

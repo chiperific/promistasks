@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   </head>
 
-  <body>
+  <body data-controller="<%= controller.controller_name %>" data-action="<%= controller.action_name %>">
     <header class="navbar-fixed" id="navbar" data-turbolinks-permanent>
       <%= render partial: 'layouts/navbar' %>
     </header>

@@ -1,4 +1,4 @@
-<%= form_for user do |f| %>
+<%= form_for user, html: { autocomplete: "nope" } do |f| %>
   <%= render 'form_errors', object: user %>
 
   <div class="input-field">

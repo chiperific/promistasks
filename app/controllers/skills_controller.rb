@@ -66,11 +66,11 @@ class SkillsController < ApplicationController
     authorize @skill = Skill.find(params[:id])
 
     current = @skill.users.map(&:id)
-    add = skill_user_params[:add_users].split(',').map(&:to_i)
+    add = skill_users_params[:add_users].split(',').map(&:to_i)
     existing = current & add
     add -= existing
 
-    remove = skill_user_params[:remove_users].split(',').map(&:to_i)
+    remove = skill_users_params[:remove_users].split(',').map(&:to_i)
     remove = current & remove
 
     @skill.users << User.find(add)
@@ -82,14 +82,26 @@ class SkillsController < ApplicationController
 
   def tasks
     authorize @skill = Skill.find(params[:id])
+
+    @tasks = Task.unscoped.not_primary.in_process.joins(:property).order('properties.name', :title).select(:id, :title, :property_id)
   end
 
   def update_tasks
     authorize @skill = Skill.find(params[:id])
 
-    # mimic update_users
-    # redirect_to @return_path
-    # flash[:alert] = 'Skills updated!'
+    current = @skill.tasks.map(&:id)
+    add = skill_tasks_params[:add_tasks].split(',').map(&:to_i)
+    existing = current & add
+    add -= existing
+
+    remove = skill_tasks_params[:remove_tasks].split(',').map(&:to_i)
+    remove = current & remove
+
+    @skill.tasks << Task.find(add)
+    @skill.tasks.delete(Task.find(remove))
+
+    redirect_to @return_path
+    flash[:alert] = 'Skills updated!'
   end
 
   private
@@ -98,7 +110,11 @@ class SkillsController < ApplicationController
     params.require(:skill).permit(:name, :license_required, :volunteerable, :archive)
   end
 
-  def skill_user_params
+  def skill_users_params
     params.require(:skill).permit(:add_users, :remove_users)
+  end
+
+  def skill_tasks_params
+    params.require(:skill).permit(:add_tasks, :remove_tasks)
   end
 end

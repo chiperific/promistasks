@@ -1,7 +1,6 @@
-# Place all the behaviors and hooks related to the matching controller here.
-# All this logic will automatically be available in application.js.
-# You can use CoffeeScript in this file: http://coffeescript.org/
 $(document).on 'turbolinks:load', ->
+  return unless controllerMatches(['tasks']) && actionMatches(['edit', 'new'])
+
   findUserByName = (elem, targetString) ->
     name = $(elem).prop('value').replace(' ','+')
     target = '/users/find_id_by_name/?name=' + name

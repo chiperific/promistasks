@@ -54,6 +54,7 @@ class Task < ApplicationRecord
   scope :due_within,      ->(day_num) { in_process.where('due <= ?', Date.today + day_num.days) }
   scope :due_before,      ->(date) { where('due <= ?', date) }
   scope :past_due,        -> { in_process.where('due < ?', Date.today) }
+  scope :not_primary,     -> { joins(:property).where('properties.is_default = FALSE')}
 
   class << self
     alias archived discarded
