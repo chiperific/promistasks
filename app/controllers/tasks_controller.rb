@@ -56,6 +56,8 @@ class TasksController < ApplicationController
       'Status': @task.status.capitalize
     }
 
+    @skills = @task.skills
+
     @secondary_info_hash = {
       'Budget': @task.budget&.format || 'Not set',
       'Cost': @task.cost&.format || 'Not set',
@@ -65,6 +67,38 @@ class TasksController < ApplicationController
     }
 
     @secondary_info_hash['Archived on'] = human_date(@task.discarded_at) if @task.archived?
+  end
+
+  def skills
+    authorize @task = Task.find(params[:id])
+
+    @skills = Skill.active
+  end
+
+  def update_skills
+    authorize @task = Task.find(params[:id])
+
+    current = @task.skills.map(&:id)
+
+    if task_skills_params[:add_skills].present?
+      add = JSON.parse(task_skills_params[:add_skills]).map(&:to_i)
+      existing = current & add
+      add -= existing
+      @task.skills << Skill.find(add)
+    end
+
+    if task_skills_params[:remove_skills].present?
+      remove = JSON.parse(task_skills_params[:remove_skills]).map(&:to_i)
+      remove = current & remove
+      @task.skills.delete(Skill.find(remove))
+    end
+
+    redirect_to @return_path
+    if add.nil? && remove.nil?
+      flash[:alert] = 'Nothing changed'
+    else
+      flash[:alert] = 'Skills updated!'
+    end
   end
 
   def new
@@ -141,5 +175,9 @@ class TasksController < ApplicationController
     params.require(:task).permit(:title, :notes, :priority, :due, :visibility, :completed_at,
                                  :creator_id, :owner_id, :subject_id, :property_id,
                                  :budget, :cost, :archive)
+  end
+
+  def task_skills_params
+    params.require(:task).permit(:add_skills, :remove_skills)
   end
 end

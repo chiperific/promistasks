@@ -82,18 +82,26 @@ class UsersController < ApplicationController
     authorize @user = User.find(params[:id])
 
     current = @user.skills.map(&:id)
-    add = JSON.parse(user_skills_params[:add_skills]).map(&:to_i)
-    existing = current & add
-    add -= existing
 
-    remove = JSON.parse(user_skills_params[:remove_skills]).map(&:to_i)
-    remove = current & remove
+    if user_skills_params[:add_skills].present?
+      add = JSON.parse(user_skills_params[:add_skills]).map(&:to_i)
+      existing = current & add
+      add -= existing
+      @user.skills << Skill.find(add)
+    end
 
-    @user.skills << Skill.find(add)
-    @user.skills.delete(Skill.find(remove))
+    if user_skills_params[:remove_skills].present?
+      remove = JSON.parse(user_skills_params[:remove_skills]).map(&:to_i)
+      remove = current & remove
+      @user.skills.delete(Skill.find(remove))
+    end
 
     redirect_to @return_path
-    flash[:alert] = 'Skills updated!'
+    if add.nil? && remove.nil?
+      flash[:alert] = 'Nothing changed'
+    else
+      flash[:alert] = 'Skills updated!'
+    end
   end
 
   def new

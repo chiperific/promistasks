@@ -66,18 +66,26 @@ class SkillsController < ApplicationController
     authorize @skill = Skill.find(params[:id])
 
     current = @skill.users.map(&:id)
-    add = JSON.parse(skill_users_params[:add_users]).map(&:to_i)
-    existing = current & add
-    add -= existing
 
-    remove = JSON.parse(skill_users_params[:remove_users]).map(&:to_i)
-    remove = current & remove
+    if skill_users_params[:add_users].present?
+      add = JSON.parse(skill_users_params[:add_users]).map(&:to_i)
+      existing = current & add
+      add -= existing
+      @skill.users << User.find(add)
+    end
 
-    @skill.users << User.find(add)
-    @skill.users.delete(User.find(remove))
+    if skill_users_params[:remove_users].present?
+      remove = JSON.parse(skill_users_params[:remove_users]).map(&:to_i)
+      remove = current & remove
+      @skill.users.delete(User.find(remove))
+    end
 
     redirect_to @return_path
-    flash[:alert] = 'Skills updated!'
+    if add.nil? && remove.nil?
+      flash[:alert] = 'Nothing changed'
+    else
+      flash[:alert] = 'Skills updated!'
+    end
   end
 
   def tasks
@@ -94,18 +102,26 @@ class SkillsController < ApplicationController
     badbad
 
     current = @skill.tasks.map(&:id)
-    add = skill_tasks_params[:add_tasks].split(',').map(&:to_i)
-    existing = current & add
-    add -= existing
 
-    remove = skill_tasks_params[:remove_tasks].split(',').map(&:to_i)
-    remove = current & remove
+    if skill_tasks_params[:add_tasks].present?
+      add = JSON.parse(skill_tasks_params[:add_tasks]).map(&:to_i)
+      existing = current & add
+      add -= existing
+      @skill.tasks << Task.find(add)
+    end
 
-    @skill.tasks << Task.find(add)
-    @skill.tasks.delete(Task.find(remove))
+    if skill_tasks_params[:remove_tasks].present?
+      remove = JSON.parse(skill_tasks_params[:remove_tasks]).map(&:to_i)
+      remove = current & remove
+      @skill.tasks.delete(Task.find(remove))
+    end
 
     redirect_to @return_path
-    flash[:alert] = 'Skills updated!'
+    if add.nil? && remove.nil?
+      flash[:alert] = 'Nothing changed'
+    else
+      flash[:alert] = 'Skills updated!'
+    end
   end
 
   private

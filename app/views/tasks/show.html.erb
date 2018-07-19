@@ -52,15 +52,34 @@
     <div class="col s12">
       <div class="row">
         <div class="col s10">
-          <h5>Skills:</h5>
+          <h5>Skills needed:</h5>
         </div>
         <div class="col s2">
-          <%= link_to new_skill_path(task: @task), class: 'btn waves-effect waves-light green darken 2' do %>
-            <i class="material-icons">add</i>
-            <i class="material-icons">build</i>
-          <% end %>
-
+          <%= link_to skills_task_path(@task), class: 'btn-floating btn-small blue darken-2' do  %>
+                <i class="material-icons">edit</i>
+              <% end %>
         </div>
+      </div>
+      <div class="row">
+        <table class='striped'>
+          <tbody>
+            <% if @skills.present? %>
+              <% @skills.each do |skill| %>
+                <div class="chip">
+                  <%= skill.name %>
+                </div>
+              <% end %>
+            <% else %>
+              <tr>
+                <td class="center">none</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class="row">
+        <p>Show this if current_user is owner || creator?</p>
+        <p>BTN: Find users with matching skills...</p>
       </div>
     </div>
   </div>
@@ -137,7 +156,3 @@
     </div>
   </div>
 </div>
-
-<%= link_to @return_path, class: 'waves-effect waves-light btn' do %>
-  <i class="material-icons left">arrow_back_ios</i>Back
-<% end %>

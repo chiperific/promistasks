@@ -1,20 +1,30 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-1.3 Task.skills should show on task#public
-  - https://materializecss.com/chips.html
-1.3.1 Skills need integration into Users and Tasks
-  - Skill#users and Skill#tasks should be a form listing the obvious as booleans
+1.1 Finish User#show page
+  - Include: 'Find public tasks that match skills': User#task_finder on: :model
+  - Show tasks with skill needs that overlap with user's skill
 
-1.1 Something is duplicating tasks on tasklists...changing owner, maybe?
+1.7 Task#show - link to "Users with apropriate skills for this task..."
+  - Match each one, prioritize list by # of matches.
+  - E.g.: Task needs drywall, carpentry, painting; show users with all, then any
+
+1.2 Something is duplicating tasks on tasklists...changing owner, maybe?
   - Probably because I had api_delete commented out...
-1.2 How to ignore duplicate tasks (same tasklist) from API?
+1.3 How to ignore duplicate tasks (same tasklist) from API?
   - Rely upon later update val?
 1.4 Connections need to be editable && visible from Users and Properties
   - will need connection _form
 1.5 Switch from pagination to tabs
   - https://materializecss.com/tabs.html
 1.6 Public tasks shouldn't go to Task#show
+
+1.8 When a new Property is created, default tasks are also generated:
+  - From a fake seeds file?
+  - What tasks?
+  -- Get the title
+  -- Inspect the property
+  -- ...
 
 2. Write system tests:
   - Every view
@@ -25,15 +35,9 @@
 4. Methodically interact with the API
   - Accepting and syncing works through Task(list)sClient
   - What about pushing and syncing?
-5. Assign tasks to another user (who is authenticated)
-  - User.tasklists should show creator && owner relationships (regardless of property.is_private )
+  - What about two users? Expecting some real shit to occur
+
 5. Properties are TaskLists
-  - ****Show properties based upon related tasks' creator && owner status?****
-  - Initialization Templates created when property created (default tasks)
-  - Show a user these types of tasks:
-    - Those assigned to the user
-    - Those initialization_templates that match the user's type (creator && owner == property.creator)
-      - task.initialization_template? && task.owner_type (is contained in) user.type (array)
 5.1 When a user deletes a Tasklist in Google: do nothing to the app (force_recreate)
 5.2 When a user discards a Property in this app:
   - Provide the option to re-assign each task's creator && owner? || actually 'discard' for all (delete through API for all users)
@@ -48,7 +52,7 @@
 
 ## Keep in mind
 - PRIVATE properties must take self.tasks.map(&:owners &:creators) into account before removing
-- Bring in tasklists and tasks from the app on user.create
+- Bring in tasklists and tasks from the app on sign_in(user)
 - initialization_template tasks will use property.creator for task.creator && task.owner
 
 ## Someday

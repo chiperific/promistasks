@@ -19,6 +19,14 @@ class TaskPolicy < ApplicationPolicy
     record.visible_to?(user)
   end
 
+  def skills?
+    record.related_to?(user) || user.staff?
+  end
+
+  def update_skills?
+    record.related_to?(user) || user.staff?
+  end
+
   def new?
     user&.not_client?
   end
