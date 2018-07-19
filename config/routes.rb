@@ -9,6 +9,8 @@ Rails.application.routes.draw do
     get 'discarded', on: :collection
     get 'public', on: :collection
     get 'admin', on: :collection
+    get 'skills', on: :member
+    post 'update_skills', on: :member
     get 'complete', on: :member
     get 'un_complete', on: :member
   end
@@ -48,6 +50,8 @@ Rails.application.routes.draw do
     get 'subject_enum', on: :collection
     get 'find_id_by_name', on: :collection
     get 'tasks', on: :member
+    get 'skills', on: :member
+    post 'update_skills', on: :member
     get 'api_sync', on: :member
     get 'alerts', on: :member
   end

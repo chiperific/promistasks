@@ -15,6 +15,14 @@ class UserPolicy < ApplicationPolicy
     user&.staff? || user == record
   end
 
+  def skills?
+    user&.staff? || user == record
+  end
+
+  def update_skills?
+    user&.staff? || user == record
+  end
+
   def new?
     user&.staff?
   end

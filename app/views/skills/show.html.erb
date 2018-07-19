@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row valign-wrapper">
   <div class="col s10">
     <h4><%= @skill.name %></h4>
   </div>
@@ -15,7 +15,7 @@
   </div>
   <div class="col s12 m2">
     <%= link_to users_skill_path(@skill), class: 'btn waves-effect waves-light green darken 2', 'data-turbolinks'=> 'false' do %>
-      <i class="material-icons">add</i>
+      <i class="material-icons">edit</i>
       <i class="material-icons">person_outline</i>
     <% end %>
   </div>
@@ -58,7 +58,7 @@
   </div>
   <div class="col s12 m2">
     <%= link_to tasks_skill_path(@skill), class: 'btn waves-effect waves-light green darken 2', 'data-turbolinks'=> 'false' do %>
-      <i class="material-icons">add</i>
+      <i class="material-icons">edit</i>
       <i class="material-icons">check_circle_outline</i>
     <% end %>
   </div>

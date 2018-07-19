@@ -4,30 +4,36 @@
   </div>
 </div>
 <%= form_tag update_tasks_skill_path(@skill) do %>
-  <table class="striped">
-    <tbody>
-      <% @tasks.each do |task| %>
-        <tr>
-          <td>
-            <%= task.title %>
-          </td>
-          <td>
-            <%= task.property.name %>
-          </td>
-          <td>
-            <div class="switch">
-              <label>
-                <input type="checkbox" class="lever_input" id="<%= task.id %>" <%= 'checked' if @skill.tasks.include? task %>>
-                <span class="lever"></span>
-              </label>
-            </div>
-          </td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-  <%= text_field_tag 'skill[add_tasks]', nil, id: 'add' %>
-  <%= text_field_tag 'skill[remove_tasks]', nil, id: 'remove' %>
+  <% @properties.each do |property| %>
+    <% if property.tasks.any? %>
+      <div class="row section">
+        <h5>
+          <%= property.name %>
+        </h5>
+        <table class="striped">
+          <tbody>
+            <% @tasks.where(property: property).each do |task| %>
+              <tr>
+                <td>
+                  <%= task.title %>
+                </td>
+                <td class="">
+                  <div class="switch right">
+                    <label>
+                      <input type="checkbox" class="lever_input" id="<%= task.id %>" <%= 'checked' if @skill.tasks.include? task %>>
+                      <span class="lever"></span>
+                    </label>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  <% end %>
+  <%= hidden_field_tag 'skill[add_tasks]', nil, id: 'add' %>
+  <%= hidden_field_tag 'skill[remove_tasks]', nil, id: 'remove' %>
   <div class="row center-align section">
     <div class="col m6">
       <%= submit_tag 'Save skills', class: 'btn green' %>

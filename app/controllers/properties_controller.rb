@@ -54,11 +54,14 @@ class PropertiesController < ApplicationController
     @connections = @property.connections.active
 
     @primary_info_hash = {
-      'Occupancy status': @occupancy_msg,
-      'Lot rent': @property.lot_rent || 'Not recorded',
-      'Acquired on': human_date(@property.acquired_on) || 'Not recorded',
       'Creator': @property.creator.name
     }
+
+    if !@property.is_default?
+      @primary_info_hash['Occupancy status'] = @occupancy_msg
+      @primary_info_hash['Lot rent'] = @property.lot_rent || 'Not recorded'
+      @primary_info_hash['Acquired on'] = human_date(@property.acquired_on) || 'Not recorded'
+    end
 
     @secondary_info_hash = {
       'Certificate #': @property.certificate_number.present? ? @property.certificate_number : 'Not recorded',

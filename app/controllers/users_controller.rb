@@ -10,6 +10,26 @@ class UsersController < ApplicationController
 
   def show
     authorize @user = User.find(params[:id])
+
+    @tasks = Task.related_to(@user)
+    @properties = Property.related_to(@user)
+
+    @default_property = Property.where(is_default: true, creator: @user).first
+
+    @primary_info_hash = {
+      'Name': @user.name,
+      'Email': @user.email,
+      'Title': @user.title.blank? ? '-' : @user.title,
+      'Type': @user.readable_type,
+      'Phone 1': @user.phone1.blank? ? '-' : @user.phone1,
+      'Phone 2': @user.phone2.blank? ? '-' : @user.phone2,
+      'Address': @user.first_address.blank? ? '-' : @user.first_address,
+      'Location': @user.location_address.blank? ? '-' : @user.location_address
+    }
+
+    @skills = @user.skills.order(:name)
+    @connections = Connection.where(user: @user).order(updated_at: :desc)
+    @occupancies = @connections.where(relationship: 'tennant').order(stage_date: :desc)
   end
 
   def tasks
@@ -51,6 +71,29 @@ class UsersController < ApplicationController
       format.js
       format.html
     end
+  end
+
+  def skills
+    authorize @user = User.find(params[:id])
+    @skills = Skill.active.order(:name)
+  end
+
+  def update_skills
+    authorize @user = User.find(params[:id])
+
+    current = @user.skills.map(&:id)
+    add = JSON.parse(user_skills_params[:add_skills]).map(&:to_i)
+    existing = current & add
+    add -= existing
+
+    remove = JSON.parse(user_skills_params[:remove_skills]).map(&:to_i)
+    remove = current & remove
+
+    @user.skills << Skill.find(add)
+    @user.skills.delete(Skill.find(remove))
+
+    redirect_to @return_path
+    flash[:alert] = 'Skills updated!'
   end
 
   def new
@@ -197,5 +240,9 @@ class UsersController < ApplicationController
                                  :phone1, :phone2, :address1, :address2, :city, :state, :postal_code,
                                  :email, :password, :password_confirmation,
                                  :system_admin, :archive)
+  end
+
+  def user_skills_params
+    params.require(:user).permit(:add_skills, :remove_skills)
   end
 end

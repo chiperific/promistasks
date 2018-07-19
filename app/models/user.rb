@@ -111,6 +111,28 @@ class User < ActiveRecord::Base
     name.split(' ')[0].capitalize
   end
 
+  def full_address
+    addr = address1
+    addr += ' ' + address2 unless address2.blank?
+    addr += ', ' + city unless city.blank?
+    addr += ', ' + state unless city.blank?
+    addr += ', ' + postal_code unless postal_code.blank?
+    addr
+  end
+
+  def first_address
+    addr = address1
+    addr += ' ' + address2 unless address2.blank?
+    addr
+  end
+
+  def location_address
+    addr = city
+    addr += ', ' + state unless city.blank?
+    addr += ', ' + postal_code unless postal_code.blank?
+    addr
+  end
+
   def self.from_omniauth(auth)
     @user = where(email: auth.info.email).first_or_create.tap do |user|
       user.name = auth.info.name

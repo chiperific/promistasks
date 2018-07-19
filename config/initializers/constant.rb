@@ -32,6 +32,6 @@ module Constant
   end
 
   class Params
-    ACTIONS = %w[alerts api_sync clear_completed_jobs complete current_user_id destroy edit find_id_by_name google_oauth2 new owner_enum property_enum subject_enum tasks tasks_filter un_complete users].freeze
+    ACTIONS = %w[alerts api_sync clear_completed_jobs complete current_user_id destroy edit find_id_by_name google_oauth2 new owner_enum property_enum skills subject_enum tasks tasks_filter un_complete users].freeze
   end
 end

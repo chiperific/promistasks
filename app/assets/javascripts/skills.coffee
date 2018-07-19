@@ -1,34 +1,40 @@
-# Place all the behaviors and hooks related to the matching controller here.
-# All this logic will automatically be available in application.js.
-# You can use CoffeeScript in this file: http://coffeescript.org/
 stripFromOther = (id, target) ->
-  current = $(target).val()
-  fresh = current.replace(id, '')
-  fresh = fresh.replace(',,', ',')
-  if fresh[0] == ','
-    fresh = fresh.substr(1)
-  if fresh[fresh.length - 1] == ','
-    fresh = fresh.substr(0, fresh.length - 1)
-  $(target).val(fresh)
+  val = $(target).val()
+  if val.length > 0
+    ary = JSON.parse(val)
+  else
+    ary = []
+  index = ary.indexOf(id)
+  if index > -1
+    ary.splice(index, 1)
+  $(target).val(JSON.stringify(ary))
   true
 
 addElement = (id) ->
-  current = $('#add').val()
-  if current.length == 0
-    $('#add').val(id)
+  val = $('#add').val()
+  if val.length > 0
+    ary = JSON.parse(val)
   else
-    $('#add').val(current + ',' + id)
+    ary = []
+  ary.push(id)
+  $('#add').val(JSON.stringify(ary))
   true
 
 removeElement = (id) ->
-  current = $('#remove').val()
-  if current.length == 0
-    $('#remove').val(id)
+  val = $('#remove').val()
+  if val.length > 0
+    ary = JSON.parse(val)
   else
-    $('#remove').val(current + ',' + id)
+    ary = []
+  ary.push(id)
+  $('#remove').val(JSON.stringify(ary))
   true
 
+# Skill#users, Skill#tasks, User#skills, Task#skills
 $(document).on 'turbolinks:load', ->
+  return unless controllerMatches(['skills', 'users', 'tasks']) &&
+    actionMatches(['users', 'tasks', 'skills'])
+
   $('input:checkbox').on 'change', ->
     divId = $(this).attr('id')
     if $(this).prop('checked')

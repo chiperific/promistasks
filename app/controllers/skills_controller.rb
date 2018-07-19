@@ -66,11 +66,11 @@ class SkillsController < ApplicationController
     authorize @skill = Skill.find(params[:id])
 
     current = @skill.users.map(&:id)
-    add = skill_users_params[:add_users].split(',').map(&:to_i)
+    add = JSON.parse(skill_users_params[:add_users]).map(&:to_i)
     existing = current & add
     add -= existing
 
-    remove = skill_users_params[:remove_users].split(',').map(&:to_i)
+    remove = JSON.parse(skill_users_params[:remove_users]).map(&:to_i)
     remove = current & remove
 
     @skill.users << User.find(add)
@@ -83,11 +83,15 @@ class SkillsController < ApplicationController
   def tasks
     authorize @skill = Skill.find(params[:id])
 
-    @tasks = Task.unscoped.not_primary.in_process.joins(:property).order('properties.name', :title).select(:id, :title, :property_id)
+    @properties = Property.except_default
+
+    @tasks = Task.unscoped.in_process.order(:title)
   end
 
   def update_tasks
     authorize @skill = Skill.find(params[:id])
+
+    badbad
 
     current = @skill.tasks.map(&:id)
     add = skill_tasks_params[:add_tasks].split(',').map(&:to_i)

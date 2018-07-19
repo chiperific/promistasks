@@ -21,6 +21,9 @@ setActivePagination = (target, scope) ->
 
 
 $(document).on 'turbolinks:load', ->
+  return unless controllerMatches(['tasks', 'properties', 'users']) &&
+  actionMatches(['show', 'list', 'index'])
+
   if getParameterByName('filter') != null
     target = document.location.search.replace('?filter=','')
     scope = $('ul.pagination').attr('name')
