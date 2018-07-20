@@ -9,38 +9,40 @@
   </div>
 </div>
 
-<div class="row center-align">
-  <ul class="pagination" id="tasks_pagination" name="tasks">
-    <% if @show_new %>
-      <li class="waves-effect">
-        <%= link_to 'New', tasks_path(filter: 'new'), id: 'tasks_new', class: 'paginate_btn', remote: true %>
+<div class="row">
+  <div class="col s12">
+    <ul class="tabs" name="tasks">
+      <% if @show_new %>
+        <li class="tab col s6 m3 l2">
+          <%= link_to 'New', tasks_path(filter: 'new'), id: 'tasks_new', remote: true %>
+        </li>
+      <% end %>
+      <li class="tab col s6 m3 l2">
+        <%= link_to 'Active', tasks_path(filter: 'active'), id: 'tasks_active', class: 'active', remote: true %>
       </li>
-    <% end %>
-    <li class="waves-effect active purple">
-      <%= link_to 'Active', tasks_path(filter: 'active'), id: 'tasks_active', class: 'paginate_btn', remote: true %>
-    </li>
-    <li class="waves-effect">
-      <%= link_to 'Past Due', tasks_path(filter: 'past-due'), id: 'tasks_past-due', class: 'paginate_btn', remote: true %>
-    </li>
-    <li class="waves-effect">
-      <%= link_to 'Due in 7', tasks_path(filter: 'due-7'), id: 'tasks_due-7', class: 'paginate_btn', remote: true %>
-    </li>
-    <li class="waves-effect">
-      <%= link_to 'Due in 14', tasks_path(filter: 'due-14'), id: 'tasks_due-14', class: 'paginate_btn', remote: true %>
-    </li>
-    <li class="waves-effect">
-      <%= link_to 'Completed', tasks_path(filter: 'completed'), id: 'tasks_completed', class: 'paginate_btn', remote: true %>
-    </li>
-    <li class="waves-effect">
-      <%= link_to 'All', tasks_path(filter: 'all'), id: 'tasks_all', class: 'paginate_btn', remote: true %>
-    </li>
-    <li class="waves-effect">
-      <%= link_to 'Archived', tasks_path(filter: 'archived'), id: 'tasks_archived', class: 'paginate_btn', remote: true %>
-    </li>
-    <li class="waves-effect">
-      <%= link_to 'Missing Info', tasks_path(filter: 'missing-info'), id: 'tasks_missing-info', class: 'paginate_btn', remote: true %>
-    </li>
-  </ul>
+      <li class="tab col s6 m3 l2">
+        <%= link_to 'Past Due', tasks_path(filter: 'past-due'), id: 'tasks_past-due', remote: true %>
+      </li>
+      <li class="tab col s6 m3 l2">
+        <%= link_to 'Due in 7', tasks_path(filter: 'due-7'), id: 'tasks_due-7', remote: true %>
+      </li>
+      <li class="tab col s6 m3 l2">
+        <%= link_to 'Due in 14', tasks_path(filter: 'due-14'), id: 'tasks_due-14', remote: true %>
+      </li>
+      <li class="tab col s6 m3 l2">
+        <%= link_to 'Completed', tasks_path(filter: 'completed'), id: 'tasks_completed', remote: true %>
+      </li>
+      <li class="tab col s6 m3 l2">
+        <%= link_to 'All', tasks_path(filter: 'all'), id: 'tasks_all', remote: true %>
+      </li>
+      <li class="tab col s6 m3 l2">
+        <%= link_to 'Archived', tasks_path(filter: 'archived'), id: 'tasks_archived', remote: true %>
+      </li>
+      <li class="tab col s6 m3 l2">
+        <%= link_to 'Missing Info', tasks_path(filter: 'missing-info'), id: 'tasks_missing-info', remote: true %>
+      </li>
+    </ul>
+  </div>
 </div>
 
 <div class="row">

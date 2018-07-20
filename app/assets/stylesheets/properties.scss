@@ -3,11 +3,6 @@
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
 // Tasks table on Properties#show: Completion checkbox:
-[type="checkbox"].complete_bool.filled-in:checked+span:not(.lever):after {
-  border-color: #F44336 !important;
-  background-color: #F44336 !important;
-}
-
 .task_id {
   display: none;
 }

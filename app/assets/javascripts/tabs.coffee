@@ -8,17 +8,12 @@ refreshTasks = (target, checked) ->
     true
   true
 
-setActivePagination = (target, scope) ->
+setActiveTab = (target, scope) ->
   attrSelector = 'ul[name="' + scope + '"]'
-  lis = $(attrSelector).find('li')
-  lis.removeClass('active')
-  lis.removeClass('purple')
+  anchors = $(attrSelector).find('a')
+  anchors.removeClass('active')
   targetID = 'a#' + scope + '_' + target
-  thisLi = $(targetID).parent('li')
-  thisLi.addClass('active')
-  thisLi.addClass('purple')
-
-
+  $(targetID).addClass('active')
 
 $(document).on 'turbolinks:load', ->
   return unless controllerMatches(['tasks', 'properties', 'users']) &&
@@ -26,16 +21,14 @@ $(document).on 'turbolinks:load', ->
 
   if getParameterByName('filter') != null
     target = document.location.search.replace('?filter=','')
-    scope = $('ul.pagination').attr('name')
-    setActivePagination(target, scope)
+    scope = $('ul.tabs').attr('name')
+    setActiveTab(target, scope)
 
-# TASK: Property#show and Task#index
-# PROPERTY: Property#list
-  $('a.paginate_btn').click ->
-    scope = $('ul.pagination').attr('name')
-    scopePrecursor = scope + '_'
-    target = $(this).attr('id').replace(scopePrecursor, '')
-    setActivePagination(target, scope)
+  # Don't initiate this in global
+  # because then the JS indicator (non-CSS bottom border)
+  # appears on the initial active element
+  tab = $('.tabs')
+  M.Tabs.init(tab)
 
   $('#task_table_body').on 'click', 'input.complete_bool', ->
     taskId = $(this).siblings('.task_id').text().trim()
@@ -47,7 +40,7 @@ $(document).on 'turbolinks:load', ->
 
     location = '/tasks/' + taskId + action
     $.ajax(url: location).done (response) ->
-      filter = $('li.active').children('a.paginate_btn').attr('id')
+      filter = $('li.active').children('a').attr('id')
       link = '#' + filter
       target = $(link).attr('href')
       refreshTasks(target, checked)

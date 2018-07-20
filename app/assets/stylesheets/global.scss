@@ -92,25 +92,3 @@ td {
 .fake_btn {
   cursor: text !important;
 }
-
-// coloring for switches
-// light-blue lighten-1
-.switch label input[type=checkbox]:checked+.lever {
-  background-color: rgba(41, 182, 246, 0.7) !important;
-}
-
-.switch label input[type=checkbox]:checked+.lever:after {
-  background-color: #29b6f6 !important;
-}
-
-// coloring for standard && filled-in checkboxes
-// blue darken-2
-[type="checkbox"]:checked+span:not(.lever):before {
-  border-right-color: #1976D2 !important;
-  border-bottom-color: #1976D2 !important;
-}
-
-[type="checkbox"].filled-in:checked+span:not(.lever):after {
-  border-color: #1976D2 !important;
-  background-color: rgba(41, 182, 246, 1) !important;
-}
