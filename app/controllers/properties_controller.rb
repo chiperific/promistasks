@@ -124,7 +124,9 @@ class PropertiesController < ApplicationController
   end
 
   def default
-    authorize @property = Property.where(is_default: true, creator: current_user)
+    authorize @property = Property.where(is_default: true, creator: current_user).first
+
+    redirect_to property_path(@property)
   end
 
   def reports

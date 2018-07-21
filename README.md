@@ -1,8 +1,6 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-0 Default property show page
-
 1.1 Finish User#show page
   - Include: 'Find public tasks that match skills': User#task_finder on: :model
   - Show tasks with skill needs that overlap with user's skill
