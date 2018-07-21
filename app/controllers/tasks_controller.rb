@@ -107,12 +107,10 @@ class TasksController < ApplicationController
   end
 
   def create
-    modified_params = parse_datetimes(task_params.except(:archive))
+    task_params.delete :budget if task_params[:budget].blank?
+    task_params.delete :cost if task_params[:cost].blank?
 
-    modified_params.delete :budget if task_params[:budget].blank?
-    modified_params.delete :cost if task_params[:cost].blank?
-
-    authorize @task = Task.new(modified_params)
+    authorize @task = Task.new(parse_completed_at(task_params))
 
     if @task.save
       redirect_to @return_path, notice: 'Task created'
@@ -129,11 +127,13 @@ class TasksController < ApplicationController
   def update
     authorize @task = Task.find(params[:id])
 
-    @task.discard if task_params[:archive] == '1'
-    @task.undiscard if task_params[:archive] == '0' && @task.discarded?
+    @task.discard if params[:task][:archive] == '1' && !@task.discarded?
+    @task.undiscard if params[:task][:archive] == '0' && @task.discarded?
 
-    modified_params = parse_datetimes(task_params.except(:archive))
-    if @task.update(modified_params)
+    task_params.delete :budget if task_params[:budget].blank?
+    task_params.delete :cost if task_params[:cost].blank?
+
+    if @task.update(parse_completed_at(task_params)
       redirect_to @return_path, notice: 'Task updated'
     else
       flash[:warning] = 'Oops, found some errors'
@@ -178,7 +178,7 @@ class TasksController < ApplicationController
   def task_params
     params.require(:task).permit(:title, :notes, :priority, :due, :visibility, :completed_at,
                                  :creator_id, :owner_id, :subject_id, :property_id,
-                                 :budget, :cost, :archive)
+                                 :budget, :cost)
   end
 
   def task_skills_params

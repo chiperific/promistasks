@@ -118,8 +118,7 @@ class UsersController < ApplicationController
   end
 
   def create
-    modified_params = parse_datetimes(user_params.except(:archive))
-    authorize @user = User.new(modified_params)
+    authorize @user = User.new(user_params)
 
     if @user.save
       redirect_to @return_path, notice: 'User created'
@@ -136,15 +135,15 @@ class UsersController < ApplicationController
 
   def update
     authorize @user = User.find(params[:id])
-    @user.discard if user_params[:archive] == '1'
-    @user.undiscard if user_params[:archive] == '0' && @user.discarded?
+    @user.discard if params[:user][:archive] == '1' && !@user.discarded?
+    @user.undiscard if params[:user][:archive] == '0' && @user.discarded?
 
-    modified_params = parse_datetimes(user_params.except(:archive))
-    if params[:password].nil?
-      modified_params = user_params.except :password, :password_confirmation, :archive
+    if user_params[:password].nil?
+      user_params.delete :password
+      user_params.delete :password_confirmation
     end
 
-    if @user.update(modified_params)
+    if @user.update(user_params)
       redirect_to @return_path, notice: 'Update successful'
     else
       flash[:warning] = 'Oops, found some errors'
@@ -255,7 +254,7 @@ class UsersController < ApplicationController
                                  :rate, :rate_cents, :rate_currency,
                                  :phone1, :phone2, :address1, :address2, :city, :state, :postal_code,
                                  :email, :password, :password_confirmation,
-                                 :system_admin, :archive)
+                                 :system_admin)
   end
 
   def user_skills_params

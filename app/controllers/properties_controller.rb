@@ -87,8 +87,7 @@ class PropertiesController < ApplicationController
   end
 
   def create
-    modified_params = parse_datetimes(property_params.except(:archive))
-    authorize @property = Property.new(modified_params)
+    authorize @property = Property.new(property_params)
 
     if @property.save
       redirect_to @return_path, notice: 'Property created'
@@ -104,12 +103,10 @@ class PropertiesController < ApplicationController
 
   def update
     authorize @property = Property.find(params[:id])
-    @property.discard if property_params[:archive] == '1'
-    @property.undiscard if property_params[:archive] == '0' && @property.discarded
+    @property.discard if params[:property][:archive] == '1' && !@property.discarded?
+    @property.undiscard if params[:property][:archive] == '0' && @property.discarded?
 
-    modified_params = parse_datetimes(property_params.except(:archive))
-
-    if @property.update(modified_params)
+    if @property.update(property_params)
       redirect_to @return_path, notice: 'Property updated'
     else
       flash[:warning] = 'Oops, found some errors'
@@ -195,6 +192,6 @@ class PropertiesController < ApplicationController
                                      :description, :acquired_on, :cost, :lot_rent, :budget,
                                      :certificate_number, :serial_number, :year_manufacture,
                                      :manufacturer, :bed_bath, :certification_label1, :certification_label2,
-                                     :creator_id, :is_private, :ignore_budget_warning, :archive)
+                                     :creator_id, :is_private, :ignore_budget_warning)
   end
 end

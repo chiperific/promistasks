@@ -17,7 +17,7 @@ class SkillsController < ApplicationController
   end
 
   def create
-    authorize @skill = Skill.new(parse_datetimes(skill_params))
+    authorize @skill = Skill.new(skill_params)
 
 
     if @skill.save
@@ -51,7 +51,7 @@ class SkillsController < ApplicationController
     @skill.discard if params[:skill][:archive] == '1' && !@skill.discarded?
     @skill.undiscard if params[:skill][:archive] == '0' && @skill.discarded?
 
-    if @skill.update(parse_datetimes(skill_params))
+    if @skill.update(skill_params)
       redirect_to @return_path, notice: 'Update successful'
     else
       flash[:warning] = 'Oops, found some errors'
