@@ -11,6 +11,7 @@ Rails.application.routes.draw do
     get 'admin', on: :collection
     get 'skills', on: :member
     post 'update_skills', on: :member
+    get 'users_finder', on: :member
     get 'complete', on: :member
     get 'un_complete', on: :member
   end
@@ -50,6 +51,7 @@ Rails.application.routes.draw do
     get 'subject_enum', on: :collection
     get 'find_id_by_name', on: :collection
     get 'tasks', on: :member
+    get 'tasks_finder', on: :member
     get 'skills', on: :member
     post 'update_skills', on: :member
     get 'api_sync', on: :member

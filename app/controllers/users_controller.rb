@@ -73,6 +73,14 @@ class UsersController < ApplicationController
     end
   end
 
+  def tasks_finder
+    authorize @user = User.find(params[:id])
+
+    skill_ids = @user.skills.pluck(:id)
+
+    @tasks = Task.in_process.joins(:skills).where(skills: { id: skill_ids }).uniq
+  end
+
   def skills
     authorize @user = User.find(params[:id])
     @skills = Skill.active.order(:name)

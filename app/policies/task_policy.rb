@@ -27,6 +27,10 @@ class TaskPolicy < ApplicationPolicy
     record.related_to?(user) || user.staff?
   end
 
+  def users_finder?
+    record.related_to?(user) || user.staff?
+  end
+
   def new?
     user&.not_client?
   end

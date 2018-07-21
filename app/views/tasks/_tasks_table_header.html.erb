@@ -11,7 +11,9 @@
     <th class="center-align">Budget</th>
     <th class="center-align">Cost</th>
   <% end %>
-  <th></th>
+  <% unless controller.action_name == 'tasks_finder' %>
+    <th></th>
+  <% end %>
   <th></th>
   <th></th>
 </tr>

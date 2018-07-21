@@ -15,6 +15,10 @@ class UserPolicy < ApplicationPolicy
     user&.staff? || user == record
   end
 
+  def tasks_finder?
+    user&.staff? || user == record
+  end
+
   def skills?
     user&.staff? || user == record
   end

@@ -17,14 +17,28 @@ class SkillsController < ApplicationController
   end
 
   def create
-    modified_params = parse_datetimes(skill_params.except(:archive))
-    authorize @skill = Skill.new(modified_params)
+    authorize @skill = Skill.new(parse_datetimes(skill_params))
+
 
     if @skill.save
-      redirect_to @return_path, notice: 'Skill created'
+      msg = 'Skill created'
+
+      if params[:skill][:task].present?
+        task = Task.find(params[:skill][:task])
+        @skill.tasks << task
+        msg += ', added to task'
+      end
+
+      if params[:skill][:user].present?
+        user = User.find(params[:skill][:user])
+        @skill.users << user
+        msg += ', added to user'
+      end
+
+      redirect_to @return_path, notice: msg
     else
       flash[:warning] = 'Oops, found some errors'
-      render 'new'
+      render 'new', task: skill_params[:task]
     end
   end
 
@@ -34,11 +48,10 @@ class SkillsController < ApplicationController
 
   def update
     authorize @skill = Skill.find(params[:id])
-    @skill.discard if skill_params[:archive] == '1'
-    @skill.undiscard if skill_params[:archive] == '0' && @skill.discarded?
+    @skill.discard if params[:skill][:archive] == '1' && !@skill.discarded?
+    @skill.undiscard if params[:skill][:archive] == '0' && @skill.discarded?
 
-    modified_params = parse_datetimes(skill_params.except(:archive))
-    if @skill.update(modified_params)
+    if @skill.update(parse_datetimes(skill_params))
       redirect_to @return_path, notice: 'Update successful'
     else
       flash[:warning] = 'Oops, found some errors'
@@ -127,7 +140,7 @@ class SkillsController < ApplicationController
   private
 
   def skill_params
-    params.require(:skill).permit(:name, :license_required, :volunteerable, :archive)
+    params.require(:skill).permit(:name, :license_required, :volunteerable)
   end
 
   def skill_users_params

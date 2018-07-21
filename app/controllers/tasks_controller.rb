@@ -72,7 +72,7 @@ class TasksController < ApplicationController
   def skills
     authorize @task = Task.find(params[:id])
 
-    @skills = Skill.active
+    @skills = Skill.active.order(:name)
   end
 
   def update_skills
@@ -153,6 +153,10 @@ class TasksController < ApplicationController
 
   def public
     authorize @tasks = Task.public_visible
+  end
+
+  def users_finder
+    authorize @task = Task.find(params[:id])
   end
 
   def complete

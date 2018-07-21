@@ -39,10 +39,13 @@
   <%= hidden_field_tag 'user[add_skills]', nil, id: 'add' %>
   <%= hidden_field_tag 'user[remove_skills]', nil, id: 'remove' %>
   <div class="row center-align section">
-    <div class="col m6">
+    <div class="col s6 m4">
       <%= submit_tag 'Save skills', class: 'btn green' %>
     </div>
-    <div class="col m6">
+    <div class="col s6 m4">
+      <%= link_to 'Add new skill', new_skill_path(user: @user.id), class: 'btn blue darken-2' %>
+    </div>
+    <div class="col s6 m4">
       <%= link_to 'Cancel', @return_path, class: 'btn red lighten-1' %>
     </div>
   </div>

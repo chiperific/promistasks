@@ -1,14 +1,12 @@
+html {
+    font-size: 16px !important;
+}
+
 body {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
   background-color: #fcfcfc;
-}
-
-@media only screen {
-  html {
-      font-size: 16px !important;
-  }
 }
 
 main {
@@ -17,8 +15,14 @@ main {
   p.big-p {
     font-size: 1.175em;
   }
+
+  .small-text {
+    font-size: .75em;
+  }
 }
 
+// materialize doesn't play well with Rail adding divs around errored fields.
+// So I adjusted application.rb to add the field_with_errors directly to the form field.
 form {
   .error_notification {
     color: #4e0402;
@@ -58,7 +62,7 @@ div.spacer {
   height: 0px;
 }
 
-
+// match modal links to the surrounding text (almost black)
 a.modal-trigger {
   color: rgba(0,0,0,0.87);
 
@@ -67,6 +71,7 @@ a.modal-trigger {
   }
 }
 
+// allow modals to have bullet points
 .modal {
   li {
     list-style-type: circle !important;
@@ -108,6 +113,11 @@ td {
   }
 }
 
+// button extensions
 .fake_btn {
   cursor: text !important;
+}
+
+.btn-slim {
+  padding: 0 8px !important;
 }

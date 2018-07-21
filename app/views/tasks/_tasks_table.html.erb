@@ -23,8 +23,7 @@
     </td>
     <td>
       <% if current_user.staff? %>
-        <%= link_to user_path(task.owner), class: 'waves-effect btn-flat' do %>
-          <i class="material-icons left">visibility</i>
+        <%= link_to user_path(task.owner), class: 'btn-small btn-slim blue lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
           <%= task.owner.name %>
         <% end %>
       <% else %>
@@ -34,8 +33,7 @@
     <% unless controller_name == 'properties' %>
       <td>
         <% if task.property.can_be_viewed_by(current_user) %>
-          <%= link_to property_path(task.property), class: 'waves-effect btn-flat' do %>
-            <i class="material-icons left">visibility</i>
+          <%= link_to property_path(task.property), class: 'btn-small btn-slim blue lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
             <%= task.property.name %>
           <% end %>
         <% else %>
@@ -60,17 +58,19 @@
         <%= task.cost&.format || 'not set' %>
       </td>
     <% end %>
-    <td class="slim">
-      <p>
-        <label>
-          <input type="checkbox" class="filled-in complete_bool" <%= 'checked' if task.complete? %>>
-          <span class="complete_span">&nbsp;</span>
-          <span class="task_id">
-            <%= task.id %>
-          </span>
-        </label>
-      </p>
-    </td>
+    <% unless controller.action_name == 'tasks_finder' %>
+      <td class="slim">
+        <p>
+          <label>
+            <input type="checkbox" class="filled-in complete_bool" <%= 'checked' if task.complete? %>>
+            <span class="complete_span">&nbsp;</span>
+            <span class="task_id">
+              <%= task.id %>
+            </span>
+          </label>
+        </p>
+      </td>
+    <% end %>
     <td class="slim">
       <%= link_to task_path(task), class: 'btn-floating btn-small green' do  %>
         <i class="material-icons">arrow_forward</i>
