@@ -6,7 +6,7 @@
   - Show tasks with skill needs that overlap with user's skill
 
 1.7 Task#show - link to "Users with apropriate skills for this task..."
-  - Match each one, prioritize list by # of matches.
+  - Match each one, prioritize list by # of matches. Task#user_finder on: :model
   - E.g.: Task needs drywall, carpentry, painting; show users with all, then any
 
 1.2 Something is duplicating tasks on tasklists...changing owner, maybe?

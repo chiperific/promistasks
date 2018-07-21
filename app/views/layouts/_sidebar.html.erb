@@ -19,7 +19,7 @@
   <li class="no-padding">
     <ul class="collapsible collapsible-accordion">
       <li>
-        <%= link_to edit_user_path(current_user), 'data-turbolinks'=> 'false' do %>
+        <%= link_to user_path(current_user) do %>
           <i class="material-icons">account_box</i>
           <span>Profile</span>
         <% end %>
@@ -28,7 +28,7 @@
   </li>
 
   <li>
-    <%= link_to tasks_user_path(current_user), 'data-turbolinks'=> 'false' do %>
+    <%= link_to tasks_user_path(current_user) do %>
       <i class="material-icons">ballot</i>
       <span>My Tasks</span>
     <% end %>
