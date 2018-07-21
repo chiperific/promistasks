@@ -8,7 +8,12 @@ class PropertiesController < ApplicationController
   def list
     authorize properties = Property.where(is_default: false).related_to(current_user)
 
+    @show_new = properties.created_since(current_user.last_sign_in_at).count.positive?
+
     case params[:filter]
+    when 'new'
+      @properties = Property.created_since(current_user.last_sign_in_at)
+      @empty_msg = 'No properties created since you last signed in'
     when 'tasks'
       @properties = Property.where(is_default: false).with_tasks_for(current_user)
       @empty_msg = 'No properties with tasks for you'
@@ -74,6 +79,7 @@ class PropertiesController < ApplicationController
     }
 
     @tasks = @property.tasks.in_process.visible_to(current_user)
+    @show_new = @tasks.created_since(current_user.last_sign_in_at).visible_to(current_user).count.positive?
   end
 
   def new
@@ -139,18 +145,21 @@ class PropertiesController < ApplicationController
     authorize @property = Property.find(params[:id])
 
     case params[:tasks]
-    when nil || 'your'
-      @tasks = @property.tasks.in_process.visible_to(current_user)
-      @empty_msg = 'No active tasks'
+    when 'new'
+      @tasks = @property.tasks.created_since(current_user.last_sign_in_at).visible_to(current_user)
+      @empty_msg = 'No new tasks'
+    when 'completed'
+      @tasks = @property.tasks.complete.visible_to(current_user)
+      @empty_msg = 'No completed tasks'
     when 'all'
       @tasks = @property.tasks.active
       @empty_msg = 'No active tasks'
-    when 'completed'
-      @tasks = @property.tasks.complete
-      @empty_msg = 'No completed tasks'
     when 'archived'
-      @tasks = @property.tasks.visible_to(current_user).archived
+      @tasks = @property.tasks.archived
       @empty_msg = 'No archived tasks'
+    else # nil || 'your'
+      @tasks = @property.tasks.in_process.visible_to(current_user)
+      @empty_msg = 'No active tasks'
     end
 
     respond_to do |format|

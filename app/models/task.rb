@@ -48,13 +48,13 @@ class Task < ApplicationRecord
   scope :complete,        -> { undiscarded.where.not(completed_at: nil) }
   scope :has_cost,        -> { undiscarded.where.not(cost_cents: nil) }
   scope :public_visible,  -> { undiscarded.where(visibility: 1) }
-  scope :related_to,      ->(user) { where('creator_id = ? OR owner_id = ?', user.id, user.id) }
+  scope :related_to,      ->(user) { where("#{table_name}.creator_id = ? OR #{table_name}.owner_id = ?", user.id, user.id) }
   scope :visible_to,      ->(user) { related_to(user).or(public_visible) }
-  scope :created_since,   ->(time) { where('created_at >= ?', time) }
+  scope :created_since,   ->(time) { where("#{table_name}.created_at >= ?", time) }
   scope :due_within,      ->(day_num) { in_process.where('due <= ?', Date.today + day_num.days) }
-  scope :due_before,      ->(date) { where('due <= ?', date) }
-  scope :past_due,        -> { in_process.where('due < ?', Date.today) }
-  scope :not_primary,     -> { joins(:property).where('properties.is_default = FALSE')}
+  scope :due_before,      ->(date) { where("#{table_name}.due <= ?", date) }
+  scope :past_due,        -> { in_process.where("#{table_name}.due < ?", Date.today) }
+  scope :except_primary,     -> { joins(:property).where('properties.is_default = FALSE')}
 
   class << self
     alias archived discarded

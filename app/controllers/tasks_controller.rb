@@ -2,7 +2,7 @@
 
 class TasksController < ApplicationController
   def index
-    authorize tasks = Task.all
+    authorize tasks = Task.except_primary
 
     @show_new = tasks.created_since(current_user.last_sign_in_at).count.positive?
 
@@ -22,15 +22,15 @@ class TasksController < ApplicationController
     when 'completed'
       @tasks = tasks.complete
       @empty_msg = 'No completed tasks'
-    when 'all'
-      @tasks = tasks.active
-      @empty_msg = 'No active tasks'
-    when 'archived'
-      @tasks = tasks.archived
-      @empty_msg = 'No archived tasks'
     when 'missing-info'
       @tasks = tasks.needs_more_info
       @empty_msg = 'No tasks missing info!'
+    when 'archived'
+      @tasks = tasks.archived
+      @empty_msg = 'No archived tasks'
+    when 'all'
+      @tasks = tasks
+      @empty_msg = 'No active tasks'
     else # nil || 'active'
       @tasks = tasks.in_process
       @empty_msg = 'No active tasks'

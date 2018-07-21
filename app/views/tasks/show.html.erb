@@ -95,7 +95,7 @@
             <td>Assigned to:</td>
             <td>
               <% if current_user.staff? %>
-                <%= link_to user_path(@task.owner), class: 'waves-effect waves-light btn-flat' do %>
+                <%= link_to user_path(@task.owner), class: 'waves-effect btn-flat' do %>
                   <i class="material-icons left">visibility</i>
                   <%= @task.owner.name %>
                 <% end %>
@@ -108,7 +108,7 @@
             <td>Created by:</td>
             <td>
               <% if current_user.staff? %>
-                <%= link_to user_path(@task.creator), class: 'waves-effect waves-light btn-flat' do %>
+                <%= link_to user_path(@task.creator), class: 'waves-effect btn-flat' do %>
                   <i class="material-icons left">visibility</i>
                   <%= @task.creator.name %>
                 <% end %>

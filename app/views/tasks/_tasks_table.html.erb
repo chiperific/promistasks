@@ -1,10 +1,12 @@
 <% tasks.each do |task| %>
   <tr>
-    <td>
+    <td class="hide-on-small-only">
       <% if task.needs_more_info? %>
         <span class="btn-floating red lighten-2">
           <i class="material-icons tooltipped" data-position="bottom" data-tooltip="Needs more info!">error_outline</i>
         </span>
+      <% else %>
+        &nbsp;
       <% end %>
     </td>
     <td>
@@ -12,17 +14,33 @@
         <span class="new badge <%= task.priority_color %> white-text" data-badge-caption="">
           <%= Constant::Task::PRIORITY[task.priority] %>
         </span>
+      <% else %>
+        not set
       <% end %>
     </td>
     <td class="truncate">
       <%= task.title %>
     </td>
     <td>
-      <%= task.owner.name %>
+      <% if current_user.staff? %>
+        <%= link_to user_path(task.owner), class: 'waves-effect btn-flat' do %>
+          <i class="material-icons left">visibility</i>
+          <%= task.owner.name %>
+        <% end %>
+      <% else %>
+        <%= task.owner.name %>
+      <% end %>
     </td>
     <% unless controller_name == 'properties' %>
       <td>
-        <%= task.property.name %>
+        <% if task.property.can_be_viewed_by(current_user) %>
+          <%= link_to property_path(task.property), class: 'waves-effect btn-flat' do %>
+            <i class="material-icons left">visibility</i>
+            <%= task.property.name %>
+          <% end %>
+        <% else %>
+          <%= task.property.name %>
+        <% end %>
       </td>
     <% end %>
     <td class="center-align">

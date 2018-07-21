@@ -15,39 +15,44 @@
 </div>
 
 <div class="row center-align">
-  <ul class="pagination" id="properties_pagination" name="properties">
-    <li class="waves-effect active purple">
-      <%= link_to 'Yours', list_properties_path(filter: 'yours'), id: 'properties_yours', class: 'paginate_btn', remote: true  %>
+  <ul class="tabs z-depth-1" name="properties">
+    <% if @show_new %>
+      <li class="tab">
+        <%= link_to 'New', list_properties_path(filter: 'new'), id: 'properties_new' %>
+      </li>
+    <% end %>
+    <li class="tab">
+      <%= link_to 'Yours', list_properties_path(filter: 'yours'), id: 'properties_yours', class: 'active', remote: true  %>
     </li>
-    <li class="waves-effect">
-      <%= link_to 'Have Your Tasks', list_properties_path(filter: 'tasks'), id: 'properties_tasks', class: 'paginate_btn', remote: true  %>
+    <li class="tab">
+      <%= link_to 'Have Your Tasks', list_properties_path(filter: 'tasks'), id: 'properties_tasks', remote: true  %>
     </li>
-    <li class="waves-effect">
-      <%= link_to 'Over budget', list_properties_path(filter: 'over'), id: 'properties_over', class: 'paginate_btn', remote: true  %>
+    <li class="tab">
+      <%= link_to 'Over budget', list_properties_path(filter: 'over'), id: 'properties_over', remote: true  %>
     </li>
-    <li class="waves-effect">
-      <%= link_to 'Nearing budget', list_properties_path(filter: 'near'), id: 'properties_near', class: 'paginate_btn', remote: true  %>
+    <li class="tab">
+      <%= link_to 'Nearing budget', list_properties_path(filter: 'near'), id: 'properties_near', remote: true  %>
     </li>
-    <li class="waves-effect">
-      <%= link_to 'Missing title', list_properties_path(filter: 'title'), id: 'properties_title', class: 'paginate_btn', remote: true  %>
+    <li class="tab">
+      <%= link_to 'Missing title', list_properties_path(filter: 'title'), id: 'properties_title', remote: true  %>
     </li>
     <% if current_user.system_admin? %>
-      <li class="waves-effect">
-        <%= link_to 'All', list_properties_path(filter: 'admin'), id: 'properties_admin', class: 'paginate_btn', remote: true  %>
+      <li class="tab">
+        <%= link_to 'All', list_properties_path(filter: 'admin'), id: 'properties_admin', remote: true  %>
       </li>
     <% elsif current_user.staff? %>
-      <li class="waves-effect">
-        <%= link_to 'All', list_properties_path(filter: 'all'), id: 'properties_all', class: 'paginate_btn', remote: true  %>
+      <li class="tab">
+        <%= link_to 'All', list_properties_path(filter: 'all'), id: 'properties_all', remote: true  %>
       </li>
     <% end %>
   </ul>
 </div>
 
 <div class="row">
-  <table class="striped">
+  <table class="highlight responsive-table">
     <thead>
       <tr>
-        <th></th>
+        <th class="hide-on-small-only"></th>
         <th>Name</th>
         <th>Budget remaining</th>
         <th>Total Tasks</th>

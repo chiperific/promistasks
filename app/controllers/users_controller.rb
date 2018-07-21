@@ -53,15 +53,15 @@ class UsersController < ApplicationController
     when 'completed'
       @tasks = tasks.complete
       @empty_msg = 'No completed tasks'
+    when 'missing-info'
+      @tasks = tasks.needs_more_info
+      @empty_msg = 'No tasks missing info!'
     when 'all'
-      @tasks = tasks.active
+      @tasks = tasks
       @empty_msg = 'No active tasks'
     when 'archived'
       @tasks = tasks.archived
       @empty_msg = 'No archived tasks'
-    when 'missing-info'
-      @tasks = tasks.needs_more_info
-      @empty_msg = 'No tasks missing info!'
     else # nil || 'active'
       @tasks = tasks.in_process
       @empty_msg = 'No active tasks'

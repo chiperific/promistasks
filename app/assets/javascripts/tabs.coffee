@@ -17,7 +17,7 @@ setActiveTab = (target, scope) ->
 
 $(document).on 'turbolinks:load', ->
   return unless controllerMatches(['tasks', 'properties', 'users']) &&
-  actionMatches(['show', 'list', 'index'])
+  actionMatches(['show', 'list', 'index', 'tasks'])
 
   if getParameterByName('filter') != null
     target = document.location.search.replace('?filter=','')
@@ -28,7 +28,7 @@ $(document).on 'turbolinks:load', ->
   # because then the JS indicator (non-CSS bottom border)
   # appears on the initial active element
   tab = $('.tabs')
-  M.Tabs.init(tab)
+  tabElem = M.Tabs.init(tab)
 
   $('#task_table_body').on 'click', 'input.complete_bool', ->
     taskId = $(this).siblings('.task_id').text().trim()
@@ -40,7 +40,7 @@ $(document).on 'turbolinks:load', ->
 
     location = '/tasks/' + taskId + action
     $.ajax(url: location).done (response) ->
-      filter = $('li.active').children('a').attr('id')
+      filter = $('a.active').attr('id')
       link = '#' + filter
       target = $(link).attr('href')
       refreshTasks(target, checked)

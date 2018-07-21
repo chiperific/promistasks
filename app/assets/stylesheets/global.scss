@@ -5,6 +5,12 @@ body {
   background-color: #fcfcfc;
 }
 
+@media only screen {
+  html {
+      font-size: 16px !important;
+  }
+}
+
 main {
   flex: 1 0 auto;
 
@@ -76,9 +82,22 @@ a.modal-trigger {
   cursor: context-menu;
 }
 
+// table tweaks
+@media (max-width: 992px) {
+  th.hide-on-small-only, td.hide-on-small-only {
+    display: none !important;
+  }
+}
+
+th {
+  padding: 5px 5px !important;
+  height: 46px;
+}
+
 td {
   padding-top: 5px !important;
   padding-bottom: 5px !important;
+  height: 46px;
 
   &.truncate {
     width: 200px;

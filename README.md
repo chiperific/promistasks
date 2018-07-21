@@ -1,10 +1,7 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-0 Switch from paginate to tabs
-  - Task#index
-  - Property#show
-  - User#tasks
+0 Default property show page
 
 1.1 Finish User#show page
   - Include: 'Find public tasks that match skills': User#task_finder on: :model

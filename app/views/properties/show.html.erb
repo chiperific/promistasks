@@ -63,23 +63,30 @@
         <% end %>
       </div>
     </div>
-    <div class="row center-align">
-      <ul class="pagination" id="tasks_pagination" name="tasks">
-        <li class="waves-effect active purple">
-          <%= link_to 'Yours', tasks_filter_property_path(@property, tasks: 'your'), id: 'tasks_your', class: 'paginate_btn', remote: true %>
-        </li>
-        <li class="waves-effect">
-          <%= link_to 'Completed', tasks_filter_property_path(@property, tasks: 'completed'), id: 'tasks_completed', class: 'paginate_btn', remote: true %>
-        </li>
-        <% if current_user.staff? %>
-          <li class="waves-effect">
-            <%= link_to 'All', tasks_filter_property_path(@property, tasks: 'all'), id: 'tasks_all', class: 'paginate_btn', remote: true %>
+    <div class="row">
+      <div class="col s12">
+        <ul class="tabs z-depth-1" name="tasks">
+          <% if @show_new %>
+            <li class="tab">
+              <%= link_to 'New', tasks_filter_property_path(@property, tasks: 'new'), id: 'tasks_your', remote: true %>
+            </li>
+          <% end %>
+          <li class="tab">
+            <%= link_to 'Active', tasks_filter_property_path(@property, tasks: 'active'), id: 'tasks_your', class: 'active', remote: true %>
           </li>
-        <% end %>
-        <li class="waves-effect">
-          <%= link_to 'Archived', tasks_filter_property_path(@property, tasks: 'archived'), id: 'tasks_archived', class: 'paginate_btn', remote: true %>
-        </li>
-      </ul>
+          <li class="tab">
+            <%= link_to 'Completed', tasks_filter_property_path(@property, tasks: 'completed'), id: 'tasks_completed', remote: true %>
+          </li>
+          <% if current_user.system_admin? %>
+            <li class="tab">
+              <%= link_to 'All', tasks_filter_property_path(@property, tasks: 'all'), id: 'tasks_all', remote: true %>
+            </li>
+            <li class="tab">
+              <%= link_to 'Archived', tasks_filter_property_path(@property, tasks: 'archived'), id: 'tasks_archived', remote: true %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
     </div>
     <div class="row">
       <table class='highlight responsive-table' id='task_table'>

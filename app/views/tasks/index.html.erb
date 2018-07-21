@@ -11,36 +11,38 @@
 
 <div class="row">
   <div class="col s12">
-    <ul class="tabs" name="tasks">
+    <ul class="tabs z-depth-1" name="tasks">
       <% if @show_new %>
-        <li class="tab col s6 m3 l2">
+        <li class="tab">
           <%= link_to 'New', tasks_path(filter: 'new'), id: 'tasks_new', remote: true %>
         </li>
       <% end %>
-      <li class="tab col s6 m3 l2">
+      <li class="tab">
         <%= link_to 'Active', tasks_path(filter: 'active'), id: 'tasks_active', class: 'active', remote: true %>
       </li>
-      <li class="tab col s6 m3 l2">
+      <li class="tab">
         <%= link_to 'Past Due', tasks_path(filter: 'past-due'), id: 'tasks_past-due', remote: true %>
       </li>
-      <li class="tab col s6 m3 l2">
+      <li class="tab">
         <%= link_to 'Due in 7', tasks_path(filter: 'due-7'), id: 'tasks_due-7', remote: true %>
       </li>
-      <li class="tab col s6 m3 l2">
+      <li class="tab">
         <%= link_to 'Due in 14', tasks_path(filter: 'due-14'), id: 'tasks_due-14', remote: true %>
       </li>
-      <li class="tab col s6 m3 l2">
+      <li class="tab">
         <%= link_to 'Completed', tasks_path(filter: 'completed'), id: 'tasks_completed', remote: true %>
       </li>
-      <li class="tab col s6 m3 l2">
-        <%= link_to 'All', tasks_path(filter: 'all'), id: 'tasks_all', remote: true %>
-      </li>
-      <li class="tab col s6 m3 l2">
-        <%= link_to 'Archived', tasks_path(filter: 'archived'), id: 'tasks_archived', remote: true %>
-      </li>
-      <li class="tab col s6 m3 l2">
+      <li class="tab">
         <%= link_to 'Missing Info', tasks_path(filter: 'missing-info'), id: 'tasks_missing-info', remote: true %>
       </li>
+      <% if current_user.system_admin? %>
+        <li class="tab">
+          <%= link_to 'Archived', tasks_path(filter: 'archived'), id: 'tasks_archived', remote: true %>
+        </li>
+        <li class="tab">
+          <%= link_to 'All', tasks_path(filter: 'all'), id: 'tasks_all', remote: true %>
+        </li>
+      <% end %>
     </ul>
   </div>
 </div>
@@ -48,9 +50,7 @@
 <div class="row">
   <table class='highlight responsive-table' id='task_table'>
     <thead>
-      <tr>
-        <%= render partial: 'tasks_table_header' %>
-      </tr>
+      <%= render partial: 'tasks_table_header' %>
     </thead>
     <tbody id='task_table_body'>
       <% if @tasks.count.positive? %>

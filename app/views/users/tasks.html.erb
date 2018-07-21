@@ -16,36 +16,38 @@
 </div>
 
 <div class="row center-align">
-  <ul class="pagination" id="tasks_pagination" name="tasks">
+  <ul class="tabs z-depth-1" name="tasks">
     <% if @show_new %>
-      <li class="waves-effect">
-        <%= link_to 'New', tasks_user_path(@user, filter: 'new'), id: 'tasks_new', class: 'paginate_btn', remote: true %>
+      <li class="tab">
+        <%= link_to 'New', tasks_user_path(@user, filter: 'new'), id: 'tasks_new', remote: true %>
       </li>
     <% end %>
-    <li class="waves-effect active purple">
-      <%= link_to 'Active', tasks_user_path(@user, filter: 'active'), id: 'tasks_active', class: 'paginate_btn', remote: true %>
+    <li class="tab">
+      <%= link_to 'Active', tasks_user_path(@user, filter: 'active'), id: 'tasks_active', class: 'active', remote: true %>
     </li>
-    <li class="waves-effect">
-      <%= link_to 'Past Due', tasks_user_path(@user, filter: 'past-due'), id: 'tasks_past-due', class: 'paginate_btn', remote: true %>
+    <li class="tab">
+      <%= link_to 'Past Due', tasks_user_path(@user, filter: 'past-due'), id: 'tasks_past-due', remote: true %>
     </li>
-    <li class="waves-effect">
-      <%= link_to 'Due in 7', tasks_user_path(@user, filter: 'due-7'), id: 'tasks_due-7', class: 'paginate_btn', remote: true %>
+    <li class="tab">
+      <%= link_to 'Due in 7', tasks_user_path(@user, filter: 'due-7'), id: 'tasks_due-7', remote: true %>
     </li>
-    <li class="waves-effect">
-      <%= link_to 'Due in 14', tasks_user_path(@user, filter: 'due-14'), id: 'tasks_due-14', class: 'paginate_btn', remote: true %>
+    <li class="tab">
+      <%= link_to 'Due in 14', tasks_user_path(@user, filter: 'due-14'), id: 'tasks_due-14', remote: true %>
     </li>
-    <li class="waves-effect">
-      <%= link_to 'Completed', tasks_user_path(@user, filter: 'completed'), id: 'tasks_completed', class: 'paginate_btn', remote: true %>
+    <li class="tab">
+      <%= link_to 'Completed', tasks_user_path(@user, filter: 'completed'), id: 'tasks_completed', remote: true %>
     </li>
-    <li class="waves-effect">
-      <%= link_to 'All', tasks_user_path(@user, filter: 'all'), id: 'tasks_all', class: 'paginate_btn', remote: true %>
+    <li class="tab">
+      <%= link_to 'Missing Info', tasks_user_path(@user, filter: 'missing-info'), id: 'tasks_missing-info', remote: true %>
     </li>
-    <li class="waves-effect">
-      <%= link_to 'Archived', tasks_user_path(@user, filter: 'archived'), id: 'tasks_archived', class: 'paginate_btn', remote: true %>
-    </li>
-    <li class="waves-effect">
-      <%= link_to 'Missing Info', tasks_user_path(@user, filter: 'missing-info'), id: 'tasks_missing-info', class: 'paginate_btn', remote: true %>
-    </li>
+    <% if current_user.system_admin? %>
+      <li class="tab">
+        <%= link_to 'All', tasks_user_path(@user, filter: 'all'), id: 'tasks_all', remote: true %>
+      </li>
+      <li class="tab">
+        <%= link_to 'Archived', tasks_user_path(@user, filter: 'archived'), id: 'tasks_archived', remote: true %>
+      </li>
+    <% end %>
   </ul>
 </div>
 

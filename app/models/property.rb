@@ -46,6 +46,7 @@ class Property < ApplicationRecord
   scope :visible_to,     ->(user) { related_to(user).or(public_visible) }
   scope :over_budget,    ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents') }
   scope :nearing_budget, ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
+  scope :created_since,  ->(time) { where('created_at >= ?', time) }
 
   class << self
     alias archived discarded
