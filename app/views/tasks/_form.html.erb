@@ -73,12 +73,12 @@
 
   <div class="section row">
     <div class="col s12">
-      <h5>Connections</h5>
+      <h5>Relationships</h5>
     </div>
 
     <div class="col s12 m6 l3">
       <div class="input-field">
-        <%= text_field_tag 'owner_lkup', task.owner&.name || current_user.name, class: "autocomplete-owners" %>
+        <%= text_field_tag 'owner_lkup', task.owner&.name || current_user.name, class: "autocomplete-owners", autocomplete: "off" %>
         <label for="owner_lkup">Owner</label>
         <%= f.hidden_field :owner_id, value: current_user.id %>
       </div>
@@ -86,7 +86,7 @@
 
     <div class="col s12 m6 l3">
       <div class="input-field">
-        <%= text_field_tag 'subject_lkup', task.subject&.name, class: "autocomplete-subjects" %>
+        <%= text_field_tag 'subject_lkup', task.subject&.name, class: "autocomplete-subjects", autocomplete: "off" %>
         <label for="subject_lkup">Subject</label>
         <%= f.hidden_field :subject_id %>
       </div>
@@ -94,7 +94,7 @@
 
     <div class="col s12 m6 l3">
       <div class="input-field">
-        <%= text_field_tag 'property_lkup', task.property&.name, class: "autocomplete-properties" %>
+        <%= text_field_tag 'property_lkup', task.property&.name, class: "autocomplete-properties", autocomplete: "off" %>
         <label for="property_lkup">Property</label>
         <%= f.hidden_field :property_id %>
       </div>
@@ -103,7 +103,7 @@
     <% if current_user&.system_admin? %>
       <div class="col s12 m6 l3">
         <div class="input-field">
-          <%= text_field_tag 'creator_lkup', task.creator&.name || current_user.name, class: "autocomplete-owners" %>
+          <%= text_field_tag 'creator_lkup', task.creator&.name || current_user.name, class: "autocomplete-owners", autocomplete: "off" %>
           <label for="creator_lkup">Creator</label>
           <i>Only change if user must be deleted.</i>
           <%= f.hidden_field :creator_id, value: current_user.id %>
@@ -152,6 +152,6 @@
     <p>In Google Tasks, there is always a default tasklist. This system imports your default tasklists and associated tasks as a convenience.</p>
     <p>Due to privacy concerns, tasks on your default tasklists cannot be made visible to anyone beyond the task's creator and owner.</p>
     <p>Visiblity settings for default tasklist tasks will be ignored.</p>
-    <p>To be able to make these tasks visible to others, you can move this task to a different property in the Connections section.</p>
+    <p>To be able to make these tasks visible to others, you can move this task to a different property in the Relationships section.</p>
   </div>
 </div>

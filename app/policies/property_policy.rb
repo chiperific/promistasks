@@ -12,7 +12,7 @@ class PropertyPolicy < ApplicationPolicy
   end
 
   def show?
-    user&.staff? && record.can_be_viewed_by(user)
+    user&.staff? && record.can_be_viewed_by?(user)
   end
 
   def new?
@@ -24,15 +24,15 @@ class PropertyPolicy < ApplicationPolicy
   end
 
   def edit?
-    user&.staff? || record.can_be_viewed_by(user)
+    user&.staff? || record.can_be_viewed_by?(user)
   end
 
   def update?
-    user&.staff? || record.can_be_viewed_by(user)
+    user&.staff? || record.can_be_viewed_by?(user)
   end
 
   def destroy?
-    user&.staff? || record.can_be_viewed_by(user)
+    user&.staff? || record.can_be_viewed_by?(user)
   end
 
   def default?

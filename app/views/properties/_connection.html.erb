@@ -1,7 +1,10 @@
 <tr>
   <td>
-    <%= link_to connection.user, class: 'btn-flat waves-effect' do %>
-      <i class="material-icons left">exit_to_app</i>
+    <% if current_user.staff? %>
+      <%= link_to connection.user, class: 'btn-small btn-slim blue lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
+        <%= connection.user.name %>
+      <% end %>
+    <% else %>
       <%= connection.user.name %>
     <% end %>
   </td>
@@ -17,7 +20,9 @@
   <td>
     <%= human_date(connection.stage_date) || 'N/A' %>
   </td>
-  <td>
-    <%= link_to 'Edit', edit_connection_path(connection), class: 'btn amber waves-effect'  %>
+  <td class='slim'>
+    <%= link_to edit_connection_path(connection), class: 'btn-floating btn-small blue darken-2', 'data-turbolinks'=> 'false' do %>
+      <i class="material-icons">edit</i>
+    <% end %>
   </td>
 </tr>

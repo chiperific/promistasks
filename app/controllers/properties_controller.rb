@@ -66,6 +66,7 @@ class PropertiesController < ApplicationController
       @primary_info_hash['Occupancy status'] = @occupancy_msg
       @primary_info_hash['Lot rent'] = @property.lot_rent || 'Not recorded'
       @primary_info_hash['Acquired on'] = human_date(@property.acquired_on) || 'Not recorded'
+      @primary_info_hash['Beds & Baths'] = @property.bed_bath.present? ? @property.bed_bath : 'Not recorded'
     end
 
     @secondary_info_hash = {

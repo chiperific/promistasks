@@ -38,6 +38,13 @@ form {
   .field_with_errors {
       background-color: rgba(229, 57, 53, .3) !important;
   }
+
+  // ajax fields turn green when a match is found!
+  .found_match {
+    background-color: #e8f5e9 !important;
+    border-top-left-radius: 4px !important;
+    border-top-right-radius: 4px !important;
+  }
 }
 
 div.spacer {

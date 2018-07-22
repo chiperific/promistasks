@@ -16,7 +16,7 @@ setActiveTab = (target, scope) ->
   $(targetID).addClass('active')
 
 $(document).on 'turbolinks:load', ->
-  return unless controllerMatches(['tasks', 'properties', 'users']) &&
+  return unless controllerMatches(['tasks', 'properties', 'users', 'connections']) &&
   actionMatches(['show', 'list', 'index', 'tasks'])
 
   if getParameterByName('filter') != null

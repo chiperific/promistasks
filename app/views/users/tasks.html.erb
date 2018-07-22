@@ -9,7 +9,7 @@
     <% end %>
   </div>
   <div class="col s2">
-    <%= link_to new_task_path, class: 'btn-floating btn-large waves-effect waves-light green darken-2' do %>
+    <%= link_to new_task_path(user: @user.id), class: 'btn-floating btn-large waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false' do %>
       <i class="material-icons">add</i>
     <% end %>
   </div>

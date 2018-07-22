@@ -110,8 +110,8 @@
 
   <div class="row">
     <div class="input-field col m2 s12">
-      <%= f.number_field :year_manufacture, value: Time.now.year, min: Time.now.year - 100, max: Time.now.year + 1, step: 1 %>
-      <label for="property_year_maufacture">Year Manufactured</label>
+      <%= f.number_field :year_manufacture, min: Time.now.year - 100, max: Time.now.year + 1, step: 1 %>
+      <label for="property_year_maufacture">Model Year</label>
     </div>
 
     <div class="input-field col m5 s12">

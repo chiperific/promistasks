@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class TasksController < ApplicationController
+  include TasksHelper
+
   def index
     authorize tasks = Task.except_primary
 
@@ -103,7 +105,9 @@ class TasksController < ApplicationController
 
   def new
     authorize @task = Task.new
+
     @task.property_id = params[:property] if params[:property].present?
+    @task.owner_id = params[:user] if params[:user].present?
   end
 
   def create
@@ -133,7 +137,7 @@ class TasksController < ApplicationController
     task_params.delete :budget if task_params[:budget].blank?
     task_params.delete :cost if task_params[:cost].blank?
 
-    if @task.update(parse_completed_at(task_params)
+    if @task.update(parse_completed_at(task_params))
       redirect_to @return_path, notice: 'Task updated'
     else
       flash[:warning] = 'Oops, found some errors'

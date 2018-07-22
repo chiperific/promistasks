@@ -2,15 +2,15 @@
 
 class ConnectionsController < ApplicationController
   def index
-    authorize @connections = Connection.all
-  end
-
-  def show
-    authorize @connection = Connection.find(params[:id])
+    authorize @connections = Connection.active
   end
 
   def new
     authorize @connection = Connection.new
+
+    @connection.user = User.find(params[:user]) if params[:user].present?
+    @connection.property = Property.find(params[:property]) if params[:property].present?
+    @connection.relationship = params[:relationship] if params[:relationship].present?
   end
 
   def create
@@ -31,7 +31,7 @@ class ConnectionsController < ApplicationController
   def update
     authorize @connection = Connection.find(params[:id])
 
-    @connection.discard if params[:connection][:archive] == '1' && !@connection.discarded?
+    @connection.discard unless params[:connection][:archive] == '0' || @connection.discarded?
     @connection.undiscard if params[:connection][:archive] == '0' && @connection.discarded?
 
     if @connection.update(connection_params)
@@ -40,14 +40,6 @@ class ConnectionsController < ApplicationController
       flash[:warning] = 'Oops, found some errors'
       render 'edit'
     end
-  end
-
-  def destroy
-    authorize @connection = Connection.find(params[:id])
-  end
-
-  def discarded
-    authorize @connection = Connection.discarded
   end
 
   private

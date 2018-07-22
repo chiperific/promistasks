@@ -20,15 +20,15 @@ class ConnectionPolicy < ApplicationPolicy
   end
 
   def edit?
-    user.staff? || user == record.user
+    user.staff?
   end
 
   def update?
-    user.staff? || user == record.user
+    user.staff?
   end
 
   def destroy?
-    user.staff? || user == record.user
+    user.staff?
   end
 
   def discarded?

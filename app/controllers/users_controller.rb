@@ -28,13 +28,13 @@ class UsersController < ApplicationController
     }
 
     @skills = @user.skills.order(:name)
-    @connections = Connection.where(user: @user).order(updated_at: :desc)
-    @occupancies = @connections.where(relationship: 'tennant').order(stage_date: :desc)
+    @connections = @user.connections.except_tennants
+    @occupancies = @user.connections.only_tennants
   end
 
   def tasks
     authorize @user = User.find(params[:id])
-    tasks = Task.related_to(current_user)
+    tasks = Task.related_to(@user)
     @show_new = tasks.created_since(current_user.last_sign_in_at).count.positive?
 
     case params[:filter]
