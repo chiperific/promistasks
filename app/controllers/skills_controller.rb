@@ -59,16 +59,6 @@ class SkillsController < ApplicationController
     end
   end
 
-  def destroy
-    authorize @skill = Skill.find(params[:id])
-    @skill.discard
-    redirect_to @return_path, notice: 'Skill discarded'
-  end
-
-  def discarded
-    authorize @skills = Skill.discarded
-  end
-
   def users
     authorize @skill = Skill.find(params[:id])
 

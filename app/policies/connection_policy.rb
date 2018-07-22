@@ -7,10 +7,6 @@ class ConnectionPolicy < ApplicationPolicy
     user.staff?
   end
 
-  def show?
-    user.staff?
-  end
-
   def new?
     user.staff?
   end
@@ -24,14 +20,6 @@ class ConnectionPolicy < ApplicationPolicy
   end
 
   def update?
-    user.staff?
-  end
-
-  def destroy?
-    user.staff?
-  end
-
-  def discarded?
     user.staff?
   end
 end

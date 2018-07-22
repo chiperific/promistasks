@@ -27,10 +27,6 @@ class SkillPolicy < ApplicationPolicy
     user&.staff?
   end
 
-  def destroy?
-    user&.staff?
-  end
-
   def users?
     user&.staff?
   end

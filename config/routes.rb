@@ -6,9 +6,7 @@ Rails.application.routes.draw do
   get 'current_user_id', to: 'users#current_user_id'
 
   resources :tasks do
-    get 'discarded', on: :collection
     get 'public', on: :collection
-    get 'admin', on: :collection
     get 'skills', on: :member
     post 'update_skills', on: :member
     get 'users_finder', on: :member
@@ -17,7 +15,6 @@ Rails.application.routes.draw do
   end
 
   resources :properties do
-    get 'discarded', on: :collection
     get 'list', on: :collection
     get 'reports', on: :collection
     get 'default', on: :collection
@@ -27,16 +24,13 @@ Rails.application.routes.draw do
   end
 
   resources :skills do
-    get 'discarded', on: :collection
     get 'users', on: :member
     post 'update_users', on: :member
     get 'tasks', on: :member
     post 'update_tasks', on: :member
   end
 
-  resources :connections do
-    get 'discarded', on: :collection
-  end
+  resources :connections
 
   devise_for :users, controllers: {
     omniauth_callbacks: 'users/omniauth_callbacks',
@@ -45,7 +39,6 @@ Rails.application.routes.draw do
   }
 
   resources :users do
-    get 'discarded', on: :collection
     get 'clear_completed_jobs', on: :collection
     get 'owner_enum', on: :collection
     get 'subject_enum', on: :collection

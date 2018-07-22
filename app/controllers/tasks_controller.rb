@@ -44,10 +44,6 @@ class TasksController < ApplicationController
     end
   end
 
-  def admin
-    authorize @tasks = Task.in_process
-  end
-
   def show
     authorize @task = Task.find(params[:id])
 
@@ -143,16 +139,6 @@ class TasksController < ApplicationController
       flash[:warning] = 'Oops, found some errors'
       render 'edit'
     end
-  end
-
-  def destroy
-    authorize @task = Task.find(params[:id])
-    @task.discard
-    redirect_to @return_path, notice: 'Task discarded'
-  end
-
-  def discarded
-    authorize @tasks = Task.discarded
   end
 
   def public

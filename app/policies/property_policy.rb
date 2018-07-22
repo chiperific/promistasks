@@ -31,19 +31,11 @@ class PropertyPolicy < ApplicationPolicy
     user&.staff? || record.can_be_viewed_by?(user)
   end
 
-  def destroy?
-    user&.staff? || record.can_be_viewed_by?(user)
-  end
-
   def default?
     user&.staff?
   end
 
   def reports?
-    user&.staff?
-  end
-
-  def discarded?
     user&.staff?
   end
 

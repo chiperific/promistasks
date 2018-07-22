@@ -3,16 +3,8 @@
 class TaskPolicy < ApplicationPolicy
   attr_reader :user, :record
 
-  def public?
-    true
-  end
-
   def index?
     user&.not_client?
-  end
-
-  def admin?
-    user&.system_admin?
   end
 
   def show?
@@ -24,10 +16,6 @@ class TaskPolicy < ApplicationPolicy
   end
 
   def update_skills?
-    record.related_to?(user) || user.staff?
-  end
-
-  def users_finder?
     record.related_to?(user) || user.staff?
   end
 
@@ -47,8 +35,12 @@ class TaskPolicy < ApplicationPolicy
     user&.not_client?
   end
 
-  def destroy?
-    user&.staff?
+  def public?
+    true
+  end
+
+  def users_finder?
+    record.related_to?(user) || user.staff?
   end
 
   def complete?

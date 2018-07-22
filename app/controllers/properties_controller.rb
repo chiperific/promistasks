@@ -115,12 +115,6 @@ class PropertiesController < ApplicationController
     end
   end
 
-  def destroy
-    authorize @property = Property.find(params[:id])
-    authorize @property.discard
-    redirect_to @return_path, notice: 'Property discarded'
-  end
-
   def default
     authorize @property = Property.where(is_default: true, creator: current_user).first
 
@@ -134,10 +128,6 @@ class PropertiesController < ApplicationController
     # reports include:
     # budget status per property
     # properties by connection.stage
-  end
-
-  def discarded
-    authorize @properties = Property.discarded
   end
 
   def tasks_filter
