@@ -68,11 +68,11 @@
     <% end %>
   </div>
 </div>
-<% if @skills.any? %>
+<% if @skills.any? && @tasks_finder_count.positive? %>
   <div class="row">
     <div class="col s12">
       <%= link_to tasks_finder_user_path(@user), class: 'btn green waves-effect waves-light right' do %>
-        <span>Find tasks by skills</span>
+        <span>See available tasks</span>
         <i class="material-icons right">arrow_forward</i>
       <% end %>
     </div>

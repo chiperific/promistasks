@@ -1,15 +1,12 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-1.0 Connections:
- - from User#show && Property#show
- - new && edit with URL helpers (?user=1, ?property=1)
+1.0 Connections#index:
+  - Show occupancy status of each property vs. acquired_on
+  - Show connections grouped by relationship (using tab bar)
 
-1.1 Finish User#show page
-  - connections section
-  - occupancy section
-  - Include: 'Find public tasks that match skills': User#task_finder on: :model
-  - Show tasks with skill needs that overlap with user's skill
+1.1 Finish User#index page
+  - tabify and include archived
 
 1.7 Task#show - link to "Users with apropriate skills for this task..."
   - Match each one, prioritize list by # of matches. Task#user_finder on: :model

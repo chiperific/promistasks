@@ -24,11 +24,12 @@ main {
 // materialize doesn't play well with Rail adding divs around errored fields.
 // So I adjusted application.rb to add the field_with_errors directly to the form field.
 form {
-  .error_notification {
-    color: #4e0402;
+  #error_explanation > div.col {
+    color: #e53935;
     padding: 6px;
     border: #e53953 solid 1px;
     background-color: rgba(212, 5, 1, .3);
+    border-radius: 4px;
   }
 
   .error {
@@ -44,24 +45,6 @@ form {
     background-color: #e8f5e9 !important;
     border-top-left-radius: 4px !important;
     border-top-right-radius: 4px !important;
-  }
-}
-
-div.spacer {
-  min-height: 1px;
-  width: 100%;
-  margin: 12px auto;
-
-  &.thin {
-    margin: 6px auto;
-  }
-
-  &.fat {
-    margin: 24px auto;
-  }
-
-  &.huge {
-    margin: 48px auto;
   }
 }
 

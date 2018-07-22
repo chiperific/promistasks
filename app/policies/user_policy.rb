@@ -44,10 +44,6 @@ class UserPolicy < ApplicationPolicy
     user&.system_admin? || user == record
   end
 
-  def destroy?
-    user&.system_admin? && user != record
-  end
-
   def discarded?
     user&.system_admin?
   end

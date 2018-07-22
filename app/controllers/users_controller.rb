@@ -28,6 +28,7 @@ class UsersController < ApplicationController
     }
 
     @skills = @user.skills.order(:name)
+    @tasks_finder_count = Task.visible_to(@user).joins(:skills).where(skills: { id: @skills.pluck(:id) }).uniq.count
     @connections = @user.connections.except_tennants
     @occupancies = @user.connections.only_tennants
   end
@@ -39,7 +40,7 @@ class UsersController < ApplicationController
 
     case params[:filter]
     when 'new'
-      @tasks = tasks.created_since(current_user.last_sign_in_at)
+      @tasks = tasks.in_process.created_since(current_user.last_sign_in_at)
       @empty_msg = 'No tasks created since you last signed in'
     when 'past-due'
       @tasks = tasks.past_due
@@ -77,8 +78,7 @@ class UsersController < ApplicationController
     authorize @user = User.find(params[:id])
 
     skill_ids = @user.skills.pluck(:id)
-
-    @tasks = Task.in_process.joins(:skills).where(skills: { id: skill_ids }).uniq
+    @tasks = Task.visible_to(@user).joins(:skills).where(skills: { id: skill_ids }).uniq
   end
 
   def skills
@@ -138,27 +138,14 @@ class UsersController < ApplicationController
     @user.discard if params[:user][:archive] == '1' && !@user.discarded?
     @user.undiscard if params[:user][:archive] == '0' && @user.discarded?
 
-    if user_params[:password].nil?
-      user_params.delete :password
-      user_params.delete :password_confirmation
-    end
-
-    if @user.update(user_params)
+    # .reject is removing password and password_confirmation if they are blank
+    if @user.update(user_params.reject { |k,v| k.include?('password') && v.blank? })
       redirect_to @return_path, notice: 'Update successful'
     else
       flash[:warning] = 'Oops, found some errors'
+      @hide_rate = 'scale-out' unless @user.contractor? || user_params[:contractor] != '0'
       render 'edit'
     end
-  end
-
-  def destroy
-    authorize @user = User.find(params[:id])
-    @user.discard
-    redirect_to @return_path, notice: 'User discarded'
-  end
-
-  def discarded
-    authorize @users = User.discarded
   end
 
   def current_user_id

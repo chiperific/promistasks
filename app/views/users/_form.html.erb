@@ -1,59 +1,57 @@
 <%= form_for user, html: { autocomplete: "nope" } do |f| %>
   <%= render 'form_errors', object: user %>
 
-  <div class="input-field">
-    <i class="material-icons prefix">face</i>
-    <% if user.oauth? %>
-      <%= f.text_field :name, disabled: true %>
-    <% else %>
-      <%= f.text_field :name %>
-      <label for="user_name">Name</label>
-    <% end %>
+  <div class="row">
+    <div class="input-field col s12">
+      <% if user.oauth? %>
+        <%= f.text_field :name, disabled: true %>
+      <% else %>
+        <%= f.text_field :name %>
+        <label for="user_name">Name</label>
+      <% end %>
+    </div>
+    <div class="input-field col s12">
+      <% if user.oauth? %>
+        <%= f.text_field :email, disabled: true %>
+        <div class="row center-align">
+          <i>Your name, email, and password are linked to your Google account</i>
+        </div>
+      <% else %>
+        <%= f.text_field :email %>
+        <label for="user_email">email@example.com</label>
+      <% end %>
+    </div>
   </div>
-  <div class="input-field">
-    <i class="material-icons prefix">alternate_email</i>
-    <% if user.oauth? %>
-      <%= f.text_field :email, disabled: true %>
-      <div class="row center-align">
-        <i>Your name, email, and password are linked to your Google account</i>
-      </div>
-    <% else %>
-      <%= f.text_field :email %>
-      <label for="user_email">email@example.com</label>
-    <% end %>
-  </div>
-  <div class="spacer fat"></div>
+
   <% unless user.oauth? %>
     <div class="row">
       <div class="input-field col m6">
-        <i class="material-icons prefix">vpn_key</i>
         <%= f.password_field :password %>
         <label for="user_password">password</label>
         <% unless user.new_record? %>
-          <i>Leave blank to keep it as-is</i>
+          <i class="small-text">Leave blank to keep it as-is</i>
         <% end %>
       </div>
       <div class="input-field col m6">
-        <i class="material-icons prefix">vpn_key</i>
         <%= f.password_field :password_confirmation %>
         <label for="user_password_confirmation">password again</label>
       </div>
     </div>
   <% end %>
-  <div class="spacer fat"></div>
-  <div class="input-field">
-    <i class="material-icons prefix">feedback</i>
-    <%= f.text_field :title %>
-    <label for="user_title">Title</label>
+
+  <div class="row">
+    <div class="input-field col s12">
+      <%= f.text_field :title %>
+      <label for="user_title">Title</label>
+    </div>
   </div>
+
   <div class="row">
     <div class="input-field col m6">
-      <i class="material-icons prefix">phone</i>
       <%= f.phone_field :phone1 %>
       <label for="user_phone1">Primary phone</label>
     </div>
     <div class="input-field col m6">
-      <i class="material-icons prefix">phone</i>
       <%= f.phone_field :phone2 %>
       <label for="user_phone2">Secondary phone</label>
     </div>
@@ -61,7 +59,6 @@
 
   <div class="row">
     <div class="col m8 input-field">
-      <i class="material-icons prefix">place</i>
       <%= f.text_field :address1 %>
       <label for="user_address1">Address</label>
     </div>
@@ -73,7 +70,6 @@
 
   <div class="row">
     <div class="col m8 input-field">
-      <i class="material-icons prefix">domain</i>
       <%= f.text_field :city %>
       <label for="user_city">City</label>
     </div>
@@ -87,7 +83,6 @@
     </div>
   </div>
   <% if current_user&.staff? %>
-    <div class="spacer fat"></div>
     <% if user.oauth? %>
       <%= render partial: 'users/form/internal_checkboxes' %>
     <% else %>
@@ -95,7 +90,6 @@
     <% end %>
   <% end %>
   <div class="row input-field scale-transition <%= @hide_rate %>" id="rate_div">
-    <i class="material-icons prefix">build</i>
     <%= f.number_field :rate %>
     <label for="user_rate">Contractor hourly rate</label>
   </div>
@@ -106,7 +100,7 @@
     </div>
   <% end %>
   <% if current_user&.system_admin? && current_user != user %>
-    <div class="row">
+    <div class="row center-align">
       <input type="hidden" value="0" name="user[system_admin]">
       <input type="hidden" value="0" name="user[archive]">
       <div class="col s6">

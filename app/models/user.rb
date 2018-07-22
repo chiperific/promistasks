@@ -44,7 +44,7 @@ class User < ActiveRecord::Base
                           :system_admin, in: [true, false]
 
   validate :must_have_type
-  validate :clients_are_singular
+  validate :clients_are_limited
   validate :system_admin_must_be_internal, if: -> { system_admin? }
 
   monetize :rate_cents, allow_nil: true, allow_blank: true
@@ -211,9 +211,10 @@ class User < ActiveRecord::Base
     end
   end
 
-  def clients_are_singular
+  def clients_are_limited
     return true unless client?
-    errors.add(:register_as, ': Clients can\'t have another type') if type.count > 1
+    return true if volunteer?
+    errors.add(:register_as, ': Clients can\'t be staff or contractors') if type.count > 1
     true
   end
 
