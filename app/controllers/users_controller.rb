@@ -5,7 +5,7 @@ class UsersController < ApplicationController
   # https://github.com/plataformatec/devise/wiki/How-To:-Manage-users-through-a-CRUD-interface
 
   def index
-    authorize @users = User.undiscarded
+    authorize @users = User.undiscarded.order(:name)
   end
 
   def show

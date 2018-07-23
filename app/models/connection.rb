@@ -15,7 +15,7 @@ class Connection < ApplicationRecord
   validate :stage_date_and_stage
 
   scope :except_tennants, -> { kept.where.not(relationship: 'tennant').order(:created_at) }
-  scope :only_tennants,   -> { kept.where(relationship: 'tennant').order(:stage_date, :created_at) }
+  scope :only_tennants,   -> { kept.where(relationship: 'tennant').order(stage_date: :desc) }
 
   class << self
     alias archived discarded

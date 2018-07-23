@@ -1,6 +1,6 @@
 $(document).on 'turbolinks:load', ->
   return unless controllerMatches(['connections']) &&
-    actionMatches(['create', 'edit', 'new', 'update'])
+    actionMatches(['create', 'edit', 'new', 'update', 'index'])
 
   highlightField = (elem, value) ->
     if value != "0" && value != "" && value != 0
@@ -61,4 +61,31 @@ $(document).on 'turbolinks:load', ->
 
   $('#select_relationship').on 'change', 'select', ->
     checkRelationship()
+
+  # index page collapsible faker
+  toggleTableDiv = (nameStr) ->
+    finder = '.table_div[name=' + nameStr + ']'
+    if $(finder).is(':hidden')
+      $('#collapse_all').attr('name', 'collapse')
+    else
+      $('#collapse_all').attr('name', 'expand')
+    $(finder).toggle(800)
+    true
+
+  $('.table_div').hide()
+
+  # Expand/Collapse all
+  $('#collapse_all').on 'click', ->
+    chooser = $(this).attr('name')
+    if chooser == 'expand'
+      $('.table_div').show(800)
+      $(this).attr('name', 'collapse')
+    else # chooser == 'collapse'
+      $('.table_div').hide(800)
+      $(this).attr('name', 'expand')
+    true
+
+  $('.collapse_link').on 'click', ->
+    nameStr = $(this).attr('name')
+    toggleTableDiv(nameStr)
   true

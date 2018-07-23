@@ -14,56 +14,46 @@
     <ul class="tabs z-depth-1" name="connections">
       </li>
       <li class='tab'>
-        <%= link_to 'Connections', '#connection', id: 'tab_connection' %>
+        <%= link_to 'Connections by Property', '#connection_prop', id: 'tab_connection_prop' %>
+      </li>
+      <li class='tab'>
+        <%= link_to 'Connections by User', '#connection_user', id: 'tab_connection_user' %>
       </li>
       <li class="tab">
-        <%= link_to 'Occupancy', '#occupancy', id: 'tab_occupancy' %>
+        <%= link_to 'Occupancy by Property', '#occupancy_prop', id: 'tab_occupancy_prop' %>
+      </li>
+      <li class="tab">
+        <%= link_to 'Occupancy by Client', '#occupancy_user', id: 'tab_occupancy_user' %>
+      </li>
     </ul>
   </div>
 </div>
 
-<div id="connection" class="row section">
-  <table class="highlight responsive-table">
-    <thead>
-      <tr>
-        <th>User</th>
-        <th>Property</th>
-        <th>Relationship</th>
-        <th>Date</th>
-        <th class="slim"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <% if @connections.any? %>
-        <%= render partial: 'connection', collection: @connections %>
-      <% else %>
-        <tr>
-          <td colspan="5" class="center-align">None</td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+<div class="row valign-wrapper">
+  <div class="col s10 right-align">
+    <p>Expand / Collapse all:</p>
+  </div>
+  <div class="col s2">
+    <%= link_to '#', class: 'prevent_default btn-floating purple darken-1', id: 'collapse_all', name: 'expand' do %>
+      <i class="material-icons up">swap_vert</i>
+    <% end %>
+  </div>
 </div>
 
-<div id="occupancy" class="row section">
-  <table class="highlight responsive-table">
-    <thead>
-      <tr>
-        <th>User</th>
-        <th>Property</th>
-        <th>Stage</th>
-        <th>Date</th>
-        <th class="slim"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <% if @occupancies.any? %>
-        <%= render partial: 'occupancy', collection: @occupancies %>
-      <% else %>
-        <tr>
-          <td colspan="5" class="center-align">None</td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+<div id="connection_prop" class="row section">
+  <div class="col s12">
+    <%= render partial: 'connection_property', collection: @connection_properties %>
+  </div>
+</div>
+
+<div id="connection_user" class="row section">
+  <%= render partial: 'connection_user', collection: @connection_users %>
+</div>
+
+<div id="occupancy_prop" class="row section">
+  <%= render partial: 'occupancy_property', collection: @occupancy_properties %>
+</div>
+
+<div id="occupancy_user" class="row section">
+  <%= render partial: 'occupancy_user', collection: @occupancy_users %>
 </div>

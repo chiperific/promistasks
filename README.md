@@ -1,14 +1,11 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-1.0 Connections#index:
-  - Show occupancy status grouped by user or property
-  - Show connections status grouped by user or property
-
 1.1 Finish User#index page
-  - tabify and include archived
+  - Tab by type: staff, client, volunteer, contractor, system_admin, archived, all
 
 1.7 Task#show - link to "Users with apropriate skills for this task..."
+  - Mock from User#show which uses #task_finder
   - Match each one, prioritize list by # of matches. Task#user_finder on: :model
   - E.g.: Task needs drywall, carpentry, painting; show users with all, then any
 
@@ -20,7 +17,7 @@
   - will need connection _form
 1.5 Switch from pagination to tabs
   - https://materializecss.com/tabs.html
-1.6 Public tasks shouldn't go to Task#show
+1.6 Public tasks should link to Task#info -- a public visible page w/ contact info (by owner? or org. general?)
 
 1.8 When a new Property is created, default tasks are also generated:
   - From a fake seeds file?
@@ -31,7 +28,7 @@
 
 2. Write system tests:
   - Every view
-  - Every AJAX (use controllers or policies to find)
+  - Every AJAX (use controllers to find)
 3. Write model tests:
   - User has 2 pending methods
 3.5 Re-write services tests -- because I nerfed them both
@@ -41,25 +38,18 @@
   - What about two users? Expecting some real shit to occur
 
 5. Properties are TaskLists
-5.1 When a user deletes a Tasklist in Google: do nothing to the app (force_recreate)
 5.2 When a user discards a Property in this app:
   - Provide the option to re-assign each task's creator && owner? || actually 'discard' for all (delete through API for all users)
-5.3 When a user deletes a Task in Google:
-  - do nothing (force_recreate) ("completion isn't optional")
 5.4 When a user discards at Task in this app:
   - delete in Google
 
 6. Get data from Google:
   - On a cron job every hour
-  - On staff user login. Update everything in the background (delayed_job)
 
 ## Keep in mind
 - PRIVATE properties must take self.tasks.map(&:owners &:creators) into account before removing
-- Bring in tasklists and tasks from the app on sign_in(user)
-- initialization_template tasks will use property.creator for task.creator && task.owner
 
 ## Someday
-1. Test Clients in a meaningful way.
 2. Use the Google Ruby API instead of HTTParty
 
 ## Remind myself

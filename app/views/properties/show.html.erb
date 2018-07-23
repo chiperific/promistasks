@@ -114,10 +114,46 @@
     <div class="col s12">
       <div class="row valign-wrapper">
         <div class="col s12 m10">
+          <h4>Occupancies</h4>
+        </div>
+        <div class="col s12 m2">
+          <%= link_to new_connection_path(property: @property, relationship: 'tennant'), class: 'btn waves-effect waves-light green darken 2', 'data-turbolinks'=> 'false' do %>
+            <i class="material-icons">add</i>
+            <i class="material-icons">how_to_reg</i>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="row center-align">
+        <% if @occupancies.any? %>
+          <table class='striped responsive-table'>
+            <thead>
+              <tr>
+                <th>Person</th>
+                <th>Stage</th>
+                <th>Stage Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <%= render partial: 'occupancy', collection: @occupancies %>
+            </tbody>
+          </table>
+        <% else %>
+          <p>No occupancy history</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="row section">
+    <div class="col s12">
+      <div class="row valign-wrapper">
+        <div class="col s12 m10">
           <h4>Connections</h4>
         </div>
         <div class="col s12 m2">
-          <%= link_to new_connection_path(property: @property), class: 'btn waves-effect waves-light green darken 2' do %>
+          <%= link_to new_connection_path(property: @property), class: 'btn waves-effect waves-light green darken 2', 'data-turbolinks'=> 'false' do %>
             <i class="material-icons">add</i>
             <i class="material-icons">how_to_reg</i>
           <% end %>
@@ -132,8 +168,6 @@
                 <th>Person</th>
                 <th>Relationship</th>
                 <th>Relation date</th>
-                <th>Stage</th>
-                <th>Stage Date</th>
                 <th></th>
               </tr>
             </thead>

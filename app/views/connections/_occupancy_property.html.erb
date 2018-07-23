@@ -1,0 +1,41 @@
+<div class="row valign-wrapper">
+  <div class="col s1">
+    <%= link_to property_path(occupancy_property), class: 'btn-floating btn-small green darken-2 waves-effect' do %>
+      <i class="material-icons">arrow_forward</i>
+    <% end %>
+  </div>
+  <div class="col s10">
+    <h5>
+      <%= occupancy_property.name %>
+    </h5>
+  </div>
+  <div class="col s1">
+    <%= link_to '#', class: 'collapse_link prevent_default btn-floating btn-small purple darken-1', name: occupancy_property.id do %>
+      <i class="material-icons up">swap_vert</i>
+    <% end %>
+  </div>
+</div>
+
+<div class="row table_div" name="<%= occupancy_property.id %>">
+  <div class="col s12">
+    <table class="highlight responsive-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Stage</th>
+          <th>Date</th>
+          <th class="slim"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if occupancy_property.connections.only_tennants.any? %>
+          <%= render partial: 'occ_property', collection: occupancy_property.connections.only_tennants %>
+        <% else %>
+          <tr>
+            <td colspan="5" class="center-align">None</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

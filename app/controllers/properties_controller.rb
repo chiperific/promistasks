@@ -58,7 +58,8 @@ class PropertiesController < ApplicationController
   def show
     authorize @property = Property.find(params[:id])
 
-    @connections = @property.connections.active
+    @connections = @property.connections.except_tennants
+    @occupancies = @property.connections.only_tennants
 
     @primary_info_hash = {
       'Creator': @property.creator.name

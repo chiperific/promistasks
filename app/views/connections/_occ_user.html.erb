@@ -1,0 +1,22 @@
+<tr>
+  <td>
+    <% if occ_user.property.visible_to?(current_user) %>
+      <%= link_to property_path(occ_user.property), class: 'btn-small btn-slim blue lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
+        <%= occ_user.property.name %>
+      <% end %>
+    <% else %>
+      <%= occ_user.property.name %>
+    <% end %>
+  </td>
+  <td>
+    <%= occ_user.stage %>
+  </td>
+  <td>
+    <%= human_date(occ_user.stage_date) %>
+  </td>
+  <td class='slim'>
+    <%= link_to edit_connection_path(occ_user), class: 'btn-floating btn-small blue darken-2', 'data-turbolinks'=> 'false' do %>
+      <i class="material-icons">edit</i>
+    <% end %>
+  </td>
+</tr>
