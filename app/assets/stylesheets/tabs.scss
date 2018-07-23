@@ -1,11 +1,7 @@
 // Task#index
 // User#tasks
 // Property#show
-
-// Tab scrolling fails on large screens. This seems to fix it:
-.tabs {
-  display: flex;
-}
+// Property#list
 
 // Tab coloring:
 .tabs .tab a {
@@ -23,4 +19,14 @@
     color: #1976d2;
     background-color: #90caf9;
   }
+}
+
+// Property#list has two tab rows.
+// The margin remains for each row on display:none
+.row.no-bottom-margin {
+  margin-bottom: 0px;
+}
+
+.row.extra-top-margin {
+  margin-top: 20px;
 }

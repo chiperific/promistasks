@@ -9,13 +9,13 @@
         &nbsp;
       <% end %>
     </td>
-    <td>
+    <td class="center-align">
       <% if task.priority.present? %>
         <span class="new badge <%= task.priority_color %> white-text" data-badge-caption="">
           <%= Constant::Task::PRIORITY[task.priority] %>
         </span>
       <% else %>
-        not set
+        <p class="small-text">not set</p>
       <% end %>
     </td>
     <td class="truncate">
@@ -23,7 +23,7 @@
     </td>
     <td>
       <% if current_user.staff? %>
-        <%= link_to user_path(task.owner), class: 'btn-small btn-slim blue lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
+        <%= link_to user_path(task.owner), class: 'btn-small btn-slim green lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
           <%= task.owner.name %>
         <% end %>
       <% else %>
@@ -32,8 +32,8 @@
     </td>
     <% unless controller_name == 'properties' %>
       <td>
-        <% if task.property.can_be_viewed_by?(current_user) %>
-          <%= link_to property_path(task.property), class: 'btn-small btn-slim blue lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
+        <% if task.property.visible_to?(current_user) %>
+          <%= link_to property_path(task.property), class: 'btn-small btn-slim green lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
             <%= task.property.name %>
           <% end %>
         <% else %>
@@ -46,16 +46,22 @@
         <span class="new badge red lighten-2 white-text" data-badge-caption="">
           <%= human_date(task.due) || 'not set' %>
         </span>
+      <% elsif task.due.present? %>
+        <span class="new badge green lighten-2 white-text" data-badge-caption="">
+          <%= human_date(task.due) %>
+        </span>
       <% else %>
-        <%= human_date(task.due) || 'not set' %>
+        <span class="small-text">
+          not set
+        </span>
       <% end %>
     </td>
     <% if controller_name == 'properties' %>
       <td class="center-align">
-        <%= task.budget&.format || 'not set' %>
+        <%= task.budget&.format || '<span class="small-text">not set</span>'.html_safe %>
       </td>
       <td class="center-align">
-        <%= task.cost&.format || 'not set' %>
+        <%= task.cost&.format || '<span class="small-text">not set</span>'.html_safe %>
       </td>
     <% end %>
     <% unless controller.action_name == 'tasks_finder' %>

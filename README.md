@@ -2,8 +2,8 @@
 
 # To do:
 1.0 Connections#index:
-  - Show occupancy status of each property vs. acquired_on
-  - Show connections grouped by relationship (using tab bar)
+  - Show occupancy status grouped by user or property
+  - Show connections status grouped by user or property
 
 1.1 Finish User#index page
   - tabify and include archived

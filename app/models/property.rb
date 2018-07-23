@@ -53,6 +53,44 @@ class Property < ApplicationRecord
     alias active kept
   end
 
+  # fake scopes for Property#list ajax-ing
+  def self.vacant
+    ary = []
+    Property.except_default.each do |property|
+      next if property.discarded?
+      ary << property if property.occupancy_status == 'vacant'
+    end
+    ary
+  end
+
+  def self.pending
+    ary = []
+    Property.except_default.each do |property|
+      next if property.discarded?
+      ary << property if property.occupancy_status == 'pending application'
+    end
+    ary
+  end
+
+  def self.approved
+    ary = []
+    Property.except_default.each do |property|
+      next if property.discarded?
+      ary << property if property.occupancy_status == 'approved applicant'
+    end
+    ary
+  end
+
+  def self.occupied
+    ary = []
+    Property.except_default.each do |property|
+      next if property.discarded?
+      ary << property if property.occupancy_status == 'occupied'
+    end
+    ary
+  end
+  # end fake scopes
+
   def good_address?
     address.present? && city.present? && state.present?
   end
@@ -122,11 +160,48 @@ class Property < ApplicationRecord
     tasklist.reload
   end
 
-  def can_be_viewed_by?(user)
+  def visible_to?(user)
     creator == user ||
       tasks.where('creator_id = ? OR owner_id = ?', user.id, user.id).present? ||
       !is_private?
   end
+
+  def occupancy_status
+    occupancies = connections.where(relationship: 'tennant').order(:stage_date)
+
+    return 'vacant' if occupancies.empty?
+
+    case occupancies.last.stage
+    when 'applied'
+      status = 'pending application'
+    when 'approved'
+      status = 'approved applicant'
+    when 'moved in'
+      status = 'occupied'
+    when 'vacated'
+      status = 'vacant'
+    end
+
+    status
+  end
+
+  def occupancy_details
+    occupancies = connections.where(relationship: 'tennant').order(:stage_date)
+
+    return 'Vacant' if occupancies.empty?
+
+    case occupancies.last.stage
+    when 'vacated'
+      details = 'Vacant'
+    else
+      details = occupancies.last.user.name + ' ' +
+                occupancies.last.stage + ' on ' +
+                occupancies.last.stage_date.strftime('%b %-d, %Y')
+    end
+
+    details
+  end
+
 
   private
 

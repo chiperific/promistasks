@@ -17,7 +17,7 @@ setActiveTab = (target, scope) ->
 
 $(document).on 'turbolinks:load', ->
   return unless controllerMatches(['tasks', 'properties', 'users', 'connections']) &&
-  actionMatches(['show', 'list', 'index', 'tasks'])
+  actionMatches(['show', 'index', 'tasks'])
 
   if getParameterByName('filter') != null
     target = document.location.search.replace('?filter=','')

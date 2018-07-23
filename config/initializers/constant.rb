@@ -18,7 +18,7 @@ module Constant
 
   class Connection
     RELATIONSHIPS = ['tennant', 'staff contact', 'contractor', 'volunteer'].freeze
-    STAGES = ['applied', 'approved', 'moved in'].freeze
+    STAGES = ['applied', 'approved', 'moved in', 'vacated'].freeze
   end
 
   class Regex

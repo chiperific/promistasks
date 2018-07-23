@@ -12,8 +12,20 @@ class PropertiesController < ApplicationController
 
     case params[:filter]
     when 'new'
-      @properties = Property.created_since(current_user.last_sign_in_at)
+      @properties = properties.created_since(current_user.last_sign_in_at)
       @empty_msg = 'No properties created since you last signed in'
+    when 'vacant'
+      @properties = Property.vacant
+      @empty_msg = 'No vacant properties'
+    when 'pending'
+      @properties = Property.pending
+      @empty_msg = 'No properties with pending applications'
+    when 'approved'
+      @properties = Property.approved
+      @empty_msg = 'No properties with approved applicants'
+    when 'occupied'
+      @properties = Property.occupied
+      @empty_msg = 'No occupied properties'
     when 'tasks'
       @properties = Property.where(is_default: false).with_tasks_for(current_user)
       @empty_msg = 'No properties with tasks for you'
@@ -46,16 +58,6 @@ class PropertiesController < ApplicationController
   def show
     authorize @property = Property.find(params[:id])
 
-    occupancy = @property.connections.where(relationship: 'tennant').order(stage_date: :desc)
-
-    if occupancy.empty?
-      @occupancy_msg = 'Not recorded'
-    else
-      @occupancy_msg = occupancy.first.user.name + ' ' +
-                       occupancy.first.stage + ' on ' +
-                       human_date(occupancy.first.stage_date)
-    end
-
     @connections = @property.connections.active
 
     @primary_info_hash = {
@@ -63,7 +65,7 @@ class PropertiesController < ApplicationController
     }
 
     if !@property.is_default?
-      @primary_info_hash['Occupancy status'] = @occupancy_msg
+      @primary_info_hash['Occupancy status'] = @property.occupancy_details
       @primary_info_hash['Lot rent'] = @property.lot_rent || 'Not recorded'
       @primary_info_hash['Acquired on'] = human_date(@property.acquired_on) || 'Not recorded'
       @primary_info_hash['Beds & Baths'] = @property.bed_bath.present? ? @property.bed_bath : 'Not recorded'

@@ -2,7 +2,8 @@
 
 class ConnectionsController < ApplicationController
   def index
-    authorize @connections = Connection.active
+    authorize @connections = Connection.except_tennants.order(:created_at)
+    @occupancies = Connection.only_tennants
   end
 
   def new

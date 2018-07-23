@@ -1,0 +1,69 @@
+<div class="row valign-wrapper">
+  <div class="col s10">
+    <h1>Connections</h1>
+  </div>
+  <div class="col s2">
+    <%= link_to new_connection_path, class: 'btn-floating btn-large waves-effect waves-light green darken-2' do  %>
+      <i class="material-icons">add</i>
+    <% end %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col s12">
+    <ul class="tabs z-depth-1" name="connections">
+      </li>
+      <li class='tab'>
+        <%= link_to 'Connections', '#connection', id: 'tab_connection' %>
+      </li>
+      <li class="tab">
+        <%= link_to 'Occupancy', '#occupancy', id: 'tab_occupancy' %>
+    </ul>
+  </div>
+</div>
+
+<div id="connection" class="row section">
+  <table class="highlight responsive-table">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Property</th>
+        <th>Relationship</th>
+        <th>Date</th>
+        <th class="slim"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @connections.any? %>
+        <%= render partial: 'connection', collection: @connections %>
+      <% else %>
+        <tr>
+          <td colspan="5" class="center-align">None</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div id="occupancy" class="row section">
+  <table class="highlight responsive-table">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Property</th>
+        <th>Stage</th>
+        <th>Date</th>
+        <th class="slim"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @occupancies.any? %>
+        <%= render partial: 'occupancy', collection: @occupancies %>
+      <% else %>
+        <tr>
+          <td colspan="5" class="center-align">None</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

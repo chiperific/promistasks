@@ -1,6 +1,6 @@
 <tr>
   <td>
-    <% if connection.property.can_be_viewed_by?(current_user) %>
+    <% if connection.property.visible_to?(current_user) %>
       <%= link_to property_path(connection.property), class: 'btn-small btn-slim blue lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
         <%= connection.property.name %>
       <% end %>

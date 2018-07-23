@@ -1,7 +1,16 @@
 <tr>
   <td>
+    <% if current_user.staff? %>
+      <%= link_to user_path(occupancy.user), class: 'btn-small btn-slim green lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
+        <%= occupancy.user.name %>
+      <% end %>
+    <% else %>
+      <%= occupancy.user.name %>
+    <% end %>
+  </td>
+  <td>
     <% if occupancy.property.visible_to?(current_user) %>
-      <%= link_to property_path(occupancy.property), class: 'btn-small btn-slim blue lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
+      <%= link_to property_path(occupancy.property), class: 'btn-small btn-slim green lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
         <%= occupancy.property.name %>
       <% end %>
     <% else %>

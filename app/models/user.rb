@@ -56,7 +56,7 @@ class User < ActiveRecord::Base
   # rubocop:disable Layout/IndentationConsistency
   # rubocop:disable Layout/IndentationWidth
   scope :staff,                       -> { undiscarded.where.not(oauth_id: nil) }
-  scope :not_clients,                 -> { undiscarded.where(client: false) }
+  scope :not_clients,                 -> { undiscarded.where(client: false).or(where(client: true, volunteer: true)) }
   scope :staff_except,                ->(user) { undiscarded.staff.where.not(id: user) }
   scope :not_staff,                   -> { undiscarded.where(oauth_id: nil) }
   scope :with_tasks_for,              ->(property) { created_tasks_for(property).or(owned_tasks_for(property)) }
