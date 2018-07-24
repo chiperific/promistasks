@@ -65,6 +65,11 @@ class User < ActiveRecord::Base
   scope :without_tasks_for,           ->(property) { without_created_tasks_for(property).without_owned_tasks_for(property) }
     scope :without_created_tasks_for, ->(property) { undiscarded.where.not(id: Task.select(:creator_id).where(property: property)) }
     scope :without_owned_tasks_for,   ->(property) { undiscarded.where.not(id: Task.select(:owner_id).where(property: property)) }
+  scope :created_since,               ->(time) { where('created_at >= ?', time) }
+  scope :clients,                     -> { undiscarded.where(client: true) }
+  scope :volunteers,                  -> { undiscarded.where(volunteer: true) }
+  scope :contractors,                 -> { undiscarded.where(contractor: true) }
+  scope :system_admins,               -> { undiscarded.where(system_admin: true) }
   # rubocop:enable Layout/IndentationConsistency
   # rubocop:enable Layout/IndentationWidth
 

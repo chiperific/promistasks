@@ -1,9 +1,42 @@
 <div class="row valign-wrapper">
   <div class="col s10">
-    <h1>Users</h1>
+    <h1>People</h1>
   </div>
   <div class="col s2">
     <%= link_to '<i class="material-icons">add</i>'.html_safe, new_user_path, class: 'btn-floating btn-large waves-effect waves-light green darken-2' %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col s12">
+    <ul class="tabs z-depth-1" name="users">
+      <% if @show_new %>
+        <li class="tab">
+          <%= link_to 'New', users_path(filter: 'new'), id: 'users_new', remote: true %>
+        </li>
+      <% end %>
+      <li class="tab">
+        <%= link_to 'All', users_path, id: 'users_all', class: 'active', remote: true %>
+      </li>
+      <li class="tab">
+        <%= link_to 'Staff', users_path(filter: 'staff'), id: 'users_staff', remote: true  %>
+      </li>
+      <li class="tab">
+        <%= link_to 'Clients', users_path(filter: 'clients'), id: 'users_clients', remote: true %>
+      </li>
+      <li class="tab">
+        <%= link_to 'Volunteers', users_path(filter: 'volunteers'), id: 'users_volunteers', remote: true %>
+      </li>
+      <li class="tab">
+        <%= link_to 'Contractors', users_path(filter: 'contractors'), id: 'users_contractors', remote: true %>
+      </li>
+      <li class="tab">
+        <%= link_to 'System Admins', users_path(filter: 'admins'), id: 'users_admins', remote: true %>
+      </li>
+      <li class="tab">
+        <%= link_to 'Archived', users_path(filter: 'archived'), id: 'users_archived', remote: true %>
+      </li>
+    </ul>
   </div>
 </div>
 
@@ -19,36 +52,7 @@
     </tr>
   </thead>
 
-  <tbody>
-    <% @users.each do |user| %>
-      <tr>
-        <td class='table-profile-pic slim'>
-          <%= link_to user do  %>
-            <% if user.oauth? %>
-              <%= image_tag user.oauth_image_link, alt: 'Profile pic', class: 'circle' %>
-            <% else %>
-              <i class="material-icons no-pic">account_circle</i>
-            <% end %>
-          <% end %>
-        </td>
-        <td class='slim'>
-          <% if user.system_admin? %>
-            <i class="material-icons tooltipped" data-position="left" data-tooltip="System Administrator">verified_user</i>
-          <% end %>
-        </td>
-        <td><%= user.name %></td>
-        <td><%= user.readable_type %></td>
-        <td class='slim'>
-          <%= link_to user, class: 'btn-floating btn-small green' do %>
-            <i class="material-icons">arrow_forward</i>
-          <% end %>
-        </td>
-        <td class='slim'>
-          <%= link_to edit_user_path(user), class: 'btn-floating btn-small blue darken-2', 'data-turbolinks'=> 'false' do %>
-            <i class="material-icons">edit</i>
-          <% end %>
-        </td>
-      </tr>
-    <% end %>
+  <tbody id="user_table_body">
+    <%= render partial: 'user_table', collection: @users %>
   </tbody>
 </table>

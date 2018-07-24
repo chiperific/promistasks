@@ -5,7 +5,40 @@ class UsersController < ApplicationController
   # https://github.com/plataformatec/devise/wiki/How-To:-Manage-users-through-a-CRUD-interface
 
   def index
-    authorize @users = User.undiscarded.order(:name)
+    authorize users = User.all.order(:name)
+    @show_new = users.created_since(current_user.last_sign_in_at).count.positive?
+
+    case params[:filter]
+    when 'new'
+      @users = users.created_since(current_user.last_sign_in_at)
+      @empty_msg = 'No people created since you last signed in'
+    when 'staff'
+      @users = users.staff
+      @empty_msg = 'No staff'
+    when 'clients'
+      @users = users.clients
+      @empty_msg = 'No clients'
+    when 'volunteers'
+      @users = users.volunteers
+      @empty_msg = 'No volunteers'
+    when 'contractors'
+      @users = users.contractors
+      @empty_msg = 'No contractors'
+    when 'admins'
+      @users = users.system_admins
+      @empty_msg = 'No System Admins'
+    when 'archived'
+      @users = users.discarded
+      @empty_msg = 'No archived people'
+    else # 'all' || nil
+      @users = users.undiscarded
+      @empty_msg = 'No people found'
+    end
+
+    respond_to do |format|
+      format.js
+      format.html
+    end
   end
 
   def show
