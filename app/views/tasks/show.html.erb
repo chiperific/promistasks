@@ -48,41 +48,40 @@
 <% end %>
 
 <% unless @task.on_default? %>
-  <div class="row section">
-    <div class="col s12">
-      <div class="row">
-        <div class="col s10">
-          <h5>Skills needed:</h5>
-        </div>
-        <div class="col s2">
-          <%= link_to skills_task_path(@task), class: 'btn-floating btn-small blue darken-2' do  %>
-                <i class="material-icons">edit</i>
-              <% end %>
-        </div>
-      </div>
-      <div class="row">
-        <table class='striped'>
-          <tbody>
-            <% if @skills.present? %>
-              <% @skills.each do |skill| %>
-                <div class="chip">
-                  <%= skill.name %>
-                </div>
-              <% end %>
-            <% else %>
-              <tr>
-                <td class="center">none</td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
-      <div class="row">
-        <p>Show this if current_user is owner || creator?</p>
-        <p>BTN: Find users with matching skills...</p>
-      </div>
+  <div class="row valign-wrapper">
+    <div class="col s10">
+      <h5>Skills needed:</h5>
+    </div>
+    <div class="col s2">
+      <%= link_to skills_task_path(@task), class: 'btn-floating btn-small blue darken-2' do  %>
+        <i class="material-icons">edit</i>
+      <% end %>
     </div>
   </div>
+  <div class="row section z-depth-1">
+    <div class="col s12">
+      <% if @skills.any? %>
+        <% @skills.each do |skill| %>
+          <div class="chip">
+            <%= skill.name %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="center-align"><i>none recorded</i></div>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @skills.any? && @user_finder_count.positive? %>
+    <div class="row">
+      <div class="col s12">
+        <%= link_to users_finder_task_path(@task), class: 'btn green waves-effect waves-light right' do %>
+          <span>See people with matching skills</span>
+          <i class="material-icons right">arrow_forward</i>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
   <div class="row section">
     <div class="col s12">

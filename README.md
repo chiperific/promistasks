@@ -1,9 +1,6 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-1.1 Finish User#index page
-  - Tab by type: staff, client, volunteer, contractor, system_admin, archived, all
-
 1.7 Task#show - link to "Users with apropriate skills for this task..."
   - Mock from User#show which uses #task_finder
   - Match each one, prioritize list by # of matches. Task#user_finder on: :model

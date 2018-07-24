@@ -55,6 +55,7 @@ class TasksController < ApplicationController
     }
 
     @skills = @task.skills
+    @user_finder_count = User.undiscarded.joins(:skills).where(skills: { id: @skills.pluck(:id) }).uniq.count
 
     @secondary_info_hash = {
       'Budget': @task.budget&.format || 'Not set',
@@ -65,6 +66,12 @@ class TasksController < ApplicationController
     }
 
     @secondary_info_hash['Archived on'] = human_date(@task.discarded_at) if @task.archived?
+  end
+
+  def users_finder
+    authorize @task = Task.find(params[:id])
+    skill_ids = @task.skills.pluck(:id)
+    @users = User.undiscarded.joins(:skills).where(skills: { id: skill_ids }).uniq
   end
 
   def skills
@@ -143,10 +150,6 @@ class TasksController < ApplicationController
 
   def public
     authorize @tasks = Task.public_visible
-  end
-
-  def users_finder
-    authorize @task = Task.find(params[:id])
   end
 
   def complete
