@@ -8,12 +8,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   </head>
 
-  <body data-controller="<%= controller.controller_name %>" data-action="<%= controller.action_name %>">
+  <body data-controller="<%= controller.controller_name %>" data-action="<%= controller.action_name %>" data-user="<%= current_user&.id || 0 %>">
     <header class="navbar-fixed" id="navbar" data-turbolinks-permanent>
       <%= render partial: 'layouts/navbar' %>
     </header>
     <ul id="context_alerts" class="dropdown-content collection right">
-      <%= render partial: 'alerts' %>
+      <% if current_user %>
+        <%= render partial: 'alerts' %>
+      <% end %>
     </ul>
     <aside id="sidebar" data-turbolinks-permanent>
       <% if current_user %>

@@ -3,7 +3,7 @@
 Rails.application.routes.draw do
   root to: 'tasks#public'
 
-  get 'current_user_id', to: 'users#current_user_id'
+  # get 'current_user_id', to: 'users#current_user_id'
 
   resources :tasks do
     get 'public', on: :collection

@@ -5,11 +5,11 @@
         <span class="card-title grey-text text-darken-4"><%= public_task.title %></span>
         <p class='grey-text text-darken-4 clipped'><%= public_task.notes %></p>
       </div>
-      <div class="card-action">
-        <%= link_to task_path(public_task), class: 'blue-text text-darken-3' do %>
+      <div class="card-action valign-wrapper">
+        <%= link_to task_path(public_task), class: 'blue-text text-darken-3 small-text left' do %>
           <%= public_task.due.present? ? human_date(public_task.due) : 'Flexible' %>
         <% end %>
-        <%= link_to 'Learn more', task_path(public_task), class: 'right blue-text text-darken-3' %>
+        <%= link_to 'Learn more', task_path(public_task), class: 'right blue-text text-darken-3 small-text right' %>
       </div>
     </div>
   </div>

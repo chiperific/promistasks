@@ -1,11 +1,6 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
-1.7 Task#show - link to "Users with apropriate skills for this task..."
-  - Mock from User#show which uses #task_finder
-  - Match each one, prioritize list by # of matches. Task#user_finder on: :model
-  - E.g.: Task needs drywall, carpentry, painting; show users with all, then any
-
 1.2 Something is duplicating tasks on tasklists...changing owner, maybe?
   - Probably because I had api_delete commented out...
 1.3 How to ignore duplicate tasks (same tasklist) from API?

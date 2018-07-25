@@ -181,12 +181,12 @@ class UsersController < ApplicationController
     end
   end
 
-  def current_user_id
-    authorize current_user
-    id = current_user&.id || 0
-    @id = { id: id }
-    render json: @id.as_json
-  end
+  # def current_user_id
+  #   authorize current_user
+  #   id = current_user&.id || 0
+  #   @id = { id: id }
+  #   render json: @id.as_json
+  # end
 
   def api_sync
     authorize @user = User.find(params[:id])

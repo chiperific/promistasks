@@ -65,18 +65,19 @@ handleAlertJson = (userId) ->
     true
   true
 
+getCurrentUser = ->
+  $('body').data('user')
+
 $(document).on 'turbolinks:load', ->
-  $.get '/current_user_id', (response) ->
-    handleAlertJson(response['id']) unless response['id'] == '0'
+  userId = getCurrentUser()
+  unless userId == 0
+    handleAlertJson(userId)
 
 # update the _alerts partial after ajax on the following:
 # Task#index && Property#list through a.pagination_btn
 # _task_table partial through input.complete_bool
 $(document).ready ->
-  $('a.paginate_btn').on "ajax:success", (event) ->
-    $.get '/current_user_id', (response) ->
-      handleAlertJson(response['id']) unless response['id'] == '0'
-
   $('input.complete_bool').on "ajax:success", (event) ->
-    $.get '/current_user_id', (response) ->
-      handleAlertJson(response['id']) unless response['id'] == '0'
+    userId = getCurrentUser()
+    unless userId == 0
+      handleAlertJson(userId)

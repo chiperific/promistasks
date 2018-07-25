@@ -64,13 +64,14 @@ class ApplicationController < ActionController::Base
   end
 
   def bad_param?(param)
-    return false if param.blank?
+    return true if param.blank?
     (Constant::Params::ACTIONS.include? param['action']) ||
       param['commit'].present? ||
       param['controller'] == 'sessions'
   end
 
   def build_url(param)
+    return root_path if param.nil?
     # CLEAR out the old controller & action vars since url_for will append when nested
     # https://apidock.com/rails/ActionDispatch/Routing/UrlFor/url_for
     url_options[:_recall][:controller] = nil
