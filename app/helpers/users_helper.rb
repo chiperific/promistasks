@@ -3,7 +3,8 @@
 module UsersHelper
   def url_for_sync
     if url_for_sync_determiner
-      request.env['HTTP_REFERER'] + '?syncing=true'
+      sym = (request.env['HTTP_REFERER'] =~ /\?/).nil? ? '?' : '&'
+      request.env['HTTP_REFERER'] + sym + 'syncing=true'
     else
       properties_path(syncing: true)
     end

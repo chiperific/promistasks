@@ -1,6 +1,9 @@
 # Google Tasks API Extension for Family Promise GR
 
 # To do:
+1.0 Filtering && Syncing collide:
+ - /users/1/tasks?filter=past-due?syncing=true
+
 1.2 Something is duplicating tasks on tasklists...changing owner, maybe?
   - Probably because I had api_delete commented out...
 1.3 How to ignore duplicate tasks (same tasklist) from API?

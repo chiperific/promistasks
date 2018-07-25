@@ -28,6 +28,21 @@ repeater = (jobId) ->
   setTimeout(pollDelayedJobs, 500, jobId)
   true
 
+targetHasParameter = (url) ->
+  regex = /\?/
+  result = regex.exec(url)
+  !!result
+
+addSyncToAllLinks = (link) ->
+  target = $(link).attr('href')
+  if target != '#' && getParameterByName('syncing', target) != 'true'
+    if targetHasParameter(target) == true
+      newTarget = target + '&syncing=true'
+    else
+      newTarget = target + '?syncing=true'
+    $(link).attr('href', newTarget)
+
+
 $(document).on 'turbolinks:load', ->
   if getParameterByName('syncing') == 'true'
     $('#sync_bar_indeterminate').show()
@@ -38,8 +53,8 @@ $(document).on 'turbolinks:load', ->
       window.location.replace(uri)
     else
       allLinks = document.querySelectorAll('a')
-      allLinks.forEach((currentValue)->
-        addSyncToLink(currentValue)
+      allLinks.forEach((currentLink)->
+        addSyncToAllLinks(currentLink)
       )
       repeater(jobId)
     true
