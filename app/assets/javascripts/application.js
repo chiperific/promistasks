@@ -25,13 +25,13 @@ function getParameterByName(name, url) {
     return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
-function addSyncToLink(link) {
-  target = $(link).attr('href');
-  if (target !== '#') {
-    if (getParameterByName('syncing', target) !== true) {
-      $(link).attr('href', target + '?syncing=true');
-    };
-  };
+function controllerMatches(controllers_ary) {
+  var controller = $('body').data('controller');
+  return controllers_ary.indexOf(controller) !== -1;
 }
 
+function actionMatches(actions_ary) {
+  var action = $('body').data('action');
+  return actions_ary.indexOf(action) !== -1;
+}
 

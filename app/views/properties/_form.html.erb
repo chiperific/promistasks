@@ -1,0 +1,150 @@
+<%= form_for property, html: { autocomplete: "nope" } do |f| %>
+  <%= render 'form_errors', object: property %>
+  <%= f.hidden_field :creator_id, value: current_user.id %>
+
+  <div class="input-field">
+    <%= f.text_field :name %>
+    <label for="property_name">Name (leave blank to use address)</label>
+  </div>
+
+  <div class="input-field">
+    <i class="material-icons prefix">place</i>
+    <%= f.text_field :address %>
+    <label for="property_address">Address (required)</label>
+  </div>
+
+  <div class="row">
+    <div class="input-field col m6 s12">
+      <i class="material-icons prefix">domain</i>
+      <%= f.text_field :city %>
+      <label for="property_city">City (required to show map)</label>
+    </div>
+
+    <div class="input-field col m2 s12">
+      <%= f.text_field :state %>
+      <label for="property_state">State</label>
+    </div>
+
+    <div class="input-field col m4 s12">
+      <%= f.text_field :postal_code %>
+      <label for="property_postal_code">Postal Code</label>
+    </div>
+  </div>
+
+  <% unless property.new_record? %>
+    <div class="center-align">
+      <p class="big-p">
+        Created by: <%= property.creator.fname %>
+        <% if property.created_from_api? %>
+          in Google Tasks
+        <% end %>
+      </p>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <input type="hidden" value="0" name="property[is_private]">
+    <input type="hidden" value="0" name="property[ignore_budget_warning]">
+    <input type="hidden" value="0" name="property[archive]">
+    <div class="col s6 m4 center-align">
+      <p>
+        <label>
+          <input type="checkbox" value="1" name="property[is_private]" <%= 'checked' if property.is_private? %>>
+          <span>Private?</span>
+          <a href="#private_explanation" class="modal-trigger">
+            <i class="material-icons">live_help</i>
+          </a>
+        </label>
+      </p>
+    </div>
+    <div class="col s6 m4 center-align">
+      <p>
+        <label>
+          <input type="checkbox" value="1" name="property[ignore_budget_warning]" <%= 'checked' if property.ignore_budget_warning? %>>
+          <span>Ignore budget warnings?</span>
+          <a href="#budget_warning_explanation" class="modal-trigger">
+            <i class="material-icons">live_help</i>
+          </a>
+        </label>
+      </p>
+    </div>
+    <div class="col s6 m4 center-align">
+      <p>
+        <label>
+          <input type="checkbox" value="1" name="property[archive]" <%= 'checked' if property.discarded_at.present? %>>
+          <span>Archive</span>
+        </label>
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="input-field col m8 s12">
+      <%= f.text_area :description, class: 'materialize-textarea' %>
+      <label for="property_description">Description & notes</label>
+    </div>
+
+    <div class="input-field col m4 s12">
+      <%= f.text_field :acquired_on, class: 'datepicker' %>
+      <label for="property_acquired_on">Date acquired</label>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="input-field col m4 s12">
+      <i class="material-icons prefix">attach_money</i>
+      <%= f.number_field :cost, min: 0, step: 0.01 %>
+      <label for="property_cost">Cost to acquire</label>
+    </div>
+    <div class="input-field col m4 s12">
+      <i class="material-icons prefix">attach_money</i>
+      <%= f.number_field :lot_rent, min: 0, step: 0.01 %>
+      <label for="property_cost">Lot rent</label>
+    </div>
+    <div class="input-field col m4 s12">
+      <i class="material-icons prefix">attach_money</i>
+      <%= f.number_field :budget, min: 0, step: 0.01 %>
+      <label for="property_cost">Repair Budget</label>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="input-field col m2 s12">
+      <%= f.number_field :year_manufacture, min: Time.now.year - 100, max: Time.now.year + 1, step: 1 %>
+      <label for="property_year_maufacture">Model Year</label>
+    </div>
+
+    <div class="input-field col m5 s12">
+      <%= f.text_field :manufacturer %>
+      <label for="property_manufacturer">Manufacturer</label>
+    </div>
+
+    <div class="input-field col m5 s12">
+      <%= f.text_field :bed_bath %>
+      <label for="property_bed_bath">Bed & Bath</label>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="input-field col m6 s12">
+      <%= f.text_field :certificate_number %>
+      <label for="property_certificate_number">Certificate # (Title)</label>
+    </div>
+
+    <div class="input-field col m6 s12">
+      <%= f.text_field :serial_number %>
+      <label for="property_serial_number">Serial #</label>
+    </div>
+  </div>
+
+  <div class="row center-align">
+    <div class="col m6">
+      <%= f.submit class: 'btn green' %>
+    </div>
+    <div class="col m6">
+      <%= link_to 'Cancel', @return_path, class: 'btn red lighten-1', 'data-turbolinks'=> 'false' %>
+    </div>
+  </div>
+<% end %>
+
+<%= render partial: 'properties/explanations' %>

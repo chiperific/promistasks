@@ -31,7 +31,9 @@ class TasksClient
 
   def sync
     tasks_json = fetch
-    return tasks_json if tasks_json.nil? || tasks_json['errors'].present?
+    return tasks_json if tasks_json.nil? ||
+                         tasks_json['errors'].present? ||
+                         tasks_json['items'].nil?
 
     tasks_json['items'].each do |task_json|
       next if task_json['title'] == ''
@@ -48,9 +50,10 @@ class TasksClient
 
   def self.not_in_api_with_tasklist_gid_and_user(google_id, user)
     tasks_json = fetch_with_tasklist_gid_and_user(google_id, user)
+    items = tasks_json['items'].present? ? tasks_json['items'].map { |i| i['id'] } : 0
     TaskUser.where(user: @user)
             .where(tasklist_gid: google_id)
-            .where.not(google_id: tasks_json['items'].map { |i| i['id'] })
+            .where.not(google_id: items)
   end
 
   def push
@@ -61,12 +64,13 @@ class TasksClient
 
   def count
     task_json = fetch
-    task_json['items'].count
+     task_json['items'].present? ? task_json['items'].count : 0
   end
 
   def handle_task(task_json)
     task_user = TaskUser.where(google_id: task_json['id']).first_or_initialize
     if task_user.new_record?
+      # This assumes the task doesn't exist just because the taskuser doesn't exist.
       task_user.task = create_task(task_json)
       update_task_user(task_user, task_json)
     else

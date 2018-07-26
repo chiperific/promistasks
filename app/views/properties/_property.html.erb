@@ -1,0 +1,37 @@
+<div class="col s12 m6 l4">
+  <% if property.over_budget? %>
+    <div class="card red darken-3 z-depth-3">
+  <% else %>
+    <div class="card amber z-depth-3">
+  <% end %>
+    <div class="card-image">
+      <% if property.is_default? %>
+        <%= image_tag "default_tasklist.jpg", alt: "default tasklist" %>
+      <% else %>
+        <%= image_tag property.google_map, alt: "property street view" %>
+      <% end %>
+      <% if params[:action] == 'index' || params[:controller] == 'tasks' || property.is_default? %>
+        <%= link_to property_path(property), class: 'btn-floating halfway-fab waves-effect waves-light green', 'data-turbolinks'=> 'false'  do  %>
+          <i class="material-icons">arrow_forward</i>
+        <% end %>
+      <% else %>
+        <%= link_to edit_property_path(property), class: 'btn-floating halfway-fab waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false' do  %>
+          <i class="material-icons">edit</i>
+        <% end %>
+      <% end %>
+    </div>
+    <% if property.over_budget? %>
+      <div class="card-content white-text">
+    <% else %>
+      <div class="card-content grey-text text-darken-4">
+    <% end %>
+      <span class="card-title"><%= property.name %></span>
+      <p class="small-text">
+        <%= property.tasks.visible_to(current_user).count %> tasks related to you.<br>
+        <% unless property.is_default? %>
+          Budget remaining: <%= property.budget_remaining.format %>
+        <% end %>
+      </p>
+    </div>
+  </div>
+</div>

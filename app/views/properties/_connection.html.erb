@@ -1,0 +1,22 @@
+<tr>
+  <td>
+    <% if current_user.staff? %>
+      <%= link_to connection.user, class: 'btn-small btn-slim blue lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
+        <%= connection.user.name %>
+      <% end %>
+    <% else %>
+      <%= connection.user.name %>
+    <% end %>
+  </td>
+  <td>
+    <%= connection.relationship.capitalize %>
+  </td>
+  <td>
+    <%= human_date(connection.updated_at) %>
+  </td>
+  <td class='slim'>
+    <%= link_to edit_connection_path(connection), class: 'btn-floating btn-small blue darken-2', 'data-turbolinks'=> 'false' do %>
+      <i class="material-icons">edit</i>
+    <% end %>
+  </td>
+</tr>

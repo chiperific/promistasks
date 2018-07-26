@@ -8,10 +8,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   </head>
 
-  <body>
+  <body data-controller="<%= controller.controller_name %>" data-action="<%= controller.action_name %>" data-user="<%= current_user&.id || 0 %>">
     <header class="navbar-fixed" id="navbar" data-turbolinks-permanent>
       <%= render partial: 'layouts/navbar' %>
     </header>
+    <ul id="context_alerts" class="dropdown-content collection right">
+      <% if current_user %>
+        <%= render partial: 'alerts' %>
+      <% end %>
+    </ul>
     <aside id="sidebar" data-turbolinks-permanent>
       <% if current_user %>
         <%= render partial: 'layouts/sidebar' %>
@@ -25,12 +30,19 @@
         <div class="row">
           <div class="col s3 offset-s9">
             <%= render partial: 'layouts/progress_bar' %>
+
           </div>
         </div>
         <%= yield %>
       </div>
     </main>
-    <footer id="footer" data-turbolinks-permanent>
+    <!-- <footer id="footer" data-turbolinks-permanent> -->
+    <footer id="footer">
+      <% if Rails.env.development? %>
+        <!-- Return path: <%= @return_path %> |
+        Previous: <%= @view_previous %> |
+        Pre-previous: <%= @view_pre_previous %> -->
+      <% end %>
       <% if current_user %>
         <%= render partial: 'layouts/footer' %>
       <% end %>

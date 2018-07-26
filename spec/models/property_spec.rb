@@ -10,6 +10,9 @@ RSpec.describe Property, type: :model do
 
   describe 'must be valid against the schema' do
     let(:no_name_or_address)            { build :property, name: nil, address: nil }
+    let(:no_city)                       { build :property, city: nil }
+    let(:no_state)                      { build :property, state: nil }
+    let(:no_postal)                     { build :property, postal_code: nil }
     let(:no_creator)                    { build :property, creator_id: nil }
     let(:non_unique_name)               { build :property, name: @property.name }
     let(:non_unique_address)            { build :property, address: @property.address }
@@ -19,24 +22,24 @@ RSpec.describe Property, type: :model do
     context 'against the schema' do
       it 'in order to save' do
         expect { @property.save!(validate: false) }.not_to raise_error
-        expect { no_name_or_address.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-        expect { no_creator.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-        expect { non_unique_name.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
-        expect { non_unique_address.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
-        expect { non_unique_certificate_number.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
-        expect { non_unique_serial_number.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
+        expect { no_name_or_address.save!(validate: false) }.to             raise_error ActiveRecord::NotNullViolation
+        expect { no_creator.save!(validate: false) }.to                     raise_error ActiveRecord::NotNullViolation
+        expect { non_unique_name.save!(validate: false) }.to                raise_error ActiveRecord::RecordNotUnique
+        expect { non_unique_address.save!(validate: false) }.to             raise_error ActiveRecord::RecordNotUnique
+        expect { non_unique_certificate_number.save!(validate: false) }.to  raise_error ActiveRecord::RecordNotUnique
+        expect { non_unique_serial_number.save!(validate: false) }.to       raise_error ActiveRecord::RecordNotUnique
       end
     end
 
     context 'against the model' do
       it 'in order to save' do
         expect(@property.save!).to eq true
-        expect { no_name_or_address.save! }.to raise_error ActiveRecord::RecordInvalid
-        expect { no_creator.save! }.to raise_error ActiveRecord::RecordInvalid
-        expect { non_unique_name.save! }.to raise_error ActiveRecord::RecordInvalid
-        expect { non_unique_address.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_name_or_address.save! }.to            raise_error ActiveRecord::RecordInvalid
+        expect { no_creator.save! }.to                    raise_error ActiveRecord::RecordInvalid
+        expect { non_unique_name.save! }.to               raise_error ActiveRecord::RecordInvalid
+        expect { non_unique_address.save! }.to            raise_error ActiveRecord::RecordInvalid
         expect { non_unique_certificate_number.save! }.to raise_error ActiveRecord::RecordInvalid
-        expect { non_unique_serial_number.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { non_unique_serial_number.save! }.to      raise_error ActiveRecord::RecordInvalid
       end
     end
   end
@@ -192,6 +195,21 @@ RSpec.describe Property, type: :model do
     end
   end
 
+  describe 'adds lat/long' do
+    context 'when address is good' do
+      pending 'after validation'
+      pending 'when address has changed'
+    end
+    context 'except when is_default' do
+      pending 'doesn\'t get added'
+    end
+  end
+
+  describe '#good_address?' do
+    pending 'returns false if city, state or postal code are missing'
+    pending 'returns true if all address fields are present'
+  end
+
   describe '#full_address' do
     let(:big_addr) { create :property, address: 'addr1', city: 'city', postal_code: '12345' }
     let(:mid_addr) { create :property, address: 'addr2', postal_code: '12345' }
@@ -202,6 +220,34 @@ RSpec.describe Property, type: :model do
       expect(mid_addr.full_address).to eq 'addr2, 12345'
       expect(lil_addr.full_address).to eq 'addr3'
     end
+  end
+
+  describe '#needs_title?' do
+    context 'when certificate_number is blank' do
+      pending 'returns false'
+    end
+
+    context 'when certificate_number is nil' do
+      pending 'returns false'
+    end
+
+    context 'when certificate_number is not nil or blank' do
+      pending 'returns true'
+    end
+  end
+
+  describe '#google_map' do
+    context 'when address is bad' do
+      pending 'returns a string'
+    end
+
+    context 'when address is good' do
+      pending 'returns a URL'
+    end
+  end
+
+  describe '#google_street_view' do
+    pending 'returns a URL'
   end
 
   describe '#budget_remaining' do

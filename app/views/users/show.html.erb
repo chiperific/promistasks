@@ -1,1 +1,146 @@
-User#show
+<div class="row valign-wrapper">
+  <div class="col s10">
+    <h4>
+      <%= @user.name %>
+      <% if @user.system_admin? %>
+        <i class="material-icons tooltipped" data-position="right" data-tooltip="System Administrator">verified_user</i>
+      <% end %>
+    </h4>
+  </div>
+  <div class="col s2">
+    <% if current_user&.system_admin? || current_user == @user %>
+      <%= link_to edit_user_path(@user), class: 'btn-floating waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false' do  %>
+        <i class="material-icons">edit</i>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col s12 m6 l8">
+    <table class="striped">
+      <tbody>
+        <% @primary_info_hash.each do |k,v| %>
+          <%= render partial: 'info_table', locals: { k: k, v: v } %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <% if @user.staff? %>
+    <%= render @default_property %>
+  <% end %>
+</div>
+
+
+<div class="row">
+  <div class="col s6">
+    <h5>Tasks</h5>
+  </div>
+  <div class="col s6">
+    <%= link_to tasks_user_path(@user), class: 'btn btn-large green waves-effect waves-light right' do %>
+      <span>See tasks</span>
+      <i class="material-icons right">arrow_forward</i>
+    <% end %>
+  </div>
+</div>
+
+<div class="row valign-wrapper">
+  <div class="col s10">
+    <h5>Skills</h5>
+  </div>
+  <div class="col s2">
+    <%= link_to skills_user_path(@user), class: 'btn-floating btn-small blue darken-2' do %>
+      <i class="material-icons">edit</i>
+    <% end %>
+  </div>
+</div>
+<div class="row section z-depth-1">
+  <div class="col s12">
+    <% if @skills.any? %>
+      <% @skills.each do |skill| %>
+        <div class="chip">
+          <%= skill.name %>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="center-align"><i>none recorded</i></div>
+    <% end %>
+  </div>
+</div>
+<% if @skills.any? && @tasks_finder_count.positive? %>
+  <div class="row">
+    <div class="col s12">
+      <%= link_to tasks_finder_user_path(@user), class: 'btn green waves-effect waves-light right' do %>
+        <span>See available tasks</span>
+        <i class="material-icons right">arrow_forward</i>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
+<% if @user.client? %>
+  <div class="row section">
+    <div class="col s10">
+      <h5>Occupancy history</h5>
+    </div>
+    <div class="col s2">
+      <%= link_to new_connection_path(user: @user, relationship: 'tennant'), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false' do %>
+        <i class="material-icons">add</i>
+      <% end %>
+    </div>
+  </div>
+  <div class="row">
+    <table class="striped responsive">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Stage</th>
+          <th>Date</th>
+          <th class="slim"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if @occupancies.any? %>
+          <%= render partial: 'occupancy', collection: @occupancies %>
+        <% else %>
+          <tr colspan="4">None</p>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>
+
+<div class="row section valign-wrapper">
+  <div class="col s10">
+    <h5>Connections</h5>
+  </div>
+  <div class="col s2">
+    <%= link_to new_connection_path(user: @user), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false' do %>
+      <i class="material-icons">add</i>
+    <% end %>
+  </div>
+</div>
+<div class="row">
+  <table class="striped responsive">
+    <thead>
+      <tr>
+        <th>Property</th>
+        <th>Relationship</th>
+        <th>Date</th>
+        <th class="slim"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @connections.any? %>
+        <%= render partial: 'connection', collection: @connections %>
+      <% else %>
+        <tr>
+          <td colspan="4" class="center-align">
+            None
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

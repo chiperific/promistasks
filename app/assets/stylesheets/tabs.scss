@@ -1,0 +1,32 @@
+// Task#index
+// User#tasks
+// Property#show
+// Property#list
+
+// Tab coloring:
+.tabs .tab a {
+  color: #2196f3;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+
+  &.active, &:focus, &:focus.active {
+    color: #2196f3;
+    background-color: #e3f2fd;
+    outline: none;
+  }
+
+  &:hover {
+    color: #1976d2;
+    background-color: #90caf9;
+  }
+}
+
+// Property#list has two tab rows.
+// The margin remains for each row on display:none
+.row.no-bottom-margin {
+  margin-bottom: 0px;
+}
+
+.row.extra-top-margin {
+  margin-top: 20px;
+}

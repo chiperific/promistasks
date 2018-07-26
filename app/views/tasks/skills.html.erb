@@ -1,0 +1,52 @@
+<div class="row">
+  <div class="col s12">
+    <h4>Skills needed for "<%= @task.title %>"</h4>
+  </div>
+</div>
+<%= form_tag update_skills_task_path(@task) do %>
+  <table class="striped">
+    <tbody>
+      <% @skills.each do |skill| %>
+        <tr>
+          <td>
+            <%= skill.name %>
+          </td>
+          <td>
+            <div class="switch right">
+              <label>
+                <input type="checkbox" class="lever_input" id="<%= skill.id %>" <%= 'checked' if @task.skills.include? skill %>>
+                <span class="lever"></span>
+              </label>
+            </div>
+          </td>
+          <td></td>
+          <% if current_user.staff? %>
+            <td class="slim">
+              <%= link_to skill_path(skill), class: 'btn-floating btn-small green' do %>
+                <i class="material-icons">arrow_forward</i>
+              <% end %>
+            </td>
+            <td class='slim'>
+              <%= link_to edit_skill_path(skill), class: 'btn-floating btn-small blue darken-2', 'data-turbolinks'=> 'false' do %>
+                <i class="material-icons">edit</i>
+              <% end %>
+            </td>
+          <% end %>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <%= hidden_field_tag 'task[add_skills]', nil, id: 'add' %>
+  <%= hidden_field_tag 'task[remove_skills]', nil, id: 'remove' %>
+  <div class="row center-align section">
+    <div class="col s6 m4">
+      <%= submit_tag 'Save skills', class: 'btn green' %>
+    </div>
+    <div class="col s6 m4">
+      <%= link_to 'Add new skill', new_skill_path(task: @task.id), class: 'btn blue darken-2' %>
+    </div>
+    <div class="col s6 m4">
+      <%= link_to 'Cancel', @return_path, class: 'btn red lighten-1' %>
+    </div>
+  </div>
+<% end %>

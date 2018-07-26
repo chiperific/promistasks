@@ -18,17 +18,17 @@ class Task < ApplicationRecord
   accepts_nested_attributes_for :task_users, allow_destroy: true
 
   validates_presence_of :creator_id, :owner_id, :property_id
-  validates :priority, inclusion: { in: Constant::Task::PRIORITY, allow_blank: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}" }
-  validates_inclusion_of  :license_required, :needs_more_info, :created_from_api,
+  validates_inclusion_of  :needs_more_info, :created_from_api,
                           in: [true, false]
-  validates_inclusion_of :visibility, in: [0, 1, 2, 3]
+  validates_inclusion_of :visibility, in: [0, 1, 2, 3], message: "must be one of these: #{Constant::Task::VISIBILITY.to_sentence}"
+  validates_inclusion_of :priority, in: [0, 1, 2, 3, 4], allow_blank: true, allow_nil: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}"
 
   validates :title, presence: true, uniqueness: { scope: :property }
 
   validate :require_cost, if: -> { budget.present? && cost.nil? && completed_at.present? }
   validate :due_cant_be_past
 
-  monetize :budget_cents, :cost_cents, allow_nil: true
+  monetize :budget_cents, :cost_cents, allow_nil: true, allow_blank: true
 
   before_validation :visibility_must_be_2, if: -> { property&.is_default? && visibility != 2 }
   before_save       :decide_record_completeness
@@ -38,18 +38,44 @@ class Task < ApplicationRecord
   after_update      :change_task_users,    if: :saved_changes_to_users?
   after_update      :cascade_completed,    if: -> { completed_at.present? && completed_at_before_last_save.nil? }
   after_save        :delete_task_users,    if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
+  after_save        :discard_joined,       if: -> { discarded_at.present? }
+  after_save        :undiscard_joined,     if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
+
+  default_scope { order(:due, :priority, :title) }
 
   scope :in_process,      -> { undiscarded.where(completed_at: nil) }
-  scope :needs_more_info, -> { in_process.where(needs_more_info: true) }
   scope :complete,        -> { undiscarded.where.not(completed_at: nil) }
+  scope :needs_more_info, -> { in_process.where(needs_more_info: true) }
   scope :has_cost,        -> { undiscarded.where.not(cost_cents: nil) }
   scope :public_visible,  -> { undiscarded.where(visibility: 1) }
-  scope :related_to,      ->(user) { undiscarded.where('creator_id = ? OR owner_id = ?', user.id, user.id) }
+  scope :related_to,      ->(user) { where("#{table_name}.creator_id = ? OR #{table_name}.owner_id = ?", user.id, user.id) }
   scope :visible_to,      ->(user) { related_to(user).or(public_visible) }
-  scope :created_since,   ->(time) { where('created_at >= ?', time) }
-  scope :due_within,      ->(day_num) { where('due <= ?', Time.now + day_num.days) }
-  scope :due_before,      ->(date) { where('due <= ?', date) }
-  scope :past_due,        -> { in_process.where('due < ?', Time.now) }
+  scope :created_since,   ->(time) { where("#{table_name}.created_at >= ?", time) }
+  scope :due_within,      ->(day_num) { in_process.where('due <= ?', Date.today + day_num.days) }
+  # scope :due_before,      ->(date) { where("#{table_name}.due <= ?", date) }
+  scope :past_due,        -> { in_process.where("#{table_name}.due < ?", Date.today) }
+  scope :except_primary,     -> { joins(:property).where('properties.is_default = FALSE')}
+
+  class << self
+    alias archived discarded
+    alias active kept
+  end
+
+  def status
+    completed_at.nil? ? 'active' : 'complete'
+  end
+
+  def complete?
+    completed_at.present?
+  end
+
+  def archived?
+    discarded_at.present?
+  end
+
+  def on_default?
+    property.is_default?
+  end
 
   def budget_remaining
     return nil if budget.nil? && cost.nil?
@@ -95,7 +121,7 @@ class Task < ApplicationRecord
       task_user = ensure_task_user_exists_for(user)
       # changing details about the task won't trigger an api call from task_user
       # so it must be triggered here
-      task_user.api_update
+      task_user.api_update if task_user.present?
     end
   end
 
@@ -103,18 +129,20 @@ class Task < ApplicationRecord
     [creator, owner].each do |user|
       tasklist = property.ensure_tasklist_exists_for(user)
       task_user = ensure_task_user_exists_for(user)
-      task_user.update(tasklist_gid: tasklist.google_id)
+      task_user.update(tasklist_gid: tasklist.google_id) if task_user.present?
     end
   end
 
   def change_task_users
     if creator_id != creator_id_before_last_save
-      task_users.where(user_id: creator_id_before_last_save).first.destroy
+      old_tu = task_users.where(user_id: creator_id_before_last_save)
+      old_tu.first.destroy if old_tu.present?
       ensure_task_user_exists_for(creator)
     end
 
     if owner_id != owner_id_before_last_save
-      task_users.where(user_id: owner_id_before_last_save).first.destroy
+      old_tu = task_users.where(user_id: owner_id_before_last_save)
+      old_tu.first.destroy if old_tu.present?
       ensure_task_user_exists_for(owner)
     end
   end
@@ -142,6 +170,45 @@ class Task < ApplicationRecord
       !!saved_change_to_completed_at?
   end
 
+  def public?
+    visibility == 1
+  end
+
+  def related_to?(user)
+    creator == user ||
+      owner == user
+  end
+
+  def visible_to?(user)
+    visibility == 1 ||
+      user.system_admin? ||
+      (visibility == 0 && user.staff?) ||
+      (visibility == 2 && related_to?(user)) ||
+      (visibility == 3 && !user.client?)
+  end
+
+  def past_due?
+    return false unless due.present? && completed_at.blank?
+    due < Date.today
+  end
+
+  def priority_color
+    case priority
+    when 0
+      'red lighten-2'
+    when 1
+      'amber'
+    when 2
+      'light-green'
+    when 3
+      'green'
+    when 4
+      'blue'
+    else
+      ''
+    end
+  end
+
   private
 
   def visibility_must_be_2
@@ -154,6 +221,7 @@ class Task < ApplicationRecord
     strikes += 3 if due.nil?
     strikes += 1 if priority.nil?
     strikes += 1 if budget.nil?
+    strikes += -5 if property.is_default?
 
     self.needs_more_info = strikes > 3
     true
@@ -172,5 +240,13 @@ class Task < ApplicationRecord
     else
       true
     end
+  end
+
+  def discard_joined
+    skills.each(&:discard)
+  end
+
+  def undiscard_joined
+    skills.each(&:undiscard)
   end
 end

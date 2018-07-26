@@ -1,0 +1,73 @@
+<div class="row valign-wrapper">
+  <div class="col s10">
+    <% if @user == current_user %>
+      <h1>My Tasks</h1>
+    <% else %>
+      <h1>
+        <%= @user.fname %>'s Tasks
+      </h1>
+    <% end %>
+  </div>
+  <div class="col s2">
+    <%= link_to new_task_path(user: @user.id), class: 'btn-floating btn-large waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false' do %>
+      <i class="material-icons">add</i>
+    <% end %>
+  </div>
+</div>
+
+<div class="row center-align">
+  <ul class="tabs z-depth-1" name="tasks">
+    <% if @show_new %>
+      <li class="tab">
+        <%= link_to 'New', tasks_user_path(@user, filter: 'new'), id: 'tasks_new', remote: true %>
+      </li>
+    <% end %>
+    <li class="tab">
+      <%= link_to 'Active', tasks_user_path(@user, filter: 'active'), id: 'tasks_active', class: 'active', remote: true %>
+    </li>
+    <li class="tab">
+      <%= link_to 'Past Due', tasks_user_path(@user, filter: 'past-due'), id: 'tasks_past-due', remote: true %>
+    </li>
+    <li class="tab">
+      <%= link_to 'Due in 7', tasks_user_path(@user, filter: 'due-7'), id: 'tasks_due-7', remote: true %>
+    </li>
+    <li class="tab">
+      <%= link_to 'Due in 14', tasks_user_path(@user, filter: 'due-14'), id: 'tasks_due-14', remote: true %>
+    </li>
+    <li class="tab">
+      <%= link_to 'Completed', tasks_user_path(@user, filter: 'completed'), id: 'tasks_completed', remote: true %>
+    </li>
+    <li class="tab">
+      <%= link_to 'Missing Info', tasks_user_path(@user, filter: 'missing-info'), id: 'tasks_missing-info', remote: true %>
+    </li>
+    <% if current_user.system_admin? %>
+      <li class="tab">
+        <%= link_to 'All', tasks_user_path(@user, filter: 'all'), id: 'tasks_all', remote: true %>
+      </li>
+      <li class="tab">
+        <%= link_to 'Archived', tasks_user_path(@user, filter: 'archived'), id: 'tasks_archived', remote: true %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+
+<div class="row">
+  <table class='highlight responsive-table' id='task_table'>
+    <thead>
+      <tr>
+        <%= render partial: 'tasks/tasks_table_header' %>
+      </tr>
+    </thead>
+    <tbody id='task_table_body'>
+      <% if @tasks.count.positive? %>
+        <%= render partial: 'tasks/tasks_table', locals: { tasks: @tasks } %>
+      <% else %>
+        <tr>
+          <td colspan="8" class="center-align">
+            No tasks
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

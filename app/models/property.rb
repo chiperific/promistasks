@@ -15,24 +15,30 @@ class Property < ApplicationRecord
   has_many :connected_users, class_name: 'User', through: :connections
   accepts_nested_attributes_for :connections, allow_destroy: true
 
-  validates :name, :address, uniqueness: true, presence: true
+  validates :name, uniqueness: true, presence: true
   validates_presence_of :creator_id
-  validates_uniqueness_of :certificate_number, :serial_number, allow_nil: true
+  validates_uniqueness_of :certificate_number, :serial_number, allow_nil: true, allow_blank: true
   validates_inclusion_of :is_private, :is_default, :ignore_budget_warning, :created_from_api, in: [true, false]
 
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
 
-  before_validation :name_and_address,              if: :unsynced_name_address?
-  before_validation :only_one_default,              if: -> { is_default? }
+  geocoded_by :full_address
+
+  before_validation :address_required,              unless: -> { is_default? || created_from_api? }
+  before_validation :use_address_for_name,          if: -> { name.blank? }
   before_validation :default_must_be_private,       if: -> { discarded_at.nil? && is_default? && !is_private? }
   before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
+  after_validation :geocode,                        if: -> { address_has_changed? && !is_default? }
   before_save  :default_budget,                     if: -> { budget.blank? }
   after_create :create_tasklists,                   unless: -> { discarded_at.present? || created_from_api? }
   after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }
   after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? }
   after_update :update_tasklists,                   if: -> { discarded_at.nil? && saved_change_to_name? }
+  after_save :discard_connections,                  if: -> { discarded_at.present? }
+  after_save :undiscard_connections,                if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
-  scope :needs_title,    ->       { undiscarded.where(certificate_number: nil) }
+  scope :except_default, ->       { undiscarded.where(is_default: false) }
+  scope :needs_title,    ->       { undiscarded.where(certificate_number: '').or(where(certificate_number: nil)) }
   scope :public_visible, ->       { undiscarded.where(is_private: false) }
   scope :created_by,     ->(user) { undiscarded.where(creator: user) }
   scope :with_tasks_for, ->(user) { undiscarded.where(id: Task.select(:property_id).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id)) }
@@ -40,10 +46,53 @@ class Property < ApplicationRecord
   scope :visible_to,     ->(user) { related_to(user).or(public_visible) }
   scope :over_budget,    ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents') }
   scope :nearing_budget, ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
+  scope :created_since,  ->(time) { where('created_at >= ?', time) }
 
   class << self
     alias archived discarded
     alias active kept
+  end
+
+  # fake scopes for Property#list ajax-ing
+  def self.vacant
+    ary = []
+    Property.except_default.each do |property|
+      next if property.discarded?
+      ary << property if property.occupancy_status == 'vacant'
+    end
+    ary
+  end
+
+  def self.pending
+    ary = []
+    Property.except_default.each do |property|
+      next if property.discarded?
+      ary << property if property.occupancy_status == 'pending application'
+    end
+    ary
+  end
+
+  def self.approved
+    ary = []
+    Property.except_default.each do |property|
+      next if property.discarded?
+      ary << property if property.occupancy_status == 'approved applicant'
+    end
+    ary
+  end
+
+  def self.occupied
+    ary = []
+    Property.except_default.each do |property|
+      next if property.discarded?
+      ary << property if property.occupancy_status == 'occupied'
+    end
+    ary
+  end
+  # end fake scopes
+
+  def good_address?
+    address.present? && city.present? && state.present?
   end
 
   def full_address
@@ -54,9 +103,39 @@ class Property < ApplicationRecord
     addr
   end
 
+  def needs_title?
+    certificate_number.blank? || certificate_number.nil?
+  end
+
+  def google_map
+    return 'no_property.jpg' unless good_address?
+    center = [latitude, longitude].join(',')
+    key = Rails.application.secrets.google_maps_api_key
+    "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&size=355x266&zoom=17&markers=color:red%7C#{center}"
+  end
+
+  def google_map_link
+    return false if full_address.nil?
+    base = 'https://www.google.com/maps/?q='
+    base + full_address.tr(' ', '+')
+  end
+
+  def address_has_changed?
+    address_changed? ||
+      city_changed? ||
+      state_changed? ||
+      postal_code_changed?
+  end
+
   def budget_remaining
     self.budget ||= default_budget
-    self.budget - tasks.map(&:cost).sum
+    task_ary = tasks.map(&:cost)
+    task_ary.map! { |b| b || 0 }
+    self.budget - task_ary.sum
+  end
+
+  def over_budget?
+    budget_remaining.negative? && !ignore_budget_warning
   end
 
   def update_tasklists
@@ -81,34 +160,62 @@ class Property < ApplicationRecord
     tasklist.reload
   end
 
-  def can_be_viewed_by(user)
+  def visible_to?(user)
     creator == user ||
       tasks.where('creator_id = ? OR owner_id = ?', user.id, user.id).present? ||
       !is_private?
   end
 
-  private
+  def occupancy_status
+    occupancies = connections.where(relationship: 'tennant').order(:stage_date)
 
-  def unsynced_name_address?
-    return false if name.present? && address.present?
-    return false if name.blank? && address.blank?
-    true
+    return 'vacant' if occupancies.empty?
+
+    case occupancies.last.stage
+    when 'applied'
+      status = 'pending application'
+    when 'approved'
+      status = 'approved applicant'
+    when 'moved in'
+      status = 'occupied'
+    when 'vacated'
+      status = 'vacant'
+    end
+
+    status
   end
 
-  def name_and_address
-    self.address ||= name
-    self.name ||= address
-    true
+  def occupancy_details
+    occupancies = connections.where(relationship: 'tennant').order(:stage_date)
+
+    return 'Vacant' if occupancies.empty?
+
+    case occupancies.last.stage
+    when 'vacated'
+      details = 'Vacant'
+    else
+      details = occupancies.last.user.name + ' ' +
+                occupancies.last.stage + ' on ' +
+                occupancies.last.stage_date.strftime('%b %-d, %Y')
+    end
+
+    details
+  end
+
+
+  private
+
+  def address_required
+    return true unless address.blank?
+    errors.add(:address, 'can\'t be blank')
+  end
+
+  def use_address_for_name
+    self.name = address
   end
 
   def default_budget
     self.budget = Money.new(7_500_00)
-  end
-
-  def only_one_default
-    return true if Property.where(is_default: true).count == 0
-    return true if Property.where(is_default: true).count == 1 && self == Property.where(is_default: true).first
-    self.is_default = false
   end
 
   def default_must_be_private
@@ -148,16 +255,15 @@ class Property < ApplicationRecord
   end
 
   def discard_tasks_and_delete_tasklists
-    Tasklist.where(property: self).each do |tasklist|
-      tasklist.api_delete
-      tasklist.destroy
-    end
-    # this feels like the wrong place for this
-    # maybe trigger on task#after_update, if: -> { discarded_at.present }
-    # but update_all skips callbacks
-    tasks.each do |task|
-      task.task_users.destroy_all if task.present? && task.task_users.present?
-    end
-    tasks.update_all(discarded_at: discarded_at)
+    Tasklist.where(property: self).each(&:destroy)
+    Task.where(property: self).each(&:discard)
+  end
+
+  def discard_connections
+    connections.each(&:discard)
+  end
+
+  def undiscard_connections
+    connections.each(&:undiscard)
   end
 end

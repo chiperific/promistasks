@@ -4,10 +4,15 @@
       <a href="#" id="sidenav" data-target="slide-out" class="button-collapse sidenav-trigger show-on-large prevent_default">
         <i class="material-icons right">menu</i>
       </a>
+      <a href="/properties" id="logo-container" class="brand-logo hide-on-small-only">
+        <span>PromiseTasks</span>
+      </a>
+    <% else %>
+      <a href="/" id="logo-container" class="brand-logo hide-on-small-only">
+        <span>PromiseTasks</span>
+      </a>
     <% end %>
-    <a href="/properties" id="logo-container" class="brand-logo hide-on-small-only">
-      <span>PromiseTasks</span>
-    </a>
+
 
     <ul class="right valign-wrapper" id="nav-mobile">
       <% if current_user %>
@@ -17,42 +22,24 @@
           </a>
         </li>
 
-        <% if current_user.staff? %>
+        <% if current_user.oauth? %>
           <li>
-            <%= link_to '<i class="material-icons">refresh</i>'.html_safe, api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: 'dropdown-trigger-hover', 'data-target' => 'context_refresh'  %>
+            <%= link_to api_sync_user_path(current_user), method: :get, id: 'refresh_button', class: "tooltipped #{@just_signed_in}", 'data-position' => 'bottom', 'data-tooltip' => 'Sync Google Tasks' do %>
+              <i class="material-icons">refresh</i>
+            <% end %>
           </li>
         <% end %>
       <% end %>
 
       <li>
         <% if current_user %>
-          <%= link_to '<i class="material-icons">exit_to_app</i>'.html_safe, destroy_user_session_path, method: :delete, class: 'dropdown-trigger-hover', 'data-target' => 'context_signout'  %>
+          <%= link_to '<i class="material-icons">exit_to_app</i>'.html_safe, destroy_user_session_path, method: :delete, class: 'tooltipped', 'data-position' => 'bottom', 'data-tooltip' => 'Sign out' %>
         <% else %>
-          <%= link_to '<i class="material-icons">lock_open</i>'.html_safe, new_user_session_path, class: 'dropdown-trigger-hover', 'data-target' => 'context_signin' %>
+          <%= link_to '<i class="material-icons">lock_open</i>'.html_safe, new_user_session_path, class: 'tooltipped', 'data-position' => 'bottom', 'data-tooltip' => 'Sign in' %>
         <% end %>
       </li>
     </ul>
   </div>
 </nav>
 
-<ul id='context_signout' class="dropdown-content">
-  <li>
-    <span class="grey-text">Sign out</span>
-  </li>
-</ul>
 
-<ul id='context_signin' class="dropdown-content">
-  <li>
-    <span class="grey-text">Sign in</span>
-  </li>
-</ul>
-
-<ul id='context_refresh' class="dropdown-content">
-  <li>
-    <span class="grey-text">Sync Google Tasks</span>
-  </li>
-</ul>
-
-<ul id="context_alerts" class="dropdown-content collection">
-  <%= render partial: 'shared/alerts' %>
-</ul>

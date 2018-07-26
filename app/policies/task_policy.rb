@@ -1,33 +1,57 @@
 # frozen_string_literal: true
 
 class TaskPolicy < ApplicationPolicy
-  attr_reader :user, :task
+  attr_reader :user, :record
+
+  def index?
+    user&.not_client?
+  end
+
+  def show?
+    record.visible_to?(user)
+  end
 
   def public?
     true
   end
 
-  def index?
-    user&.staff?
+  def skills?
+    record.related_to?(user) || user.staff?
   end
 
-  def show?
-    user&.staff?
+  def update_skills?
+    record.related_to?(user) || user.staff?
   end
 
   def new?
-    user&.staff?
+    user&.not_client?
   end
 
   def create?
-    user&.staff?
+    user&.not_client?
   end
 
   def edit?
-    user&.staff?
+    user&.not_client?
   end
 
-  def destroy?
-    user&.staff?
+  def update?
+    user&.not_client?
+  end
+
+  def public_index?
+    true
+  end
+
+  def users_finder?
+    record.related_to?(user) || user.staff?
+  end
+
+  def complete?
+    record.related_to?(user) || user.staff?
+  end
+
+  def un_complete?
+    record.related_to?(user) || user.staff?
   end
 end

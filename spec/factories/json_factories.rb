@@ -28,7 +28,7 @@ FactoryBot.define do
     position '00000000001261646641'
     status 'needsAction'
     parent 'fakeQ5NTUwMTk3NjU1MjE3MTU6MDozOTU2Nzc3NTgwNjE0NTM3'
-    due 2.days.from_now.utc.rfc3339(3)
+    due (Date.today + 2.days).rfc3339
     completed Time.now.utc.rfc3339(3)
   end
 

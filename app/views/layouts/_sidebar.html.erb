@@ -19,30 +19,79 @@
   <li class="no-padding">
     <ul class="collapsible collapsible-accordion">
       <li>
-        <%= link_to '<i class="material-icons">account_box</i>Profile'.html_safe, edit_user_path(current_user)  %>
+        <%= link_to user_path(current_user) do %>
+          <i class="material-icons">account_box</i>
+          <span>Profile</span>
+        <% end %>
       </li>
     </ul>
   </li>
 
   <li>
-    <%= link_to '<i class="material-icons">format_list_bulleted</i><span>Tasks</span>'.html_safe, tasks_path %>
+    <%= link_to tasks_user_path(current_user) do %>
+      <i class="material-icons">ballot</i>
+      <span>My Tasks</span>
+    <% end %>
   </li>
 
-  <li>
-    <%= link_to '<i class="material-icons">home</i><span>Properties</span>'.html_safe, properties_path  %>
-  </li>
-
-  <% if current_user.system_admin? %>
+  <% if current_user.staff? %>
     <li>
-      <%= link_to '<i class="material-icons">people</i><span>People</span>'.html_safe, users_path  %>
-    </li>
-
-    <li>
-      <%= link_to '<i class="material-icons">build</i><span>Skills</span>'.html_safe, skills_path  %>
+      <%= link_to tasks_path, 'data-turbolinks'=> 'false' do %>
+        <i class="material-icons">format_list_bulleted</i>
+        <span>All Tasks</span>
+      <% end %>
     </li>
   <% end %>
 
   <li>
-    <%= link_to '<i class="material-icons">table_chart</i><span>Reports</span>'.html_safe, reports_properties_path  %>
+    <%= link_to properties_path, 'data-turbolinks'=> 'false' do %>
+      <i class="material-icons">home</i>
+      <span>Properties</span>
+    <% end %>
   </li>
+
+  <% if current_user.staff? %>
+    <li>
+      <%= link_to default_properties_path, 'data-turbolinks'=> 'false' do %>
+        <i class="material-icons">menu</i>
+        <span>Default Tasklist</span>
+      <% end %>
+    </li>
+
+    <% if current_user.system_admin? %>
+      <li>
+        <%= link_to users_path, 'data-turbolinks'=> 'false' do %>
+          <i class="material-icons">people</i>
+          <span>People</span>
+        <% end %>
+      </li>
+
+      <li>
+        <%= link_to connections_path, 'data-turbolinks'=> 'false' do %>
+          <i class="material-icons">swap_horiz</i>
+          <span>Connections</span>
+        <% end %>
+      </li>
+
+      <li>
+        <%= link_to skills_path, 'data-turbolinks'=> 'false' do %>
+          <i class="material-icons">build</i>
+          <span>Skills</span>
+        <% end %>
+      </li>
+    <% end %>
+
+    <li>
+      <%= link_to reports_properties_path, 'data-turbolinks'=> 'false' do %>
+        <i class="material-icons">table_chart</i>
+        <span>Reports</span>
+      <% end %>
+    </li>
+    <li>
+      <%= link_to root_path, 'data-turbolinks'=> 'false' do %>
+        <i class="material-icons">apps</i>
+        <span>Public Tasks</span>
+      <% end %>
+    </li>
+  <% end %>
 </ul>

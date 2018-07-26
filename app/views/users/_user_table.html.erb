@@ -1,0 +1,30 @@
+<% @users.each do |user| %>
+  <tr>
+    <td class='table-profile-pic slim'>
+      <%= link_to user do  %>
+        <% if user.oauth? %>
+          <%= image_tag user.oauth_image_link, alt: 'Profile pic', class: 'circle' %>
+        <% else %>
+          <i class="material-icons no-pic">account_circle</i>
+        <% end %>
+      <% end %>
+    </td>
+    <td class='slim'>
+      <% if user.system_admin? %>
+        <i class="material-icons tooltipped" data-position="left" data-tooltip="System Administrator">verified_user</i>
+      <% end %>
+    </td>
+    <td><%= user.name %></td>
+    <td><%= user.readable_type %></td>
+    <td class='slim'>
+      <%= link_to user, class: 'btn-floating btn-small green' do %>
+        <i class="material-icons">arrow_forward</i>
+      <% end %>
+    </td>
+    <td class='slim'>
+      <%= link_to edit_user_path(user), class: 'btn-floating btn-small blue darken-2', 'data-turbolinks'=> 'false' do %>
+        <i class="material-icons">edit</i>
+      <% end %>
+    </td>
+  </tr>
+<% end %>

@@ -56,7 +56,7 @@ RSpec.describe Task, type: :model do
 
   describe 'requires booleans be in a state:' do
     let(:bad_license)       { build :task, property: @property, creator: @creator, owner: @owner, license_required: nil }
-    let(:bad_needs_no_info) { build :task, property: @property, creator: @creator, owner: @owner, needs_more_info: nil, due: Time.now + 3.hours, budget: Money.new(300_00), priority: 'low' }
+    let(:bad_needs_no_info) { build :task, property: @property, creator: @creator, owner: @owner, needs_more_info: nil, due: Date.tomorrow, budget: Money.new(300_00), priority: 'low' }
     let(:bad_needs_info)    { build :task, property: @property, creator: @creator, owner: @owner, needs_more_info: nil }
     let(:bad_created)       { build :task, property: @property, creator: @creator, owner: @owner, created_from_api: nil }
 
@@ -80,8 +80,8 @@ RSpec.describe Task, type: :model do
   end
 
   describe 'limits records by scope' do
-    let(:has_good_info1) { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 3.days, priority: 'medium', budget: 500 }
-    let(:has_good_info2) { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 2.days, priority: 'high', budget: 800 }
+    let(:has_good_info1) { create :task, property: @property, creator: @creator, owner: @owner, due: Date.tomorrow, priority: 'medium', budget: 500 }
+    let(:has_good_info2) { create :task, property: @property, creator: @creator, owner: @owner, due: Date.tomorrow, priority: 'high', budget: 800 }
     let(:has_cost)       { create :task, property: @property, creator: @creator, owner: @owner, cost: 25 }
     let(:visibility_1)   { create :task, property: @property, creator: @creator, owner: @owner, visibility: 1 }
     let(:visibility_2)   { create :task, property: @property, creator: @creator, owner: @owner, visibility: 2 }
@@ -89,7 +89,7 @@ RSpec.describe Task, type: :model do
     let(:related_one) { create :task, creator: user }
     let(:related_two) { create :task, creator: user }
     let(:old)         { create :task, property: @property, creator: @creator, owner: @owner, created_at: Time.now - 8.days }
-    let(:due_later)   { create :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 10.days }
+    let(:due_later)   { create :task, property: @property, creator: @creator, owner: @owner, due: Date.today + 10.days }
     let(:past_due)    { create :task, property: @property, creator: @creator, owner: @owner }
 
     it '#in_process returns only tasks where completed is nil' do
@@ -180,7 +180,7 @@ RSpec.describe Task, type: :model do
     end
 
     it '#past_due' do
-      past_due.update_columns(due: Time.now - 2.days)
+      past_due.update_columns(due: Date.today - 2.days)
 
       expect(Task.past_due).to include past_due
       expect(Task.past_due).not_to include due_later
@@ -498,7 +498,7 @@ RSpec.describe Task, type: :model do
     it 'returns true if any API fields have changed' do
       title_change.update(title: 'New title')
       notes_change.update(notes: 'New notes content')
-      due_change.update(due: Time.now + 2.weeks)
+      due_change.update(due: Date.today + 2.weeks)
       completed_at_change.update(completed_at: Time.now - 3.minutes)
 
       expect(title_change.send(:saved_changes_to_api_fields?)).to eq true

@@ -1,0 +1,19 @@
+<div class="col s12 m6 l4">
+  <%= link_to public_task_path(public_task) do %>
+    <div class="card amber z-depth-3">
+      <div class="card-content public">
+        <span class="card-title grey-text text-darken-4">
+          <%= public_task.title %>
+        </span>
+        <% public_task.skills&.each do |skill| %>
+          <div class="chip">
+            <%= skill.name %>
+          </div>
+        <% end %>
+      </div>
+      <div class="card-action center-align blue-text text-darken-4">
+        Need by: <%= public_task.due.present? ? human_date(public_task.due) : 'Flexible' %>
+      </div>
+    </div>
+  <% end %>
+</div>

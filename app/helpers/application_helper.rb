@@ -6,4 +6,12 @@ module ApplicationHelper
       count == 1 ? "#{noun}#{text}" : "#{noun.pluralize}#{text}"
     end
   end
+
+  def human_boolean(boolean)
+    boolean ? 'Yes' : 'No'
+  end
+
+  def human_date(date)
+    date&.strftime('%b %-d, %Y')
+  end
 end

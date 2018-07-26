@@ -10,9 +10,6 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.date :stage_date
       t.datetime :discarded_at
       t.timestamps
-      t.index :stage
-      t.index [:property_id, :user_id], unique: true
-      t.index [:user_id, :property_id], unique: true
       t.index :discarded_at
     end
 
@@ -44,7 +41,6 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.timestamps
       t.index [:user_id, :property_id], unique: true
       t.index [:property_id, :user_id], unique: true
-      t.index :google_id
     end
 
     create_table :task_users do |t|
@@ -61,8 +57,6 @@ class CreateJoins < ActiveRecord::Migration[5.1]
       t.timestamps
       t.index [:user_id, :task_id], unique: true
       t.index [:task_id, :user_id], unique: true
-      t.index :google_id,           unique: true
-      t.index :tasklist_gid
       t.index :position_int
     end
   end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180621035211) do
+ActiveRecord::Schema.define(version: 2018_07_22_023256) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -25,10 +25,7 @@ ActiveRecord::Schema.define(version: 20180621035211) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["discarded_at"], name: "index_connections_on_discarded_at"
-    t.index ["property_id", "user_id"], name: "index_connections_on_property_id_and_user_id", unique: true
     t.index ["property_id"], name: "index_connections_on_property_id"
-    t.index ["stage"], name: "index_connections_on_stage"
-    t.index ["user_id", "property_id"], name: "index_connections_on_user_id_and_property_id", unique: true
     t.index ["user_id"], name: "index_connections_on_user_id"
   end
 
@@ -62,7 +59,7 @@ ActiveRecord::Schema.define(version: 20180621035211) do
 
   create_table "properties", force: :cascade do |t|
     t.string "name", null: false
-    t.string "address", null: false
+    t.string "address"
     t.string "city"
     t.string "state", default: "MI"
     t.string "postal_code"
@@ -78,23 +75,21 @@ ActiveRecord::Schema.define(version: 20180621035211) do
     t.string "serial_number"
     t.integer "year_manufacture"
     t.string "manufacturer"
-    t.string "model"
-    t.string "certification_label1"
-    t.string "certification_label2"
+    t.string "bed_bath"
     t.bigint "creator_id", null: false
     t.boolean "is_private", default: false, null: false
     t.boolean "is_default", default: false, null: false
     t.boolean "ignore_budget_warning", default: false, null: false
     t.boolean "created_from_api", default: false, null: false
     t.datetime "discarded_at"
+    t.float "latitude"
+    t.float "longitude"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["acquired_on"], name: "index_properties_on_acquired_on"
     t.index ["address"], name: "index_properties_on_address", unique: true
-    t.index ["certificate_number"], name: "index_properties_on_certificate_number", unique: true
     t.index ["creator_id"], name: "index_properties_on_creator_id"
     t.index ["name"], name: "index_properties_on_name", unique: true
-    t.index ["serial_number"], name: "index_properties_on_serial_number", unique: true
   end
 
   create_table "skill_tasks", force: :cascade do |t|
@@ -147,11 +142,9 @@ ActiveRecord::Schema.define(version: 20180621035211) do
     t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["google_id"], name: "index_task_users_on_google_id", unique: true
     t.index ["position_int"], name: "index_task_users_on_position_int"
     t.index ["task_id", "user_id"], name: "index_task_users_on_task_id_and_user_id", unique: true
     t.index ["task_id"], name: "index_task_users_on_task_id"
-    t.index ["tasklist_gid"], name: "index_task_users_on_tasklist_gid"
     t.index ["user_id", "task_id"], name: "index_task_users_on_user_id_and_task_id", unique: true
     t.index ["user_id"], name: "index_task_users_on_user_id"
   end
@@ -162,7 +155,6 @@ ActiveRecord::Schema.define(version: 20180621035211) do
     t.string "google_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["google_id"], name: "index_tasklists_on_google_id"
     t.index ["property_id", "user_id"], name: "index_tasklists_on_property_id_and_user_id", unique: true
     t.index ["property_id"], name: "index_tasklists_on_property_id"
     t.index ["user_id", "property_id"], name: "index_tasklists_on_user_id_and_property_id", unique: true
@@ -172,8 +164,8 @@ ActiveRecord::Schema.define(version: 20180621035211) do
   create_table "tasks", force: :cascade do |t|
     t.string "title", null: false
     t.string "notes"
-    t.string "priority"
-    t.datetime "due"
+    t.integer "priority"
+    t.date "due"
     t.bigint "creator_id", null: false
     t.bigint "owner_id", null: false
     t.bigint "subject_id"
@@ -183,12 +175,11 @@ ActiveRecord::Schema.define(version: 20180621035211) do
     t.integer "cost_cents"
     t.string "cost_currency", default: "USD", null: false
     t.integer "visibility", default: 0, null: false
-    t.boolean "license_required", default: false, null: false
     t.boolean "needs_more_info", default: false, null: false
     t.datetime "discarded_at"
     t.datetime "completed_at"
-    t.boolean "created_from_api", default: false, null: false
     t.string "owner_type"
+    t.boolean "created_from_api", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_tasks_on_creator_id"
@@ -238,7 +229,6 @@ ActiveRecord::Schema.define(version: 20180621035211) do
     t.datetime "discarded_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["name"], name: "index_users_on_name", unique: true
-    t.index ["oauth_id"], name: "index_users_on_oauth_id", unique: true
     t.index ["oauth_token"], name: "index_users_on_oauth_token", unique: true
   end
 

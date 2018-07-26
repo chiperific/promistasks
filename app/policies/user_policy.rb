@@ -4,15 +4,31 @@ class UserPolicy < ApplicationPolicy
   attr_reader :user, :record
 
   def index?
-    user&.system_admin?
+    user&.staff?
   end
 
   def show?
-    user&.system_admin? || user == record
+    user&.staff? || user == record
+  end
+
+  def tasks?
+    user&.staff? || user == record
+  end
+
+  def tasks_finder?
+    user&.staff? || user == record
+  end
+
+  def skills?
+    user&.staff? || user == record
+  end
+
+  def update_skills?
+    user&.staff? || user == record
   end
 
   def new?
-    user&.system_admin? || user&.staff?
+    user&.staff?
   end
 
   def create?
@@ -28,16 +44,8 @@ class UserPolicy < ApplicationPolicy
     user&.system_admin? || user == record
   end
 
-  def destroy?
-    user&.system_admin? && user != record
-  end
-
-  def discarded?
-    user&.system_admin?
-  end
-
   def current_user_id?
-    user.present?
+    user.not_client?
   end
 
   def api_sync?
@@ -50,5 +58,17 @@ class UserPolicy < ApplicationPolicy
 
   def alerts?
     user&.system_admin? || user == record
+  end
+
+  def owner_enum?
+    user&.not_client?
+  end
+
+  def subject_enum?
+    user&.not_client?
+  end
+
+  def find_id_by_name?
+    user&.not_client?
   end
 end

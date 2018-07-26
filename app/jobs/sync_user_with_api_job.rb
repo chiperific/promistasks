@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class SyncUserWithApiJob < ApplicationJob
+  require 'pry-remote'
+
   def initialize(user_id)
     @user = User.find(user_id)
     @tlc = TasklistsClient.new(@user)
@@ -90,7 +92,7 @@ class SyncUserWithApiJob < ApplicationJob
     t_count_missing_ary = []
     tls_ids.each do |gid|
       found = TasksClient.fetch_with_tasklist_gid_and_user(gid, @user)
-      t_count_ary << found['items'].count if found.present?
+      t_count_ary << found['items'].count if found.present? && found['items'].present?
       missing = TasksClient.not_in_api_with_tasklist_gid_and_user(gid, @user)
       t_count_missing_ary << missing.count if missing.present?
     end

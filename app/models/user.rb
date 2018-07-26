@@ -44,16 +44,19 @@ class User < ActiveRecord::Base
                           :system_admin, in: [true, false]
 
   validate :must_have_type
-  validate :clients_are_singular
+  validate :clients_are_limited
   validate :system_admin_must_be_internal, if: -> { system_admin? }
 
-  monetize :rate_cents, allow_nil: true
+  monetize :rate_cents, allow_nil: true, allow_blank: true
 
   after_create :propegate_tasklists, if: -> { oauth_id.present? && discarded_at.blank? }
+  after_save :discard_joined,        if: -> { discarded_at.present? }
+  after_save :undiscard_joined,      if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
   # rubocop:disable Layout/IndentationConsistency
   # rubocop:disable Layout/IndentationWidth
   scope :staff,                       -> { undiscarded.where.not(oauth_id: nil) }
+  scope :not_clients,                 -> { undiscarded.where(client: false).or(where(client: true, volunteer: true)) }
   scope :staff_except,                ->(user) { undiscarded.staff.where.not(id: user) }
   scope :not_staff,                   -> { undiscarded.where(oauth_id: nil) }
   scope :with_tasks_for,              ->(property) { created_tasks_for(property).or(owned_tasks_for(property)) }
@@ -62,12 +65,13 @@ class User < ActiveRecord::Base
   scope :without_tasks_for,           ->(property) { without_created_tasks_for(property).without_owned_tasks_for(property) }
     scope :without_created_tasks_for, ->(property) { undiscarded.where.not(id: Task.select(:creator_id).where(property: property)) }
     scope :without_owned_tasks_for,   ->(property) { undiscarded.where.not(id: Task.select(:owner_id).where(property: property)) }
+  scope :created_since,               ->(time) { where('created_at >= ?', time) }
+  scope :clients,                     -> { undiscarded.where(client: true) }
+  scope :volunteers,                  -> { undiscarded.where(volunteer: true) }
+  scope :contractors,                 -> { undiscarded.where(contractor: true) }
+  scope :system_admins,               -> { undiscarded.where(system_admin: true) }
   # rubocop:enable Layout/IndentationConsistency
   # rubocop:enable Layout/IndentationWidth
-
-  def register_as
-    # handles dropdown on Devise::registration#new
-  end
 
   def staff?
     program_staff? ||
@@ -75,6 +79,11 @@ class User < ActiveRecord::Base
       admin_staff? ||
       system_admin? ||
       oauth_id.present?
+  end
+
+  def not_client?
+    !client? &&
+      (type.present? || system_admin? || oauth?)
   end
 
   def oauth?
@@ -98,8 +107,35 @@ class User < ActiveRecord::Base
     ary
   end
 
+  def readable_type
+    return 'Staff' if oauth? && type.empty?
+    type.join(', ')
+  end
+
   def fname
     name.split(' ')[0].capitalize
+  end
+
+  def full_address
+    addr = address1
+    addr += ' ' + address2 unless address2.blank?
+    addr += ', ' + city unless city.blank?
+    addr += ', ' + state unless city.blank?
+    addr += ', ' + postal_code unless postal_code.blank?
+    addr
+  end
+
+  def first_address
+    addr = address1
+    addr += ' ' + address2 unless address2.blank?
+    addr
+  end
+
+  def location_address
+    addr = city
+    addr += ', ' + state unless city.blank?
+    addr += ', ' + postal_code unless postal_code.blank?
+    addr
   end
 
   def self.from_omniauth(auth)
@@ -110,7 +146,7 @@ class User < ActiveRecord::Base
       user.oauth_id = auth.uid
       user.oauth_image_link = auth.info.image
       user.oauth_token = auth.credentials.token
-      user.oauth_refresh_token ||= auth.credentials.refresh_token if auth.credentials.refresh_token.present?
+      user.oauth_refresh_token ||= auth.credentials.refresh_token
       user.oauth_expires_at = Time.at(auth.credentials.expires_at)
     end
     @user.save
@@ -180,9 +216,10 @@ class User < ActiveRecord::Base
     end
   end
 
-  def clients_are_singular
+  def clients_are_limited
     return true unless client?
-    errors.add(:register_as, ': Clients can\'t have another type') if type.count > 1
+    return true if volunteer?
+    errors.add(:register_as, ': Clients can\'t be staff or contractors') if type.count > 1
     true
   end
 
@@ -200,5 +237,15 @@ class User < ActiveRecord::Base
   def api_headers
     { 'Authorization': 'OAuth ' + oauth_token,
       'Content-type': 'application/json' }
+  end
+
+  def discard_joined
+    skills.each(&:discard)
+    connections.each(&:discard)
+  end
+
+  def undiscard_joined
+    skills.each(&:undiscard)
+    connections.each(&:undiscard)
   end
 end

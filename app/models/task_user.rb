@@ -8,7 +8,7 @@ class TaskUser < ApplicationRecord
 
   validates :task, presence: true, uniqueness: { scope: :user }
   validates_presence_of :tasklist_gid
-  validates_uniqueness_of :google_id, allow_nil: true
+  validates_uniqueness_of :google_id, allow_nil: true, allow_blank: true
   validates_inclusion_of :deleted, in: [true, false]
 
   before_validation :set_tasklist_gid, if: -> { tasklist_gid.nil? }
@@ -154,7 +154,7 @@ class TaskUser < ApplicationRecord
       status:    task.completed_at.present? ? 'completed' : 'needsAction',
       deleted:   self.deleted,
       completed: task.completed_at.present? ? task.completed_at.utc.rfc3339(3) : nil,
-      due:       task.due.present? ? task.due.utc.rfc3339(3) : nil
+      due:       task.due.present? ? task.due.rfc3339 : nil
     }
   end
 end

@@ -1,23 +1,25 @@
 <div class="fixed-action-btn">
-  <a href="#" class="btn-floating btn-large red z-depth-3 prevent_default">
+  <a href="#" class="btn-floating btn-large red darken-3 z-depth-3 prevent_default">
     <i class="large material-icons">add</i>
   </a>
   <ul>
     <li>
-      <%= link_to '<i class="material-icons">check_circle_outline</i>'.html_safe, new_task_path, class: 'btn-floating light-blue lighten-1'  %>
+      <%= link_to new_task_path, class: 'btn-floating light-blue lighten-1', 'data-turbolinks'=> 'false' do %>
+        <i class="material-icons">check_circle_outline</i>
+      <% end %>
     </li>
 
     <li>
-      <%= link_to '<i class="material-icons">home</i>'.html_safe, new_property_path, class: 'btn-floating yellow accent-4'  %>
+      <%= link_to '<i class="material-icons">home</i>'.html_safe, new_property_path, class: 'btn-floating amber', 'data-turbolinks'=> 'false' %>
     </li>
 
     <% if current_user.system_admin? %>
       <li>
-        <%= link_to '<i class="material-icons">people</i>'.html_safe, new_user_path, class: 'btn-floating green darken-1'  %>
+        <%= link_to '<i class="material-icons">people</i>'.html_safe, new_user_path, class: 'btn-floating green darken-1', 'data-turbolinks'=> 'false' %>
       </li>
 
       <li>
-        <%= link_to '<i class="material-icons">build</i>'.html_safe, new_skill_path, class: 'btn-floating purple darken-1'  %>
+        <%= link_to '<i class="material-icons">build</i>'.html_safe, new_skill_path, class: 'btn-floating purple darken-1', 'data-turbolinks'=> 'false' %>
       </li>
     <% end %>
   </ul>
