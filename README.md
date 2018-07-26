@@ -1,5 +1,25 @@
 # Google Tasks API Extension for Family Promise GR
 
+# Beta review:
+## Understanding / Navigating the system:
+  - Syncing with Google Tasks
+  -- Mobile app
+  -- Gmail
+  -- Gcal -- Reminders / Tasks
+  - Property == Tasklist
+  - Default Tasklist
+  - Everything else is a task
+  - Visibility: Property and Task
+  - Users: Permissions and Ownership
+  - Connections: Between people and properties
+  - Skills: For people and tasks
+  - Alerts
+
+## What's still needed:
+  - Reports
+  - Default tasks
+  - Test suite
+
 # To do:
 1.0 What happens when I log in with my 20Liters account (a second oauth user)?
 
@@ -9,9 +29,6 @@
   - Rely upon later update val?
 1.4 Connections need to be editable && visible from Users and Properties
   - will need connection _form
-1.5 Switch from pagination to tabs
-  - https://materializecss.com/tabs.html
-1.6 Public tasks should link to Task#info -- a public visible page w/ contact info (by owner? or org. general?)
 
 1.8 When a new Property is created, default tasks are also generated:
   - From a fake seeds file?
@@ -22,6 +39,7 @@
 
 2. Write system tests:
   - Every view
+  -- As sys_admin, staff, not_staff, client, not_logged_in
   - Every AJAX (use controllers to find)
 3. Write model tests:
   - User has 2 pending methods
