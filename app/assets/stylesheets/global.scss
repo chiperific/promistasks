@@ -12,12 +12,71 @@ body {
 main {
   flex: 1 0 auto;
 
+  .white-links {
+    a {
+      color: white;
+      text-decoration: underline;
+    }
+  }
+
   p.big-p {
     font-size: 1.175em;
   }
 
   .small-text {
     font-size: .75em;
+  }
+
+  // Task#public, Task#show card styling to mimic sticky notes
+  .card {
+    border-bottom-right-radius: 24px;
+
+    .card-content {
+      min-height: 92px;
+
+      &.public {
+        padding: 24px 24px 0px 24px;
+      }
+
+      .card-title {
+        font-size: 20px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .clipped {
+        overflow: hidden;
+        position: relative;
+        line-height: 1.2em;
+        max-height: 3.6em;
+        text-align: justify;
+        margin-right: -1em;
+        padding-right: 1em;
+      }
+
+      .clipped:before {
+        content: '...';
+        position: absolute;
+        right: 0;
+        bottom: 0;
+      }
+
+      .clipped:after {
+        content: '';
+        position: absolute;
+        right: 0;
+        width: 1em;
+        height: 1em;
+        margin-top: 0.2em;
+        background: #ffc107;
+      }
+    }
+
+    .card-action {
+      border-bottom-right-radius: 24px !important;
+      text-transform: uppercase;
+    }
   }
 }
 

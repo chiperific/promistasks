@@ -11,6 +11,10 @@ class TaskPolicy < ApplicationPolicy
     record.visible_to?(user)
   end
 
+  def public?
+    true
+  end
+
   def skills?
     record.related_to?(user) || user.staff?
   end
@@ -35,7 +39,7 @@ class TaskPolicy < ApplicationPolicy
     user&.not_client?
   end
 
-  def public?
+  def public_index?
     true
   end
 

@@ -68,6 +68,13 @@ class TasksController < ApplicationController
     @secondary_info_hash['Archived on'] = human_date(@task.discarded_at) if @task.archived?
   end
 
+  def public
+    authorize @task = Task.find(params[:id])
+
+    @contact_phone = Constant::Organization::CONTACT_PHONE
+    @contact_phone = @task.owner.phone1 if @task.owner.staff? && !@task.owner.phone1.blank?
+  end
+
   def users_finder
     authorize @task = Task.find(params[:id])
     skill_ids = @task.skills.pluck(:id)
@@ -148,7 +155,7 @@ class TasksController < ApplicationController
     end
   end
 
-  def public
+  def public_index
     authorize @tasks = Task.public_visible
   end
 

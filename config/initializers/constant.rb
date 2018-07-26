@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
 module Constant
+  class Organization
+    DOMAIN = 'familypromisegr.org'
+    CONTACT_NAME = 'Chelsea'
+    CONTACT_PHONE = '616-608-8917'
+    CONTACT_EMAIL = 'chelseaj@familypromisegr.org'
+  end
+
   class User
     EXT_TYPES = %w[Client Volunteer Contractor].freeze
     INT_TYPES = %w[Program Project Admin].freeze
@@ -33,11 +40,17 @@ module Constant
 
   class Params
     ACTIONS = %w[alerts api_sync
-                clear_completed_jobs complete create current_user_id
-                destroy edit find_id_by_name google_oauth2
-                new owner_enum property_enum skills subject_enum
-                tasks tasks_filter
-                un_complete users update
-                update_skills update_tasks update_users].freeze
+                 clear_completed_jobs complete create current_user_id
+                 destroy
+                 edit
+                 find_id_by_name
+                 google_oauth2
+                 new
+                 owner_enum
+                 property_enum
+                 skills subject_enum
+                 tasks tasks_filter
+                 un_complete users update update_skills update_tasks update_users
+                 ].freeze
   end
 end

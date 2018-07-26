@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  root to: 'tasks#public'
+  root to: 'tasks#public_index'
 
   # get 'current_user_id', to: 'users#current_user_id'
 
   resources :tasks do
-    get 'public', on: :collection
+    get 'public', on: :member
     get 'skills', on: :member
     post 'update_skills', on: :member
     get 'users_finder', on: :member

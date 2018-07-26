@@ -83,5 +83,7 @@ class ApplicationController < ActionController::Base
       syncing: param['syncing'],
       filter: param['filter']
     )
+  rescue ActionController::UrlGenerationError
+    '/properties'
   end
 end
