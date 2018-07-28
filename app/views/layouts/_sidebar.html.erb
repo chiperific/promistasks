@@ -51,12 +51,14 @@
   </li>
 
   <% if current_user.staff? %>
-    <li>
-      <%= link_to default_properties_path, 'data-turbolinks'=> 'false' do %>
-        <i class="material-icons">menu</i>
-        <span>Default Tasklist</span>
-      <% end %>
-    </li>
+    <% if Property.where(is_default: true, creator: current_user).any? %>
+      <li>
+        <%= link_to default_properties_path, 'data-turbolinks'=> 'false' do %>
+          <i class="material-icons">menu</i>
+          <span>Default Tasklist</span>
+        <% end %>
+      </li>
+    <% end %>
 
     <% if current_user.system_admin? %>
       <li>

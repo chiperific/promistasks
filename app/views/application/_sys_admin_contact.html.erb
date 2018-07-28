@@ -1,0 +1,31 @@
+<div class="row">
+  <div class="col s12 center-align" id="empty_graphic">
+    <i class="material-icons" id="empty_cloud">cloud</i>
+    <i class="material-icons" id="empty_terrain">terrain</i>
+  </div>
+  <div class="col s12">
+    <p class="big-p center-align">
+      <strong>It's pretty empty in here</strong><br>
+      Maybe add something?
+    </p>
+  </div>
+</div>
+<% @sys_admins = User.system_admins %>
+<% if @sys_admins.any? %>
+  <div class="row">
+    <div class="col s12">
+      <p class="big-p center-align">
+        If you were expecting something else, please check with:
+      </p>
+      <div class="row">
+        <div class="col s6 offset-s3">
+          <div class="collection center-align">
+            <% @sys_admins.each do |user| %>
+              <%= mail_to user.email, user.name, class: 'collection-item' %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

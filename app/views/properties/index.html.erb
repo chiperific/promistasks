@@ -15,5 +15,11 @@
 </div>
 
 <div class="row">
-  <%= render partial: 'property', collection: @properties %>
+  <% if @properties.any? %>
+    <%= render partial: 'property', collection: @properties %>
+  <% end %>
 </div>
+
+<% if @properties.empty? %>
+  <%= render partial: 'sys_admin_contact' %>
+<% end %>

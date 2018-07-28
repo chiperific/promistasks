@@ -4,7 +4,7 @@ class TasksController < ApplicationController
   include TasksHelper
 
   def index
-    authorize tasks = Task.except_primary
+    authorize tasks = Task.except_primary.visible_to(current_user)
 
     @show_new = tasks.created_since(current_user.last_sign_in_at).count.positive?
 
@@ -28,10 +28,10 @@ class TasksController < ApplicationController
       @tasks = tasks.needs_more_info
       @empty_msg = 'No tasks missing info!'
     when 'archived'
-      @tasks = tasks.archived
+      @tasks = Task.except_primary.archived
       @empty_msg = 'No archived tasks'
     when 'all'
-      @tasks = tasks
+      @tasks = Task.except_primary
       @empty_msg = 'No active tasks'
     else # nil || 'active'
       @tasks = tasks.in_process
@@ -156,7 +156,7 @@ class TasksController < ApplicationController
   end
 
   def public_index
-    authorize @tasks = Task.public_visible
+    authorize @tasks = Task.in_process.public_visible
   end
 
   def complete

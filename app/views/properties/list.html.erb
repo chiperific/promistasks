@@ -100,3 +100,7 @@
     </tbody>
   </table>
 </div>
+
+<% if @properties.empty? %>
+  <%= render partial: 'sys_admin_contact' %>
+<% end %>

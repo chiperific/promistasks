@@ -170,3 +170,20 @@ td {
 .btn-slim {
   padding: 0 8px !important;
 }
+
+#empty_graphic {
+  #empty_cloud {
+    color: #e0e0e0;
+    font-size: 30px;
+    position: relative;
+    z-index: 1;
+    top: -48px;
+  }
+  #empty_terrain {
+    color: #455a64;
+    font-size: 76px;
+    z-index: 0;
+    position: relative;
+    right: 26px;
+  }
+}
