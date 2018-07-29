@@ -117,14 +117,12 @@ class TasksController < ApplicationController
     authorize @task = Task.new
 
     @task.property_id = params[:property] if params[:property].present?
-    @task.owner_id = params[:user] if params[:user].present?
+    @task.owner_id = params[:user].present? ? params[:user] : current_user.id
+    @task.creator = current_user
   end
 
   def create
-    task_params.delete :budget if task_params[:budget].blank?
-    task_params.delete :cost if task_params[:cost].blank?
-
-    authorize @task = Task.new(parse_completed_at(task_params))
+    authorize @task = Task.new(parse_completed_at(task_params.reject { |k, v| (k.include?('budget') || k.include?('cost')) && v.blank? }))
 
     if @task.save
       redirect_to @return_path, notice: 'Task created'
@@ -136,6 +134,7 @@ class TasksController < ApplicationController
 
   def edit
     authorize @task = Task.find(params[:id])
+    @owner_lkup = @task.owner.name
   end
 
   def update
@@ -144,10 +143,7 @@ class TasksController < ApplicationController
     @task.discard if params[:task][:archive] == '1' && !@task.discarded?
     @task.undiscard if params[:task][:archive] == '0' && @task.discarded?
 
-    task_params.delete :budget if task_params[:budget].blank?
-    task_params.delete :cost if task_params[:cost].blank?
-
-    if @task.update(parse_completed_at(task_params))
+    if @task.update(parse_completed_at(task_params.reject { |k, v| (k.include?('budget') || k.include?('cost')) && v.blank? }))
       redirect_to @return_path, notice: 'Task updated'
     else
       flash[:warning] = 'Oops, found some errors'

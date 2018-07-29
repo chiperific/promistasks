@@ -48,7 +48,8 @@ class TaskUser < ApplicationRecord
   end
 
   def api_insert
-    return false unless user.oauth_id.present? && tasklist_gid.present?
+    #                                                               this keeps api_insert from duplicating the tasklist for the creator
+    return false if user.oauth_id.blank? || tasklist_gid.blank? || (task.created_from_api? && user == task.creator)
     user.refresh_token!
     response = HTTParty.post(BASE_URI + tasklist_gid + '/tasks/', { headers: api_headers.as_json, body: api_body.to_json })
     return false unless response.present?

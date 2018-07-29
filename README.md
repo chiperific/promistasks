@@ -19,6 +19,9 @@
   - Reports
   - Default tasks for new properties
   - Test suite
+  - A task is shared between User A and User B. User A marks a task complete in GT. User B should also have that task marked as complete.
+    - Task marked complete in GT is not getting caught in the app
+  - Reordering tasks? Or scrap this function... (meaning can delete position, position_int, parent_id, previous_id from Task and task.move function)
 
 # To do:
 1.0 Catching token issues:

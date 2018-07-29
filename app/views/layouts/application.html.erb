@@ -38,9 +38,9 @@
     </main>
     <footer id="footer">
       <% if Rails.env.development? %>
-        <!-- Return path: <%= @return_path %> |
+        Return path: <%= @return_path %> |
         Previous: <%= @view_previous %> |
-        Pre-previous: <%= @view_pre_previous %> -->
+        Pre-previous: <%= @view_pre_previous %>
       <% end %>
       <% if current_user %>
         <%= render partial: 'layouts/footer' %>
