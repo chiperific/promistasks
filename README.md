@@ -17,11 +17,16 @@
 
 ## What's still needed:
   - Reports
-  - Default tasks
+  - Default tasks for new properties
   - Test suite
 
 # To do:
-1.0 What happens when I log in with my 20Liters account (a second oauth user)?
+1.0 Catching token issues:
+  - SyncUserWithApiJob won't run if tokens aren't present
+  - Need a page for tokens missing User#oauth_check
+  -- Links from User#show if user.staff?
+  -- Checks for presence of oauth fields
+  -- How to use https://myaccount.google.com/permissions to remove PromiseTasks
 
 1.2 Something is duplicating tasks on tasklists...changing owner, maybe?
   - Probably because I had api_delete commented out...

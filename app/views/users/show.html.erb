@@ -24,7 +24,7 @@
   <div class="col s12 m6 l8">
     <table class="striped">
       <tbody>
-        <% @primary_info_hash.each do |k,v| %>
+        <% @primary_info_hash.each do |k, v| %>
           <%= render partial: 'info_table', locals: { k: k, v: v } %>
         <% end %>
       </tbody>
@@ -145,3 +145,14 @@
     </tbody>
   </table>
 </div>
+
+<% if @user.staff? %>
+  <div class="row">
+    <div class="col s12">
+      <%= link_to oauth_check_user_path(@user), class: 'btn btn-large green waves-effect waves-light' do %>
+        <span>Check credentials</span>
+        <i class="material-icons right">arrow_forward</i>
+      <% end %>
+    </div>
+  </div>
+<% end %>
