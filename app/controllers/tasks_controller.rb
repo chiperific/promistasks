@@ -158,14 +158,14 @@ class TasksController < ApplicationController
   def complete
     authorize @task = Task.find(params[:id])
     @task.update(completed_at: Time.now)
-    status = @task.reload.completed_at.nil? ? 'inProcess' : 'completed'
+    status = @task.reload.completed_at.blank? ? 'inProcess' : 'completed'
     render json: { id: @task.id.to_s, status: status }
   end
 
   def un_complete
     authorize @task = Task.find(params[:id])
     @task.update(completed_at: nil)
-    status = @task.reload.completed_at.nil? ? 'inProcess' : 'completed'
+    status = @task.reload.completed_at.blank? ? 'inProcess' : 'completed'
     render json: { id: @task.id.to_s, status: status }
   end
 

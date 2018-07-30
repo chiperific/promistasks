@@ -31,9 +31,9 @@ class TasksClient
 
   def sync
     tasks_json = fetch
-    return tasks_json if tasks_json.nil? ||
+    return tasks_json if tasks_json.blank? ||
                          tasks_json['errors'].present? ||
-                         tasks_json['items'].nil?
+                         tasks_json['items'].blank?
 
     tasks_json['items'].each do |task_json|
       next if task_json['title'] == ''
@@ -45,15 +45,14 @@ class TasksClient
     tasks_json = fetch
     TaskUser.where(user: @user)
             .where(tasklist_gid: @tasklist.google_id)
-            .where.not(google_id: tasks_json['items'].map { |i| i['id'] })
+            .where.not(google_id: tasks_json['items']&.map { |i| i['id'] })
   end
 
   def self.not_in_api_with_tasklist_gid_and_user(google_id, user)
     tasks_json = fetch_with_tasklist_gid_and_user(google_id, user)
-    items = tasks_json['items'].present? ? tasks_json['items'].map { |i| i['id'] } : 0
     TaskUser.where(user: @user)
             .where(tasklist_gid: google_id)
-            .where.not(google_id: items)
+            .where.not(google_id: tasks_json['items']&.map { |i| i['id'] })
   end
 
   def push
@@ -64,7 +63,7 @@ class TasksClient
 
   def count
     task_json = fetch
-     task_json['items'].present? ? task_json['items'].count : 0
+    task_json['items'].present? ? task_json['items'].count : 0
   end
 
   def handle_task(task_json)
@@ -111,6 +110,7 @@ class TasksClient
       t.user_id = @user.id
       t.assign_from_api_fields(task_json)
       t.tasklist_gid = @tasklist.google_id
+      t.scope = 'both'
     end
     task_user.save!
     task_user.reload

@@ -20,24 +20,15 @@
   - Default tasks for new properties
   - Test suite
   - A task is shared between User A and User B. User A marks a task complete in GT. User B should also have that task marked as complete.
-    - Task marked complete in GT is not getting caught in the app
+  -- Task marked complete in GT is not getting caught in the app
   - Reordering tasks? Or scrap this function... (meaning can delete position, position_int, parent_id, previous_id from Task and task.move function)
+  - Archiving property in app (when no open tasks) removes from GT.
 
 # To do:
-1.0 Catching token issues:
-  - SyncUserWithApiJob won't run if tokens aren't present
-  - Need a page for tokens missing User#oauth_check
-  -- Links from User#show if user.staff?
-  -- Checks for presence of oauth fields
-  -- How to use https://myaccount.google.com/permissions to remove PromiseTasks
-
 1.2 Something is duplicating tasks on tasklists...changing owner, maybe?
   - Probably because I had api_delete commented out...
 1.3 How to ignore duplicate tasks (same tasklist) from API?
   - Rely upon later update val?
-1.4 Connections need to be editable && visible from Users and Properties
-  - will need connection _form
-
 1.8 When a new Property is created, default tasks are also generated:
   - From a fake seeds file?
   - What tasks?

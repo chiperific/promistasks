@@ -10,13 +10,14 @@ class TaskUser < ApplicationRecord
   validates_presence_of :tasklist_gid
   validates_uniqueness_of :google_id, allow_nil: true, allow_blank: true
   validates_inclusion_of :deleted, in: [true, false]
+  validates_inclusion_of :scope, in: Constant::TaskUser::SCOPE
 
   before_validation :set_tasklist_gid, if: -> { tasklist_gid.nil? }
   before_save       :set_position_as_integer, if: -> { position.present? }
   before_destroy    :api_delete
   after_create      :api_insert,              unless: -> { task.created_from_api? && google_id.present? }
   after_update      :relocate,                if: -> { saved_change_to_tasklist_gid? }
-  after_update      :api_move,                if: -> { saved_changes_to_placement? }
+  # after_update      :api_move,                if: -> { saved_changes_to_placement? }
   after_save        :elevate_completeness,    if: -> { completed_at.present? && task.completed_at.nil? }
 
   scope :descending, -> { undiscarded.order(position_int: :asc) }
@@ -48,8 +49,8 @@ class TaskUser < ApplicationRecord
   end
 
   def api_insert
-    #                                                               this keeps api_insert from duplicating the tasklist for the creator
-    return false if user.oauth_id.blank? || tasklist_gid.blank? || (task.created_from_api? && user == task.creator)
+    # --->                                                        this keeps api_insert from duplicating the tasklist for the creator
+    return false if user.oauth_id.blank? || tasklist_gid.blank? || (task.created_from_api? && user == task.creator && ((Time.now - 5.minutes)..Time.now).cover?(task.created_at))
     user.refresh_token!
     response = HTTParty.post(BASE_URI + tasklist_gid + '/tasks/', { headers: api_headers.as_json, body: api_body.to_json })
     return false unless response.present?
@@ -76,17 +77,17 @@ class TaskUser < ApplicationRecord
     return false unless response.present?
   end
 
-  def api_move
-    # set or clear the new parent and previous before calling
-    # position value always come from API
-    return false unless api_fields_are_present?
-    user.refresh_token!
+  # def api_move
+  #   # set or clear the new parent and previous before calling
+  #   # position value always come from API
+  #   return false unless api_fields_are_present?
+  #   user.refresh_token!
 
-    response = HTTParty.post(move_uri_builder, headers: api_headers.as_json)
-    return false unless response.present?
-    update_column(:position, response['position'])
-    response
-  end
+  #   response = HTTParty.post(move_uri_builder, headers: api_headers.as_json)
+  #   return false unless response.present?
+  #   update_column(:position, response['position'])
+  #   response
+  # end
 
   private
 
@@ -103,15 +104,14 @@ class TaskUser < ApplicationRecord
     user.oauth_id.present? && google_id.present? && tasklist_gid.present?
   end
 
-  def move_uri_builder
-    return false unless api_fields_are_present?
-
-    uri = BASE_URI + tasklist_gid + '/tasks/' + google_id + '/move?'
-    uri += 'parent=' + parent_id if parent_id.present?
-    uri += '&' if parent_id.present? && previous_id.present?
-    uri += 'previous=' + previous_id if previous_id.present?
-    uri
-  end
+  # def move_uri_builder
+  #   return false unless api_fields_are_present?
+  #   uri = BASE_URI + tasklist_gid + '/tasks/' + google_id + '/move?'
+  #   uri += 'parent=' + parent_id if parent_id.present?
+  #   uri += '&' if parent_id.present? && previous_id.present?
+  #   uri += 'previous=' + previous_id if previous_id.present?
+  #   uri
+  # end
 
   def sequence_google_id(response_id)
     return response_id if task&.title == 'validate'
@@ -149,13 +149,20 @@ class TaskUser < ApplicationRecord
   end
 
   def api_body
-    {
+    notes = task.notes.blank? ? '' : task.notes.tr('[', '(').tr(']', ')') # don't allow brackets in notes, see Task#assign_from_api_fieds
+    notes += '[' + Constant::Task::PRIORITY[task.priority] + ']' if task.priority.present?
+    notes += '[assigned to: ' + task.owner.name + ']' unless task.creator == task.owner
+    notes += '[budget remaining: ' + task.budget_remaining.format + ']' unless task.budget_remaining.nil?
+
+    body = {
       title:     task.title,
-      notes:     task.notes,
+      notes:     notes,
       status:    task.completed_at.present? ? 'completed' : 'needsAction',
       deleted:   self.deleted,
       completed: task.completed_at.present? ? task.completed_at.utc.rfc3339(3) : nil,
       due:       task.due.present? ? task.due.rfc3339 : nil
     }
+
+    body
   end
 end

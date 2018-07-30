@@ -23,6 +23,10 @@ module Constant
     VISIBILITY_ENUM = [['Staff', 0], ['Everyone', 1], ['Only associated people', 2], ['Not clients', 3]].freeze
   end
 
+  class TaskUser
+    SCOPE = %w[creator owner both].freeze
+  end
+
   class Connection
     RELATIONSHIPS = ['tennant', 'staff contact', 'contractor', 'volunteer'].freeze
     STAGES = ['applied', 'approved', 'moved in', 'vacated'].freeze
