@@ -171,8 +171,8 @@ class UsersController < ApplicationController
     @user.discard if params[:user][:archive] == '1' && !@user.discarded?
     @user.undiscard if params[:user][:archive] == '0' && @user.discarded?
 
-    # .reject is removing password and password_confirmation if they are blank
-    if @user.update(user_params.reject { |k,v| k.include?('password') && v.blank? })
+    # .reject removes password and password_confirmation if they are blank
+    if @user.update(user_params.reject { |k, v| k.include?('password') && v.blank? })
       redirect_to @return_path, notice: 'Update successful'
     else
       flash[:warning] = 'Oops, found some errors'
@@ -181,12 +181,18 @@ class UsersController < ApplicationController
     end
   end
 
-  # def current_user_id
-  #   authorize current_user
-  #   id = current_user&.id || 0
-  #   @id = { id: id }
-  #   render json: @id.as_json
-  # end
+  def oauth_check
+    authorize @user = User.find(params[:id])
+
+    @show_error_view = params[:err] == 'true'
+
+    @primary_info_hash = {
+      'Google ID?': @user.oauth_id.present? ? 'OK' : 'MISSING',
+      'Google Token?': @user.oauth_token.present? ? 'OK' : 'MISSING',
+      'Google Refresh Token?': @user.oauth_refresh_token.present? ? 'OK' : 'MISSING',
+      'Google Token Expires at:': human_datetime(@user.oauth_expires_at.localtime)
+    }
+  end
 
   def api_sync
     authorize @user = User.find(params[:id])
@@ -197,7 +203,12 @@ class UsersController < ApplicationController
   def clear_completed_jobs
     authorize User.first
     Delayed::Job.where.not(completed_at: nil).delete_all
-    redirect_to @return_path
+
+    if params[:cred_err] == 'true'
+      redirect_to oauth_check_user_path(current_user, err: true)
+    else
+      redirect_to @return_path
+    end
   end
 
   def alerts

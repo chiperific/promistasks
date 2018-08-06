@@ -23,12 +23,11 @@ class Task < ApplicationRecord
   validates_inclusion_of :visibility, in: [0, 1, 2, 3], message: "must be one of these: #{Constant::Task::VISIBILITY.to_sentence}"
   validates_inclusion_of :priority, in: [0, 1, 2, 3, 4], allow_blank: true, allow_nil: true, message: "must be one of these: #{Constant::Task::PRIORITY.to_sentence}"
 
-  validates :title, presence: true, uniqueness: { scope: :property }
-
-  validate :require_cost, if: -> { budget.present? && cost.nil? && completed_at.present? }
-  validate :due_cant_be_past
-
   monetize :budget_cents, :cost_cents, allow_nil: true, allow_blank: true
+
+  validates :title, presence: true, uniqueness: { scope: :property }
+  validate :due_cant_be_past
+  validate :require_cost, if: -> { budget.present? && cost.nil? && completed_at.present? }
 
   before_validation :visibility_must_be_2, if: -> { property&.is_default? && visibility != 2 }
   before_save       :decide_record_completeness
@@ -51,10 +50,9 @@ class Task < ApplicationRecord
   scope :related_to,      ->(user) { where("#{table_name}.creator_id = ? OR #{table_name}.owner_id = ?", user.id, user.id) }
   scope :visible_to,      ->(user) { related_to(user).or(public_visible) }
   scope :created_since,   ->(time) { where("#{table_name}.created_at >= ?", time) }
-  scope :due_within,      ->(day_num) { in_process.where('due <= ?', Date.today + day_num.days) }
-  # scope :due_before,      ->(date) { where("#{table_name}.due <= ?", date) }
+  scope :due_within,      ->(day_num) { in_process.where(due: Date.today..(Date.today + day_num.days)) }
   scope :past_due,        -> { in_process.where("#{table_name}.due < ?", Date.today) }
-  scope :except_primary,     -> { joins(:property).where('properties.is_default = FALSE')}
+  scope :except_primary,     -> { joins(:property).where('properties.is_default = FALSE') }
 
   class << self
     alias archived discarded
@@ -69,6 +67,10 @@ class Task < ApplicationRecord
     completed_at.present?
   end
 
+  def active?
+    completed_at.blank?
+  end
+
   def archived?
     discarded_at.present?
   end
@@ -78,18 +80,18 @@ class Task < ApplicationRecord
   end
 
   def budget_remaining
-    return nil if budget.nil? && cost.nil?
+    return nil if budget.blank? && cost.blank?
     temp_budget = budget || Money.new(0)
     temp_cost = cost || Money.new(0)
     temp_budget - temp_cost
   end
 
   def assign_from_api_fields(task_json)
-    return false if task_json.nil?
+    return false if task_json.blank?
 
     tap do |t|
       t.title = task_json['title']
-      t.notes = task_json['notes']
+      t.notes = task_json['notes']&.gsub(/\[.{1,}\]/, '') # see TaskUser#api_body, strip out the things that have been added to notes
       t.completed_at = task_json['completed']
       t.due = task_json['due']
       t.created_from_api = true
@@ -101,9 +103,16 @@ class Task < ApplicationRecord
   def ensure_task_user_exists_for(user)
     return false if user.oauth_id.nil?
     task_user = task_users.where(user: user).first_or_initialize
-    return task_user unless task_user.new_record? || task_user.google_id.nil?
+    return task_user unless task_user.new_record? || task_user.google_id.blank?
     tasklist = property.ensure_tasklist_exists_for(user)
     task_user.tasklist_gid = tasklist.google_id
+
+    if creator == owner
+      task_user.scope = 'both'
+    else
+      task_user.scope = creator == user ? 'creator' : 'owner'
+    end
+
     task_user.save
     task_user.reload
   end
@@ -135,13 +144,13 @@ class Task < ApplicationRecord
 
   def change_task_users
     if creator_id != creator_id_before_last_save
-      old_tu = task_users.where(user_id: creator_id_before_last_save)
+      old_tu = task_users.where(user_id: creator_id_before_last_save, scope: 'creator')
       old_tu.first.destroy if old_tu.present?
       ensure_task_user_exists_for(creator)
     end
 
     if owner_id != owner_id_before_last_save
-      old_tu = task_users.where(user_id: owner_id_before_last_save)
+      old_tu = task_users.where(user_id: owner_id_before_last_save, scope: 'owner')
       old_tu.first.destroy if old_tu.present?
       ensure_task_user_exists_for(owner)
     end

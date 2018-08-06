@@ -1,5 +1,7 @@
+<% @determined_path = current_user&.not_client? ? task_path(public_task) : public_task_path(public_task) %>
+
 <div class="col s12 m6 l4">
-  <%= link_to public_task_path(public_task) do %>
+  <%= link_to @determined_path do %>
     <div class="card amber z-depth-3">
       <div class="card-content public">
         <span class="card-title grey-text text-darken-4">

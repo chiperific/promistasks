@@ -78,9 +78,9 @@
 
     <div class="col s12 m6 l3">
       <div class="input-field">
-        <%= text_field_tag 'owner_lkup', task.owner&.name || current_user.name, class: "autocomplete-owners", autocomplete: "off" %>
+        <%= text_field_tag 'owner_lkup', task.owner&.name, class: "autocomplete-owners", autocomplete: "off" %>
         <label for="owner_lkup">Owner</label>
-        <%= f.hidden_field :owner_id, value: current_user.id %>
+        <%= f.hidden_field :owner_id %>
       </div>
     </div>
 
@@ -106,11 +106,11 @@
           <%= text_field_tag 'creator_lkup', task.creator&.name || current_user.name, class: "autocomplete-owners", autocomplete: "off" %>
           <label for="creator_lkup">Creator</label>
           <i>Only change if user must be deleted.</i>
-          <%= f.hidden_field :creator_id, value: current_user.id %>
+          <%= f.hidden_field :creator_id %>
         </div>
       </div>
     <% else %>
-      <%= f.hidden_field :creator_id, value: current_user.id %>
+      <%= f.hidden_field :creator_id %>
     <% end %>
   </div>
 

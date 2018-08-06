@@ -14,4 +14,8 @@ module ApplicationHelper
   def human_date(date)
     date&.strftime('%b %-d, %Y')
   end
+
+  def human_datetime(datetime)
+    datetime&.strftime('%-m/%-d @ %l:%M:%S %p %Z')
+  end
 end

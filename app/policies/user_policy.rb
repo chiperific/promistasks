@@ -44,8 +44,8 @@ class UserPolicy < ApplicationPolicy
     user&.system_admin? || user == record
   end
 
-  def current_user_id?
-    user.not_client?
+  def oauth_check?
+    user&.staff?
   end
 
   def api_sync?

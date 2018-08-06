@@ -65,3 +65,7 @@
     </tbody>
   </table>
 </div>
+
+<% if @tasks.empty? %>
+  <%= render partial: 'sys_admin_contact' %>
+<% end %>

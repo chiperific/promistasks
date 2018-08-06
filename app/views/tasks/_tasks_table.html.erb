@@ -67,13 +67,17 @@
     <% unless controller.action_name == 'tasks_finder' %>
       <td class="slim">
         <p>
-          <label>
-            <input type="checkbox" class="filled-in complete_bool" <%= 'checked' if task.complete? %>>
-            <span class="complete_span">&nbsp;</span>
-            <span class="task_id">
-              <%= task.id %>
-            </span>
-          </label>
+          <% if task.active? && task.budget_cents.present? && task.cost_cents.blank? %>
+            <span class="small-text">needs cost</span>
+          <% else %>
+            <label>
+              <input type="checkbox" class="filled-in complete_bool" <%= 'checked' if task.complete? %>>
+              <span class="complete_span">&nbsp;</span>
+              <span class="task_id">
+                <%= task.id %>
+              </span>
+            </label>
+          <% end %>
         </p>
       </td>
     <% end %>

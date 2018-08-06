@@ -4,22 +4,22 @@
   </a>
   <ul>
     <li>
-      <%= link_to new_task_path, class: 'btn-floating light-blue lighten-1', 'data-turbolinks'=> 'false' do %>
+      <%= link_to new_task_path, class: 'btn-floating light-blue lighten-1 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Task' do %>
         <i class="material-icons">check_circle_outline</i>
       <% end %>
     </li>
 
     <li>
-      <%= link_to '<i class="material-icons">home</i>'.html_safe, new_property_path, class: 'btn-floating amber', 'data-turbolinks'=> 'false' %>
+      <%= link_to '<i class="material-icons">home</i>'.html_safe, new_property_path, class: 'btn-floating amber tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Property' %>
     </li>
 
     <% if current_user.system_admin? %>
       <li>
-        <%= link_to '<i class="material-icons">people</i>'.html_safe, new_user_path, class: 'btn-floating green darken-1', 'data-turbolinks'=> 'false' %>
+        <%= link_to '<i class="material-icons">people</i>'.html_safe, new_user_path, class: 'btn-floating green darken-1 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New User' %>
       </li>
 
       <li>
-        <%= link_to '<i class="material-icons">build</i>'.html_safe, new_skill_path, class: 'btn-floating purple darken-1', 'data-turbolinks'=> 'false' %>
+        <%= link_to '<i class="material-icons">build</i>'.html_safe, new_skill_path, class: 'btn-floating purple darken-1 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Skill' %>
       </li>
     <% end %>
   </ul>

@@ -30,7 +30,8 @@ class Tasklist < ApplicationRecord
   end
 
   def api_insert
-    return false if user.oauth_id.nil? || property.created_from_api?
+    #                                       this keeps api_insert from duplicating the tasklist for the creator
+    return false if user.oauth_id.blank? || (property.created_from_api? && user == property.creator)
     user.refresh_token!
     body = { title: property.name }.to_json
     response = HTTParty.post(BASE_URI, { headers: api_headers, body: body })

@@ -12,7 +12,7 @@ class PropertyPolicy < ApplicationPolicy
   end
 
   def show?
-    user&.staff? && record.visible_to?(user)
+    user&.staff? || record.visible_to?(user)
   end
 
   def new?

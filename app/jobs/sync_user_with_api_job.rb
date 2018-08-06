@@ -29,54 +29,65 @@ class SyncUserWithApiJob < ApplicationJob
     sleep 1 unless Rails.env.test?
   end
 
+  def oauth_creds_exist
+    @user.oauth_id.present? &&
+      @user.oauth_token.present? &&
+      @user.oauth_refresh_token.present?
+  end
+
   def perform
     pause
 
-    determine_progress_max
-    pause
-
-    default_tasklist = process_tasklists(default: true)
-    pause
-
-    @job.update_columns(message: 'Fetching default tasks')
-    pause
-
-    process_tasks(default_tasklist, default: true)
-    pause
-
-    tasklists = process_tasklists
-    pause
-
-    tasklists.each_with_index do |t, i|
-      i += 1
-      msg = 'Fetching ' + i.ordinalize + ' property\'s tasks...'
-      @job.update_columns(message: msg)
+    if oauth_creds_exist == true
+      determine_progress_max
       pause
 
-      process_tasks(t)
-      pause
-    end
-
-    missing_tasklists = find_tasklists
-    if missing_tasklists.present?
-      msg = 'Found ' + missing_tasklists.count.to_s + ' missing property'.pluralize(missing_tasklists.count)
-      @job.update_columns(message: msg)
+      default_tasklist = process_tasklists(default: true)
       pause
 
-      push_tasklists
+      @job.update_columns(message: 'Fetching default tasks')
+      pause
 
-      missing_tasklists.each_with_index do |t, i|
-        tc = TasksClient.new(t)
-        push_from_app(tc)
+      process_tasks(default_tasklist, default: true)
+      pause
+
+      tasklists = process_tasklists
+      pause
+
+      tasklists.each_with_index do |t, i|
+        i += 1
+        msg = 'Fetching ' + i.ordinalize + ' property\'s tasks...'
+        @job.update_columns(message: msg)
+        pause
+
+        process_tasks(t)
         pause
       end
-    else
-      @job.update_columns(message: 'No missing properties!')
-    end
-    pause
 
-    wrap_up
-    pause
+      missing_tasklists = find_tasklists
+      if missing_tasklists.present?
+        msg = 'Found ' + missing_tasklists.count.to_s + ' missing property'.pluralize(missing_tasklists.count)
+        @job.update_columns(message: msg)
+        pause
+
+        push_tasklists
+
+        missing_tasklists.each_with_index do |t, i|
+          tc = TasksClient.new(t)
+          push_from_app(tc)
+          pause
+        end
+      else
+        @job.update_columns(message: 'No missing properties!')
+      end
+      pause
+
+      wrap_up
+      pause
+    else
+      @job.update_columns(message: 'Credential error!')
+      pause
+    end
   end
 
   def determine_progress_max

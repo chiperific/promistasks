@@ -4,7 +4,7 @@ class TasksController < ApplicationController
   include TasksHelper
 
   def index
-    authorize tasks = Task.except_primary
+    authorize tasks = Task.except_primary.visible_to(current_user)
 
     @show_new = tasks.created_since(current_user.last_sign_in_at).count.positive?
 
@@ -28,10 +28,10 @@ class TasksController < ApplicationController
       @tasks = tasks.needs_more_info
       @empty_msg = 'No tasks missing info!'
     when 'archived'
-      @tasks = tasks.archived
+      @tasks = Task.except_primary.archived
       @empty_msg = 'No archived tasks'
     when 'all'
-      @tasks = tasks
+      @tasks = Task.except_primary
       @empty_msg = 'No active tasks'
     else # nil || 'active'
       @tasks = tasks.in_process
@@ -117,14 +117,12 @@ class TasksController < ApplicationController
     authorize @task = Task.new
 
     @task.property_id = params[:property] if params[:property].present?
-    @task.owner_id = params[:user] if params[:user].present?
+    @task.owner_id = params[:user].present? ? params[:user] : current_user.id
+    @task.creator = current_user
   end
 
   def create
-    task_params.delete :budget if task_params[:budget].blank?
-    task_params.delete :cost if task_params[:cost].blank?
-
-    authorize @task = Task.new(parse_completed_at(task_params))
+    authorize @task = Task.new(parse_completed_at(task_params.reject { |k, v| (k.include?('budget') || k.include?('cost')) && v.blank? }))
 
     if @task.save
       redirect_to @return_path, notice: 'Task created'
@@ -136,6 +134,7 @@ class TasksController < ApplicationController
 
   def edit
     authorize @task = Task.find(params[:id])
+    @owner_lkup = @task.owner.name
   end
 
   def update
@@ -144,10 +143,7 @@ class TasksController < ApplicationController
     @task.discard if params[:task][:archive] == '1' && !@task.discarded?
     @task.undiscard if params[:task][:archive] == '0' && @task.discarded?
 
-    task_params.delete :budget if task_params[:budget].blank?
-    task_params.delete :cost if task_params[:cost].blank?
-
-    if @task.update(parse_completed_at(task_params))
+    if @task.update(parse_completed_at(task_params.reject { |k, v| (k.include?('budget') || k.include?('cost')) && v.blank? }))
       redirect_to @return_path, notice: 'Task updated'
     else
       flash[:warning] = 'Oops, found some errors'
@@ -156,20 +152,20 @@ class TasksController < ApplicationController
   end
 
   def public_index
-    authorize @tasks = Task.public_visible
+    authorize @tasks = Task.in_process.public_visible
   end
 
   def complete
     authorize @task = Task.find(params[:id])
     @task.update(completed_at: Time.now)
-    status = @task.reload.completed_at.nil? ? 'inProcess' : 'completed'
+    status = @task.reload.completed_at.blank? ? 'inProcess' : 'completed'
     render json: { id: @task.id.to_s, status: status }
   end
 
   def un_complete
     authorize @task = Task.find(params[:id])
     @task.update(completed_at: nil)
-    status = @task.reload.completed_at.nil? ? 'inProcess' : 'completed'
+    status = @task.reload.completed_at.blank? ? 'inProcess' : 'completed'
     render json: { id: @task.id.to_s, status: status }
   end
 

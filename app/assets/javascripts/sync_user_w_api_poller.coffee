@@ -1,5 +1,6 @@
 pollDelayedJobs = (jobId) ->
   $.ajax(url: "/delayed/jobs/" + jobId).done (response) ->
+
     $('#sync_bar_indeterminate').hide()
     if response.length == 0
       uri = window.location.origin + window.location.pathname
@@ -11,8 +12,12 @@ pollDelayedJobs = (jobId) ->
       $('#refresh_button').removeClass('prevent_default')
     else if response.status == 'completed'
       clear_jobs_uri = window.location.origin + "/users/clear_completed_jobs"
+      msg = 'Done!'
+      if response.message == 'Credential error!'
+        clear_jobs_uri += '?cred_err=true'
+        msg = response.message
       window.location.replace(clear_jobs_uri)
-      M.toast({html: 'Done!'})
+      M.toast({html: msg})
       $('#refresh_button').removeClass('prevent_default')
     else
       $('#sync_bar_determinate').show()

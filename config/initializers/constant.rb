@@ -23,6 +23,10 @@ module Constant
     VISIBILITY_ENUM = [['Staff', 0], ['Everyone', 1], ['Only associated people', 2], ['Not clients', 3]].freeze
   end
 
+  class TaskUser
+    SCOPE = %w[creator owner both].freeze
+  end
+
   class Connection
     RELATIONSHIPS = ['tennant', 'staff contact', 'contractor', 'volunteer'].freeze
     STAGES = ['applied', 'approved', 'moved in', 'vacated'].freeze
@@ -41,7 +45,7 @@ module Constant
   class Params
     ACTIONS = %w[alerts api_sync
                  clear_completed_jobs complete create current_user_id
-                 destroy
+                 destroy default
                  edit
                  find_id_by_name
                  google_oauth2
@@ -49,8 +53,8 @@ module Constant
                  owner_enum
                  property_enum
                  skills subject_enum
-                 tasks tasks_filter
+                 tasks_filter
                  un_complete users update update_skills update_tasks update_users
-                 ].freeze
+                ].freeze
   end
 end

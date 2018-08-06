@@ -35,7 +35,7 @@ $(document).on 'turbolinks:load', ->
   return unless controllerMatches(['skills', 'users', 'tasks']) &&
     actionMatches(['users', 'tasks', 'skills'])
 
-  $('input:checkbox').on 'change', ->
+  $('input:checkbox.skill-lever').on 'change', ->
     divId = $(this).attr('id')
     if $(this).prop('checked')
       addElement(divId)

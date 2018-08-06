@@ -47,6 +47,7 @@ Rails.application.routes.draw do
     get 'tasks_finder', on: :member
     get 'skills', on: :member
     post 'update_skills', on: :member
+    get 'oauth_check', on: :member
     get 'api_sync', on: :member
     get 'alerts', on: :member
   end
