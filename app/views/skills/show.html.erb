@@ -20,7 +20,6 @@
     <% end %>
   </div>
   <div class="col s12">
-    <% if @skill_users.any? %>
       <table class="striped">
         <thead>
           <tr>
@@ -29,26 +28,31 @@
           </tr>
         </thead>
         <tbody>
-          <% @skill_users.each do |su| %>
-            <tr>
-              <td>
-                <% if current_user.staff? %>
-                  <%= link_to user_path(su.user), class: 'waves-effect waves-light btn-flat' do %>
-                    <i class="material-icons left">visibility</i>
+          <% if @skill_users.any? %>
+            <% @skill_users.each do |su| %>
+              <tr>
+                <td>
+                  <% if current_user.staff? %>
+                    <%= link_to user_path(su.user), class: 'waves-effect waves-light btn-flat' do %>
+                      <i class="material-icons left">visibility</i>
+                      <%= su.user.name %>
+                    <% end %>
+                  <% else %>
                     <%= su.user.name %>
                   <% end %>
-                <% else %>
-                  <%= su.user.name %>
-                <% end %>
+                </td>
+                <td><%= human_date(su.created_at) %></td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="2" class='center-align'>
+                <p>None</p>
               </td>
-              <td><%= human_date(su.created_at) %></td>
             </tr>
           <% end %>
         </tbody>
       </table>
-    <% else %>
-      <p>None</p>
-    <% end %>
   </div>
 </div>
 
@@ -63,7 +67,6 @@
     <% end %>
   </div>
   <div class="col s12 center-align">
-    <% if @skill_tasks.any? %>
       <table class="striped">
         <thead>
           <tr>
@@ -72,25 +75,30 @@
           </tr>
         </thead>
         <tbody>
-          <% @skill_tasks.each do |tu| %>
-            <tr>
-              <td>
-                <% if current_user.staff? %>
-                  <%= link_to task_path(tu.task), class: 'waves-effect waves-light btn-flat' do %>
-                    <i class="material-icons left">visibility</i>
+          <% if @skill_tasks.any? %>
+            <% @skill_tasks.each do |tu| %>
+              <tr>
+                <td>
+                  <% if current_user.staff? %>
+                    <%= link_to task_path(tu.task), class: 'waves-effect waves-light btn-flat' do %>
+                      <i class="material-icons left">visibility</i>
+                      <%= tu.task.title %>
+                    <% end %>
+                  <% else %>
                     <%= tu.task.title %>
                   <% end %>
-                <% else %>
-                  <%= tu.task.title %>
-                <% end %>
+                </td>
+                <td><%= human_date(tu.created_at) %></td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="2" class='center-align'>
+                <p>None</p>
               </td>
-              <td><%= human_date(tu.created_at) %></td>
             </tr>
           <% end %>
         </tbody>
       </table>
-    <% else %>
-      <p>None</p>
-    <% end %>
   </div>
 </div>
