@@ -17,14 +17,30 @@
 
 ## What's still needed:
   - Reports
+    - Date range filtering
   - Default tasks for new properties
   - Test suite
-  - A task is shared between User A and User B. User A marks a task complete in GT. User B should also have that task marked as complete.
-  -- Task marked complete in GT is not getting caught in the app
   - Reordering tasks? Or scrap this function... (meaning can delete position, position_int, parent_id, previous_id from Task and task.move function)
   - Archiving property in app (when no open tasks) removes from GT.
+  - Client reporting: public form with limited options for types of errors
+  - Task#public mailto: link needs subject and body text
+  - System sends email when new [Volunteer, Contractor, ] signs up
+  - Contractors can't pick jobs (must be assigned as owner by a staff user)
+  - Task#user_finder user_table needs skills tabs in view
+  - Vol / Contractor can't get past the homepage / task view
+  - Staff: phone required
+  - User: Kill: Phone2, Address, program_staff, project_staff, admin_staff (type is not polymorphic, only [volunteer, contractor, client])
+  - Model: Parks have many properties, users can be associated with a park
+  - Lookup fileds are still buggy
+  - Prop fields: Account numbers for utilities: [DTE][Consumers]
+  - Tasks# Vols needed, vols used, hours
+
+## Ugly:
+  - http://localhost:3000/skills/13
 
 # To do:
+1.0 Suppress auto-fill: Connections#new / #edit
+1.1 Creating a user tries to create a session
 1.2 Something is duplicating tasks on tasklists...changing owner, maybe?
   - Probably because I had api_delete commented out...
 1.3 How to ignore duplicate tasks (same tasklist) from API?
