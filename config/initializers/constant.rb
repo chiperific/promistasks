@@ -1,17 +1,20 @@
 # frozen_string_literal: true
 
 module Constant
-  class Organization
-    DOMAIN = 'familypromisegr.org'
-    CONTACT_NAME = 'Chelsea'
-    CONTACT_PHONE = '616-608-8917'
-    CONTACT_EMAIL = 'chelseaj@familypromisegr.org'
+  class Propoerty
+    STAGES = %w[acquired construction finishing complete].freeze
   end
 
   class User
-    EXT_TYPES = %w[Client Volunteer Contractor].freeze
-    INT_TYPES = %w[Program Project Admin].freeze
-    TYPES = %w[Program Project Admin Client Volunteer Contractor].freeze
+    TYPES = %w[Staff Client Volunteer Contractor].freeze
+  end
+
+  class Utility
+    TYPES = %w[gas electric water garbage sewer cable internet phone].freeze
+  end
+
+  class Payment
+    METHODS = %w[ACH auto-pay cash check credit].freeze
   end
 
   class Task
@@ -29,7 +32,7 @@ module Constant
 
   class Connection
     RELATIONSHIPS = ['tennant', 'staff contact', 'contractor', 'volunteer'].freeze
-    STAGES = ['applied', 'approved', 'moved in', 'vacated'].freeze
+    STAGES = ['applied', 'approved', 'moved in', 'initial walkthrough', 'final walkthrough', 'title transferred', 'vacated', 'property returned'].freeze
   end
 
   class Regex
@@ -54,7 +57,6 @@ module Constant
                  property_enum
                  skills subject_enum
                  tasks_filter
-                 un_complete users update update_skills update_tasks update_users
-                ].freeze
+                 un_complete users update update_skills update_tasks update_users].freeze
   end
 end

@@ -13,9 +13,10 @@ gem 'delayed_job_active_record'
 gem 'delayed_job_progress'
 gem 'devise'
 gem 'discard', '~> 1.0'
-# gem 'google-api-client' # use instead of HTTParty when I can figure it out
 gem 'geocoder'
+# gem 'google-api-client' # use instead of HTTParty when I can figure it out
 gem 'httparty'
+gem 'ice_cube'
 gem 'jbuilder', '~> 2.5'
 gem 'jquery-rails'
 gem 'money-rails'

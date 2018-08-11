@@ -10,14 +10,19 @@ class CreateProperties < ActiveRecord::Migration[5.1]
       t.string :postal_code
       t.text :description
       t.date :acquired_on
+      t.references :park, null: true
       t.monetize :cost,     amount: { null: true, default: nil }
       t.monetize :lot_rent, amount: { null: true, default: nil }
       t.monetize :budget,   amount: { null: true, default: nil }
+      t.string :stage
+      t.date :expected_completion_date
+      t.date :actual_completion_date
       t.string :certificate_number
       t.string :serial_number
       t.integer :year_manufacture
       t.string :manufacturer
-      t.string :bed_bath
+      t.integer :beds
+      t.integer :baths
       t.references :creator, references: :users, null: false
       t.boolean :is_private,       default: false, null: false
       t.boolean :is_default,       default: false, null: false
@@ -28,8 +33,8 @@ class CreateProperties < ActiveRecord::Migration[5.1]
       t.float :longitude
       t.timestamps
 
-      t.index :name,               unique: true
-      t.index :address,            unique: true
+      t.index :name,    unique: true
+      t.index :address, unique: true
       t.index :acquired_on
     end
   end

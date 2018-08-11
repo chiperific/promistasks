@@ -14,6 +14,7 @@ class RegistrationsController < Devise::RegistrationsController
     end
 
     if @user.save
+      # send an email to vol coordinator
       flash[:success] = "Welcome, #{@user.fname}"
       redirect_to @return_path
     else

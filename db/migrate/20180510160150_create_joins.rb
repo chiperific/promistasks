@@ -46,18 +46,24 @@ class CreateJoins < ActiveRecord::Migration[5.1]
     create_table :task_users do |t|
       t.references :user,     null: false, foreign_key: true
       t.references :task,     null: false, foreign_key: true
+      t.string :scope
       t.string :tasklist_gid, null: false             # google field, but maintained from tasklist join table
       t.string :google_id                             # google field, Task ID
-      t.string :position                              # google field
-      t.integer :position_int, default: 0, limit: 8   # position field converted to an integer
-      t.string :parent_id                             # google field
-      t.string :previous_id
       t.boolean :deleted, default: false, null: false # google field
       t.datetime :completed_at                        # google field -- RFC 3339 timestamp
       t.timestamps
       t.index [:user_id, :task_id], unique: true
       t.index [:task_id, :user_id], unique: true
-      t.index :position_int
+      t.index :scope
+    end
+
+    create_table :park_users do |t|
+      t.references :park,     null: false, foreign_key: true
+      t.references :user,     null: false, foreign_key: true
+      t.string :relationship, null: false # use Constant::Connection::RELATIONSHIPS
+      t.timestamps
+      t.index [:park_id, :user_id], unique: true
+      t.index [:user_id, :park_id], unique: true
     end
   end
 end

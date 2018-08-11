@@ -3,29 +3,21 @@
 class CreateUsers < ActiveRecord::Migration[5.1]
   def change
     create_table :users do |t|
-      t.string :name, null: false
-      t.string :title
-      t.boolean :program_staff, null: false, default: false
-      t.boolean :project_staff, null: false, default: false
-      t.boolean :admin_staff,   null: false, default: false
-      t.boolean :client,        null: false, default: false
-      t.boolean :volunteer,     null: false, default: false
-      t.boolean :contractor,    null: false, default: false
-      t.monetize :rate, default: 0
-      t.string :phone1
-      t.string :phone2
-      t.string :address1
-      t.string :address2
-      t.string :city
-      t.string :state, default: 'MI'
-      t.string :postal_code
+      t.string   :name, null: false
+      t.string   :title
+      t.string   :phone,      null: false
+      t.boolean  :admin,      null: false, default: false
+      t.boolean  :staff,      null: false, default: false
+      t.boolean  :client,     null: false, default: false
+      t.boolean  :volunteer,  null: false, default: false
+      t.boolean  :contractor, null: false, default: false
+      t.monetize :rate,       null: false, default: 0 # contractors only
+      t.integer  :adults      # clients only
+      t.integer  :children    # clients only
 
       ## Database authenticatable
       t.string :email,              null: false, default: ''
       t.string :encrypted_password, null: false, default: ''
-
-      ## System-level
-      t.boolean :system_admin, null: false, default: false
 
       ## Rememberable
       t.datetime :remember_created_at
