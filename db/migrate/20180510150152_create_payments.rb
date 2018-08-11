@@ -6,6 +6,7 @@ class CreatePayments < ActiveRecord::Migration[5.2]
       t.references :property,   foreign_key: true
       t.references :park,       foreign_key: true
       t.references :utility,    foreign_key: true
+      t.references :task,       foreign_key: true
       t.references :contractor, references: :users
       t.references :client,     references: :users
       t.string :utility_type # use Constant::Utility::TYPES

@@ -9,6 +9,8 @@ class Task < ApplicationRecord
 
   belongs_to :property, inverse_of: :tasks
 
+  has_many :payments, inverse_of: :task, dependent: :destroy
+
   has_many :skill_tasks, inverse_of: :task, dependent: :destroy
   has_many :skills, through: :skill_tasks
   accepts_nested_attributes_for :skill_tasks, allow_destroy: true

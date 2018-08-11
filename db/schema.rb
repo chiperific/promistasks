@@ -102,6 +102,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.bigint "property_id"
     t.bigint "park_id"
     t.bigint "utility_id"
+    t.bigint "task_id"
     t.bigint "contractor_id"
     t.bigint "client_id"
     t.string "utility_type"
@@ -129,6 +130,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.index ["creator_id"], name: "index_payments_on_creator_id"
     t.index ["park_id"], name: "index_payments_on_park_id"
     t.index ["property_id"], name: "index_payments_on_property_id"
+    t.index ["task_id"], name: "index_payments_on_task_id"
     t.index ["utility_id"], name: "index_payments_on_utility_id"
   end
 
@@ -330,6 +332,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
   add_foreign_key "park_users", "users"
   add_foreign_key "payments", "parks"
   add_foreign_key "payments", "properties"
+  add_foreign_key "payments", "tasks"
   add_foreign_key "payments", "utilities"
   add_foreign_key "skill_tasks", "skills"
   add_foreign_key "skill_tasks", "tasks"
