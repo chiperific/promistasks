@@ -91,14 +91,14 @@ class TaskUser < ApplicationRecord
 
   private
 
-  def saved_changes_to_placement?
-    at_least_one_placement_is_present? &&
-      (!!saved_change_to_parent_id? || !!saved_change_to_previous_id?)
-  end
+  # def saved_changes_to_placement?
+  #   at_least_one_placement_is_present? &&
+  #     (!!saved_change_to_parent_id? || !!saved_change_to_previous_id?)
+  # end
 
-  def at_least_one_placement_is_present?
-    parent_id.present? || previous_id.present?
-  end
+  # def at_least_one_placement_is_present?
+  #   parent_id.present? || previous_id.present?
+  # end
 
   def api_fields_are_present?
     user.oauth_id.present? && google_id.present? && tasklist_gid.present?
@@ -119,10 +119,10 @@ class TaskUser < ApplicationRecord
     response_id + number.to_s + Random.rand(0...3000).to_s
   end
 
-  def set_position_as_integer
-    self.position_int = 0 if position.nil?
-    self.position_int = position.to_i
-  end
+  # def set_position_as_integer
+  #   self.position_int = 0 if position.nil?
+  #   self.position_int = position.to_i
+  # end
 
   def set_tasklist_gid
     return false if user.nil? || task.nil?

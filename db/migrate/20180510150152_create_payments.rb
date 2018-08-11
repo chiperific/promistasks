@@ -6,13 +6,13 @@ class CreatePayments < ActiveRecord::Migration[5.2]
       t.references :property,   foreign_key: true
       t.references :park,       foreign_key: true
       t.references :utility,    foreign_key: true
-      t.references :contractor, references: :users, foreign_key: true
-      t.references :client,     references: :users, foreign_key: true
+      t.references :contractor, references: :users
+      t.references :client,     references: :users
       t.string :utility_type # use Constant::Utility::TYPES
       t.string :utility_account
       t.date :utility_service_started
       t.text :notes
-      t.monetize :bill_amt,    amount: { null: true, default: nil }
+      t.monetize :bill_amt,    amount: { null: false }
       t.monetize :payment_amt, amount: { null: true, default: nil }
       t.string :method # use Constant::Payment::METHODS
       t.date :received
@@ -23,7 +23,7 @@ class CreatePayments < ActiveRecord::Migration[5.2]
       t.boolean :send_email_reminders, null: false, default: false
       t.boolean :suppress_system_alerts, null: false, default: false
       t.datetime :discarded_at
-      t.references :created_by, references: :users, null: false
+      t.references :creator, references: :users, null: false
       t.timestamps
 
       t.index :property

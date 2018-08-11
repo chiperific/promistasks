@@ -19,15 +19,19 @@ class User < ActiveRecord::Base
   has_many :subject_tasks,  class_name: 'Task', inverse_of: :subject, foreign_key: 'subject_id'
 
   has_many :created_properties, class_name: 'Property', inverse_of: :creator, foreign_key: 'creator_id'
-  accepts_nested_attributes_for :created_properties
+  # accepts_nested_attributes_for :created_properties
 
-  has_many :tasklists, inverse_of: :user
+  has_many :contractor_payments, class_name: 'Payment', inverse_of: :contractor, foreign_key: 'contractor_id'
+  has_many :client_payments,     class_name: 'Payment', inverse_of: :client,     foreign_key: 'client_id'
+  has_many :created_payments,    class_name: 'Payment', inverse_of: :creator,    foreign_key: 'creator_id'
+
+  has_many :tasklists, inverse_of: :user, dependent: :destroy
   has_many :properties, through: :tasklists
-  accepts_nested_attributes_for :tasklists
+  accepts_nested_attributes_for :tasklists, allow_destroy: true
 
-  has_many :task_users, inverse_of: :user
+  has_many :task_users, inverse_of: :user, dependent: :destroy
   has_many :tasks, through: :task_users
-  accepts_nested_attributes_for :task_users
+  accepts_nested_attributes_for :task_users, allow_destroy: true
 
   has_many :connections, inverse_of: :user, dependent: :destroy
   has_many :connected_properties, class_name: 'Property', through: :connections
@@ -36,6 +40,10 @@ class User < ActiveRecord::Base
   has_many :skill_users, inverse_of: :user, dependent: :destroy
   has_many :skills, through: :skill_users
   accepts_nested_attributes_for :skill_users, allow_destroy: true
+
+  has_many :park_users, inverse_of: :user, dependent: :destroy
+  has_many :parks, through: :park_users
+  accepts_nested_attributes_for :park_users, allow_destroy: true
 
   validates :name, :email, uniqueness: true, presence: true
   validates :oauth_id, :oauth_token, uniqueness: true, allow_blank: true

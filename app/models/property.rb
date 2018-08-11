@@ -4,6 +4,7 @@ class Property < ApplicationRecord
   include Discard::Model
 
   has_many :tasklists, inverse_of: :property, dependent: :destroy
+  has_many :payments, inverse_of: :property, dependent: :destroy
   has_many :users, through: :tasklists
   accepts_nested_attributes_for :tasklists
 

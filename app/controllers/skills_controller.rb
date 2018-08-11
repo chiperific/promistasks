@@ -19,7 +19,6 @@ class SkillsController < ApplicationController
   def create
     authorize @skill = Skill.new(skill_params)
 
-
     if @skill.save
       msg = 'Skill created'
 
@@ -84,11 +83,7 @@ class SkillsController < ApplicationController
     end
 
     redirect_to @return_path
-    if add.nil? && remove.nil?
-      flash[:alert] = 'Nothing changed'
-    else
-      flash[:alert] = 'Skills updated!'
-    end
+    flash[:alert] = add.nil? && remove.nil? ? 'Nothing changed' : 'Skills updated!'
   end
 
   def tasks
@@ -120,11 +115,6 @@ class SkillsController < ApplicationController
     end
 
     redirect_to @return_path
-    if add.nil? && remove.nil?
-      flash[:alert] = 'Nothing changed'
-    else
-      flash[:alert] = 'Skills updated!'
-    end
   end
 
   private
