@@ -47,13 +47,11 @@ class User < ActiveRecord::Base
 
   validates :name, :email, uniqueness: true, presence: true
   validates :oauth_id, :oauth_token, uniqueness: true, allow_blank: true
-  validates_inclusion_of  :program_staff, :project_staff, :admin_staff,
-                          :client, :volunteer, :contractor,
-                          :system_admin, in: [true, false]
-
+  validates_inclusion_of  :staff, :client, :volunteer, :contractor,
+                          :admin, in: [true, false]
   validate :must_have_type
   validate :clients_are_limited
-  validate :system_admin_must_be_internal, if: -> { system_admin? }
+  validate :admin_must_be_internal, if: -> { admin? }
 
   monetize :rate_cents, allow_nil: true, allow_blank: true
 
@@ -63,10 +61,10 @@ class User < ActiveRecord::Base
 
   # rubocop:disable Layout/IndentationConsistency
   # rubocop:disable Layout/IndentationWidth
-  scope :staff,                       -> { undiscarded.where.not(oauth_id: nil) }
+  scope :staff,                       -> { undiscarded.where.not(oauth_id: nil).or(where(staff: true)) }
   scope :not_clients,                 -> { undiscarded.where(client: false).or(where(client: true, volunteer: true)) }
   scope :staff_except,                ->(user) { undiscarded.staff.where.not(id: user) }
-  scope :not_staff,                   -> { undiscarded.where(oauth_id: nil) }
+  scope :not_staff,                   -> { undiscarded.where(oauth_id: nil).where(staff: false) }
   scope :with_tasks_for,              ->(property) { created_tasks_for(property).or(owned_tasks_for(property)) }
     scope :created_tasks_for,         ->(property) { undiscarded.where(id: Task.select(:creator_id).where(property: property)) }
     scope :owned_tasks_for,           ->(property) { undiscarded.where(id: Task.select(:owner_id).where(property: property)) }
@@ -77,74 +75,9 @@ class User < ActiveRecord::Base
   scope :clients,                     -> { undiscarded.where(client: true) }
   scope :volunteers,                  -> { undiscarded.where(volunteer: true) }
   scope :contractors,                 -> { undiscarded.where(contractor: true) }
-  scope :system_admins,               -> { undiscarded.where(system_admin: true) }
+  scope :admins,                      -> { undiscarded.where(admin: true) }
   # rubocop:enable Layout/IndentationConsistency
   # rubocop:enable Layout/IndentationWidth
-
-  def staff?
-    program_staff? ||
-      project_staff? ||
-      admin_staff? ||
-      system_admin? ||
-      oauth_id.present?
-  end
-
-  def not_client?
-    !client? &&
-      (type.present? || system_admin? || oauth?)
-  end
-
-  def oauth?
-    oauth_id.present?
-  end
-
-  def type
-    ary = []
-
-    # INT_TYPES = %w[Program Project Admin].freeze
-    Constant::User::INT_TYPES.each do |i|
-      sendable = i.downcase + '_staff'
-      ary << i + ' Staff' if send(sendable)
-    end
-
-    # EXT_TYPES = %w[Client Volunteer Contractor].freeze
-    Constant::User::EXT_TYPES.each do |i|
-      ary << i if send(i.downcase)
-    end
-
-    ary
-  end
-
-  def readable_type
-    return 'Staff' if oauth? && type.empty?
-    type.join(', ')
-  end
-
-  def fname
-    name.split(' ')[0].capitalize
-  end
-
-  def full_address
-    addr = address1
-    addr += ' ' + address2 unless address2.blank?
-    addr += ', ' + city unless city.blank?
-    addr += ', ' + state unless city.blank?
-    addr += ', ' + postal_code unless postal_code.blank?
-    addr
-  end
-
-  def first_address
-    addr = address1
-    addr += ' ' + address2 unless address2.blank?
-    addr
-  end
-
-  def location_address
-    addr = city
-    addr += ', ' + state unless city.blank?
-    addr += ', ' + postal_code unless postal_code.blank?
-    addr
-  end
 
   def self.from_omniauth(auth)
     @user = where(email: auth.info.email).first_or_create.tap do |user|
@@ -156,6 +89,7 @@ class User < ActiveRecord::Base
       user.oauth_token = auth.credentials.token
       user.oauth_refresh_token ||= auth.credentials.refresh_token
       user.oauth_expires_at = Time.at(auth.credentials.expires_at)
+      user.staff = true
     end
     @user.save
     @user.reload
@@ -178,6 +112,35 @@ class User < ActiveRecord::Base
     super && !discarded_at
   end
 
+  def fetch_default_tasklist
+    return false unless oauth_id.present?
+    response = HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists/@default', headers: api_headers)
+
+    return false if response.nil?
+    response
+  end
+
+  def fname
+    name.split(' ')[0].capitalize
+  end
+
+  def list_api_tasklists
+    return false unless oauth_id.present?
+    response = HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists', headers: api_headers)
+
+    return false if response.nil?
+    response
+  end
+
+  def not_client?
+    !client? &&
+      (type.present? || admin? || oauth?)
+  end
+
+  def oauth?
+    oauth_id.present?
+  end
+
   def refresh_token!
     return false unless token_expired? && oauth_id.present? && oauth_token.present? && oauth_refresh_token.present?
     data = {
@@ -191,28 +154,55 @@ class User < ActiveRecord::Base
     response
   end
 
+  def readable_type
+    return 'Staff' if oauth? && type.empty?
+    type.join(', ')
+  end
+
+  def staff?
+    staff? ||
+      admin? ||
+      oauth_id.present?
+  end
+
   def token_expired?
     return nil unless oauth_id.present? && oauth_expires_at.present?
     Time.at(oauth_expires_at) < Time.now
   end
 
-  def list_api_tasklists
-    return false unless oauth_id.present?
-    response = HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists', headers: api_headers)
+  def type
+    ary = []
+    # TYPES = %w[Staff Client Volunteer Contractor]
+    Constant::User::TYPES.each do |i|
+      ary << i if send(i.downcase)
+    end
 
-    return false if response.nil?
-    response
-  end
-
-  def fetch_default_tasklist
-    return false unless oauth_id.present?
-    response = HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists/@default', headers: api_headers)
-
-    return false if response.nil?
-    response
+    ary
   end
 
   private
+
+  def admin_must_be_internal
+    errors.add(:admin, 'must be internal staff with a linked Google account') unless oauth_id.present?
+    true
+  end
+
+  def api_headers
+    { 'Authorization': 'OAuth ' + oauth_token,
+      'Content-type': 'application/json' }
+  end
+
+  def clients_are_limited
+    return true unless client?
+    return true if volunteer?
+    errors.add(:register_as, ': Clients can\'t be staff or contractors') if type.count > 1
+    true
+  end
+
+  def discard_joined
+    skills.each(&:discard)
+    connections.each(&:discard)
+  end
 
   def must_have_type
     return true if oauth_id.present? # skip this if it's an oauth user
@@ -224,32 +214,10 @@ class User < ActiveRecord::Base
     end
   end
 
-  def clients_are_limited
-    return true unless client?
-    return true if volunteer?
-    errors.add(:register_as, ': Clients can\'t be staff or contractors') if type.count > 1
-    true
-  end
-
-  def system_admin_must_be_internal
-    errors.add(:system_admin, 'must be internal staff with a linked Google account') unless oauth_id.present?
-    true
-  end
-
   def propegate_tasklists
     Property.visible_to(self).each do |property|
       property.ensure_tasklist_exists_for(self)
     end
-  end
-
-  def api_headers
-    { 'Authorization': 'OAuth ' + oauth_token,
-      'Content-type': 'application/json' }
-  end
-
-  def discard_joined
-    skills.each(&:discard)
-    connections.each(&:discard)
   end
 
   def undiscard_joined

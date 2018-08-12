@@ -4,22 +4,24 @@ class Property < ApplicationRecord
   include Discard::Model
 
   has_many :tasklists, inverse_of: :property, dependent: :destroy
-  has_many :payments, inverse_of: :property, dependent: :destroy
   has_many :users, through: :tasklists
   accepts_nested_attributes_for :tasklists
-
-  has_many :tasks, inverse_of: :property, dependent: :destroy
-
-  belongs_to :creator, class_name: 'User', inverse_of: :created_properties
 
   has_many :connections, inverse_of: :property, dependent: :destroy
   has_many :connected_users, class_name: 'User', through: :connections
   accepts_nested_attributes_for :connections, allow_destroy: true
 
+  has_many :tasks, inverse_of: :property, dependent: :destroy
+  has_many :payments, inverse_of: :property, dependent: :destroy
+
+  belongs_to :creator, class_name: 'User', inverse_of: :created_properties
+  belongs_to :park, inverse_of: :properties
+
   validates :name, uniqueness: true, presence: true
   validates_presence_of :creator_id
   validates_uniqueness_of :certificate_number, :serial_number, allow_nil: true, allow_blank: true
   validates_inclusion_of :is_private, :is_default, :ignore_budget_warning, :created_from_api, in: [true, false]
+  validates :stage, presence: true, inclusion: { in: Constant::Property::STAGES, message: "must be one of these: #{Constant::Property::STAGES.to_sentence}" }
 
   monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
 
@@ -48,6 +50,8 @@ class Property < ApplicationRecord
   scope :over_budget,    ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents') }
   scope :nearing_budget, ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
   scope :created_since,  ->(time) { where('created_at >= ?', time) }
+  # ready to be occupied: stage == 'complete', no connections.where(relationship: 'tennant')
+  # scopes to match stages?
 
   class << self
     alias archived discarded

@@ -19,7 +19,7 @@ class CreateTasks < ActiveRecord::Migration[5.1]
       t.datetime :completed_at                                 # google field -- completed, lives on this model because completing from one staff should complete for all
       t.boolean :created_from_api, default: false, null: false
       t.boolean :volunteer_group,  default: false, null: false
-      t.boolean :contractor,       default: false, null: false
+      t.boolean :professional,     default: false, null: false
       t.integer :min_volunteers, null: false, default: 0
       t.integer :max_volunteers, null: false, default: 0
       t.integer :actual_volunteers

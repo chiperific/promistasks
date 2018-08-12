@@ -2,11 +2,7 @@
 
 ## To do:
 1. Models:
-  - OrganizationData needed? For validations??
-  - User: type stuff is nerfed, phone is required, address is gone, system_admin is now admin, User(when client) has adults and children
-  - Property: has Park, expected_ & actual_, beds, baths, stage
-  - Task: has volunteer_group, contractor, min_ & max_ & actual_, estimated_hours & actual_hours, delegate cost to payment?, has Payment
-  - Connection: stage expansion
+  - Connection: stage expansion, if relationship == 'tennant', does property's stage == 'complete'?
   - Park:
   - Utility:
   - Payment:
@@ -32,15 +28,23 @@
     -- Get the title
     -- Inspect the property
     -- Setup utilities
+    -- Assign based upon Organization#{apropriate}_contact
   - When a user discards a Property in this app:
     -- Provide the option to re-assign each task's creator && owner? || actually 'discard' for all (delete through API for all users)
   - When a user discards at Task in this app:
     -- delete in Google
+  - Show an alert when a Property.stage != 'complete' && Property.expected_completion_date within 7 days?
+  - Task now has lots of volunteer/contractor fields. Integrate these into #public views
+    -- Professional boolean indicates a specific skill is needed. Should this affect visibility or just have some flag on public view?
+  - Task#public gets a slider for individual, group, both filtering
+  - Task#public gets a filter-by-skill function
+  - Task: delegate cost to payment?
 
 5. Services:
   - How to ignore duplicate tasks (same tasklist) from API?
 
 6. Views:
+  - Organization#show and "#edit if user.admin?
   - Client reporting: public form with limited options for types of errors
   - Task#public mailto: link needs subject and body text
   - Task#user_finder user_table needs skills tabs in view

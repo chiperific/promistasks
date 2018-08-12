@@ -280,12 +280,10 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:name, :title,
-                                 :program_staff, :project_staff, :admin_staff,
-                                 :client, :volunteer, :contractor,
+                                 :staff, :client, :volunteer, :contractor, :admin,
                                  :rate, :rate_cents, :rate_currency,
-                                 :phone1, :phone2, :address1, :address2, :city, :state, :postal_code,
-                                 :email, :password, :password_confirmation,
-                                 :system_admin)
+                                 :phone, :email,
+                                 :password, :password_confirmation)
   end
 
   def user_skills_params

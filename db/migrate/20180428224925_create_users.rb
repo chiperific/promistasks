@@ -12,8 +12,8 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.boolean  :volunteer,  null: false, default: false
       t.boolean  :contractor, null: false, default: false
       t.monetize :rate,       null: false, default: 0 # contractors only
-      t.integer  :adults      # clients only
-      t.integer  :children    # clients only
+      t.integer  :adults,     null: false, default: 1 # clients only
+      t.integer  :children,   null: false, default: 0 # clients only
 
       ## Database authenticatable
       t.string :email,              null: false, default: ''

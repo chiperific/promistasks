@@ -57,15 +57,15 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.index ["record_type", "record_id"], name: "index_delayed_jobs_on_record_type_and_record_id"
   end
 
-  create_table "organization_data", force: :cascade do |t|
+  create_table "organizations", force: :cascade do |t|
     t.string "name", default: "Family Promise GR"
     t.string "domain", default: "familypromisegr.org"
     t.bigint "billing_contact_id"
     t.bigint "maintenance_contact_id"
     t.bigint "volunteer_contact_id"
-    t.index ["billing_contact_id"], name: "index_organization_data_on_billing_contact_id"
-    t.index ["maintenance_contact_id"], name: "index_organization_data_on_maintenance_contact_id"
-    t.index ["volunteer_contact_id"], name: "index_organization_data_on_volunteer_contact_id"
+    t.index ["billing_contact_id"], name: "index_organizations_on_billing_contact_id"
+    t.index ["maintenance_contact_id"], name: "index_organizations_on_maintenance_contact_id"
+    t.index ["volunteer_contact_id"], name: "index_organizations_on_volunteer_contact_id"
   end
 
   create_table "park_users", force: :cascade do |t|

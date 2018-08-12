@@ -75,27 +75,15 @@ RSpec.describe User, type: :model do
   end
 
   describe 'requires booleans be in a state:' do
-    let(:bad_program_staff) { build :user, program_staff: nil }
-    let(:bad_project_staff) { build :user, project_staff: nil }
-    let(:bad_admin_staff)   { build :user, admin_staff: nil }
-    let(:bad_client)        { build :user, client: nil }
-    let(:bad_volunteer)     { build :user, volunteer: nil }
-    let(:bad_contractor)    { build :user, contractor: nil }
-    let(:bad_system_admin)  { build :user, system_admin: nil }
+    let(:bad_staff)      { build :user, staff: nil }
+    let(:bad_client)     { build :user, client: nil }
+    let(:bad_volunteer)  { build :user, volunteer: nil }
+    let(:bad_contractor) { build :user, contractor: nil }
+    let(:bad_admin)      { build :user, admin: nil }
 
-    it 'program_staff' do
+    it 'staff' do
       expect { bad_program_staff.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { bad_program_staff.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
-
-    it 'project_staff' do
-      expect { bad_project_staff.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_project_staff.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
-
-    it 'admin_staff' do
-      expect { bad_admin_staff.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_admin_staff.save! }.to raise_error ActiveRecord::RecordInvalid
     end
 
     it 'client' do
@@ -113,16 +101,16 @@ RSpec.describe User, type: :model do
       expect { bad_contractor.save! }.to raise_error ActiveRecord::RecordInvalid
     end
 
-    it 'system_admin' do
-      expect { bad_system_admin.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_system_admin.save! }.to raise_error ActiveRecord::RecordInvalid
+    it 'admin' do
+      expect { bad_admin.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { bad_admin.save! }.to raise_error ActiveRecord::RecordInvalid
     end
   end
 
   describe 'limits records by scope' do
     let(:client)      { create :client_user }
     let(:volunteer)   { create :volunteer_user }
-    let(:contractor)  { create :contractor_user}
+    let(:contractor)  { create :contractor_user }
     let(:project)     { create :oauth_user }
     let(:program)     { create :oauth_user, program_staff: true }
     let(:oauth_user2) { create :oauth_user }
@@ -228,7 +216,7 @@ RSpec.describe User, type: :model do
     let(:not_staff)    { create :volunteer_user }
     let(:project_user) { create :project_user }
     let(:admin_user)   { create :admin_user }
-    let(:system_admin) { create :system_admin }
+    let(:admin) { create :admin }
 
     it 'returns false if no staff-type booleans are set' do
       expect(not_staff.staff?).to eq false
@@ -246,8 +234,8 @@ RSpec.describe User, type: :model do
       expect(admin_user.staff?).to eq true
     end
 
-    it 'returns true if system_admin? is true' do
-      expect(system_admin.staff?).to eq true
+    it 'returns true if admin? is true' do
+      expect(admin.staff?).to eq true
     end
 
     it 'returns true if oauth_id is present' do
@@ -416,22 +404,22 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#system_admin_must_be_internal' do
-    let(:system_admin) { build :oauth_user, system_admin: true }
-    let(:bad_admin) { build :user, system_admin: true }
+  describe '#admin_must_be_internal' do
+    let(:admin) { build :oauth_user, admin: true }
+    let(:bad_admin) { build :user, admin: true }
 
-    it 'only fires if system_admin is checked' do
-      expect(@user).not_to receive(:system_admin_must_be_internal)
+    it 'only fires if admin is checked' do
+      expect(@user).not_to receive(:admin_must_be_internal)
       @user.save!
 
-      expect(system_admin).to receive(:system_admin_must_be_internal)
-      system_admin.save!
+      expect(admin).to receive(:admin_must_be_internal)
+      admin.save!
     end
 
     it 'adds an error if the user doesn\'t have an oauth_id' do
       bad_admin.save
-      expect(bad_admin.errors[:system_admin]).to eq ['must be internal staff with a linked Google account']
-      expect(system_admin.save!).to eq true
+      expect(bad_admin.errors[:admin]).to eq ['must be internal staff with a linked Google account']
+      expect(admin.save!).to eq true
     end
   end
 
