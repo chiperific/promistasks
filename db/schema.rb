@@ -129,6 +129,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.index ["client_id"], name: "index_payments_on_client_id"
     t.index ["contractor_id"], name: "index_payments_on_contractor_id"
     t.index ["creator_id"], name: "index_payments_on_creator_id"
+    t.index ["discarded_at"], name: "index_payments_on_discarded_at"
     t.index ["park_id"], name: "index_payments_on_park_id"
     t.index ["property_id"], name: "index_payments_on_property_id"
     t.index ["task_id"], name: "index_payments_on_task_id"
