@@ -3,6 +3,7 @@
 FactoryBot.define do
   factory :user do
     sequence(:name) { |n| "User #{n}" }
+    phone '555-1212'
     staff true
     password 'password'
     password_confirmation 'password'
@@ -11,6 +12,7 @@ FactoryBot.define do
 
   factory :client_user, class: User do
     sequence(:name) { |n| "Client #{n}" }
+    phone '555-1212'
     password 'password'
     password_confirmation 'password'
     sequence(:email) { |n| "client#{n}@email.computer" }
@@ -19,6 +21,7 @@ FactoryBot.define do
 
   factory :volunteer_user, class: User do
     sequence(:name) { |n| "Volunteer #{n}" }
+    phone '555-1212'
     password 'password'
     password_confirmation 'password'
     sequence(:email) { |n| "volunteer#{n}@email.computer" }
@@ -27,6 +30,7 @@ FactoryBot.define do
 
   factory :contractor_user, class: User do
     sequence(:name) { |n| "Contractor #{n}" }
+    phone '555-1212'
     password 'password'
     password_confirmation 'password'
     sequence(:email) { |n| "contractor#{n}@email.computer" }
@@ -35,6 +39,7 @@ FactoryBot.define do
 
   factory :oauth_user, class: User do
     sequence(:name) { |n| "OAuth User #{n}" }
+    phone '555-1212'
     password 'password'
     password_confirmation 'password'
     sequence(:email) { |n| "oauth#{n}@email.computer" }
@@ -48,6 +53,7 @@ FactoryBot.define do
 
   factory :admin, class: User do
     sequence(:name) { |n| "System Admin #{n}" }
+    phone '555-1212'
     admin true
     sequence(:oauth_id) { |n| "10024006334546302578#{n}" }
     password 'password'

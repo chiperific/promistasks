@@ -15,9 +15,11 @@ class CreateParks < ActiveRecord::Migration[5.2]
       t.datetime :discarded_at
       t.float :latitude
       t.float :longitude
+      t.datetime :discarded_at
       t.timestamps
 
       t.index :name, unique: true
+      t.index :discarded_at
     end
   end
 end

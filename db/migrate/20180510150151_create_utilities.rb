@@ -18,6 +18,7 @@ class CreateUtilities < ActiveRecord::Migration[5.2]
       t.timestamps
 
       t.index :name, unique: true
+      t.index :discarded_at
     end
   end
 end

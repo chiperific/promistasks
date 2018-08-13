@@ -51,6 +51,41 @@ RSpec.describe Connection, type: :model do
     expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
   end
 
+  describe '#archive_property' do
+    it 'doesn\'t fire unless stage == title transferred' do
+    end
+
+    context 'when stage == title transferred' do
+      context 'when property.stage == complete and property has no tasks in_process' do
+        it 'discards the parent property' do
+        end
+      end
+
+      context 'when property.stage != complete' do
+        it 'does not discard the parent property' do
+        end
+      end
+
+      context 'when property has tasks in_process' do
+        it 'does not discard the parent property' do
+        end
+      end
+    end
+  end
+
+  describe '#property_ready_for_tennant' do
+    it 'doesn\'t fire if relationship != tennant' do
+    end
+
+    it 'doesn\'t fire if property.stage == complete' do
+    end
+
+    context 'when relationship == tennant and property.stage != complete' do
+      it 'adds an error to relationship' do
+      end
+    end
+  end
+
   describe '#relationship_appropriate_for_stage' do
     let(:good_stage) { build :connection_stage }
     let(:bad_stage) { build :connection_stage, relationship: 'volunteer' }

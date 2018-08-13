@@ -1,13 +1,6 @@
 # Google Tasks API Extension for Family Promise GR
 
 ## To do:
-1. Models:
-  - Connection: stage expansion, if relationship == 'tennant', does property's stage == 'complete'?
-  - Park:
-  - Utility:
-  - Payment:
-  - Park_user:
-
 2. Model Tests:
   - Practically re-write
 

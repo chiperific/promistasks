@@ -26,6 +26,8 @@ class CreatePayments < ActiveRecord::Migration[5.2]
       t.datetime :discarded_at
       t.references :creator, references: :users, null: false
       t.timestamps
+
+      t.index :discarded_at
     end
   end
 end

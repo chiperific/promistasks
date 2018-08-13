@@ -30,6 +30,7 @@ class CreateTasks < ActiveRecord::Migration[5.1]
       t.index :title
       t.index [:title, :property_id], unique: true
       t.index [:property_id, :title], unique: true
+      t.index :discarded_at
     end
   end
 end

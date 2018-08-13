@@ -10,9 +10,11 @@ class Connection < ApplicationRecord
   validates :relationship, inclusion: { in: Constant::Connection::RELATIONSHIPS, message: "must be one of these: #{Constant::Connection::RELATIONSHIPS.to_sentence}" }
   validates :stage, inclusion: { in: Constant::Connection::STAGES, allow_blank: true, message: "must be one of these: #{Constant::Connection::STAGES.to_sentence}" }
 
-  validate :relationship_appropriate_for_stage
-  validate :relationship_must_match_user_type
-  validate :stage_date_and_stage
+  before_validation :property_ready_for_tennant,         if: -> { relationship == 'tennant' && property.stage != 'complete' }
+  before_validation :relationship_appropriate_for_stage, if: -> { stage.present? && relationship == 'tennant' }
+  before_validation :relationship_must_match_user_type,  if: -> { relationship.present? }
+  before_validation :stage_date_and_stage,               if: -> { stage.present? || stage_date.present? }
+  after_save :archive_property,                          if: -> { stage == 'title transferred' }
 
   scope :except_tennants, -> { kept.where.not(relationship: 'tennant').order(:created_at) }
   scope :only_tennants,   -> { kept.where(relationship: 'tennant').order(stage_date: :desc) }
@@ -28,43 +30,34 @@ class Connection < ApplicationRecord
 
   private
 
+  def archive_property
+    property.discard if property.stage == 'complete' && property.tasks.in_process.count.zero?
+  end
+
+  def property_ready_for_tennant
+    errors.add(:relationship, ': Property is not ready for tennant')
+    false
+  end
+
   def relationship_appropriate_for_stage
-    return true unless stage.present?
-    if relationship == 'tennant'
-      true
-    else
-      errors.add(:relationship, 'To use a stage, the relationship should be "Tennant"')
-      false
-    end
+    errors.add(:relationship, 'To use a stage, the relationship must be "Tennant"')
   end
 
   def relationship_must_match_user_type
-    return true if user.nil?
     case relationship
     when 'tennant'
-      return true if user.type.include? 'Client'
-      errors.add(:relationship, ': only clients can be tenants')
+      errors.add(:relationship, ': only Clients can be tenants') unless user.client?
     when 'staff contact'
-      return true if (user.type & ['Program Staff', 'Project Staff', 'Admin Staff']).present?
-      errors.add(:relationship, ': only Program, Project or Admin staff can be staff contacts')
+      errors.add(:relationship, ': only Staff can be staff contacts') unless user.staff?
     when 'contractor'
-      return true if (user.type & ['Volunteer', 'Client', 'Contractor']).present?
-      errors.add(:relationship, ': staff can\'t be contractors')
+      errors.add(:relationship, ': only Contractors can be listed') unless user.contractor?
     when 'volunteer'
-      return true if (user.type & ['Volunteer', 'Client', 'Contractor']).present?
-      errors.add(:relationship, ': staff can\'t be volunteers')
+      errors.add(:relationship, ': only Volunteers can be listed') unless user.volunteer?
     end
-
-    return false if errors[:relationship].present?
   end
 
   def stage_date_and_stage
-    return true if stage_date.nil? && stage.nil?
-
-    errors.add(:stage_date, 'Please enter date or delete stage') if stage_date.nil? && stage.present?
-    errors.add(:stage, 'Please select stage or delete date') if stage_date.present? && stage.nil?
-
-    return false if errors[:stage].present? || errors[:stage_date].present?
-    true
+    errors.add(:stage, 'Please select stage or delete date') if stage.blank?
+    errors.add(:stage_date, 'Please enter date or delete stage') if stage_date.blank?
   end
 end

@@ -43,6 +43,7 @@ class CreateUsers < ActiveRecord::Migration[5.1]
       t.index :oauth_token, unique: true
       t.index :name,        unique: true
       t.index :email,       unique: true
+      t.index :discarded_at
     end
   end
 end

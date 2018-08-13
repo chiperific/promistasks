@@ -45,6 +45,10 @@ class User < ActiveRecord::Base
   has_many :parks, through: :park_users
   accepts_nested_attributes_for :park_users, allow_destroy: true
 
+  has_many :organization_billing,     class_name: 'Organization', inverse_of: :billing_contact
+  has_many :organization_maintenance, class_name: 'Organization', inverse_of: :maintenance_contact
+  has_many :organization_volunteer,   class_name: 'Organization', inverse_of: :volunteer_contact
+
   validates :name, :email, uniqueness: true, presence: true
   validates :oauth_id, :oauth_token, uniqueness: true, allow_blank: true
   validates_inclusion_of  :staff, :client, :volunteer, :contractor,

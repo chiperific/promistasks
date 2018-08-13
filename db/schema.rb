@@ -95,6 +95,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.float "longitude"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["discarded_at"], name: "index_parks_on_discarded_at"
     t.index ["name"], name: "index_parks_on_name", unique: true
   end
 
@@ -149,15 +150,15 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.string "lot_rent_currency", default: "USD", null: false
     t.integer "budget_cents"
     t.string "budget_currency", default: "USD", null: false
-    t.string "stage"
+    t.string "stage", default: "acquired"
     t.date "expected_completion_date"
     t.date "actual_completion_date"
     t.string "certificate_number"
     t.string "serial_number"
     t.integer "year_manufacture"
     t.string "manufacturer"
-    t.integer "beds"
-    t.integer "baths"
+    t.integer "beds", default: 1, null: false
+    t.integer "baths", default: 1, null: false
     t.bigint "creator_id", null: false
     t.boolean "is_private", default: false, null: false
     t.boolean "is_default", default: false, null: false
@@ -171,6 +172,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.index ["acquired_on"], name: "index_properties_on_acquired_on"
     t.index ["address"], name: "index_properties_on_address", unique: true
     t.index ["creator_id"], name: "index_properties_on_creator_id"
+    t.index ["discarded_at"], name: "index_properties_on_discarded_at"
     t.index ["name"], name: "index_properties_on_name", unique: true
     t.index ["park_id"], name: "index_properties_on_park_id"
   end
@@ -205,6 +207,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.datetime "discarded_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["discarded_at"], name: "index_skills_on_discarded_at"
     t.index ["name"], name: "index_skills_on_name", unique: true
   end
 
@@ -256,7 +259,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.datetime "completed_at"
     t.boolean "created_from_api", default: false, null: false
     t.boolean "volunteer_group", default: false, null: false
-    t.boolean "contractor", default: false, null: false
+    t.boolean "professional", default: false, null: false
     t.integer "min_volunteers", default: 0, null: false
     t.integer "max_volunteers", default: 0, null: false
     t.integer "actual_volunteers"
@@ -265,6 +268,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["creator_id"], name: "index_tasks_on_creator_id"
+    t.index ["discarded_at"], name: "index_tasks_on_discarded_at"
     t.index ["owner_id"], name: "index_tasks_on_owner_id"
     t.index ["property_id", "title"], name: "index_tasks_on_property_id_and_title", unique: true
     t.index ["property_id"], name: "index_tasks_on_property_id"
@@ -284,8 +288,8 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.boolean "contractor", default: false, null: false
     t.integer "rate_cents", default: 0, null: false
     t.string "rate_currency", default: "USD", null: false
-    t.integer "adults"
-    t.integer "children"
+    t.integer "adults", default: 1, null: false
+    t.integer "children", default: 0, null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.datetime "remember_created_at"
@@ -303,6 +307,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "discarded_at"
+    t.index ["discarded_at"], name: "index_users_on_discarded_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["name"], name: "index_users_on_name", unique: true
     t.index ["oauth_token"], name: "index_users_on_oauth_token", unique: true
@@ -323,6 +328,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.float "longitude"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["discarded_at"], name: "index_utilities_on_discarded_at"
     t.index ["name"], name: "index_utilities_on_name", unique: true
   end
 

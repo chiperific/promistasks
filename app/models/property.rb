@@ -51,6 +51,7 @@ class Property < ApplicationRecord
   scope :nearing_budget, ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
   scope :created_since,  ->(time) { where('created_at >= ?', time) }
   # ready to be occupied: stage == 'complete', no connections.where(relationship: 'tennant')
+  # ready to be archived: stage == 'complete', one connection.where(relationship: 'tennant', stage: 'title transferred')
   # scopes to match stages?
 
   class << self
@@ -96,35 +97,6 @@ class Property < ApplicationRecord
   end
   # end fake scopes
 
-  def good_address?
-    address.present? && city.present? && state.present?
-  end
-
-  def full_address
-    addr = address
-    addr += ', ' + city unless city.blank?
-    addr += ', ' + state unless city.blank?
-    addr += ', ' + postal_code unless postal_code.blank?
-    addr
-  end
-
-  def needs_title?
-    certificate_number.blank? || certificate_number.nil?
-  end
-
-  def google_map
-    return 'no_property.jpg' unless good_address?
-    center = [latitude, longitude].join(',')
-    key = Rails.application.secrets.google_maps_api_key
-    "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&size=355x266&zoom=17&markers=color:red%7C#{center}"
-  end
-
-  def google_map_link
-    return false if full_address.nil?
-    base = 'https://www.google.com/maps/?q='
-    base + full_address.tr(' ', '+')
-  end
-
   def address_has_changed?
     address_changed? ||
       city_changed? ||
@@ -139,24 +111,6 @@ class Property < ApplicationRecord
     self.budget - task_ary.sum
   end
 
-  def over_budget?
-    budget_remaining.negative? && !ignore_budget_warning
-  end
-
-  def update_tasklists
-    # since tasklist is only { property, user, google_id }, changing other details about the property won't trigger an api call from tasklist
-    # however, if the user changes, then a new tasklist will be created, which triggers the #api_create on after_create callback
-    if is_private?
-      tasklist = ensure_tasklist_exists_for(creator)
-      tasklist.api_update
-    else
-      User.staff.each do |user|
-        tasklist = ensure_tasklist_exists_for(user)
-        tasklist.api_update
-      end
-    end
-  end
-
   def ensure_tasklist_exists_for(user)
     return false if user.oauth_id.nil?
     tasklist = tasklists.where(user: user).first_or_initialize
@@ -165,10 +119,33 @@ class Property < ApplicationRecord
     tasklist.reload
   end
 
-  def visible_to?(user)
-    creator == user ||
-      tasks.where('creator_id = ? OR owner_id = ?', user.id, user.id).present? ||
-      !is_private?
+  def full_address
+    addr = address
+    addr += ', ' + city unless city.blank?
+    addr += ', ' + state unless city.blank?
+    addr += ', ' + postal_code unless postal_code.blank?
+    addr
+  end
+
+  def good_address?
+    address.present? && city.present? && state.present?
+  end
+
+  def google_map
+    return 'no_property.jpg' unless good_address?
+    center = [latitude, longitude].join(',')
+    key = Rails.application.secrets.google_maps_api_key
+    "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&size=355x266&zoom=17&markers=color:red%7C#{center}"
+  end
+
+  def google_map_link
+    return false if full_address.blank?
+    base = 'https://www.google.com/maps/?q='
+    base + full_address.tr(' ', '+')
+  end
+
+  def needs_title?
+    certificate_number.blank? || certificate_number.nil?
   end
 
   def occupancy_status
@@ -192,53 +169,47 @@ class Property < ApplicationRecord
 
   def occupancy_details
     occupancies = connections.where(relationship: 'tennant').order(:stage_date)
-
     return 'Vacant' if occupancies.empty?
 
-    case occupancies.last.stage
-    when 'vacated'
+    if occupancies.last.stage == 'vacated'
       details = 'Vacant'
     else
       details = occupancies.last.user.name + ' ' +
                 occupancies.last.stage + ' on ' +
                 occupancies.last.stage_date.strftime('%b %-d, %Y')
     end
-
     details
   end
 
+  def over_budget?
+    budget_remaining.negative? && !ignore_budget_warning
+  end
+
+  def update_tasklists
+    # since tasklist is only { property, user, google_id }, changing other details about the property won't trigger an api call from tasklist
+    # however, if the user changes, then a new tasklist will be created, which triggers the #api_create on after_create callback
+    if is_private?
+      tasklist = ensure_tasklist_exists_for(creator)
+      tasklist.api_update
+    else
+      User.staff.each do |user|
+        tasklist = ensure_tasklist_exists_for(user)
+        tasklist.api_update
+      end
+    end
+  end
+
+  def visible_to?(user)
+    creator == user ||
+      tasks.where('creator_id = ? OR owner_id = ?', user.id, user.id).present? ||
+      !is_private?
+  end
 
   private
 
   def address_required
     return true unless address.blank?
     errors.add(:address, 'can\'t be blank')
-  end
-
-  def use_address_for_name
-    self.name = address
-  end
-
-  def default_budget
-    self.budget = Money.new(7_500_00)
-  end
-
-  def default_must_be_private
-    self.is_private = true
-  end
-
-  def refuse_to_discard_default
-    self.discarded_at = nil
-  end
-
-  def create_tasklists
-    if is_private?
-      ensure_tasklist_exists_for(creator)
-    else
-      User.staff.each do |user|
-        ensure_tasklist_exists_for(user)
-      end
-    end
   end
 
   def cascade_by_privacy
@@ -259,16 +230,42 @@ class Property < ApplicationRecord
     end
   end
 
-  def discard_tasks_and_delete_tasklists
-    Tasklist.where(property: self).each(&:destroy)
-    Task.where(property: self).each(&:discard)
+  def create_tasklists
+    if is_private?
+      ensure_tasklist_exists_for(creator)
+    else
+      User.staff.each do |user|
+        ensure_tasklist_exists_for(user)
+      end
+    end
+  end
+
+  def default_budget
+    self.budget = Money.new(7_500_00)
+  end
+
+  def default_must_be_private
+    self.is_private = true
   end
 
   def discard_connections
     connections.each(&:discard)
   end
 
+  def discard_tasks_and_delete_tasklists
+    Tasklist.where(property: self).each(&:destroy)
+    Task.where(property: self).each(&:discard)
+  end
+
+  def refuse_to_discard_default
+    self.discarded_at = nil
+  end
+
   def undiscard_connections
     connections.each(&:undiscard)
+  end
+
+  def use_address_for_name
+    self.name = address
   end
 end
