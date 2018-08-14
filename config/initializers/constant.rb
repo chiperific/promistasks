@@ -36,7 +36,7 @@ module Constant
     LIST_TASKLISTS =   %r{https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists$}
     DEFAULT_TASKLIST = %r{https:\/\/www.googleapis.com\/tasks\/v1\/users\/@me\/lists\/@default$}
     STATIC_MAP =       %r{https:\/\/maps.googleapis.com\/maps\/api\/staticmap\?key=.{1,20}&size=.{1,4}x.{1,4}&zoom=.{1,2}&markers=color:blue%7C.{1,20}}
-    GEOCODE =          %r{https:\/\/maps.googleapis.com\/maps\/api\/geocode\/json\?address=.{1,40}&key=.{1,40}&language=en&sensor=false}
+    GEOCODE =          %r{https:\/\/maps.googleapis.com\/maps\/api\/geocode\/json\?address=.{1,100}&key=.{1,40}&language=en&sensor=false}
   end
 
   class Task

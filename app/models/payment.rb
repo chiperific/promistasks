@@ -4,10 +4,10 @@ class Payment < ApplicationRecord
   include Discard::Model
   include IceCube
 
-  belongs_to :property, inverse_of: :payment, optional: true
-  belongs_to :park,     inverse_of: :payment, optional: true
-  belongs_to :utility,  inverse_of: :payment, optional: true
-  belongs_to :task,     inverse_of: :payment, optional: true
+  belongs_to :property, inverse_of: :payments, optional: true
+  belongs_to :park,     inverse_of: :payments, optional: true
+  belongs_to :utility,  inverse_of: :payments, optional: true
+  belongs_to :task,     inverse_of: :payments, optional: true
   belongs_to :contractor, class_name: 'User', inverse_of: :contractor_payments, optional: true
   belongs_to :client,     class_name: 'User', inverse_of: :client_payments, optional: true
   belongs_to :creator,    class_name: 'User', inverse_of: :created_payments
@@ -15,8 +15,8 @@ class Payment < ApplicationRecord
   monetize :bill_amt_cents
   monetize :payment_amt_cents, allow_nil: true, allow_blank: true
 
-  validates_inclusion_of :method, in: Constant::Payment::METHODS, message: "must be one of these: #{Constant::Payment::METHODS.to_sentence}"
-  validates_inclusion_of :utility_type, in: Constant::Utility::TYPES, message: "must be one of these: #{Constant::Utility::TYPES.to_sentence}"
+  validates_inclusion_of :method, in: Constant::Payment::METHODS, message: "must be one of these: #{Constant::Payment::METHODS.to_sentence}", allow_blank: true
+  validates_inclusion_of :utility_type, in: Constant::Utility::TYPES, message: "must be one of these: #{Constant::Utility::TYPES.to_sentence}", allow_blank: true
   validates_presence_of :creator_id
 
   validate :must_have_association
@@ -33,6 +33,11 @@ class Payment < ApplicationRecord
 
   before_save :recurrence_sets_recurring
   after_save  :create_next_instance, if: -> { recurrence.present? && recurring.present? && paid.present? && paid_before_last_save.blank? }
+
+  class << self
+    alias archived discarded
+    alias active kept
+  end
 
   def create_next_instance
     child = dup

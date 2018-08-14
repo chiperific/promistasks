@@ -19,9 +19,10 @@ class Park < ApplicationRecord
 
   after_validation :geocode, if: -> { address_has_changed? }
   after_save :cascade_discard, if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
-  after_save :cascade_undisacrd, if: -> { discarded_at.nil? && discarded_at_before_last_save.present? }
+  after_save :cascade_undiscard, if: -> { discarded_at.nil? && discarded_at_before_last_save.present? }
 
   def address_has_changed?
+    return false if address.blank?
     address_changed? ||
       city_changed? ||
       state_changed? ||
@@ -57,7 +58,7 @@ class Park < ApplicationRecord
   end
 
   def google_map_link
-    return false if full_address.blank?
+    return false unless good_address?
     base = 'https://www.google.com/maps/?q='
     base + full_address.tr(' ', '+')
   end
