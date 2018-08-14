@@ -55,17 +55,17 @@ class User < ActiveRecord::Base
                           :admin, in: [true, false]
   validate :must_have_type
   validate :clients_are_limited
-  validate :admin_must_be_internal, if: -> { admin? }
 
   monetize :rate_cents, allow_nil: true, allow_blank: true
 
+  before_save :admin_are_staff,      if: -> { admin? && !staff? }
   after_create :propegate_tasklists, if: -> { oauth_id.present? && discarded_at.blank? }
   after_save :discard_joined,        if: -> { discarded_at.present? }
   after_save :undiscard_joined,      if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
   # rubocop:disable Layout/IndentationConsistency
   # rubocop:disable Layout/IndentationWidth
-  scope :staff,                       -> { undiscarded.where.not(oauth_id: nil).or(where(staff: true)) }
+  scope :staff,                       -> { undiscarded.where.not(oauth_id: nil).or(where(staff: true)).or(where(admin: true)) }
   scope :not_clients,                 -> { undiscarded.where(client: false).or(where(client: true, volunteer: true)) }
   scope :staff_except,                ->(user) { undiscarded.staff.where.not(id: user) }
   scope :not_staff,                   -> { undiscarded.where(oauth_id: nil).where(staff: false) }
@@ -163,12 +163,6 @@ class User < ActiveRecord::Base
     type.join(', ')
   end
 
-  def staff?
-    staff? ||
-      admin? ||
-      oauth_id.present?
-  end
-
   def token_expired?
     return nil unless oauth_id.present? && oauth_expires_at.present?
     Time.at(oauth_expires_at) < Time.now
@@ -186,9 +180,8 @@ class User < ActiveRecord::Base
 
   private
 
-  def admin_must_be_internal
-    errors.add(:admin, 'must be internal staff with a linked Google account') unless oauth_id.present?
-    true
+  def admin_are_staff
+    self.staff = true
   end
 
   def api_headers

@@ -6,12 +6,12 @@ class Connection < ApplicationRecord
   belongs_to :user, inverse_of: :connections
   belongs_to :property, inverse_of: :connections
 
-  validates_presence_of :relationship
+  validates_presence_of :relationship, :user_id, :property_id
   validates :relationship, inclusion: { in: Constant::Connection::RELATIONSHIPS, message: "must be one of these: #{Constant::Connection::RELATIONSHIPS.to_sentence}" }
   validates :stage, inclusion: { in: Constant::Connection::STAGES, allow_blank: true, message: "must be one of these: #{Constant::Connection::STAGES.to_sentence}" }
 
   before_validation :property_ready_for_tennant,         if: -> { relationship == 'tennant' && property.stage != 'complete' }
-  before_validation :relationship_appropriate_for_stage, if: -> { stage.present? && relationship == 'tennant' }
+  before_validation :relationship_appropriate_for_stage, if: -> { stage.present? && relationship != 'tennant' }
   before_validation :relationship_must_match_user_type,  if: -> { relationship.present? }
   before_validation :stage_date_and_stage,               if: -> { stage.present? || stage_date.present? }
   after_save :archive_property,                          if: -> { stage == 'title transferred' }
@@ -36,14 +36,14 @@ class Connection < ApplicationRecord
 
   def property_ready_for_tennant
     errors.add(:relationship, ': Property is not ready for tennant')
-    false
   end
 
   def relationship_appropriate_for_stage
-    errors.add(:relationship, 'To use a stage, the relationship must be "Tennant"')
+    errors.add(:relationship, 'must be "Tennant" to use a stage')
   end
 
   def relationship_must_match_user_type
+    return false if user_id.blank?
     case relationship
     when 'tennant'
       errors.add(:relationship, ': only Clients can be tenants') unless user.client?
