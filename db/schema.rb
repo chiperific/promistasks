@@ -58,8 +58,8 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
   end
 
   create_table "organizations", force: :cascade do |t|
-    t.string "name", default: "Family Promise GR"
-    t.string "domain", default: "familypromisegr.org"
+    t.string "name", default: "Family Promise GR", null: false
+    t.string "domain", default: "familypromisegr.org", null: false
     t.bigint "billing_contact_id"
     t.bigint "maintenance_contact_id"
     t.bigint "volunteer_contact_id"
