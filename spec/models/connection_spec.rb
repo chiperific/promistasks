@@ -155,6 +155,7 @@ RSpec.describe Connection, type: :model do
     let(:volunteer)  { create :volunteer_user }
     let(:contractor) { create :contractor_user }
 
+    let(:no_staff)        { build :connection, user_id: nil }
     let(:good_tennant)    { build :connection, relationship: 'tennant', user: client }
     let(:bad_tennant)     { build :connection, relationship: 'tennant', user: staff }
     let(:good_staff)      { build :connection, relationship: 'staff contact', user: staff }
@@ -163,6 +164,11 @@ RSpec.describe Connection, type: :model do
     let(:bad_contractor)  { build :connection, relationship: 'contractor', user: volunteer }
     let(:good_volunteer)  { build :connection, relationship: 'volunteer', user: volunteer }
     let(:bad_volunteer)   { build :connection, relationship: 'volunteer', user: client }
+
+    it 'returns false if user_id is blank' do
+      expect(no_staff.save).to eq false
+      expect(no_staff.send(:relationship_must_match_user_type)).to eq false
+    end
 
     it 'ensures the user type and relationship are in sync' do
       expect(good_tennant.save!).to eq true
