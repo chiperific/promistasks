@@ -9,9 +9,9 @@ class Utility < ApplicationRecord
   has_many :properties, through: :payments
   has_many :parks, through: :payments
 
-  validate :name, presence: true, unique: true
+  validates :name, presence: true, uniqueness: true
 
-  geocode_by :full_address
+  geocoded_by :full_address
 
   after_validation :geocode, if: -> { address_has_changed? }
   after_save :cascade_discard, if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }

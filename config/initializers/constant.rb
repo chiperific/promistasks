@@ -51,11 +51,11 @@ module Constant
     SCOPE = %w[creator owner both].freeze
   end
 
-  class Utility
-    TYPES = %w[gas electric water garbage sewer cable internet phone].freeze
-  end
-
   class User
     TYPES = %w[Staff Client Volunteer Contractor].freeze
+  end
+
+  class Utility
+    TYPES = %w[gas electric water garbage sewer cable internet phone].freeze
   end
 end

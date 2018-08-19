@@ -19,9 +19,9 @@ class CreatePayments < ActiveRecord::Migration[5.2]
       t.date :received
       t.date :due
       t.date :paid
-      t.boolean :recurring, null: false, default: false
       t.text :recurrence # YAML from IceCube::Schedule
-      t.boolean :send_email_reminders, null: false, default: false
+      t.boolean :recurring,              null: false, default: false
+      t.boolean :send_email_reminders,   null: false, default: false
       t.boolean :suppress_system_alerts, null: false, default: false
       t.datetime :discarded_at
       t.references :creator, references: :users, null: false

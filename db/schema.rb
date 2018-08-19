@@ -118,8 +118,8 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.date "received"
     t.date "due"
     t.date "paid"
-    t.boolean "recurring", default: false, null: false
     t.text "recurrence"
+    t.boolean "recurring", default: false, null: false
     t.boolean "send_email_reminders", default: false, null: false
     t.boolean "suppress_system_alerts", default: false, null: false
     t.datetime "discarded_at"

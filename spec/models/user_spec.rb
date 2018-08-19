@@ -82,8 +82,8 @@ RSpec.describe User, type: :model do
     let(:bad_admin)      { build :user, admin: nil }
 
     it 'staff' do
-      expect { bad_program_staff.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_program_staff.save! }.to raise_error ActiveRecord::RecordInvalid
+      expect { bad_staff.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { bad_staff.save! }.to raise_error ActiveRecord::RecordInvalid
     end
 
     it 'client' do

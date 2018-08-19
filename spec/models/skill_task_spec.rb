@@ -25,11 +25,7 @@ RSpec.describe SkillTask, type: :model do
 
   it 'can\'t duplicate skill and task' do
     @skill_task.save
-
-    skill = @skill_task.skill
-    task = @skill_task.task
-
-    duplicate = FactoryBot.build(:skill_task, skill_id: skill.id, task_id: task.id)
+    duplicate = FactoryBot.build(:skill_task, skill: @skill_task.skill, task: @skill_task.task)
 
     expect { duplicate.save! }.to raise_error ActiveRecord::RecordNotUnique
   end

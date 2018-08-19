@@ -15,8 +15,12 @@ class Payment < ApplicationRecord
   monetize :bill_amt_cents
   monetize :payment_amt_cents, allow_nil: true, allow_blank: true
 
+  serialize :recurrence, IceCube::Schedule
+
   validates_inclusion_of :method, in: Constant::Payment::METHODS, message: "must be one of these: #{Constant::Payment::METHODS.to_sentence}", allow_blank: true
   validates_inclusion_of :utility_type, in: Constant::Utility::TYPES, message: "must be one of these: #{Constant::Utility::TYPES.to_sentence}", allow_blank: true
+  validates_inclusion_of :recurring, :send_email_reminders, :suppress_system_alerts,
+                         in: [true, false]
   validates_presence_of :creator_id
 
   validate :must_have_association
@@ -31,13 +35,14 @@ class Payment < ApplicationRecord
   scope :paid,            -> { undiscarded.where.not(paid: nil) }
   scope :past_due,        -> { undiscarded.where('due < ?', Date.today) }
 
-  before_save :recurrence_sets_recurring
-  after_save  :create_next_instance, if: -> { recurrence.present? && recurring.present? && paid.present? && paid_before_last_save.blank? }
+  after_save :create_next_instance, if: -> { recurrence.present? && recurring.present? && paid.present? && paid_before_last_save.blank? }
 
   class << self
     alias archived discarded
     alias active kept
   end
+
+  private
 
   def create_next_instance
     child = dup
@@ -59,16 +64,12 @@ class Payment < ApplicationRecord
                    task_id.present? ||
                    contractor_id.present? ||
                    client_id.present?
-    error.add(:bill_amt, 'please select an association')
+    errors.add(:bill_amt, 'please select an association')
+    false
   end
 
   def next_recurrence
     return nil unless recurrence.present?
-    schedule = Schedule.from_yaml(recurrence)
-    schedule.next_occurrence(due).to_date
-  end
-
-  def recurrence_sets_recurring
-    self.recurring = recurrence.present?
+    recurrence.next_occurrence(due).to_date
   end
 end

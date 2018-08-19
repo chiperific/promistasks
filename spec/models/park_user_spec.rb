@@ -4,18 +4,48 @@ require 'rails_helper'
 
 RSpec.describe ParkUser, type: :model do
   describe 'must be valid' do
+    let(:park_user)       { build :park_user }
+    let(:no_park)         { build :park_user, park_id: nil }
+    let(:no_user)         { build :park_user, user_id: nil }
+    let(:no_relationship) { build :park_user, relationship: nil }
+
     context 'against the schema' do
       it 'in order to save' do
+        expect(park_user.save!(validate: false)).to eq true
+        expect { no_park.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { no_user.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { no_relationship.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       end
     end
 
     context 'against the model' do
       it 'in order to save' do
+        expect(park_user.save!).to eq true
+        expect { no_park.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_user.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_relationship.save! }.to raise_error ActiveRecord::RecordInvalid
       end
     end
   end
 
-  it 'validates relationship inclusion' do
+  describe 'validates inclusion' do
+    let(:bad_relationship)  { build :park_user, relationship: 'owner' }
+    let(:good_relationship) { build :park_user }
+
+    it 'on relationship' do
+      bad_relationship.save
+      good_relationship.save
+
+      expect(bad_relationship.errors[:relationship].present?).to eq true
+      expect(good_relationship.errors[:relationship].present?).to eq false
+    end
+  end
+
+  it 'requires uniqueness on park and user' do
+    first = FactoryBot.create(:park_user)
+    duplicate = FactoryBot.build(:park_user, park: first.park, user: first.user)
+
+    expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
   end
 
   describe '#relationship_must_match_user_type' do
