@@ -190,25 +190,12 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#budget_remaining' do
-    let(:no_budget)   { create :task, property: @property, creator: @creator, owner: @owner, cost: 250 }
-    let(:no_cost)     { create :task, property: @property, creator: @creator, owner: @owner, budget: 250 }
-    let(:both_moneys) { create :task, property: @property, creator: @creator, owner: @owner, budget: 300, cost: 250 }
+  describe '#active?' do
+    pending 'needs testing'
+  end
 
-    it 'returns nil if budget && cost are both nil' do
-      @task.save
-      expect(@task.budget_remaining).to eq nil
-    end
-
-    it 'returns the budget minus the cost if either is set' do
-      no_budget
-      no_cost
-      both_moneys
-
-      expect(no_budget.budget_remaining).to eq Money.new(-250_00)
-      expect(no_cost.budget_remaining).to eq Money.new(250_00)
-      expect(both_moneys.budget_remaining).to eq Money.new(50_00)
-    end
+  describe 'archived?' do
+    pending 'needs testing'
   end
 
   describe '#assign_from_api_fields' do
@@ -235,100 +222,53 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#ensure_task_user_exists_for' do
-    let(:volunteer) { create :volunteer_user }
-    let(:contractor) { create :contractor_user }
+  describe '#budget_remaining' do
+    let(:no_budget)   { create :task, property: @property, creator: @creator, owner: @owner, cost: 250 }
+    let(:no_cost)     { create :task, property: @property, creator: @creator, owner: @owner, budget: 250 }
+    let(:both_moneys) { create :task, property: @property, creator: @creator, owner: @owner, budget: 300, cost: 250 }
 
-    it 'returns false for non-oauth_users' do
+    it 'returns nil if budget && cost are both nil' do
       @task.save
-      expect(@task.ensure_task_user_exists_for(volunteer)).to eq false
+      expect(@task.budget_remaining).to eq nil
     end
 
-    it 'doesn\'t make task_users if they already exists' do
-      @task.save
-      count = TaskUser.count
-      @task.ensure_task_user_exists_for(@task.creator)
-      @task.ensure_task_user_exists_for(@task.owner)
-      expect(TaskUser.count).to eq count
-    end
+    it 'returns the budget minus the cost if either is set' do
+      no_budget
+      no_cost
+      both_moneys
 
-    it 'creates task_user records for the creator and owner' do
-      count = TaskUser.count
-      @task.save
-      expect(TaskUser.count).to eq count + 2
+      expect(no_budget.budget_remaining).to eq Money.new(-250_00)
+      expect(no_cost.budget_remaining).to eq Money.new(250_00)
+      expect(both_moneys.budget_remaining).to eq Money.new(50_00)
     end
   end
 
-  describe '#create_task_users' do
-    it 'only fires on record creation' do
-      expect(@task).to receive(:create_task_users)
+  describe '#cascade_completed' do
+    let(:completed_task) { create :task, completed_at: Time.now }
+
+    it 'won\'t fire if completed_at wasn\'t just set' do
+      expect(completed_task).not_to receive(:cascade_completed)
+      completed_task.update(title: 'did not change completed at')
+
+      expect(@task).not_to receive(:cascade_completed)
       @task.save
-      expect(@task).not_to receive(:create_task_users)
-      @task.update(title: 'New title')
     end
 
-    it 'creates task_user records for creator and owner' do
-      count = TaskUser.count
+    it 'only fires if completed_at was just set' do
       @task.save
-      expect(TaskUser.count).to eq count + 2
-    end
-  end
-
-  describe '#update_task_users' do
-    before :each do
-      @no_api_change  = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
-      @new_user       = FactoryBot.create(:oauth_user, name: 'New user')
-      @new_property   = FactoryBot.create(:property, name: 'New property', is_private: false, creator: @new_user)
-      WebMock.reset_executed_requests!
+      expect(@task).to receive(:cascade_completed)
+      @task.update(completed_at: Time.now)
     end
 
-    it 'should only fire if an api field is changed' do
-      @no_api_change.tap do |t|
-        t.priority = 'low'
-        t.creator = @new_user
-        t.owner = @new_user
-        t.subject = @new_user
-        t.property = @new_property
-        t.budget = 50_00
-        t.cost = 48_00
-        t.visibility = 1
-        t.license_required = true
-        t.owner_type = 'Admin Staff'
-      end
-      expect(@no_api_change).not_to receive(:update_task_users)
-      @no_api_change.save!
-    end
-
-    it 'returns false if the users have changed' do
+    it 'sets completed_at on all related task_user records' do
       @task.save
-      expect(@task).to receive(:update_task_users).and_return false
-      @task.update(creator: @new_user, owner: @new_user, title: 'new title')
-    end
+      @task.reload
+      task_user_comps = @task.task_users.map(&:completed_at)
+      expect(task_user_comps.include?(nil)).to eq true
 
-    it 'fires task_user.api_update' do
-      @updated_task.update(title: 'new title')
-      expect(WebMock).to have_requested(:patch, Constant::Regex::TASK).twice
-    end
-  end
-
-  describe '#relocate' do
-    let(:property) { create :property, creator: @creator }
-
-    it 'won\'t fire if property_id hasn\'t changed' do
-      expect(@updated_task).not_to receive(:relocate)
-      @updated_task.update(owner: @creator)
-    end
-
-    it 'only fires if property_id has changed' do
-      expect(@updated_task).to receive(:relocate)
-      @updated_task.update(property: property)
-    end
-
-    it 'updates task_user.tasklist_gid for creator and owner' do
-      old_tasklist_gid = @updated_task.task_users.where(user: @creator).first.tasklist_gid
-      @updated_task.update(property: property)
-      new_taskist_gid = @updated_task.task_users.where(user: @creator).first.tasklist_gid
-      expect(new_taskist_gid).not_to eq old_tasklist_gid
+      @task.update(completed_at: Time.now)
+      task_user_comps = @task.task_users.map(&:completed_at)
+      expect(task_user_comps.include?(nil)).to eq false
     end
   end
 
@@ -388,32 +328,22 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#cascade_completed' do
-    let(:completed_task) { create :task, completed_at: Time.now }
+  describe '#complete?' do
+    pending 'needs testing'
+  end
 
-    it 'won\'t fire if completed_at wasn\'t just set' do
-      expect(completed_task).not_to receive(:cascade_completed)
-      completed_task.update(title: 'did not change completed at')
-
-      expect(@task).not_to receive(:cascade_completed)
+  describe '#create_task_users' do
+    it 'only fires on record creation' do
+      expect(@task).to receive(:create_task_users)
       @task.save
+      expect(@task).not_to receive(:create_task_users)
+      @task.update(title: 'New title')
     end
 
-    it 'only fires if completed_at was just set' do
+    it 'creates task_user records for creator and owner' do
+      count = TaskUser.count
       @task.save
-      expect(@task).to receive(:cascade_completed)
-      @task.update(completed_at: Time.now)
-    end
-
-    it 'sets completed_at on all related task_user records' do
-      @task.save
-      @task.reload
-      task_user_comps = @task.task_users.map(&:completed_at)
-      expect(task_user_comps.include?(nil)).to eq true
-
-      @task.update(completed_at: Time.now)
-      task_user_comps = @task.task_users.map(&:completed_at)
-      expect(task_user_comps.include?(nil)).to eq false
+      expect(TaskUser.count).to eq count + 2
     end
   end
 
@@ -444,25 +374,68 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#saved_changes_to_users?' do
-    before :each do
+  describe '#ensure_task_user_exists_for' do
+    let(:volunteer) { create :volunteer_user }
+    let(:contractor) { create :contractor_user }
+
+    it 'returns false for non-oauth_users' do
       @task.save
-      @task.reload
-      @new_user = FactoryBot.create(:oauth_user)
-    end
-    it 'returns false if neither user fields have changed' do
-      @task.save
-      expect(@task.saved_changes_to_users?).to eq false
+      expect(@task.ensure_task_user_exists_for(volunteer)).to eq false
     end
 
-    it 'returns true if creator_id changed' do
-      @task.update(creator: @new_user)
-      expect(@task.saved_changes_to_users?).to eq true
+    it 'doesn\'t make task_users if they already exists' do
+      @task.save
+      count = TaskUser.count
+      @task.ensure_task_user_exists_for(@task.creator)
+      @task.ensure_task_user_exists_for(@task.owner)
+      expect(TaskUser.count).to eq count
     end
 
-    it 'returns true if owner_id changed' do
-      @task.update(owner: @new_user)
-      expect(@task.saved_changes_to_users?).to eq true
+    it 'creates task_user records for the creator and owner' do
+      count = TaskUser.count
+      @task.save
+      expect(TaskUser.count).to eq count + 2
+    end
+  end
+
+  describe '#on_default?' do
+    pending 'needs testing'
+  end
+
+  describe '#past_due?' do
+    pending 'needs testing'
+  end
+
+  describe '#priority_color' do
+    pending 'needs testing'
+  end
+
+  describe '#public?' do
+    pending 'needs testing'
+  end
+
+  describe '#related_to?' do
+    pending 'needs testing'
+  end
+
+  describe '#relocate' do
+    let(:property) { create :property, creator: @creator }
+
+    it 'won\'t fire if property_id hasn\'t changed' do
+      expect(@updated_task).not_to receive(:relocate)
+      @updated_task.update(owner: @creator)
+    end
+
+    it 'only fires if property_id has changed' do
+      expect(@updated_task).to receive(:relocate)
+      @updated_task.update(property: property)
+    end
+
+    it 'updates task_user.tasklist_gid for creator and owner' do
+      old_tasklist_gid = @updated_task.task_users.where(user: @creator).first.tasklist_gid
+      @updated_task.update(property: property)
+      new_taskist_gid = @updated_task.task_users.where(user: @creator).first.tasklist_gid
+      expect(new_taskist_gid).not_to eq old_tasklist_gid
     end
   end
 
@@ -508,27 +481,74 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#visibility_must_be_2' do
-    let(:default_property) { create :property, is_default: true }
-    let(:default_task) { build :task, property: default_property }
-
-    it 'only fires if parent property is default and visibility is not 2' do
-      expect(default_task).to receive(:visibility_must_be_2)
-      default_task.save
-
-      expect(@task).not_to receive(:visibility_must_be_2)
+  describe '#saved_changes_to_users?' do
+    before :each do
       @task.save
+      @task.reload
+      @new_user = FactoryBot.create(:oauth_user)
+    end
+    it 'returns false if neither user fields have changed' do
+      @task.save
+      expect(@task.saved_changes_to_users?).to eq false
     end
 
-    it 'sets the visibility to 2' do
-      expect(default_task.visibility).not_to eq 2
+    it 'returns true if creator_id changed' do
+      @task.update(creator: @new_user)
+      expect(@task.saved_changes_to_users?).to eq true
+    end
 
-      default_task.save
-      default_task.reload
-
-      expect(default_task.visibility).to eq 2
+    it 'returns true if owner_id changed' do
+      @task.update(owner: @new_user)
+      expect(@task.saved_changes_to_users?).to eq true
     end
   end
+
+  describe '#status' do
+    pending 'needs testing'
+  end
+
+  describe '#update_task_users' do
+    before :each do
+      @no_api_change  = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
+      @new_user       = FactoryBot.create(:oauth_user, name: 'New user')
+      @new_property   = FactoryBot.create(:property, name: 'New property', is_private: false, creator: @new_user)
+      WebMock.reset_executed_requests!
+    end
+
+    it 'should only fire if an api field is changed' do
+      @no_api_change.tap do |t|
+        t.priority = 'low'
+        t.creator = @new_user
+        t.owner = @new_user
+        t.subject = @new_user
+        t.property = @new_property
+        t.budget = 50_00
+        t.cost = 48_00
+        t.visibility = 1
+        t.license_required = true
+        t.owner_type = 'Admin Staff'
+      end
+      expect(@no_api_change).not_to receive(:update_task_users)
+      @no_api_change.save!
+    end
+
+    it 'returns false if the users have changed' do
+      @task.save
+      expect(@task).to receive(:update_task_users).and_return false
+      @task.update(creator: @new_user, owner: @new_user, title: 'new title')
+    end
+
+    it 'fires task_user.api_update' do
+      @updated_task.update(title: 'new title')
+      expect(WebMock).to have_requested(:patch, Constant::Regex::TASK).twice
+    end
+  end
+
+  describe '#visible_to?(user)' do
+    pending 'needs testing'
+  end
+
+  # start private methods
 
   describe '#decide_record_completeness' do
     let(:five_strikes)  { build :task, property: @property, creator: @creator, owner: @owner }
@@ -562,6 +582,30 @@ RSpec.describe Task, type: :model do
     end
   end
 
+  describe '#discard_joined' do
+    pending 'needs tests'
+  end
+
+  describe '#due_cant_be_past' do
+    let(:past_due)   { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now - 1.hour }
+    let(:future_due) { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour }
+
+    it 'returns true if due is nil' do
+      @task.save
+      expect(@task.errors[:due].empty?).to eq true
+    end
+
+    it 'adds an error if due is in the past' do
+      past_due.save
+      expect(past_due.errors[:due]).to eq ['must be in the future']
+    end
+
+    it 'returns true if due is in the future' do
+      future_due.save
+      expect(future_due.errors[:due].empty?).to eq true
+    end
+  end
+
   describe '#require_cost' do
     let(:complete_w_budget) { build :task, property: @property, creator: @creator, owner: @owner, completed_at: Time.now, budget: 400 }
     let(:complete_w_both)   { build :task, property: @property, creator: @creator, owner: @owner, completed_at: Time.now, budget: 400, cost: 250 }
@@ -587,23 +631,29 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#due_cant_be_past' do
-    let(:past_due)   { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now - 1.hour }
-    let(:future_due) { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour }
+  describe '#undiscard_joins' do
+    pending 'needs test'
+  end
 
-    it 'returns true if due is nil' do
+  describe '#visibility_must_be_2' do
+    let(:default_property) { create :property, is_default: true }
+    let(:default_task) { build :task, property: default_property }
+
+    it 'only fires if parent property is default and visibility is not 2' do
+      expect(default_task).to receive(:visibility_must_be_2)
+      default_task.save
+
+      expect(@task).not_to receive(:visibility_must_be_2)
       @task.save
-      expect(@task.errors[:due].empty?).to eq true
     end
 
-    it 'adds an error if due is in the past' do
-      past_due.save
-      expect(past_due.errors[:due]).to eq ['must be in the future']
-    end
+    it 'sets the visibility to 2' do
+      expect(default_task.visibility).not_to eq 2
 
-    it 'returns true if due is in the future' do
-      future_due.save
-      expect(future_due.errors[:due].empty?).to eq true
+      default_task.save
+      default_task.reload
+
+      expect(default_task.visibility).to eq 2
     end
   end
 end
