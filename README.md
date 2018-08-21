@@ -55,6 +55,7 @@
   - Get data from Google: On a cron job every hour
 
 ## Keep in mind
+- Could do a progress bar on property show, related to Property#occupancy_status: *--*--*--*
 - PRIVATE properties must take self.tasks.map(&:owners &:creators) into account before removing
 
 ## Someday

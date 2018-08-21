@@ -15,11 +15,12 @@ class Property < ApplicationRecord
   has_many :payments, inverse_of: :property, dependent: :destroy
 
   belongs_to :creator, class_name: 'User', inverse_of: :created_properties
-  belongs_to :park, inverse_of: :properties
+  belongs_to :park, inverse_of: :properties, required: false
 
   validates :name, uniqueness: true, presence: true
+  # validates :address, uniqueness: { scope: :park }
   validates_presence_of :creator_id
-  validates_uniqueness_of :certificate_number, :serial_number, allow_nil: true, allow_blank: true
+  validates_uniqueness_of :address, :certificate_number, :serial_number, allow_nil: true, allow_blank: true
   validates_inclusion_of :is_private, :is_default, :ignore_budget_warning, :created_from_api, in: [true, false]
   validates :stage, presence: true, inclusion: { in: Constant::Property::STAGES, message: "must be one of these: #{Constant::Property::STAGES.to_sentence}" }
 
@@ -41,7 +42,7 @@ class Property < ApplicationRecord
   after_save :undiscard_connections,                if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
   scope :except_default, ->       { undiscarded.where(is_default: false) }
-  scope :needs_title,    ->       { undiscarded.where(certificate_number: '').or(where(certificate_number: nil)) }
+  scope :needs_title,    ->       { undiscarded.where(certificate_number: nil) }
   scope :public_visible, ->       { undiscarded.where(is_private: false) }
   scope :created_by,     ->(user) { undiscarded.where(creator: user) }
   scope :with_tasks_for, ->(user) { undiscarded.where(id: Task.select(:property_id).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id)) }
@@ -60,11 +61,29 @@ class Property < ApplicationRecord
   end
 
   # fake scopes for Property#list ajax-ing
-  def self.vacant
+  def self.approved
     ary = []
     Property.except_default.each do |property|
       next if property.discarded?
-      ary << property if property.occupancy_status == 'vacant'
+      ary << property if property.occupancy_status == 'approved applicant'
+    end
+    ary
+  end
+
+  def self.complete
+    ary = []
+    Property.except_default.each do |property|
+      next if property.discarded?
+      ary << property if property.occupancy_status == 'complete'
+    end
+    ary
+  end
+
+  def self.occupied
+    ary = []
+    Property.except_default.each do |property|
+      next if property.discarded?
+      ary << property if property.occupancy_status == 'occupied'
     end
     ary
   end
@@ -78,26 +97,18 @@ class Property < ApplicationRecord
     ary
   end
 
-  def self.approved
+  def self.vacant
     ary = []
     Property.except_default.each do |property|
       next if property.discarded?
-      ary << property if property.occupancy_status == 'approved applicant'
-    end
-    ary
-  end
-
-  def self.occupied
-    ary = []
-    Property.except_default.each do |property|
-      next if property.discarded?
-      ary << property if property.occupancy_status == 'occupied'
+      ary << property if property.occupancy_status == 'vacant'
     end
     ary
   end
   # end fake scopes
 
   def address_has_changed?
+    return false if address.blank?
     address_changed? ||
       city_changed? ||
       state_changed? ||
@@ -139,7 +150,7 @@ class Property < ApplicationRecord
   end
 
   def google_map_link
-    return false if full_address.blank?
+    return false unless good_address?
     base = 'https://www.google.com/maps/?q='
     base + full_address.tr(' ', '+')
   end
@@ -148,20 +159,24 @@ class Property < ApplicationRecord
     certificate_number.blank? || certificate_number.nil?
   end
 
-  def occupancy_status
-    occupancies = connections.where(relationship: 'tennant').order(:stage_date)
+  def occupancies
+    connections.where(relationship: 'tennant').order(:stage_date)
+  end
 
+  def occupancy_status
     return 'vacant' if occupancies.empty?
 
     case occupancies.last.stage
-    when 'applied'
-      status = 'pending application'
     when 'approved'
       status = 'approved applicant'
-    when 'moved in'
-      status = 'occupied'
-    when 'vacated'
+    when 'transferred title'
+      status = 'complete'
+    when 'applied'
+      status = 'pending application'
+    when 'vacated' || 'returned property'
       status = 'vacant'
+    else # 'moved in', 'initial walkthrough', 'final walkthrough'
+      status = 'occupied'
     end
 
     status
@@ -171,7 +186,7 @@ class Property < ApplicationRecord
     occupancies = connections.where(relationship: 'tennant').order(:stage_date)
     return 'Vacant' if occupancies.empty?
 
-    if occupancies.last.stage == 'vacated'
+    if ['vacated', 'returned property'].include? occupancies.last.stage
       details = 'Vacant'
     else
       details = occupancies.last.user.name + ' ' +
@@ -201,7 +216,7 @@ class Property < ApplicationRecord
 
   def visible_to?(user)
     creator == user ||
-      tasks.where('creator_id = ? OR owner_id = ?', user.id, user.id).present? ||
+      tasks.related_to(user).present? ||
       !is_private?
   end
 
@@ -262,6 +277,7 @@ class Property < ApplicationRecord
   end
 
   def undiscard_connections
+    self.reload
     connections.each(&:undiscard)
   end
 

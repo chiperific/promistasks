@@ -4,15 +4,12 @@ require 'rails_helper'
 
 RSpec.describe Property, type: :model do
   before :each do
-    @property = FactoryBot.create(:property, certificate_number: 'string', serial_number: 'string', is_private: false)
+    @property = create(:property, certificate_number: 'string', serial_number: 'string', is_private: false)
     WebMock.reset_executed_requests!
   end
 
-  describe 'must be valid against the schema' do
+  describe 'must be valid' do
     let(:no_name_or_address)            { build :property, name: nil, address: nil }
-    let(:no_city)                       { build :property, city: nil }
-    let(:no_state)                      { build :property, state: nil }
-    let(:no_postal)                     { build :property, postal_code: nil }
     let(:no_creator)                    { build :property, creator_id: nil }
     let(:non_unique_name)               { build :property, name: @property.name }
     let(:non_unique_address)            { build :property, address: @property.address }
@@ -22,12 +19,10 @@ RSpec.describe Property, type: :model do
     context 'against the schema' do
       it 'in order to save' do
         expect { @property.save!(validate: false) }.not_to raise_error
-        expect { no_name_or_address.save!(validate: false) }.to             raise_error ActiveRecord::NotNullViolation
-        expect { no_creator.save!(validate: false) }.to                     raise_error ActiveRecord::NotNullViolation
-        expect { non_unique_name.save!(validate: false) }.to                raise_error ActiveRecord::RecordNotUnique
-        expect { non_unique_address.save!(validate: false) }.to             raise_error ActiveRecord::RecordNotUnique
-        expect { non_unique_certificate_number.save!(validate: false) }.to  raise_error ActiveRecord::RecordNotUnique
-        expect { non_unique_serial_number.save!(validate: false) }.to       raise_error ActiveRecord::RecordNotUnique
+        expect { no_name_or_address.save!(validate: false) }.to       raise_error ActiveRecord::NotNullViolation
+        expect { no_creator.save!(validate: false) }.to               raise_error ActiveRecord::NotNullViolation
+        expect { non_unique_name.save!(validate: false) }.to          raise_error ActiveRecord::RecordNotUnique
+        expect { non_unique_address.save!(validate: false) }.to       raise_error ActiveRecord::RecordNotUnique
       end
     end
 
@@ -72,115 +67,74 @@ RSpec.describe Property, type: :model do
   end
 
   describe 'limits records by scope' do
-    let(:no_title)          { create :property }
-    let(:public_property)   { create :property, is_private: false }
-    let(:private_property)  { create :property, is_private: true }
-    let(:archived_property) { create :property, discarded_at: Time.now }
-    let(:user)              { create :oauth_user }
-    let(:this_user)         { create :property, creator: user }
-    let(:this_user_also)    { create :property, creator: user }
-    let(:not_this_user)     { create :property }
-    let(:task_creator)      { create :task, creator: user, property: not_this_user }
-    let(:task_owner)        { create :task, owner: user, property: not_this_user }
+    before :each do
+      @no_title          = create(:property)
+      @public_property   = create(:property, is_private: false)
+      @private_property  = create(:property, is_private: true)
+      @archived_property = create(:property, discarded_at: Time.now)
+      @user              = create(:oauth_user)
+      @this_user         = create(:property, creator: @user)
+      @this_user_also    = create(:property, creator: @user)
+      @not_this_user     = create(:property)
+      @task_creator      = create(:task, creator: @user, property: @not_this_user)
+      @task_owner        = create(:task, owner: @user, property: @not_this_user)
+    end
 
     it '#needs_title returns only records without a certificate_number' do
       expect(Property.needs_title).not_to include @property
-      expect(Property.needs_title).not_to include archived_property
-      expect(Property.needs_title).to include no_title
+      expect(Property.needs_title).not_to include @archived_property
+      expect(Property.needs_title).to include @no_title
     end
 
     it '#public_visible returns only records where is_private is false' do
-      expect(Property.public_visible).not_to include private_property
-      expect(Property.public_visible).to include public_property
+      expect(Property.public_visible).not_to include @private_property
+      expect(Property.public_visible).to include @public_property
     end
 
     it '#created_by returns only records where the user is the creator' do
-      expect(Property.created_by(user)).not_to include @property
-      expect(Property.created_by(user)).not_to include not_this_user
-      expect(Property.created_by(user)).not_to include archived_property
-      expect(Property.created_by(user)).to include this_user
-      expect(Property.created_by(user)).to include this_user_also
+      expect(Property.created_by(@user)).not_to include @property
+      expect(Property.created_by(@user)).not_to include @not_this_user
+      expect(Property.created_by(@user)).not_to include @archived_property
+      expect(Property.created_by(@user)).to include @this_user
+      expect(Property.created_by(@user)).to include @this_user_also
     end
 
     it '#with_tasks_for returns only records with a related task where the user is a creator or owner' do
-      @property
-      this_user_also
-      this_user
-      archived_property
-      not_this_user
-      user
-      task_creator
-      task_owner
-      Task.all.each(&:reload)
-      Property.all.each(&:reload)
-      user.reload
-
-      expect(Property.with_tasks_for(user)).not_to include @property
-      expect(Property.with_tasks_for(user)).not_to include this_user_also
-      expect(Property.with_tasks_for(user)).not_to include this_user
-      expect(Property.with_tasks_for(user)).not_to include archived_property
-      expect(Property.with_tasks_for(user)).to include not_this_user
+      expect(Property.with_tasks_for(@user)).not_to include @property
+      expect(Property.with_tasks_for(@user)).not_to include @this_user_also
+      expect(Property.with_tasks_for(@user)).not_to include @this_user
+      expect(Property.with_tasks_for(@user)).not_to include @archived_property
+      expect(Property.with_tasks_for(@user)).to include @not_this_user
     end
 
     it '#related_to returns a combo of #created_by and #with_tasks_for' do
-      @property
-      this_user_also
-      this_user
-      archived_property
-      not_this_user
-      user
-      task_creator
-      task_owner
-      expect(Property.related_to(user)).not_to include @property
-      expect(Property.related_to(user)).not_to include archived_property
-      expect(Property.related_to(user)).to include this_user_also
-      expect(Property.related_to(user)).to include this_user
-      expect(Property.related_to(user)).to include not_this_user
+      expect(Property.related_to(@user)).not_to include @property
+      expect(Property.related_to(@user)).not_to include @archived_property
+      expect(Property.related_to(@user)).to include @this_user_also
+      expect(Property.related_to(@user)).to include @this_user
+      expect(Property.related_to(@user)).to include @not_this_user
     end
 
     it '#visible_to returns a combo of #created_by, #with_tasks_for, and #public_visible' do
       @property.update(is_private: false)
-      this_user_also
-      this_user
-      archived_property
-      not_this_user
-      user
-      task_creator
-      task_owner
-      expect(Property.visible_to(user)).not_to include archived_property
-      expect(Property.visible_to(user)).to include @property
-      expect(Property.visible_to(user)).to include this_user_also
-      expect(Property.visible_to(user)).to include this_user
-      expect(Property.visible_to(user)).to include not_this_user
+      expect(Property.visible_to(@user)).not_to include @archived_property
+      expect(Property.visible_to(@user)).to include @property
+      expect(Property.visible_to(@user)).to include @this_user_also
+      expect(Property.visible_to(@user)).to include @this_user
+      expect(Property.visible_to(@user)).to include @not_this_user
     end
 
     it '#over_budget' do
-      @property
-      this_user_also
-      this_user
-      archived_property
-      not_this_user
-      user
-      task_creator
-      task_owner
-      over_budget = FactoryBot.create(:property, budget: 10)
-      FactoryBot.create(:task, property: over_budget, cost: 12)
+      over_budget = create(:property, budget: 10)
+      create(:task, property: over_budget, cost: 12)
 
       expect(Property.over_budget).to include over_budget
       expect(Property.over_budget).not_to include @property
     end
 
     it '#nearing_budget' do
-      @property
-      this_user_also
-      this_user
-      archived_property
-      not_this_user
-      user
-      task_creator
-      task_owner
-      nearing_budget = FactoryBot.create(:property, budget: 20)
-      FactoryBot.create(:task, property: nearing_budget, cost: 12)
+      nearing_budget = create(:property, budget: 20)
+      create(:task, property: nearing_budget, cost: 12)
 
       expect(Property.nearing_budget).to include nearing_budget
       expect(Property.nearing_budget).not_to include @property
@@ -195,59 +149,87 @@ RSpec.describe Property, type: :model do
     end
   end
 
-  describe 'adds lat/long' do
-    context 'when address is good' do
-      pending 'after validation'
-      pending 'when address has changed'
+  describe 'limits record by class method scopes:' do
+    before :each do
+      @approved = create(:property_ready)
+      @complete = create(:property_ready)
+      @occupied = create(:property_ready)
+      @pending =  create(:property_ready)
+      @vacant =   create(:property_ready)
+
+      create(:connection_stage, stage: 'approved', property: @approved)
+      create(:connection_stage, stage: 'transferred title', property: @complete)
+      create(:connection_stage, stage: 'moved in', property: @occupied)
+      create(:connection_stage, stage: 'applied', property: @pending)
+      create(:connection_stage, stage: 'vacated', property: @vacant)
     end
-    context 'except when is_default' do
-      pending 'doesn\'t get added'
+
+    it 'self.approved returns active properties where occupancy_status == approved applicant' do
+      expect(Property.approved).to include @approved
+      expect(Property.approved).not_to include @complete
+      expect(Property.approved).not_to include @occupied
+      expect(Property.approved).not_to include @pending
+      expect(Property.approved).not_to include @vacant
+    end
+
+    it 'self.complete returns active properties where occupancy_status == approved applicant' do
+      expect(Property.complete).not_to include @approved
+      expect(Property.complete).to include @complete
+      expect(Property.complete).not_to include @occupied
+      expect(Property.complete).not_to include @pending
+      expect(Property.complete).not_to include @vacant
+    end
+
+    it 'self.occupied returns active properties where occupancy_status == occupied' do
+      expect(Property.occupied).not_to include @approved
+      expect(Property.occupied).not_to include @complete
+      expect(Property.occupied).to include @occupied
+      expect(Property.occupied).not_to include @pending
+      expect(Property.occupied).not_to include @vacant
+    end
+
+    it 'self.pending returns active properties where occupancy_status == pending application' do
+      expect(Property.pending).not_to include @approved
+      expect(Property.pending).not_to include @complete
+      expect(Property.pending).not_to include @occupied
+      expect(Property.pending).to include @pending
+      expect(Property.pending).not_to include @vacant
+    end
+
+    it 'self.vacant returns active properties where occupancy_status == vacant' do
+      expect(Property.vacant).not_to include @approved
+      expect(Property.vacant).not_to include @complete
+      expect(Property.vacant).not_to include @occupied
+      expect(Property.vacant).not_to include @pending
+      expect(Property.vacant).to include @vacant
     end
   end
 
-  describe '#good_address?' do
-    pending 'returns false if city, state or postal code are missing'
-    pending 'returns true if all address fields are present'
-  end
-
-  describe '#full_address' do
-    let(:big_addr) { create :property, address: 'addr1', city: 'city', postal_code: '12345' }
-    let(:mid_addr) { create :property, address: 'addr2', postal_code: '12345' }
-    let(:lil_addr) { create :property, address: 'addr3' }
-
-    it 'concatentates the address' do
-      expect(big_addr.full_address).to eq 'addr1, city, MI, 12345'
-      expect(mid_addr.full_address).to eq 'addr2, 12345'
-      expect(lil_addr.full_address).to eq 'addr3'
-    end
-  end
-
-  describe '#needs_title?' do
-    context 'when certificate_number is blank' do
-      pending 'returns false'
+  describe '#address_has_changed?' do
+    it 'returns true if address changed' do
+      @property.address = 'new val'
+      expect(@property.address_has_changed?).to eq true
     end
 
-    context 'when certificate_number is nil' do
-      pending 'returns false'
+    it 'returns true if city changed' do
+      @property.city = 'new val'
+      expect(@property.address_has_changed?).to eq true
     end
 
-    context 'when certificate_number is not nil or blank' do
-      pending 'returns true'
-    end
-  end
-
-  describe '#google_map' do
-    context 'when address is bad' do
-      pending 'returns a string'
+    it 'returns true if state changed' do
+      @property.state = 'new val'
+      expect(@property.address_has_changed?).to eq true
     end
 
-    context 'when address is good' do
-      pending 'returns a URL'
+    it 'returns true if postal_code changed' do
+      @property.postal_code = 'new val'
+      expect(@property.address_has_changed?).to eq true
     end
-  end
 
-  describe '#google_street_view' do
-    pending 'returns a URL'
+    it 'returns false if no address fields have changed' do
+      @property.name = 'new val'
+      expect(@property.address_has_changed?).to eq false
+    end
   end
 
   describe '#budget_remaining' do
@@ -282,14 +264,273 @@ RSpec.describe Property, type: :model do
     end
 
     it 'makes an API call' do
-      new_property = FactoryBot.build(:property, is_private: true)
+      new_property = build(:property, is_private: true)
       WebMock.reset_executed_requests!
       new_property.ensure_tasklist_exists_for(new_property.creator)
       expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).once
     end
   end
 
-  describe '#can_be_viewed_by(user)' do
+  describe '#full_address' do
+    let(:big_addr) { create :property, address: 'addr1', city: 'city', postal_code: '12345' }
+    let(:mid_addr) { create :property, address: 'addr2', postal_code: '12345' }
+    let(:lil_addr) { create :property, address: 'addr3' }
+
+    it 'concatentates the address' do
+      expect(big_addr.full_address).to eq 'addr1, city, MI, 12345'
+      expect(mid_addr.full_address).to eq 'addr2, 12345'
+      expect(lil_addr.full_address).to eq 'addr3'
+    end
+  end
+
+  describe '#good_address?' do
+    let(:property) { create :property, address: 'address', city: 'city', state: 'state' }
+
+    context 'when address is blank' do
+      it 'retuns false' do
+        property.update(address: nil)
+        expect(property.good_address?).to eq false
+      end
+    end
+
+    context 'when city is blank' do
+      it 'retuns false' do
+        property.update(city: '')
+        expect(property.good_address?).to eq false
+      end
+    end
+
+    context 'when state is blank' do
+      it 'retuns false' do
+        property.update(state: ' ')
+        expect(property.good_address?).to eq false
+      end
+    end
+
+    context 'when address, city and state are present' do
+      it 'returns true' do
+        expect(property.good_address?).to eq true
+      end
+    end
+  end
+
+  describe '#google_map' do
+    let(:property) { create :property, address: '1600 Pennsylvania Ave NW', city: 'Washington', state: 'DC', postal_code: '20500' }
+
+    context 'when not good_address?' do
+      it 'returns no_property.jpg' do
+        property.update(city: nil)
+        expect(property.google_map).to eq 'no_property.jpg'
+      end
+    end
+
+    context 'when good_address?' do
+      it 'returns a url string' do
+        expect(property.google_map[0..31]).to eq 'https://maps.googleapis.com/maps'
+      end
+    end
+  end
+
+  describe '#google_map_link' do
+    let(:property) { create :property, address: '1600 Pennsylvania Ave NW', city: 'Washington', state: 'DC', postal_code: '20500' }
+
+    context 'when not good_address?' do
+      it 'returns false' do
+        property.update(city: nil)
+        expect(property.google_map_link).to eq false
+      end
+    end
+
+    context 'when good_address?' do
+      it 'returns a url string' do
+        expect(property.google_map_link[0..30]).to eq 'https://www.google.com/maps/?q='
+      end
+    end
+  end
+
+  describe '#needs_title?' do
+    context 'when certificate_number is blank' do
+      let(:property) { create :property, certificate_number: '' }
+
+      it 'returns true' do
+        expect(property.needs_title?).to eq true
+      end
+    end
+
+    context 'when certificate_number is nil' do
+      let(:property) { create :property, certificate_number: nil }
+
+      it 'returns true' do
+        expect(property.needs_title?).to eq true
+      end
+    end
+
+    context 'when certificate_number is not nil or blank' do
+      let(:property) { create :property, certificate_number: '1a45' }
+
+      it 'returns false' do
+        expect(property.needs_title?).to eq false
+      end
+    end
+  end
+
+  describe '#occupancies' do
+    before :each do
+      @prop = create(:property_ready)
+      @newest_connection = create(:connection_stage, property: @prop)
+      @old_connection =    create(:connection_stage, stage_date: Date.today - 5.weeks, property: @prop)
+      @newer_connection =  create(:connection_stage, stage_date: Date.today - 1.week, property: @prop)
+      @not_occupancy =     create(:connection, property: @prop)
+    end
+
+    it 'returns only connections where relationship == tennant' do
+      expect(@prop.occupancies.count).to eq 3
+      expect(@prop.connections.count).to eq 4
+      expect(@prop.occupancies).not_to include @not_occupancy
+      expect(@prop.occupancies).to include @old_connection
+      expect(@prop.occupancies).to include @newer_connection
+      expect(@prop.occupancies).to include @newest_connection
+    end
+
+    it 'orders results by stage_date' do
+      expect(@prop.occupancies.first).to eq @old_connection
+      expect(@prop.occupancies.last).to eq @newest_connection
+    end
+  end
+
+  describe '#occupancy_status' do
+    before :each do
+      @approved = create(:property_ready)
+      @complete = create(:property_ready)
+      @occupied = create(:property_ready)
+      @pending =  create(:property_ready)
+      @vacant =   create(:property_ready)
+      @returned = create(:property_ready)
+      @initial =  create(:property_ready)
+      @final =    create(:property_ready)
+
+      create(:connection_stage, stage: 'approved', property: @approved)
+      create(:connection_stage, stage: 'transferred title', property: @complete)
+      create(:connection_stage, stage: 'applied', property: @pending)
+      create(:connection_stage, stage: 'vacated', property: @vacant)
+      create(:connection_stage, stage: 'returned property', property: @returned)
+      create(:connection_stage, stage: 'moved in', property: @occupied)
+      create(:connection_stage, stage: 'initial walkthrough', property: @initial)
+      create(:connection_stage, stage: 'final walkthrough', property: @final)
+    end
+
+    it 'returns "vacant" if there are no associated occupancies' do
+      expect(@property.occupancies.count).to eq 0
+      expect(@property.occupancy_status).to eq 'vacant'
+    end
+
+    it 'returns "approved applicant" if the latest occupancy is "approved"' do
+      expect(@approved.occupancy_status).to eq 'approved applicant'
+    end
+
+    it 'returns "complete" if the latest occupancy is "transferred title"' do
+      expect(@complete.occupancy_status).to eq 'complete'
+    end
+
+    it 'returns "pending application" if the latest occupancy is "applied"' do
+      expect(@pending.occupancy_status).to eq 'pending application'
+    end
+
+    it 'returns "vacant" if the latest occupancy is "vacated" or "returned property"' do
+      expect(@vacant.occupancies.count).not_to eq 0
+      expect(@vacant.occupancy_status).to eq 'vacant'
+    end
+
+    it 'returns "occupied" if the latest stage is "moved in", "initial walkthrough", or "final walkthrough"' do
+      expect(@occupied.occupancies.count).not_to eq 0
+      expect(@initial.occupancies.count).not_to eq 0
+      expect(@final.occupancies.count).not_to eq 0
+
+      expect(@occupied.occupancy_status).to eq 'occupied'
+      expect(@initial.occupancy_status).to eq 'occupied'
+      expect(@final.occupancy_status).to eq 'occupied'
+    end
+  end
+
+  describe '#occupancy_details' do
+    before :each do
+      @approved = create(:property_ready)
+      @vacant =   create(:property_ready)
+
+      create(:connection_stage, stage: 'approved', property: @approved)
+      create(:connection_stage, stage: 'vacated', property: @vacant)
+    end
+
+    it 'returns "Vacant" if there are no occupancies' do
+      expect(@property.occupancies.count).to eq 0
+      expect(@property.occupancy_details).to eq 'Vacant'
+    end
+
+    it 'returns "Vacant" if the last occupancy is "vacated" or "returned property"' do
+      expect(@vacant.occupancies.count).to eq 1
+      expect(@vacant.occupancy_details).to eq 'Vacant'
+    end
+
+    it 'formats a message based on the details of the most recent connection' do
+      @approved.connections.first.user.update(name: 'Client')
+      expect(@approved.occupancy_details).to eq 'Client approved on ' + Date.today.strftime('%b %-d, %Y')
+    end
+  end
+
+  describe '#over_budget?' do
+    it 'returns false if budget_remaining is not negative' do
+      expect(@property.budget_remaining.positive?).to eq true
+      expect(@property.over_budget?).to eq false
+    end
+
+    it 'returns false if ignore_budget_warning is true' do
+      create(:task, property: @property, cost: Money.new(7_700_00))
+      expect(@property.budget_remaining.negative?).to eq true
+      @property.update(ignore_budget_warning: true)
+      expect(@property.over_budget?).to eq false
+    end
+
+    it 'returns true if budget_remaining is negative and ignore_budget_warning is false' do
+      create(:task, property: @property, cost: Money.new(7_700_00))
+      expect(@property.over_budget?).to eq true
+    end
+  end
+
+  describe '#update_tasklists' do
+    before :each do
+      @user  = create(:oauth_user)
+      @user2 = create(:oauth_user)
+      @user3 = create(:oauth_user)
+      @private_property = create(:property, creator: @user, is_private: true)
+      @public_property  = create(:property, creator: @user, is_private: false)
+      WebMock.reset_executed_requests!
+    end
+
+    it 'should only fire if name is changed' do
+      @private_property.update(creator: @user2)
+      expect(WebMock).not_to have_requested(:any, Constant::Regex::TASKLIST)
+
+      @private_property.update(name: 'Now it\'s called something else!')
+      expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).once
+    end
+
+    context 'when private' do
+      it 'updates a Tasklist for the Creator' do
+        @private_property.update(name: 'not discarded private property')
+        expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).once
+      end
+    end
+
+    context 'when public' do
+      it 'updates a Tasklist for all users' do
+        user_count = User.count
+        @public_property.update(name: 'not discarded public property')
+        expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).times(user_count)
+      end
+    end
+  end
+
+  describe '#visible_to?(user)' do
     let(:user)               { create :user }
     let(:creator_prop)       { create :property, creator: user, is_private: true }
     let(:tasks_creator_prop) { create :property, is_private: true }
@@ -298,202 +539,62 @@ RSpec.describe Property, type: :model do
     let(:failing_prop)       { create :property, is_private: true }
 
     it 'returns true if user is the creator' do
-      expect(creator_prop.can_be_viewed_by(user)).to eq true
+      expect(creator_prop.visible_to?(user)).to eq true
     end
 
     it 'returns true if the property has tasks related to the user' do
-      FactoryBot.create(:task, creator: user, property: tasks_creator_prop)
-      FactoryBot.create(:task, owner: user, property: tasks_owner_prop)
+      create(:task, creator: user, property: tasks_creator_prop)
+      create(:task, owner: user, property: tasks_owner_prop)
       tasks_creator_prop.reload
       tasks_owner_prop.reload
 
-      expect(tasks_creator_prop.can_be_viewed_by(user)).to eq true
-      expect(tasks_owner_prop.can_be_viewed_by(user)).to eq true
+      expect(tasks_creator_prop.visible_to?(user)).to eq true
+      expect(tasks_owner_prop.visible_to?(user)).to eq true
     end
 
     it 'returns true if the property is public' do
-      expect(public_prop.can_be_viewed_by(user)).to eq true
+      expect(public_prop.visible_to?(user)).to eq true
     end
 
     it 'returns false if none are true' do
-      expect(failing_prop.can_be_viewed_by(user)).to eq false
+      expect(failing_prop.visible_to?(user)).to eq false
     end
   end
 
-  describe '#unsynced_name_address?' do
-    let(:both) { build :property }
-    let(:neither) { build :property, name: nil, address: nil }
-    let(:unsynced_name) { build :property, address: nil }
-    let(:unsynced_address) { build :property, name: nil }
+  # private methods
 
-    it 'returns false if both are present' do
-      expect(both.send(:unsynced_name_address?)).to eq false
-    end
+  describe '#address_required' do
+    context 'when property is default' do
+      let(:property) { build :property, is_default: true }
 
-    it 'returns false if neither are present' do
-      expect(neither.send(:unsynced_name_address?)).to eq false
-    end
-
-    it 'returns true if they are out of sync' do
-      expect(unsynced_name.send(:unsynced_name_address?)).to eq true
-      expect(unsynced_address.send(:unsynced_name_address?)).to eq true
-    end
-  end
-
-  describe '#name_and_address' do
-    let(:no_name) { build :property, name: nil }
-    let(:no_address) { build :property, address: nil }
-
-    it 'copies the fields to eachother if one was blank' do
-      no_name.save
-      no_name.reload
-      expect(no_name.name).to eq no_name.address
-
-      no_address.save
-      no_address.reload
-      expect(no_address.address).to eq no_address.name
-    end
-  end
-
-  describe '#default_budget' do
-    let(:no_budget) { build :property }
-    let(:custom_budget) { build :property, budget: 500 }
-
-    it 'sets a budget if one isn\'t present' do
-      expect(no_budget.budget).to eq nil
-
-      no_budget.save
-      no_budget.reload
-
-      expect(no_budget.budget).to eq Money.new(7_500_00)
-    end
-
-    it 'won\'t change a budget that\'s already set' do
-      custom_budget.save
-      custom_budget.reload
-
-      expect(custom_budget.budget).to eq Money.new(500_00)
-    end
-  end
-
-  describe 'is_default validations' do
-    let(:default_prop)  { build :property, is_default: true}
-    let(:normal_prop)   { build :property }
-    let(:discarded_prop) { build :property, discarded_at: Time.now }
-
-    describe '#only_one_default' do
-      it 'only fires if record is marked as default' do
-        expect(normal_prop).not_to receive(:only_one_default)
-        normal_prop.save!
-
-        expect(default_prop).to receive(:only_one_default)
-        default_prop.save!
-      end
-
-      it 'returns true if there\'s no default' do
-        expect(default_prop.send(:only_one_default)).to eq true
-      end
-
-      it 'returns true if this record is the only default' do
-        default_prop.save
-        expect(default_prop.send(:only_one_default)).to eq true
-      end
-
-      it 'sets is_default to false' do
-        default_prop.save
-        normal_prop.is_default = true
-        normal_prop.save
-        expect(normal_prop.is_default).to eq false
+      it 'doesn\'t fire' do
+        expect(property).not_to receive(:address_required)
+        property.save!
       end
     end
 
-    describe '#default_must_be_private' do
-      it 'won\'t fire if discarded_at is not nil' do
-        expect(discarded_prop).not_to receive(:default_must_be_private)
-        discarded_prop.save
-      end
+    context 'when property is created_from_api' do
+      let(:property) { build :property, created_from_api: true }
 
-      it 'won\'t fire if is_default is false' do
-        expect(normal_prop).not_to receive(:default_must_be_private)
-        normal_prop.save
-      end
-
-      it 'won\'t fire if is_private is true' do
-        default_prop.is_private = true
-        expect(default_prop).not_to receive(:default_must_be_private)
-        default_prop.save
-      end
-
-      it 'only fires if all conditions are met' do
-        expect(default_prop).to receive(:default_must_be_private)
-        default_prop.update(is_private: false)
-      end
-
-      it 'sets is_private to true' do
-        default_prop.is_private = false
-        default_prop.save
-        expect(default_prop.is_private).to eq true
+      it 'doesn\'t fire' do
+        expect(property).not_to receive(:address_required)
+        property.save!
       end
     end
 
-    describe '#refuse_to_discard_default' do
-      it 'won\'t fire if discarded_at is nil' do
-        expect(default_prop).not_to receive(:refuse_to_discard_default)
-        default_prop.save
+    context 'when property is not default nor created_from_api' do
+      let(:property) { build :property, address: nil }
+
+      it 'returns true if address is present' do
+        property.address = 'has an address'
+
+        expect(property.send(:address_required)).to eq true
       end
 
-      it 'won\'t fire if is_default is false' do
-        expect(discarded_prop).not_to receive(:refuse_to_discard_default)
-        discarded_prop.save
-      end
+      it 'adds an error to address if address is blank' do
+        expect(property.valid?).to eq false
 
-      it 'only fires if conditions are met' do
-        default_prop.discarded_at = Time.now
-        expect(default_prop).to receive(:refuse_to_discard_default)
-        default_prop.save
-      end
-
-      it 'sets discarded_at to nil' do
-        discarded_prop.save
-        expect(discarded_prop.discarded_at).not_to eq nil
-
-        discarded_prop.send(:refuse_to_discard_default)
-        expect(discarded_prop.discarded_at).to eq nil
-      end
-    end
-  end
-
-  describe '#create_tasklists' do
-    before :each do
-      @user  = FactoryBot.create(:oauth_user)
-      @user2 = FactoryBot.create(:oauth_user)
-      @user3 = FactoryBot.create(:oauth_user)
-      @private_property = FactoryBot.build(:property, creator: @user, is_private: true)
-      @public_property  = FactoryBot.build(:property, creator: @user, is_private: false)
-      @discarded_private_property = FactoryBot.build(:property, creator: @user, is_private: true, discarded_at: Time.now - 1.hour)
-      WebMock.reset_executed_requests!
-    end
-
-    it 'only fires if discarded_at is blank' do
-      expect(@discarded_private_property).not_to receive(:create_tasklists)
-      @discarded_private_property.save!
-
-      expect(@private_property).to receive(:create_tasklists)
-      @private_property.save!
-    end
-
-    context 'when private' do
-      it 'creates a new Tasklist for the Creator' do
-        expect(@private_property).to receive(:ensure_tasklist_exists_for).with(@private_property.creator)
-        @private_property.save!
-      end
-    end
-
-    context 'when public' do
-      it 'creates a new Tasklist for all User.staff' do
-        user_count = User.count
-        expect(@public_property).to receive(:ensure_tasklist_exists_for).exactly(user_count).times
-        @public_property.save!
+        expect(property.errors[:address].present?).to be true
       end
     end
   end
@@ -544,6 +645,124 @@ RSpec.describe Property, type: :model do
     end
   end
 
+  describe '#create_tasklists' do
+    before :each do
+      @user  = create(:oauth_user)
+      @user2 = create(:oauth_user)
+      @user3 = create(:oauth_user)
+      @private_property = build(:property, creator: @user, is_private: true)
+      @public_property  = build(:property, creator: @user, is_private: false)
+      @discarded_private_property = build(:property, creator: @user, is_private: true, discarded_at: Time.now - 1.hour)
+      WebMock.reset_executed_requests!
+    end
+
+    it 'only fires if discarded_at is blank' do
+      expect(@discarded_private_property).not_to receive(:create_tasklists)
+      @discarded_private_property.save!
+
+      expect(@private_property).to receive(:create_tasklists)
+      @private_property.save!
+    end
+
+    context 'when private' do
+      it 'creates a new Tasklist for the Creator' do
+        expect(@private_property).to receive(:ensure_tasklist_exists_for).with(@private_property.creator)
+        @private_property.save!
+      end
+    end
+
+    context 'when public' do
+      it 'creates a new Tasklist for all User.staff' do
+        user_count = User.count
+        expect(@public_property).to receive(:ensure_tasklist_exists_for).exactly(user_count).times
+        @public_property.save!
+      end
+    end
+  end
+
+  describe '#default_budget' do
+    let(:no_budget) { build :property }
+    let(:custom_budget) { build :property, budget: 500 }
+
+    it 'sets a budget if one isn\'t present' do
+      expect(no_budget.budget).to eq nil
+
+      no_budget.save
+      no_budget.reload
+
+      expect(no_budget.budget).to eq Money.new(7_500_00)
+    end
+
+    it 'won\'t change a budget that\'s already set' do
+      custom_budget.save
+      custom_budget.reload
+
+      expect(custom_budget.budget).to eq Money.new(500_00)
+    end
+  end
+
+  describe '#default_must_be_private' do
+    let(:discarded_prop)   { build :property, discarded_at: Time.now, is_default: true, is_private: false }
+    let(:not_default_prop) { build :property, discarded_at: nil, is_default: false, is_private: false }
+    let(:private_prop)     { build :property, discarded_at: nil, is_default: true, is_private: true }
+    let(:default_prop)     { build :property, discarded_at: nil, is_default: true, is_private: false }
+
+    it 'won\'t fire if discarded_at is not nil' do
+      expect(discarded_prop).not_to receive(:default_must_be_private)
+      discarded_prop.save
+    end
+
+    it 'won\'t fire if is_default is false' do
+      expect(not_default_prop).not_to receive(:default_must_be_private)
+      not_default_prop.save
+    end
+
+    it 'won\'t fire if is_private is true' do
+      expect(private_prop).not_to receive(:default_must_be_private)
+      private_prop.save
+    end
+
+    it 'only fires if all conditions are met' do
+      expect(default_prop).to receive(:default_must_be_private)
+      default_prop.save
+    end
+
+    it 'sets is_private to true' do
+      expect(default_prop.is_private?).to eq false
+      default_prop.send(:default_must_be_private)
+      expect(default_prop.is_private?).to eq true
+    end
+  end
+
+  describe '#discard_connections' do
+    context 'when discarded_at is not present' do
+      let(:active_prop) { build :property, discarded_at: nil }
+
+      it 'doesn\'t fire' do
+        expect(active_prop).not_to receive(:discard_connections)
+        active_prop.save
+      end
+    end
+
+    context 'when discarded_at is present' do
+      before :each do
+        @discarded_prop = create(:property)
+
+        3.times do
+          create(:connection, property: @discarded_prop)
+        end
+      end
+
+      it 'discards any associated connections' do
+        expect(@discarded_prop.connections.active.count).to eq 3
+
+        @discarded_prop.discard
+
+        expect(@discarded_prop.connections.active.count).to eq 0
+      end
+    end
+  end
+
   describe '#discard_tasks_and_delete_tasklists' do
     let(:discarded_property) { create :property, name: 'about to be discarded' }
     let(:task1) { create :task, property: discarded_property }
@@ -576,36 +795,91 @@ RSpec.describe Property, type: :model do
     end
   end
 
-  describe '#update_tasklists' do
-    before :each do
-      @user  = FactoryBot.create(:oauth_user)
-      @user2 = FactoryBot.create(:oauth_user)
-      @user3 = FactoryBot.create(:oauth_user)
-      @private_property = FactoryBot.create(:property, creator: @user, is_private: true)
-      @public_property  = FactoryBot.create(:property, creator: @user, is_private: false)
-      WebMock.reset_executed_requests!
+  describe '#refuse_to_discard_default' do
+    let(:active_prop)      { build :property, discarded_at: nil, is_default: true }
+    let(:not_default_prop) { build :property, discarded_at: nil, is_default: false }
+    let(:discarded_prop)   { build :property, discarded_at: Time.now, is_default: true }
+
+    it 'won\'t fire if discarded_at is nil' do
+      expect(active_prop).not_to receive(:refuse_to_discard_default)
+      active_prop.save
     end
 
-    it 'should only fire if name is changed' do
-      @private_property.update(creator: @user2)
-      expect(WebMock).not_to have_requested(:any, Constant::Regex::TASKLIST)
-
-      @private_property.update(name: 'Now it\'s called something else!')
-      expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).once
+    it 'won\'t fire if is_default is false' do
+      expect(not_default_prop).not_to receive(:refuse_to_discard_default)
+      not_default_prop.save
     end
 
-    context 'when private' do
-      it 'updates a Tasklist for the Creator' do
-        @private_property.update(name: 'not discarded private property')
-        expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).once
+    it 'only fires if conditions are met' do
+      expect(discarded_prop).to receive(:refuse_to_discard_default)
+      discarded_prop.save
+    end
+
+    it 'sets discarded_at to nil' do
+      expect(discarded_prop.discarded_at).not_to eq nil
+
+      discarded_prop.send(:refuse_to_discard_default)
+      expect(discarded_prop.discarded_at).to eq nil
+    end
+  end
+
+  describe '#undiscard_connections' do
+    let(:never_discarded) { create :property, discarded_at: nil }
+    let(:still_discarded) { create :property, discarded_at: Time.now }
+
+    context 'when discarded_at was not present before the last save' do
+      it 'doesn\'t fire' do
+        expect(never_discarded).not_to receive(:undiscard_connections)
+        never_discarded.update(name: 'never been discarded')
       end
     end
 
-    context 'when public' do
-      it 'updates a Tasklist for all users' do
-        user_count = User.count
-        @public_property.update(name: 'not discarded public property')
-        expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).times(user_count)
+    context 'when discarded_at is not nil' do
+      it 'doesn\'t fire' do
+        expect(still_discarded).not_to receive(:undiscard_connections)
+        still_discarded.update(name: 'still discarded')
+      end
+    end
+
+    context 'when discarded_at is no longer nil' do
+      before :each do
+        @undiscarded = create(:property, discarded_at: Time.now - 10.minutes)
+
+        3.times do
+          create(:connection, property: @undiscarded, discarded_at: Time.now - 9.minutes)
+        end
+      end
+
+      it 'undiscards any associated connections' do
+        expect(@undiscarded.connections.count).to eq 3
+        expect(@undiscarded.connections.active.count).to eq 0
+
+        @undiscarded.undiscard
+        @undiscarded.reload
+
+        expect(@undiscarded.connections.active.count).to eq 3
+      end
+    end
+  end
+
+  describe '#use_address_for_name' do
+    let(:with_name) { build :property, name: 'I have a name' }
+    let(:no_name) { build :property, name: nil }
+
+    context 'when name is not blank' do
+      it 'doesn\'t fire' do
+        expect(with_name).not_to receive(:use_address_for_name)
+        with_name.save
+      end
+    end
+
+    context 'when name is blank' do
+      it 'sets the name from the address' do
+        expect(no_name.name).to eq nil
+
+        no_name.send(:use_address_for_name)
+
+        expect(no_name.name.present?).to eq true
       end
     end
   end

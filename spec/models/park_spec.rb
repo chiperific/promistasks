@@ -157,8 +157,14 @@ RSpec.describe Park, type: :model do
   end
 
   describe '#full_address' do
-    it 'concatentates some strings and isn\'t worth testing' do
-      expect(true).to eq true
+    let(:big_addr) { create :park, address: 'addr1', city: 'city', postal_code: '12345' }
+    let(:mid_addr) { create :park, address: 'addr2', postal_code: '12345' }
+    let(:lil_addr) { create :park, address: 'addr3' }
+
+    it 'concatentates the address' do
+      expect(big_addr.full_address).to eq 'addr1, city, MI, 12345'
+      expect(mid_addr.full_address).to eq 'addr2, 12345'
+      expect(lil_addr.full_address).to eq 'addr3'
     end
   end
 

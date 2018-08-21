@@ -3,7 +3,7 @@
 module Constant
   class Connection
     RELATIONSHIPS = ['tennant', 'staff contact', 'contractor', 'volunteer'].freeze
-    STAGES = ['applied', 'approved', 'moved in', 'initial walkthrough', 'final walkthrough', 'title transferred', 'vacated', 'property returned'].freeze
+    STAGES = ['applied', 'approved', 'moved in', 'initial walkthrough', 'final walkthrough', 'transferred title', 'vacated', 'returned property'].freeze
   end
 
   class Params
