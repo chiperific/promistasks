@@ -397,33 +397,6 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#delete_task_users' do
-    let(:discarded_task) { create :task, discarded_at: Time.now }
-
-    it 'won\'t fire if discarded_at was not just set' do
-      expect(discarded_task).not_to receive(:delete_task_users)
-      discarded_task.update(title: 'Im discarded')
-
-      @task.save
-      expect(@task).not_to receive(:delete_task_users)
-      @task.update(title: 'Im not discarded')
-    end
-
-    it 'only fires if discarded_at was just set' do
-      @task.save
-      expect(@task).to receive(:delete_task_users)
-      @task.discard
-    end
-
-    it 'destroys all related task_user records' do
-      @task.save
-      @task.reload
-      count = TaskUser.count
-      @task.discard
-      expect(TaskUser.count).to eq count - 2
-    end
-  end
-
   describe '#ensure_task_user_exists_for' do
     let(:volunteer) { create :volunteer_user }
     let(:contractor) { create :contractor_user }
@@ -734,10 +707,10 @@ RSpec.describe Task, type: :model do
   describe '#decide_record_completeness' do
     let(:five_strikes)  { build :task, property: @property, creator: @creator, owner: @owner }
     let(:four_strikes)  { build :task, property: @property, creator: @creator, owner: @owner, budget: 50_00 }
-    let(:three_strikes) { build :task, property: @property, creator: @creator, owner: @owner, priority: 'medium', budget: 50_00 }
-    let(:two_strikes)   { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour }
-    let(:one_strike)    { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour, priority: 'medium' }
-    let(:zero_strikes)  { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour, priority: 'medium', budget: 50_00 }
+    let(:three_strikes) { build :task, property: @property, creator: @creator, owner: @owner, priority: 'medium', budget: 50_00, estimated_hours: 10 }
+    let(:two_strikes)   { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour, priority: 'medium', budget: 50_00, min_volunteers: 1, max_volunteers: 1 }
+    let(:one_strike)    { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour, estimated_hours: 10, budget: 50_00, min_volunteers: 1, max_volunteers: 1 }
+    let(:zero_strikes)  { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour, priority: 'medium', budget: 50_00, estimated_hours: 10, min_volunteers: 1, max_volunteers: 1 }
 
     it 'sets needs_more_info based on strikes' do
       expect(five_strikes.needs_more_info).to eq false
@@ -763,13 +736,9 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#discard_joined' do
-    pending 'needs tests'
-  end
-
   describe '#due_cant_be_past' do
-    let(:past_due)   { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now - 1.hour }
-    let(:future_due) { build :task, property: @property, creator: @creator, owner: @owner, due: Time.now + 1.hour }
+    let(:past_due)   { build :task, property: @property, creator: @creator, owner: @owner, due: Date.today - 1.day }
+    let(:future_due) { build :task, property: @property, creator: @creator, owner: @owner, due: Date.today + 1.day }
 
     it 'returns true if due is nil' do
       @task.save
@@ -810,10 +779,6 @@ RSpec.describe Task, type: :model do
       complete_w_both.save
       expect(complete_w_both.errors[:cost].empty?).to eq true
     end
-  end
-
-  describe '#undiscard_joins' do
-    pending 'needs test'
   end
 
   describe '#visibility_must_be_2' do

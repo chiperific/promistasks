@@ -43,9 +43,6 @@ class Task < ApplicationRecord
   after_update      :relocate,             if: -> { saved_change_to_property_id? }
   after_update      :change_task_users,    if: :saved_changes_to_users?
   after_update      :cascade_completed,    if: -> { completed_at.present? && completed_at_before_last_save.nil? }
-  after_save        :delete_task_users,    if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
-  after_save        :discard_joined,       if: -> { discarded_at.present? }
-  after_save        :undiscard_joined,     if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
   default_scope { order(:due, :priority, :title) }
 
@@ -123,12 +120,6 @@ class Task < ApplicationRecord
     [creator, owner].each do |user|
       ensure_task_user_exists_for(user)
     end
-  end
-
-  def delete_task_users
-    # the task_user#before_destroy callback deletes the task from the API
-    # task_users.destroy_all skips callbacks
-    task_users.each(&:destroy)
   end
 
   def ensure_task_user_exists_for(user)
@@ -241,10 +232,6 @@ class Task < ApplicationRecord
     true
   end
 
-  def discard_joined
-    skills.each(&:discard)
-  end
-
   def due_cant_be_past
     return true if due.nil?
     return true if created_from_api?
@@ -258,10 +245,6 @@ class Task < ApplicationRecord
 
   def require_cost
     errors.add(:cost, 'must be recorded, or you can delete the budget amount')
-  end
-
-  def undiscard_joined
-    skills.each(&:undiscard)
   end
 
   def visibility_must_be_2
