@@ -49,17 +49,17 @@ class Task < ApplicationRecord
 
   default_scope { order(:due, :priority, :title) }
 
-  scope :in_process,      -> { undiscarded.where(completed_at: nil) }
   scope :complete,        -> { undiscarded.where.not(completed_at: nil) }
-  scope :needs_more_info, -> { in_process.where(needs_more_info: true) }
+  scope :created_since,   ->(time) { where("#{table_name}.created_at >= ?", time) }
+  scope :due_within,      ->(day_num) { in_process.where(due: Date.today..(Date.today + day_num.days)) }
+  scope :except_primary,  -> { joins(:property).where('properties.is_default = FALSE') }
   scope :has_cost,        -> { undiscarded.where.not(cost_cents: nil) }
+  scope :in_process,      -> { undiscarded.where(completed_at: nil) }
+  scope :needs_more_info, -> { in_process.where(needs_more_info: true) }
+  scope :past_due,        -> { in_process.where("#{table_name}.due < ?", Date.today) }
   scope :public_visible,  -> { undiscarded.where(visibility: 1) }
   scope :related_to,      ->(user) { where("#{table_name}.creator_id = ? OR #{table_name}.owner_id = ?", user.id, user.id) }
   scope :visible_to,      ->(user) { related_to(user).or(public_visible) }
-  scope :created_since,   ->(time) { where("#{table_name}.created_at >= ?", time) }
-  scope :due_within,      ->(day_num) { in_process.where(due: Date.today..(Date.today + day_num.days)) }
-  scope :past_due,        -> { in_process.where("#{table_name}.due < ?", Date.today) }
-  scope :except_primary,  -> { joins(:property).where('properties.is_default = FALSE') }
 
   class << self
     alias archived discarded
@@ -233,9 +233,9 @@ class Task < ApplicationRecord
     strikes += 2 if estimated_hours.blank? || estimated_hours.zero?
     strikes += 1 if priority.nil?
     strikes += 1 if budget.nil?
-    strikes += 1 if min_volunteers.zero?
-    strikes += 1 if max_volunteers.zero?
-    strikes -= 9 if property.is_default?
+    strikes += 1 if min_volunteers.nil?
+    strikes += 1 if max_volunteers.nil?
+    strikes -= 9 if property&.is_default?
 
     self.needs_more_info = strikes > 3
     true

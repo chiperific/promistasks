@@ -4,12 +4,13 @@ require 'rails_helper'
 
 RSpec.describe Task, type: :model do
   before :each do
-    @creator        = FactoryBot.create(:oauth_user)
-    @owner          = FactoryBot.create(:oauth_user)
-    @property       = FactoryBot.create(:property)
-    @task           = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner)
-    @completed_task = FactoryBot.build(:task, property: @property, creator: @creator, owner: @owner, completed_at: Time.now - 1.hour)
-    @updated_task   = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
+    @creator        = create(:oauth_user)
+    @owner          = create(:oauth_user)
+    @property       = create(:property)
+    @default        = create(:property, is_default: true)
+    @task           = build(:task, property: @property, creator: @creator, owner: @owner)
+    @completed_task = build(:task, property: @property, creator: @creator, owner: @owner, completed_at: Time.now - 1.hour)
+    @updated_task   = create(:task, property: @property, creator: @creator, owner: @owner)
     WebMock.reset_executed_requests!
   end
 
@@ -18,8 +19,11 @@ RSpec.describe Task, type: :model do
     let(:no_creator)     { build :task, property: @property, owner: @owner, creator_id: nil }
     let(:no_owner)       { build :task, property: @property, creator: @creator, owner_id: nil }
     let(:no_property)    { build :task, property_id: nil, creator: @creator, owner: @owner }
+    let(:no_visibility)  { build :task, property: @property, creator: @creator, owner: @owner, visibility: nil }
     let(:bad_visibility) { build :task, property: @property, creator: @creator, owner: @owner, visibility: 4 }
-    let(:bad_priority)   { build :task, property: @property, creator: @creator, owner: @owner, priority: 'wrong thing' }
+    let(:bad_priority)   { build :task, property: @property, creator: @creator, owner: @owner, priority: 64 }
+    let(:no_min_vols)    { build :task, property: @property, creator: @creator, owner: @owner, min_volunteers: nil }
+    let(:no_max_vols)    { build :task, property: @property, creator: @creator, owner: @owner, max_volunteers: nil }
 
     context 'against the schema' do
       it 'in order to save' do
@@ -28,6 +32,9 @@ RSpec.describe Task, type: :model do
         expect { no_creator.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
         expect { no_owner.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
         expect { no_property.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { no_visibility.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { no_min_vols.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { no_max_vols.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       end
     end
 
@@ -38,8 +45,11 @@ RSpec.describe Task, type: :model do
         expect { no_creator.save! }.to raise_error ActiveRecord::RecordInvalid
         expect { no_owner.save! }.to raise_error ActiveRecord::RecordInvalid
         expect { no_property.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_visibility.save! }.to raise_error ActiveRecord::RecordInvalid
         expect { bad_visibility.save! }.to raise_error ActiveRecord::RecordInvalid
         expect { bad_priority.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_min_vols.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_max_vols.save! }.to raise_error ActiveRecord::RecordInvalid
       end
     end
   end
@@ -47,7 +57,7 @@ RSpec.describe Task, type: :model do
   describe 'requires uniqueness' do
     it 'on title and property' do
       @task.save
-      duplicate = FactoryBot.build(:task, title: @task.title, property: @task.property)
+      duplicate = build(:task, title: @task.title, property: @task.property)
 
       expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
@@ -55,15 +65,11 @@ RSpec.describe Task, type: :model do
   end
 
   describe 'requires booleans be in a state:' do
-    let(:bad_license)       { build :task, property: @property, creator: @creator, owner: @owner, license_required: nil }
     let(:bad_needs_no_info) { build :task, property: @property, creator: @creator, owner: @owner, needs_more_info: nil, due: Date.tomorrow, budget: Money.new(300_00), priority: 'low' }
     let(:bad_needs_info)    { build :task, property: @property, creator: @creator, owner: @owner, needs_more_info: nil }
     let(:bad_created)       { build :task, property: @property, creator: @creator, owner: @owner, created_from_api: nil }
-
-    it 'license_required' do
-      expect { bad_license.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_license.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
+    let(:bad_vol_group)     { build :task, property: @property, creator: @creator, owner: @owner, volunteer_group: nil }
+    let(:bad_professional)  { build :task, property: @property, creator: @creator, owner: @owner, professional: nil }
 
     it 'needs_more_info can\'t be stateless because of the model' do
       # `before_save :decide_completeness` potects the state
@@ -77,9 +83,19 @@ RSpec.describe Task, type: :model do
       expect { bad_created.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { bad_created.save! }.to raise_error ActiveRecord::RecordInvalid
     end
+
+    it 'volunteer_group' do
+      expect { bad_vol_group.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { bad_vol_group.save! }.to raise_error ActiveRecord::RecordInvalid
+    end
+
+    it 'professional' do
+      expect { bad_professional.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { bad_professional.save! }.to raise_error ActiveRecord::RecordInvalid
+    end
   end
 
-  describe 'limits records by scope' do
+  describe 'limits records by scope:' do
     let(:has_good_info1) { create :task, property: @property, creator: @creator, owner: @owner, due: Date.tomorrow, priority: 'medium', budget: 500 }
     let(:has_good_info2) { create :task, property: @property, creator: @creator, owner: @owner, due: Date.tomorrow, priority: 'high', budget: 800 }
     let(:has_cost)       { create :task, property: @property, creator: @creator, owner: @owner, cost: 25 }
@@ -91,6 +107,53 @@ RSpec.describe Task, type: :model do
     let(:old)         { create :task, property: @property, creator: @creator, owner: @owner, created_at: Time.now - 8.days }
     let(:due_later)   { create :task, property: @property, creator: @creator, owner: @owner, due: Date.today + 10.days }
     let(:past_due)    { create :task, property: @property, creator: @creator, owner: @owner }
+    let(:on_primary)  { create :task, property: @default, creator: @creator, owner: @owner }
+
+    it '#complete returns only tasks where completed is not nil' do
+      @completed_task.save
+      @task.save
+
+      expect(Task.complete).to include @completed_task
+      expect(Task.complete).not_to include @task
+      expect(Task.complete).not_to include has_good_info1
+    end
+
+    it '#created_since(time) returns only tasks where created_at is greater than the given time' do
+      @task.save
+      @completed_task.save
+      time = Time.now - 2.days
+
+      expect(Task.created_since(time)).not_to include old
+      expect(Task.created_since(time)).to include @task
+      expect(Task.created_since(time)).to include @completed_task
+    end
+
+    it '#due_within(day_num)' do
+      day_num = 7
+
+      expect(Task.due_within(day_num)).not_to include due_later
+      expect(Task.due_within(day_num)).not_to include visibility_1
+      expect(Task.due_within(day_num)).to include has_good_info1
+      expect(Task.due_within(day_num)).to include has_good_info2
+    end
+
+    it '#except_primary returns only tasks where the parent property\'s is_default is false' do
+      @task.save
+      @completed_task.save
+
+      expect(Task.except_primary).to include @task
+      expect(Task.except_primary).to include @completed_task
+      expect(Task.except_primary).not_to include on_primary
+    end
+
+    it '#has_cost returns only tasks where cost is not nil' do
+      @task.save
+      @completed_task.save
+
+      expect(Task.has_cost).to include has_cost
+      expect(Task.has_cost).not_to include @task
+      expect(Task.has_cost).not_to include @completed_task
+    end
 
     it '#in_process returns only tasks where completed is nil' do
       @task.save
@@ -110,22 +173,14 @@ RSpec.describe Task, type: :model do
       expect(Task.needs_more_info).not_to include has_good_info2
     end
 
-    it '#complete returns only tasks where completed is not nil' do
-      @completed_task.save
-      @task.save
+    it '#past_due' do
+      past_due.update_columns(due: Date.today - 2.days)
 
-      expect(Task.complete).to include @completed_task
-      expect(Task.complete).not_to include @task
-      expect(Task.complete).not_to include has_good_info1
-    end
-
-    it '#has_cost' do
-      @task.save
-      @completed_task.save
-
-      expect(Task.has_cost).to include has_cost
-      expect(Task.has_cost).not_to include @task
-      expect(Task.has_cost).not_to include @completed_task
+      expect(Task.past_due).to include past_due
+      expect(Task.past_due).not_to include due_later
+      expect(Task.past_due).not_to include visibility_1
+      expect(Task.past_due).not_to include has_good_info1
+      expect(Task.past_due).not_to include has_good_info2
     end
 
     it '#public_visible returns only undiscarded tasks where visibility is set to everyone' do
@@ -150,55 +205,39 @@ RSpec.describe Task, type: :model do
       expect(Task.visible_to(user)).not_to include visibility_2
       expect(Task.visible_to(user)).not_to include has_good_info1
     end
-
-    it '#created_since(time)' do
-      @task.save
-      @completed_task.save
-      time = Time.now - 2.days
-
-      expect(Task.created_since(time)).not_to include old
-      expect(Task.created_since(time)).to include @task
-      expect(Task.created_since(time)).to include @completed_task
-    end
-
-    it '#due_within(day_num)' do
-      day_num = 7
-
-      expect(Task.due_within(day_num)).not_to include due_later
-      expect(Task.due_within(day_num)).not_to include visibility_1
-      expect(Task.due_within(day_num)).to include has_good_info1
-      expect(Task.due_within(day_num)).to include has_good_info2
-    end
-
-    it '#due_before' do
-      date = Time.now + 5.days
-
-      expect(Task.due_before(date)).not_to include due_later
-      expect(Task.due_before(date)).not_to include visibility_1
-      expect(Task.due_before(date)).to include has_good_info1
-      expect(Task.due_before(date)).to include has_good_info2
-    end
-
-    it '#past_due' do
-      past_due.update_columns(due: Date.today - 2.days)
-
-      expect(Task.past_due).to include past_due
-      expect(Task.past_due).not_to include due_later
-      expect(Task.past_due).not_to include visibility_1
-      expect(Task.past_due).not_to include has_good_info1
-      expect(Task.past_due).not_to include has_good_info2
-    end
   end
 
   describe '#active?' do
-    pending 'needs testing'
+    it 'returns true if completed_at is blank' do
+      @task.save
+      expect(@task.completed_at.blank?).to eq true
+      expect(@task.active?).to eq true
+    end
+
+    it 'returns false if completed_at is present' do
+      @task.completed_at = Time.now
+      @task.save
+      expect(@task.completed_at.blank?).to eq false
+      expect(@task.active?).to eq false
+    end
   end
 
-  describe 'archived?' do
-    pending 'needs testing'
+  describe '#archived?' do
+    it 'returns false if discarded_at is blank' do
+      @task.save
+      expect(@task.discarded_at.present?).to eq false
+      expect(@task.archived?).to eq false
+    end
+
+    it 'returns true if discarded_at is present' do
+      @task.discarded_at = Time.now
+      @task.save
+      expect(@task.discarded_at.present?).to eq true
+      expect(@task.archived?).to eq true
+    end
   end
 
-  describe '#assign_from_api_fields' do
+  describe '#assign_from_api_fields(task_json' do
     it 'returns false if task_json is null' do
       task = Task.new
       expect(task.assign_from_api_fields(nil)).to eq false
@@ -206,7 +245,7 @@ RSpec.describe Task, type: :model do
 
     it 'uses a json hash to assign record values' do
       task = Task.new
-      task_json = FactoryBot.create(:task_json)
+      task_json = create(:task_json)
 
       expect(task.title).to eq nil
       expect(task.notes).to eq nil
@@ -329,7 +368,18 @@ RSpec.describe Task, type: :model do
   end
 
   describe '#complete?' do
-    pending 'needs testing'
+    it 'returns false if completed_at is blank' do
+      @task.save
+      expect(@task.completed_at.present?).to eq false
+      expect(@task.complete?).to eq false
+    end
+
+    it 'returns true if completed_at is true' do
+      @task.completed_at = Time.now
+      @task.save
+      expect(@task.completed_at.present?).to eq true
+      expect(@task.complete?).to eq true
+    end
   end
 
   describe '#create_task_users' do
@@ -399,23 +449,98 @@ RSpec.describe Task, type: :model do
   end
 
   describe '#on_default?' do
-    pending 'needs testing'
+    it 'returns false if parent property is not default' do
+      expect(@task.property.is_default?).to eq false
+      expect(@task.on_default?).to eq false
+    end
+
+    it 'returns true if parent property is default' do
+      @task.property = @default
+      @task.save
+      expect(@task.property.is_default?).to eq true
+      expect(@task.on_default?).to eq true
+    end
   end
 
   describe '#past_due?' do
-    pending 'needs testing'
+    it 'returns false if due is blank' do
+      @task.save
+      expect(@task.due.blank?).to eq true
+      expect(@task.past_due?).to eq false
+    end
+
+    it 'returns false if complete_at is present' do
+      @task.completed_at = Time.now
+      @task.save
+      expect(@task.completed_at.present?).to eq true
+      expect(@task.past_due?).to eq false
+    end
+
+    it 'returns false if due is greater than today' do
+      @task.due = Date.today + 2.days
+      @task.save
+      expect(@task.past_due?).to eq false
+    end
+
+    it 'returns true if due is less than today' do
+      @task.due = Date.today - 2.days
+      @task.save
+      expect(@task.past_due?).to eq true
+    end
   end
 
   describe '#priority_color' do
-    pending 'needs testing'
+    it 'returns a string if priority is between 0 and 4' do
+      @task.save
+      (0..4).to_a.each do |n|
+        @task.update(priority: n)
+        expect(@task.priority_color.length).to be > 3
+      end
+    end
+
+    it 'returns a blank string if property is any other value' do
+      @task.priority = nil
+      @task.save
+      expect(@task.priority_color).to eq ''
+
+      @task.update_column(:priority, 64)
+      expect(@task.priority_color).to eq ''
+    end
   end
 
   describe '#public?' do
-    pending 'needs testing'
+    it 'returns true if visibility is equal to 1' do
+      @task.visibility = 1
+      @task.save
+      expect(@task.visibility).to eq 1
+      expect(@task.public?).to eq true
+    end
+
+    it 'returns false if visibility does not equal 1' do
+      @task.save
+      expect(@task.visibility).to eq 0
+      expect(@task.public?).to eq false
+    end
   end
 
-  describe '#related_to?' do
-    pending 'needs testing'
+  describe '#related_to?(user)' do
+    before :each do
+      @task.save
+    end
+
+    it 'returns true if user is creator' do
+      expect(@task.related_to?(@creator)).to eq true
+    end
+
+    it 'returns true if user is owner' do
+      expect(@task.related_to?(@owner)).to eq true
+    end
+
+    it 'returns false if user isn\'t creator or owner' do
+      unrelated_user = create(:oauth_user)
+
+      expect(@task.related_to?(unrelated_user)).to eq false
+    end
   end
 
   describe '#relocate' do
@@ -459,9 +584,7 @@ RSpec.describe Task, type: :model do
         t.budget = 167
         t.cost = 123
         t.visibility = 1
-        t.license_required = true
         t.needs_more_info = true
-        t.owner_type = 'Admin Staff'
       end
       no_api_change.save!
 
@@ -485,8 +608,9 @@ RSpec.describe Task, type: :model do
     before :each do
       @task.save
       @task.reload
-      @new_user = FactoryBot.create(:oauth_user)
+      @new_user = create(:oauth_user)
     end
+
     it 'returns false if neither user fields have changed' do
       @task.save
       expect(@task.saved_changes_to_users?).to eq false
@@ -504,14 +628,23 @@ RSpec.describe Task, type: :model do
   end
 
   describe '#status' do
-    pending 'needs testing'
+    it 'returns "active" if completed_at is nil' do
+      @task.save
+      expect(@task.status).to eq 'active'
+    end
+
+    it 'returns "complete" if completed_at is present' do
+      @task.completed_at = Time.now
+      @task.save
+      expect(@task.status).to eq 'complete'
+    end
   end
 
   describe '#update_task_users' do
     before :each do
-      @no_api_change  = FactoryBot.create(:task, property: @property, creator: @creator, owner: @owner)
-      @new_user       = FactoryBot.create(:oauth_user, name: 'New user')
-      @new_property   = FactoryBot.create(:property, name: 'New property', is_private: false, creator: @new_user)
+      @no_api_change  = create(:task, property: @property, creator: @creator, owner: @owner)
+      @new_user       = create(:oauth_user, name: 'New user')
+      @new_property   = create(:property, name: 'New property', is_private: false, creator: @new_user)
       WebMock.reset_executed_requests!
     end
 
@@ -525,9 +658,8 @@ RSpec.describe Task, type: :model do
         t.budget = 50_00
         t.cost = 48_00
         t.visibility = 1
-        t.license_required = true
-        t.owner_type = 'Admin Staff'
       end
+
       expect(@no_api_change).not_to receive(:update_task_users)
       @no_api_change.save!
     end
@@ -545,7 +677,56 @@ RSpec.describe Task, type: :model do
   end
 
   describe '#visible_to?(user)' do
-    pending 'needs testing'
+    before :each do
+      @unrelated_user = create(:oauth_user)
+      @admin          = create(:admin)
+      @staff          = create(:user)
+      @not_client     = create(:contractor_user)
+      @client         = create(:client_user)
+    end
+
+    it 'returns true if visibility is 1' do
+      @task.visibility = 1
+      @task.save
+      expect(@task.visible_to?(@unrelated_user)).to eq true
+      expect(@task.visible_to?(@client)).to eq true
+    end
+
+    it 'returns true if user is admin' do
+      @task.save
+      expect(@task.visible_to?(@admin)).to eq true
+      @task.update(visibility: 2)
+      expect(@task.visible_to?(@admin)).to eq true
+    end
+
+    it 'returns true if visibility is 0 and user is staff' do
+      @task.visibility = 0
+      @task.save
+      expect(@task.visible_to?(@staff)).to eq true
+    end
+
+    it 'returns true if visibility is 2 and user is related to task' do
+      @task.visibility = 2
+      @task.save
+      expect(@task.visible_to?(@creator)).to eq true
+    end
+
+    it 'returns true if visibility is 3 and user is not a client' do
+      @task.visibility = 3
+      @task.save
+      expect(@task.visible_to?(@not_client)).to eq true
+    end
+
+    it 'returns false if conditions are not met' do
+      @task.save # 0, visible to staff
+      expect(@task.visible_to?(@client)).to eq false
+
+      @task.update(visibility: 2) # visible to associated people
+      expect(@task.visible_to?(@unrelated_user)).to eq false
+
+      @task.update(visibility: 3) # not clients
+      expect(@task.visible_to?(@client)).to eq false
+    end
   end
 
   # start private methods
