@@ -7,7 +7,7 @@ class TaskUser < ApplicationRecord
   belongs_to :task, inverse_of: :task_users
 
   validates :task, presence: true, uniqueness: { scope: :user }
-  validates_presence_of :tasklist_gid
+  validates_presence_of :tasklist_gid, :scope
   validates_uniqueness_of :google_id, allow_nil: true, allow_blank: true
   validates_inclusion_of :deleted, in: [true, false]
   validates_inclusion_of :scope, in: Constant::TaskUser::SCOPE

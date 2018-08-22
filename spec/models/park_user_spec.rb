@@ -42,8 +42,8 @@ RSpec.describe ParkUser, type: :model do
   end
 
   it 'requires uniqueness on park and user' do
-    first = FactoryBot.create(:park_user)
-    duplicate = FactoryBot.build(:park_user, park: first.park, user: first.user)
+    first = create(:park_user)
+    duplicate = build(:park_user, park: first.park, user: first.user)
 
     expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
   end

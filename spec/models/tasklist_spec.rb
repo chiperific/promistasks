@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe Tasklist, type: :model do
   before :each do
-    @user = FactoryBot.create(:oauth_user)
-    @property = FactoryBot.create(:property, creator: @user, is_private: true)
+    @user = create(:oauth_user)
+    @property = create(:property, creator: @user, is_private: true)
     @tasklist = @property.reload.tasklists.first
     WebMock.reset_executed_requests!
   end
@@ -16,12 +16,10 @@ RSpec.describe Tasklist, type: :model do
     let(:user)            { create :oauth_user }
     let(:property)        { create :property, creator: user, is_private: true }
 
-
     it 'in order to save' do
       property.reload.tasklists.first.destroy
-      tasklist = FactoryBot.build(:tasklist, property: property, user: user)
+      tasklist = build(:tasklist, property: property, user: user)
       expect(tasklist.save!).to eq true
-
 
       expect { no_user.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { no_property.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
@@ -37,7 +35,7 @@ RSpec.describe Tasklist, type: :model do
       user = @tasklist.user
       property = @tasklist.property
 
-      duplicate = FactoryBot.build(:tasklist, user_id: user.id, property_id: property.id)
+      duplicate = build(:tasklist, user_id: user.id, property_id: property.id)
 
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
@@ -49,7 +47,7 @@ RSpec.describe Tasklist, type: :model do
         property = @tasklist.property
         property.update(name: 'validate')
 
-        @duplicate = FactoryBot.build(:tasklist, property: property, google_id: gid)
+        @duplicate = build(:tasklist, property: property, google_id: gid)
       end
 
       it 'in the model' do
@@ -59,14 +57,13 @@ RSpec.describe Tasklist, type: :model do
       it 'but not in the schema' do
         expect { @duplicate.save!(validate: false) }.not_to raise_error
       end
-
     end
   end
 
   describe '#list_api_tasks' do
     before :each do
-      @local_user = FactoryBot.create(:user)
-      @local_tasklist = FactoryBot.create(:tasklist, user: @local_user)
+      @local_user = create(:user)
+      @local_tasklist = create(:tasklist, user: @local_user)
     end
 
     it 'returns false for non-oauth users' do
@@ -92,8 +89,8 @@ RSpec.describe Tasklist, type: :model do
 
   describe 'api interactions' do
     before :each do
-      @local_user = FactoryBot.create(:user)
-      @local_tasklist = FactoryBot.create(:tasklist, user: @local_user)
+      @local_user = create(:user)
+      @local_tasklist = create(:tasklist, user: @local_user)
       WebMock.reset_executed_requests!
     end
 

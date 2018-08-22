@@ -4,14 +4,14 @@ require 'rails_helper'
 
 RSpec.describe Connection, type: :model do
   before :each do
-    @connection = FactoryBot.build(:connection)
+    @connection = build(:connection)
   end
 
   describe 'must be valid' do
     before :each do
-      @no_property     = FactoryBot.build(:connection, property_id: nil)
-      @no_user         = FactoryBot.build(:connection, user_id: nil)
-      @no_relationship = FactoryBot.build(:connection, relationship: nil)
+      @no_property     = build(:connection, property_id: nil)
+      @no_user         = build(:connection, user_id: nil)
+      @no_relationship = build(:connection, relationship: nil)
     end
 
     context 'against the schema' do
@@ -88,7 +88,7 @@ RSpec.describe Connection, type: :model do
       context 'when property has tasks in_process' do
         before :each do
           @property = not_archivable_tasks.property
-          @task = FactoryBot.create(:task, property: @property)
+          @task = create(:task, property: @property)
         end
 
         it 'does not discard the parent property' do

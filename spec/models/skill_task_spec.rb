@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe SkillTask, type: :model do
   before :each do
-    @task = FactoryBot.create(:task)
-    @skill_task = FactoryBot.build(:skill_task, task: @task)
+    @task = create(:task)
+    @skill_task = build(:skill_task, task: @task)
     WebMock.reset_executed_requests!
   end
 
@@ -25,7 +25,7 @@ RSpec.describe SkillTask, type: :model do
 
   it 'can\'t duplicate skill and task' do
     @skill_task.save
-    duplicate = FactoryBot.build(:skill_task, skill: @skill_task.skill, task: @skill_task.task)
+    duplicate = build(:skill_task, skill: @skill_task.skill, task: @skill_task.task)
 
     expect { duplicate.save! }.to raise_error ActiveRecord::RecordNotUnique
   end

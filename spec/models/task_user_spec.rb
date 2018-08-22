@@ -4,9 +4,9 @@ require 'rails_helper'
 
 RSpec.describe TaskUser, type: :model do
   before :each do
-    @user = FactoryBot.create(:oauth_user)
-    @property = FactoryBot.create(:property, creator: @user)
-    @task = FactoryBot.create(:task, property: @property, creator: @user, owner: @user)
+    @user = create(:oauth_user)
+    @property = create(:property, creator: @user)
+    @task = create(:task, property: @property, creator: @user, owner: @user)
     @task_user = @task.task_users.where(user: @user).first
     WebMock.reset_executed_requests!
   end
@@ -17,6 +17,8 @@ RSpec.describe TaskUser, type: :model do
     let(:duplicate_gid) { build :task_user }
     let(:deleted_ni) { build :task_user, deleted: nil }
     let(:no_tasklist_gid) { create :task_user }
+    let(:no_scope) { build :task_user, scope: nil }
+    let(:bad_scope) { build :task_user, scope: 'neither' }
 
     context 'against the schema' do
       it 'in order to save' do
@@ -27,6 +29,8 @@ RSpec.describe TaskUser, type: :model do
 
         no_tasklist_gid.tasklist_gid = nil
         expect { no_tasklist_gid.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+
+        expect { no_scope.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       end
     end
 
@@ -36,6 +40,8 @@ RSpec.describe TaskUser, type: :model do
 
         expect { no_user.save! }.to raise_error ActiveRecord::RecordInvalid
         expect { no_task.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_scope.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { bad_scope.save! }.to raise_error ActiveRecord::RecordInvalid
       end
 
       it 'tasklist_gid is protected from being nil' do
@@ -49,7 +55,7 @@ RSpec.describe TaskUser, type: :model do
     it 'on task and user' do
       @task_user.save
 
-      duplicate = FactoryBot.build(:task_user, task: @task, user: @user, tasklist_gid: 'FAKEmdQ5NTUwMTk3NjU1MjE3MTU6MDo1001')
+      duplicate = build(:task_user, task: @task, user: @user, tasklist_gid: 'FAKEmdQ5NTUwMTk3NjU1MjE3MTU6MDo1001')
       expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
@@ -58,7 +64,7 @@ RSpec.describe TaskUser, type: :model do
       @task_user.save
       @task.update(title: 'validate')
 
-      duplicate = FactoryBot.build(:task_user, task: @task, google_id: @task_user.google_id, tasklist_gid: 'FAKEmdQ5NTUwMTk3NjU1MjE3MTU6MDo1001')
+      duplicate = build(:task_user, task: @task, google_id: @task_user.google_id, tasklist_gid: 'FAKEmdQ5NTUwMTk3NjU1MjE3MTU6MDo1001')
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
   end
@@ -74,10 +80,10 @@ RSpec.describe TaskUser, type: :model do
 
   describe 'api interactions' do
     before :each do
-      non_oauth_user = FactoryBot.create(:user)
-      local_task = FactoryBot.create(:task, creator: non_oauth_user, owner: non_oauth_user)
-      @local_task_user = FactoryBot.build(:task_user, task: local_task, user: non_oauth_user)
-      @unsaved_task_user = FactoryBot.build(:task_user)
+      non_oauth_user = create(:user)
+      local_task = create(:task, creator: non_oauth_user, owner: non_oauth_user)
+      @local_task_user = build(:task_user, task: local_task, user: non_oauth_user)
+      @unsaved_task_user = build(:task_user)
       WebMock.reset_executed_requests!
     end
 
@@ -200,7 +206,7 @@ RSpec.describe TaskUser, type: :model do
 
     it 'uses a json hash to assign record values' do
       task_user = TaskUser.new
-      task_json = FactoryBot.create(:task_json)
+      task_json = create(:task_json)
 
       expect(task_user.google_id).to eq nil
       expect(task_user.deleted).to eq false
@@ -290,7 +296,7 @@ RSpec.describe TaskUser, type: :model do
 
   describe '#relocate' do
     it 'only fires on after_update callback when tasklist_gid changed' do
-      @unsaved_task_user = FactoryBot.build(:task_user)
+      @unsaved_task_user = build(:task_user)
       expect(@unsaved_task_user).not_to receive(:relocate)
       @unsaved_task_user.save!
 

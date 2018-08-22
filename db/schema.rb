@@ -215,7 +215,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
   create_table "task_users", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "task_id", null: false
-    t.string "scope"
+    t.string "scope", null: false
     t.string "tasklist_gid", null: false
     t.string "google_id"
     t.boolean "deleted", default: false, null: false

@@ -42,7 +42,7 @@ class CreateJoins < ActiveRecord::Migration[5.1]
     create_table :task_users do |t|
       t.references :user,     null: false, foreign_key: true
       t.references :task,     null: false, foreign_key: true
-      t.string :scope                                 # Constant::TaskUser::SCOPE
+      t.string :scope,        null: false             # Constant::TaskUser::SCOPE
       t.string :tasklist_gid, null: false             # google field, but maintained from tasklist join table
       t.string :google_id                             # google field, Task ID
       t.boolean :deleted, default: false, null: false # google field

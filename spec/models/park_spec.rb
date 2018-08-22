@@ -24,8 +24,8 @@ RSpec.describe Park, type: :model do
 
   describe 'requires uniqueness on name' do
     before :each do
-      @park = FactoryBot.create(:park)
-      @dup_name = FactoryBot.build(:park, name: @park.name)
+      @park = create(:park)
+      @dup_name = build(:park, name: @park.name)
     end
 
     it 'in the schema' do
@@ -120,8 +120,8 @@ RSpec.describe Park, type: :model do
 
     context 'when discarded_at is nil, but was present in last save' do
       before :each do
-        @park_user = FactoryBot.create(:park_user, park: park)
-        @payment = FactoryBot.create(:payment_park, park: park)
+        @park_user = create(:park_user, park: park)
+        @payment = create(:payment_park, park: park)
 
         park.discard
       end

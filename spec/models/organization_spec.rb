@@ -41,7 +41,7 @@ RSpec.describe Organization, type: :model do
     context 'when an organization already exists' do
       before :each do
         organization
-        @second = FactoryBot.build(:organization, name: 'Not family promise', domain: 'as far as the eye can see')
+        @second = build(:organization, name: 'Not family promise', domain: 'as far as the eye can see')
       end
 
       it 'adds an error to #name' do
