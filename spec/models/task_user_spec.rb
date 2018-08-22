@@ -59,7 +59,6 @@ RSpec.describe TaskUser, type: :model do
       @task.update(title: 'validate')
 
       duplicate = FactoryBot.build(:task_user, task: @task, google_id: @task_user.google_id, tasklist_gid: 'FAKEmdQ5NTUwMTk3NjU1MjE3MTU6MDo1001')
-      expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
   end
@@ -70,33 +69,6 @@ RSpec.describe TaskUser, type: :model do
     it 'deleted' do
       expect { bad_deleted.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       expect { bad_deleted.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
-  end
-
-  describe '#assign_from_api_fields' do
-    it 'returns false if task_json is null' do
-      task_user = TaskUser.new
-      expect(task_user.assign_from_api_fields(nil)).to eq false
-    end
-
-    it 'uses a json hash to assign record values' do
-      task_user = TaskUser.new
-      task_json = FactoryBot.create(:task_json)
-
-      expect(task_user.google_id).to eq nil
-      expect(task_user.position).to eq nil
-      expect(task_user.parent_id).to eq nil
-      expect(task_user.deleted).to eq false
-      expect(task_user.completed_at).to eq nil
-      expect(task_user.updated_at).to eq nil
-
-      task_user.assign_from_api_fields(task_json)
-
-      expect(task_user.google_id).not_to eq nil
-      expect(task_user.position).not_to eq nil
-      expect(task_user.parent_id).not_to eq nil
-      expect(task_user.completed_at).not_to eq nil
-      expect(task_user.updated_at).not_to eq nil
     end
   end
 
@@ -218,81 +190,37 @@ RSpec.describe TaskUser, type: :model do
         expect(WebMock).to have_requested(:delete, Constant::Regex::TASK)
       end
     end
+  end
 
-    describe '#api_move' do
-      it 'only fires if saved_changes_to_placement? is true' do
-        @unsaved_task_user.save!
-        expect(@unsaved_task_user).not_to receive(:api_move)
-        @unsaved_task_user.update(position: 'positionID')
+  describe '#assign_from_api_fields' do
+    it 'returns false if task_json is null' do
+      task_user = TaskUser.new
+      expect(task_user.assign_from_api_fields(nil)).to eq false
+    end
 
-        expect(@task_user).to receive(:api_move)
-        @task_user.update(parent_id: '100101001010011010')
-      end
+    it 'uses a json hash to assign record values' do
+      task_user = TaskUser.new
+      task_json = FactoryBot.create(:task_json)
 
-      it 'returns false for non-oauth users' do
-        expect(@local_task_user.api_move).to eq false
-      end
+      expect(task_user.google_id).to eq nil
+      expect(task_user.deleted).to eq false
+      expect(task_user.completed_at).to eq nil
+      expect(task_user.updated_at).to eq nil
 
-      it 'returns false unless api_fields_are_present?' do
-        @task_user.google_id = nil
-        expect(@task_user.api_move).to eq false
-      end
+      task_user.assign_from_api_fields(task_json)
 
-      it 'makes an API call' do
-        @task_user.api_move
-        expect(WebMock).to have_requested(:post, Constant::Regex::TASK)
-      end
-
-      it 'returns the API response' do
-        response = @task_user.api_move
-        expect(response['kind']).to eq 'tasks#task'
-      end
+      expect(task_user.google_id).not_to eq nil
+      expect(task_user.completed_at).not_to eq nil
+      expect(task_user.updated_at).not_to eq nil
     end
   end
 
-  describe '#saved_changes_to_placement?' do
-    before :each do
-      @task_user.update_column(:position, '00000000002147483647')
-    end
+  # start private methods
 
-    it 'requires at_least_one_placement_is_present?' do
-      @task_user.update_column(:parent_id, nil)
-      expect(@task_user.send(:saved_changes_to_placement?)).to eq false
-
-      @task_user.update(parent_id: '00000000002147483647')
-      expect(@task_user.send(:saved_changes_to_placement?)).to eq true
-    end
-    it 'returns false if no placements have changed' do
-      @task_user.update(updated_at: Time.now)
-      expect(@task_user.send(:saved_changes_to_placement?)).to eq false
-    end
-
-    it 'returns true if parent_id changed' do
-      @task_user.update(parent_id: '100010100101001')
-      expect(@task_user.send(:saved_changes_to_placement?)).to eq true
-    end
-
-    it 'returns true if previous_id changed' do
-      @task_user.update(previous_id: '100010100101001')
-      expect(@task_user.send(:saved_changes_to_placement?)).to eq true
-    end
-  end
-
-  describe '#at_least_one_placement_is_present?' do
-    let(:task_user_none)     { build :task_user }
-    let(:task_user_parent)   { build :task_user, parent_id: 'parent' }
-    let(:task_user_previous) { build :task_user, previous_id: 'previous' }
-
-    it 'returns false if none are present' do
-      expect(task_user_none.send(:at_least_one_placement_is_present?)).to eq false
-    end
-
-    it 'returns true if parent_id is present' do
-      expect(task_user_parent.send(:at_least_one_placement_is_present?)).to eq true
-    end
-
-    it 'returns true if previous_id is present' do
-      expect(task_user_previous.send(:at_least_one_placement_is_present?)).to eq true
+  describe '#api_body' do
+    it 'returns a hash that describes the task' do
+      response = @task_user.send(:api_body)
+      expect(response[:title]).to eq @task_user.task.title
     end
   end
 
@@ -321,89 +249,10 @@ RSpec.describe TaskUser, type: :model do
     end
   end
 
-  describe '#move_uri_builder' do
-    context 'when no placements are present' do
-      let(:placementless) { build :task_user, google_id: 'googleID', tasklist_gid: 'taslistGID' }
-
-      it 'builds a URI' do
-        expect(placementless.send(:move_uri_builder)).to eq 'https://www.googleapis.com/tasks/v1/lists/taslistGID/tasks/googleID/move?'
-      end
-    end
-
-    context 'when parent_id is present' do
-      let(:parentful) { build :task_user, google_id: 'googleID', tasklist_gid: 'taslistGID', parent_id: 'parentID' }
-
-      it 'builds a URI' do
-        expect(parentful.send(:move_uri_builder)).to eq 'https://www.googleapis.com/tasks/v1/lists/taslistGID/tasks/googleID/move?parent=parentID'
-      end
-    end
-
-    context 'when previous_id is present' do
-      let(:previousful) { build :task_user, google_id: 'googleID', tasklist_gid: 'taslistGID', previous_id: 'previousID' }
-
-      it 'builds a URI' do
-        expect(previousful.send(:move_uri_builder)).to eq 'https://www.googleapis.com/tasks/v1/lists/taslistGID/tasks/googleID/move?previous=previousID'
-      end
-    end
-
-    context 'when both placements are present' do
-      let(:placementful) { build :task_user, google_id: 'googleID', tasklist_gid: 'taslistGID', parent_id: 'parentID', previous_id: 'previousID' }
-
-      it 'builds a URI' do
-        expect(placementful.send(:move_uri_builder)).to eq 'https://www.googleapis.com/tasks/v1/lists/taslistGID/tasks/googleID/move?parent=parentID&previous=previousID'
-      end
-    end
-  end
-
-  describe '#set_position_as_integer' do
-    let(:no_position) { create :task_user, task: @task }
-    let(:has_position) { create :task_user, task: @task }
-
-    it 'only fires if position is present' do
-      no_position.update(position: nil)
-      expect(no_position).not_to receive(:set_position_as_integer)
-      no_position.save!
-
-      expect(has_position).to receive(:set_position_as_integer)
-      has_position.save!
-    end
-
-    it 'sets position_int field based upon position' do
-      no_position.update(position: nil)
-      expect(no_position.reload.position).to eq nil
-      expect(no_position.position_int).to eq 0
-
-      has_position.save!
-      expect(has_position.reload.position).to eq '00000000001261646641'
-      expect(has_position.position_int).to eq 1_261_646_641
-    end
-  end
-
-  describe '#set_tasklist_gid' do
-    let(:no_user) { build :task_user, user_id: nil }
-    let(:no_task) { build :task_user, task_id: nil }
-    let(:has_tasklist_gid) { build :task_user, tasklist_gid: 'FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDo1001' }
-    let(:fresh) { build :task_user }
-
-    it 'returns false if user is nil' do
-      expect(no_user.send(:set_tasklist_gid)).to eq false
-    end
-
-    it 'returns false if task is nil' do
-      expect(no_task.send(:set_tasklist_gid)).to eq false
-    end
-
-    it 'only fires if tasklist_gid is empty' do
-      expect(has_tasklist_gid).not_to receive(:set_tasklist_gid)
-      has_tasklist_gid.save!
-    end
-
-    it 'sets the tasklist_gid from the parent property' do
-      expect(fresh.tasklist_gid).to eq nil
-      fresh.save
-      fresh.reload
-      tasklist_google_id = fresh.task.property.tasklists.where(user: fresh.user).first.google_id
-      expect(fresh.tasklist_gid).to eq tasklist_google_id
+  describe '#api_headers' do
+    it 'returns a hash that includes the user\'s oauth_token' do
+      response = @task_user.send(:api_headers)
+      expect(response.as_json['Authorization']).to eq 'OAuth ' + @task_user.user.oauth_token
     end
   end
 
@@ -439,7 +288,7 @@ RSpec.describe TaskUser, type: :model do
     end
   end
 
-  describe 'relocate' do
+  describe '#relocate' do
     it 'only fires on after_update callback when tasklist_gid changed' do
       @unsaved_task_user = FactoryBot.build(:task_user)
       expect(@unsaved_task_user).not_to receive(:relocate)
@@ -465,17 +314,37 @@ RSpec.describe TaskUser, type: :model do
     end
   end
 
-  describe '#api_headers' do
-    it 'returns a hash that includes the user\'s oauth_token' do
-      response = @task_user.send(:api_headers)
-      expect(response.as_json['Authorization']).to eq 'OAuth ' + @task_user.user.oauth_token
+  describe '#set_tasklist_gid' do
+    let(:no_user) { build :task_user, user_id: nil }
+    let(:no_task) { build :task_user, task_id: nil }
+    let(:has_tasklist_gid) { build :task_user, tasklist_gid: 'FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDo1001' }
+    let(:fresh) { build :task_user }
+
+    it 'returns false if user is nil' do
+      expect(no_user.send(:set_tasklist_gid)).to eq false
+    end
+
+    it 'returns false if task is nil' do
+      expect(no_task.send(:set_tasklist_gid)).to eq false
+    end
+
+    it 'only fires if tasklist_gid is empty' do
+      expect(has_tasklist_gid).not_to receive(:set_tasklist_gid)
+      has_tasklist_gid.save!
+    end
+
+    it 'sets the tasklist_gid from the parent property' do
+      expect(fresh.tasklist_gid).to eq nil
+      fresh.save
+      fresh.reload
+      tasklist_google_id = fresh.task.property.tasklists.where(user: fresh.user).first.google_id
+      expect(fresh.tasklist_gid).to eq tasklist_google_id
     end
   end
 
-  describe '#api_body' do
-    it 'returns a hash that describes the task' do
-      response = @task_user.send(:api_body)
-      expect(response[:title]).to eq @task_user.task.title
+  describe '#sequence_google_id(response_id)' do
+    it 'is a construct for testing only' do
+      expect(true).to eq true
     end
   end
 end
