@@ -60,6 +60,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
   create_table "organizations", force: :cascade do |t|
     t.string "name", default: "Family Promise GR", null: false
     t.string "domain", default: "familypromisegr.org", null: false
+    t.string "default_staff_phone", default: "(616) 475-5220", null: false
     t.bigint "billing_contact_id"
     t.bigint "maintenance_contact_id"
     t.bigint "volunteer_contact_id"
@@ -311,6 +312,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.index ["discarded_at"], name: "index_users_on_discarded_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["name"], name: "index_users_on_name", unique: true
+    t.index ["oauth_id"], name: "index_users_on_oauth_id", unique: true
     t.index ["oauth_token"], name: "index_users_on_oauth_token", unique: true
   end
 

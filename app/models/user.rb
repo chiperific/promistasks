@@ -51,8 +51,9 @@ class User < ActiveRecord::Base
 
   validates :name, :email, uniqueness: true, presence: true
   validates :oauth_id, :oauth_token, uniqueness: true, allow_blank: true
-  validates_inclusion_of  :staff, :client, :volunteer, :contractor,
-                          :admin, in: [true, false]
+  validates_presence_of  :phone, :rate_cents, :adults, :children
+  validates_inclusion_of :staff, :client, :volunteer, :contractor,
+                         :admin, in: [true, false]
   validate :must_have_type
   validate :clients_are_limited
 
@@ -60,8 +61,8 @@ class User < ActiveRecord::Base
 
   before_save :admin_are_staff,      if: -> { admin? && !staff? }
   after_create :propegate_tasklists, if: -> { oauth_id.present? && discarded_at.blank? }
-  after_save :discard_joined,        if: -> { discarded_at.present? }
-  after_save :undiscard_joined,      if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
+  after_save :discard_connections,   if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
+  after_save :undiscard_connections, if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
   # rubocop:disable Layout/IndentationConsistency
   # rubocop:disable Layout/IndentationWidth
@@ -94,6 +95,7 @@ class User < ActiveRecord::Base
       user.oauth_refresh_token ||= auth.credentials.refresh_token
       user.oauth_expires_at = Time.at(auth.credentials.expires_at)
       user.staff = true
+      user.phone = Organization.first.default_staff_phone
     end
     @user.save
     @user.reload
@@ -196,8 +198,7 @@ class User < ActiveRecord::Base
     true
   end
 
-  def discard_joined
-    skills.each(&:discard)
+  def discard_connections
     connections.each(&:discard)
   end
 
@@ -217,8 +218,8 @@ class User < ActiveRecord::Base
     end
   end
 
-  def undiscard_joined
-    skills.each(&:undiscard)
+  def undiscard_connections
+    self.reload
     connections.each(&:undiscard)
   end
 end
