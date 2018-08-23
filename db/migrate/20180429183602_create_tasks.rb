@@ -9,7 +9,7 @@ class CreateTasks < ActiveRecord::Migration[5.1]
       t.date :due                                              # google field
       t.references :creator,  references: :users, null: false
       t.references :owner,    references: :users, null: false
-      t.references :subject,  references: :users, null: true, default: nil
+      t.references :subject,  references: :users, null: true
       t.references :property,                     null: false
       t.monetize :budget, amount: { null: true, default: nil }
       t.monetize :cost,   amount: { null: true, default: nil }
@@ -17,13 +17,20 @@ class CreateTasks < ActiveRecord::Migration[5.1]
       t.boolean :needs_more_info,  default: false, null: false
       t.datetime :discarded_at
       t.datetime :completed_at                                 # google field -- completed, lives on this model because completing from one staff should complete for all
-      t.string :owner_type                                     # ['Program Staff', 'Project Staff', 'Admin Staff']
       t.boolean :created_from_api, default: false, null: false
+      t.boolean :volunteer_group,  default: false, null: false
+      t.boolean :professional,     default: false, null: false
+      t.integer :min_volunteers, null: false, default: 0
+      t.integer :max_volunteers, null: false, default: 0
+      t.integer :actual_volunteers
+      t.float :estimated_hours
+      t.float :actual_hours
       t.timestamps
 
       t.index :title
       t.index [:title, :property_id], unique: true
       t.index [:property_id, :title], unique: true
+      t.index :discarded_at
     end
   end
 end

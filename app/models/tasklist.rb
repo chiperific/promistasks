@@ -40,7 +40,7 @@ class Tasklist < ApplicationRecord
 
     response['id'] = sequence_google_id(response['id']) if Rails.env.test?
 
-    update_columns(google_id: response['id'], updated_at: response['updated'])
+    update_columns(google_id: response['id'])
     response
   end
 

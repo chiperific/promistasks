@@ -4,51 +4,137 @@ require 'rails_helper'
 
 RSpec.describe Connection, type: :model do
   before :each do
-    @connection      = FactoryBot.build(:connection)
-    @no_property     = FactoryBot.build(:connection, property_id: nil)
-    @no_user         = FactoryBot.build(:connection, user_id: nil)
-    @no_relationship = FactoryBot.build(:connection, relationship: nil)
+    @connection = build(:connection)
   end
 
-  describe 'must be valid against the schema' do
-    it 'in order to save' do
-      expect { @connection.save!(validate: false) }.not_to raise_error
-      expect { @no_property.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { @no_user.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { @no_relationship.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+  describe 'must be valid' do
+    before :each do
+      @no_property     = build(:connection, property_id: nil)
+      @no_user         = build(:connection, user_id: nil)
+      @no_relationship = build(:connection, relationship: nil)
+    end
+
+    context 'against the schema' do
+      it 'in order to save' do
+        expect { @connection.save!(validate: false) }.not_to raise_error
+        expect { @no_property.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { @no_user.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { @no_relationship.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      end
+    end
+
+    context 'against model' do
+      let(:bad_relationship) { build :connection, relationship: 'its complicated' }
+      let(:bad_stage) { build :connection_stage, stage: 'threw a party' }
+
+      it 'in order to save' do
+        expect(@connection.save!).to eq true
+        expect { @no_property.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { @no_user.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { @no_relationship.save! }.to raise_error ActiveRecord::RecordInvalid
+      end
+
+      it 'validates relationship inclusion' do
+        expect { bad_relationship.save! }.to raise_error ActiveRecord::RecordInvalid
+      end
+
+      it 'validates stage inclusion' do
+        expect { bad_stage.save! }.to raise_error ActiveRecord::RecordInvalid
+      end
     end
   end
 
-  describe 'must be valid against model' do
-    let(:bad_relationship) { build :connection, relationship: 'its complicated' }
-    let(:bad_stage) { build :connection_stage, stage: 'threw a party' }
+  describe '#archive_property' do
+    let(:archivable)              { build :connection_stage, stage: 'transferred title' }
+    let(:wrong_stage)             { build :connection_stage, stage: 'approved' }
+    let(:not_archivable_property) { build :connection_stage, stage: 'transferred title' }
+    let(:not_archivable_tasks)    { build :connection_stage, stage: 'transferred title' }
 
-    it 'in order to save' do
-      expect(@connection.save!).to eq true
-      expect { @no_property.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { @no_user.save! }.to raise_error ActiveRecord::RecordInvalid
-      expect { @no_relationship.save! }.to raise_error ActiveRecord::RecordInvalid
+    context 'when stage != title transferred' do
+      it 'doesn\'t fire' do
+        expect(wrong_stage).not_to receive(:archive_property)
+        wrong_stage.save
+      end
     end
 
-    it 'validates relationship inclusion' do
-      expect { bad_relationship.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
+    context 'when stage == title transferred' do
+      it 'fires' do
+        expect(archivable).to receive(:archive_property).once
+        archivable.save
+      end
 
-    it 'validates stage inclusion' do
-      expect { bad_stage.save! }.to raise_error ActiveRecord::RecordInvalid
+      context 'when property.stage == complete and property has no tasks in_process' do
+        it 'discards the parent property' do
+          expect(archivable.property.discarded?).to eq false
+
+          archivable.save
+          expect(archivable.property.discarded?).to eq true
+        end
+      end
+
+      context 'when property.stage != complete' do
+        it 'does not discard the parent property' do
+          not_archivable_property.property.update(stage: 'construction')
+
+          expect(not_archivable_property.property.discarded?).to eq false
+
+          not_archivable_property.send(:archive_property)
+
+          expect(not_archivable_property.property.discarded?).to eq false
+        end
+      end
+
+      context 'when property has tasks in_process' do
+        before :each do
+          @property = not_archivable_tasks.property
+          @task = create(:task, property: @property)
+        end
+
+        it 'does not discard the parent property' do
+          expect(not_archivable_tasks.property.tasks.count).to eq 1
+          expect(not_archivable_tasks.property.discarded?).to eq false
+
+          not_archivable_tasks.send(:archive_property)
+
+          expect(not_archivable_tasks.property.discarded?).to eq false
+        end
+      end
     end
   end
 
-  it 'can\'t duplicate user and property' do
-    @connection.save
+  describe '#property_ready_for_tennant' do
+    let(:wrong_relationship) { build :connection }
+    let(:property_stage_complete) { build :connection_stage }
+    let(:property_stage_not_complete) { build :connection_stage }
 
-    property = @connection.property
-    user = @connection.user
+    it 'doesn\'t fire if relationship != tennant' do
+      expect(wrong_relationship).not_to receive(:property_ready_for_tennant)
 
-    duplicate = FactoryBot.build(:connection, property_id: property.id, user_id: user.id)
+      wrong_relationship.save
+    end
 
-    expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
-    expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
+    it 'doesn\'t fire if property.stage == complete' do
+      expect(property_stage_complete).not_to receive(:property_ready_for_tennant)
+
+      property_stage_complete.save
+    end
+
+    context 'when relationship == tennant and property.stage != complete' do
+      before :each do
+        property_stage_not_complete.property.update(stage: 'construction')
+      end
+
+      it 'fires' do
+        expect(property_stage_not_complete).to receive(:property_ready_for_tennant)
+
+        property_stage_not_complete.save
+      end
+
+      it 'adds an error to relationship' do
+        expect(property_stage_not_complete.valid?).to eq false
+        expect(property_stage_not_complete.errors[:relationship].present?).to eq true
+      end
+    end
   end
 
   describe '#relationship_appropriate_for_stage' do
@@ -62,21 +148,26 @@ RSpec.describe Connection, type: :model do
   end
 
   describe '#relationship_must_match_user_type' do
-    let(:program)    { create :user, name: 'program user', email: 'program_user@email.computer' }
-    let(:project)    { create :project_user }
-    let(:admin)      { create :admin_user }
+    let(:staff)      { create :user }
+    let(:admin)      { create :admin }
     let(:client)     { create :client_user }
     let(:volunteer)  { create :volunteer_user }
     let(:contractor) { create :contractor_user }
 
+    let(:no_staff)        { build :connection, user_id: nil }
     let(:good_tennant)    { build :connection, relationship: 'tennant', user: client }
-    let(:bad_tennant)     { build :connection, relationship: 'tennant', user: admin }
-    let(:good_staff)      { build :connection, relationship: 'staff contact', user: program }
+    let(:bad_tennant)     { build :connection, relationship: 'tennant', user: staff }
+    let(:good_staff)      { build :connection, relationship: 'staff contact', user: staff }
     let(:bad_staff)       { build :connection, relationship: 'staff contact', user: client }
     let(:good_contractor) { build :connection, relationship: 'contractor', user: contractor }
     let(:bad_contractor)  { build :connection, relationship: 'contractor', user: volunteer }
     let(:good_volunteer)  { build :connection, relationship: 'volunteer', user: volunteer }
     let(:bad_volunteer)   { build :connection, relationship: 'volunteer', user: client }
+
+    it 'returns false if user_id is blank' do
+      expect(no_staff.save).to eq false
+      expect(no_staff.send(:relationship_must_match_user_type)).to eq false
+    end
 
     it 'ensures the user type and relationship are in sync' do
       expect(good_tennant.save!).to eq true

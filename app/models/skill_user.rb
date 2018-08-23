@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class SkillUser < ApplicationRecord
-  include Discard::Model
-
   belongs_to :skill, inverse_of: :skill_users
   belongs_to :user, inverse_of: :skill_users
 

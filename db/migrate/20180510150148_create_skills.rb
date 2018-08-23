@@ -9,6 +9,7 @@ class CreateSkills < ActiveRecord::Migration[5.1]
       t.datetime :discarded_at
       t.timestamps
       t.index :name, unique: true
+      t.index :discarded_at
     end
   end
 end

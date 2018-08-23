@@ -37,11 +37,11 @@ class UserPolicy < ApplicationPolicy
   end
 
   def edit?
-    user&.system_admin? || user == record
+    user&.admin? || user == record
   end
 
   def update?
-    user&.system_admin? || user == record
+    user&.admin? || user == record
   end
 
   def oauth_check?
@@ -49,7 +49,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def api_sync?
-    user&.system_admin? || user == record
+    user&.admin? || user == record
   end
 
   def clear_completed_jobs?
@@ -57,7 +57,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def alerts?
-    user&.system_admin? || user == record
+    user&.admin? || user == record
   end
 
   def owner_enum?

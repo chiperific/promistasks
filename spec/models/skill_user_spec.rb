@@ -25,7 +25,7 @@ RSpec.describe SkillUser, type: :model do
     skill = skill_user.skill
     user = skill_user.user
 
-    duplicate = FactoryBot.build(:skill_user, skill_id: skill.id, user_id: user.id)
+    duplicate = build(:skill_user, skill_id: skill.id, user_id: user.id)
 
     expect { duplicate.save! }.to raise_error ActiveRecord::RecordNotUnique
   end

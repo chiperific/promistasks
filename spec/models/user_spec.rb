@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe User, type: :model do
   before :each do
-    @user = FactoryBot.build(:user)
-    @oauth_user = FactoryBot.build(:oauth_user)
+    @user = build(:user)
+    @oauth_user = build(:oauth_user)
     WebMock.reset_executed_requests!
   end
 
@@ -15,6 +15,10 @@ RSpec.describe User, type: :model do
     let(:no_password)   { build :user, password: nil }
     let(:no_pw_or_conf) { build :user, password: nil, password_confirmation: nil }
     let(:no_encrypt_pw) { build :user, encrypted_password: nil }
+    let(:no_phone)      { build :user, phone: nil }
+    let(:nil_rate)      { build :user, rate: nil }
+    let(:nil_adults)    { build :user, adults: nil }
+    let(:nil_children)  { build :user, children: nil }
 
     context 'against schema' do
       it 'in order to save' do
@@ -23,6 +27,10 @@ RSpec.describe User, type: :model do
         expect { no_name.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
         expect { no_email.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
         expect { no_encrypt_pw.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { no_phone.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { nil_rate.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { nil_adults.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { nil_children.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       end
     end
 
@@ -34,6 +42,10 @@ RSpec.describe User, type: :model do
         expect { no_email.save! }.to raise_error ActiveRecord::RecordInvalid
         expect { no_password.save! }.to raise_error ActiveRecord::RecordInvalid
         expect { no_pw_or_conf.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_phone.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { nil_rate.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { nil_adults.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { nil_children.save! }.to raise_error ActiveRecord::RecordInvalid
       end
     end
   end
@@ -42,7 +54,7 @@ RSpec.describe User, type: :model do
     it 'on name' do
       @user.save
 
-      duplicate = FactoryBot.build(:user, name: @user.name)
+      duplicate = build(:user, name: @user.name)
       expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
@@ -50,7 +62,7 @@ RSpec.describe User, type: :model do
     it 'on email' do
       @user.save
 
-      duplicate = FactoryBot.build(:user, email: @user.email)
+      duplicate = build(:user, email: @user.email)
       expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
@@ -59,7 +71,7 @@ RSpec.describe User, type: :model do
       @user.oauth_id = '100000000000000000001'
       @user.save
 
-      duplicate = FactoryBot.build(:user, oauth_id: @user.oauth_id)
+      duplicate = build(:user, oauth_id: @user.oauth_id)
       expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
@@ -68,34 +80,22 @@ RSpec.describe User, type: :model do
       @user.oauth_token = 'ya29.Glu6BYecZ3wHaU-ilHoWWo0YcZrmpj4j6eet3qec7_3SD1RWt3J4xhx9Bg6IjMELq9WdbbB48sw6T_Y3FmWVI1sgRIMxYg4Nr2wmnt6WxBQ4aqTnChgkEPpYvCX0'
       @user.save
 
-      duplicate = FactoryBot.build(:user, oauth_token: @user.oauth_token)
+      duplicate = build(:user, oauth_token: @user.oauth_token)
       expect { duplicate.save!(validate: false) }.to raise_error ActiveRecord::RecordNotUnique
       expect { duplicate.save! }.to raise_error ActiveRecord::RecordInvalid
     end
   end
 
   describe 'requires booleans be in a state:' do
-    let(:bad_program_staff) { build :user, program_staff: nil }
-    let(:bad_project_staff) { build :user, project_staff: nil }
-    let(:bad_admin_staff)   { build :user, admin_staff: nil }
-    let(:bad_client)        { build :user, client: nil }
-    let(:bad_volunteer)     { build :user, volunteer: nil }
-    let(:bad_contractor)    { build :user, contractor: nil }
-    let(:bad_system_admin)  { build :user, system_admin: nil }
+    let(:bad_staff)      { build :user, staff: nil }
+    let(:bad_client)     { build :user, client: nil }
+    let(:bad_volunteer)  { build :user, volunteer: nil }
+    let(:bad_contractor) { build :user, contractor: nil }
+    let(:bad_admin)      { build :user, admin: nil }
 
-    it 'program_staff' do
-      expect { bad_program_staff.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_program_staff.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
-
-    it 'project_staff' do
-      expect { bad_project_staff.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_project_staff.save! }.to raise_error ActiveRecord::RecordInvalid
-    end
-
-    it 'admin_staff' do
-      expect { bad_admin_staff.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_admin_staff.save! }.to raise_error ActiveRecord::RecordInvalid
+    it 'staff' do
+      expect { bad_staff.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { bad_staff.save! }.to raise_error ActiveRecord::RecordInvalid
     end
 
     it 'client' do
@@ -113,63 +113,70 @@ RSpec.describe User, type: :model do
       expect { bad_contractor.save! }.to raise_error ActiveRecord::RecordInvalid
     end
 
-    it 'system_admin' do
-      expect { bad_system_admin.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect { bad_system_admin.save! }.to raise_error ActiveRecord::RecordInvalid
+    it 'admin' do
+      expect { bad_admin.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect { bad_admin.save! }.to raise_error ActiveRecord::RecordInvalid
     end
   end
 
   describe 'limits records by scope' do
-    let(:client)      { create :client_user }
-    let(:volunteer)   { create :volunteer_user }
-    let(:contractor)  { create :contractor_user}
-    let(:project)     { create :oauth_user }
-    let(:program)     { create :oauth_user, program_staff: true }
-    let(:oauth_user2) { create :oauth_user }
-    let(:property)    { create :property, creator: oauth_user2 }
+    let(:client)           { create :client_user }
+    let(:volunteer)        { create :volunteer_user }
+    let(:client_volunteer) { create :client_user, volunteer: true }
+    let(:admin)            { create :admin }
+    let(:contractor)       { create :contractor_user }
+    let(:oauth_user2)      { create :oauth_user }
+    let(:property)         { create :property, creator: oauth_user2 }
 
-    it '#staff returns only Users with an oauth_id' do
+    it '#staff returns only Users with an oauth_id, where staff is true or admin is true' do
       @user.save
       @oauth_user.save
 
       expect(User.staff).to include @oauth_user
-      expect(User.staff).not_to include @user
+      expect(User.staff).to include @user
+      expect(User.staff).to include admin
+      expect(User.staff).not_to include client
+    end
+
+    it '#not_clients returns only Users where client is false or client is also a volunteer' do
+      @user.save
+      expect(User.not_clients).to include @user
+      expect(User.not_clients).to include client_volunteer
+      expect(User.not_clients).not_to include client
     end
 
     it '#staff_except(user) returns staff minus the provided user' do
       @user.save
       @oauth_user.save
-      client
-      volunteer
-      contractor
-      project
-      program
 
       expect(User.staff_except(@oauth_user)).not_to include @oauth_user
-      expect(User.staff_except(@oauth_user)).not_to include @user
       expect(User.staff_except(@oauth_user)).not_to include client
       expect(User.staff_except(@oauth_user)).not_to include volunteer
       expect(User.staff_except(@oauth_user)).not_to include contractor
-      expect(User.staff_except(@oauth_user)).to include project
-      expect(User.staff_except(@oauth_user)).to include program
+      expect(User.staff_except(@oauth_user)).to include @user
+      expect(User.staff_except(@oauth_user)).to include admin
     end
 
     it '#not_staff returns only Users without an oauth_id' do
       @user.save
       @oauth_user.save
 
-      expect(User.not_staff).to include @user
+      expect(User.not_staff).to include client
+      expect(User.not_staff).to include client_volunteer
+      expect(User.not_staff).to include contractor
+      expect(User.not_staff).to include volunteer
       expect(User.not_staff).not_to include @oauth_user
+      expect(User.not_staff).not_to include @user
     end
 
     context 'property-related scopes' do
       before :each do
         @user.save
         @oauth_user.save
-        FactoryBot.create(:task, property: property, creator: @user, owner: @oauth_user)
-        FactoryBot.create(:task, property: property, creator: @oauth_user, owner: volunteer)
-        FactoryBot.create(:task, property: property, creator: oauth_user2, owner: contractor)
-        FactoryBot.create(:task, property: property, creator: project, owner: @user)
+        create(:task, property: property, creator: @user, owner: @oauth_user)
+        create(:task, property: property, creator: @oauth_user, owner: volunteer)
+        create(:task, property: property, creator: oauth_user2, owner: contractor)
+        create(:task, property: property, creator: @user, owner: @user)
       end
 
       it '#with_tasks_for returns only Users that are related to tasks of the property' do
@@ -178,18 +185,18 @@ RSpec.describe User, type: :model do
         expect(User.with_tasks_for(property)).to include contractor
         expect(User.with_tasks_for(property)).to include @user
         expect(User.with_tasks_for(property)).to include oauth_user2
-        expect(User.with_tasks_for(property)).to include project
-        expect(User.with_tasks_for(property)).not_to include program
+        expect(User.with_tasks_for(property)).not_to include client
+        expect(User.with_tasks_for(property)).not_to include client_volunteer
       end
 
       it '#created_tasks_for returns only Users that are creators of tasks related to property' do
         expect(User.created_tasks_for(property)).to include @user
         expect(User.created_tasks_for(property)).to include @oauth_user
         expect(User.created_tasks_for(property)).to include oauth_user2
-        expect(User.created_tasks_for(property)).to include project
+        expect(User.created_tasks_for(property)).not_to include client
         expect(User.created_tasks_for(property)).not_to include volunteer
         expect(User.created_tasks_for(property)).not_to include contractor
-        expect(User.created_tasks_for(property)).not_to include program
+        expect(User.created_tasks_for(property)).not_to include client_volunteer
       end
 
       it '#owned_tasks_for returns only Users that are owners of tasks related to property' do
@@ -198,18 +205,18 @@ RSpec.describe User, type: :model do
         expect(User.owned_tasks_for(property)).to include contractor
         expect(User.owned_tasks_for(property)).to include @user
         expect(User.owned_tasks_for(property)).not_to include oauth_user2
-        expect(User.owned_tasks_for(property)).not_to include project
-        expect(User.owned_tasks_for(property)).not_to include program
+        expect(User.owned_tasks_for(property)).not_to include client_volunteer
+        expect(User.owned_tasks_for(property)).not_to include client
       end
 
       it '#without_tasks_for returns Users that aren\'t related to tasks of the property' do
-        expect(User.without_tasks_for(property)).to include program
+        expect(User.without_tasks_for(property)).to include client
+        expect(User.without_tasks_for(property)).to include client_volunteer
         expect(User.without_tasks_for(property)).not_to include @oauth_user
         expect(User.without_tasks_for(property)).not_to include volunteer
         expect(User.without_tasks_for(property)).not_to include contractor
         expect(User.without_tasks_for(property)).not_to include @user
         expect(User.without_tasks_for(property)).not_to include oauth_user2
-        expect(User.without_tasks_for(property)).not_to include project
       end
 
       context 'know that if without_task_for works then' do
@@ -224,64 +231,14 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#staff?' do
-    let(:not_staff)    { create :volunteer_user }
-    let(:project_user) { create :project_user }
-    let(:admin_user)   { create :admin_user }
-    let(:system_admin) { create :system_admin }
-
-    it 'returns false if no staff-type booleans are set' do
-      expect(not_staff.staff?).to eq false
-    end
-
-    it 'returns true if program_staff? is true' do
-      expect(@user.staff?).to eq true
-    end
-
-    it 'returns true if project_staff? is true' do
-      expect(project_user.staff?).to eq true
-    end
-
-    it 'returns true if admin_staff? is true' do
-      expect(admin_user.staff?).to eq true
-    end
-
-    it 'returns true if system_admin? is true' do
-      expect(system_admin.staff?).to eq true
-    end
-
-    it 'returns true if oauth_id is present' do
-      expect(@oauth_user.staff?).to eq true
-    end
-  end
-
-  describe '#oauth?' do
-    it 'returns true if user has oauth_id' do
-      expect(@user.oauth?).to eq false
-    end
-
-    it 'returns false if user doesn\'t have oauth_id' do
-      expect(@oauth_user.oauth?).to eq true
-    end
-  end
-
-  describe '#type' do
-    let(:several_types) { create :user, program_staff: true, admin_staff: true, project_staff: true }
-    let(:volunteer)     { create :volunteer_user }
-
-    it 'returns an array of types that describe the user' do
-      expect(@user.type).to eq ['Program Staff']
-      expect(several_types.type).to eq ['Program Staff', 'Project Staff', 'Admin Staff']
-      expect(volunteer.type).to eq ['Volunteer']
-    end
-  end
-
   describe 'self#from_omniauth' do
     it 'finds or creates a user based upon an authorization object' do
       raw_auth = JSON.parse(file_fixture('auth_spec.json').read)
       auth = OmniAuth::AuthHash.new(raw_auth)
       # in case the auth file has already been referenced
       User.where(oauth_id: auth.uid).delete_all
+      # in case the Organization has not already been created
+      Organization.new.save if Organization.count == 0
 
       # first run should add a new user
       expect { User.from_omniauth(auth) }.to(change { User.count })
@@ -299,6 +256,86 @@ RSpec.describe User, type: :model do
   describe '#active_for_authentication?' do
     it 'came from Discard readme' do
       expect(true).to eq true
+    end
+  end
+
+  describe '#fetch_default_tasklist' do
+    it 'returns false if oauth_id is missing' do
+      @user.save
+      expect(@user.fetch_default_tasklist).to eq false
+    end
+
+    it 'makes an API call' do
+      @oauth_user.save
+      @oauth_user.fetch_default_tasklist
+      expect(WebMock).to have_requested(:get, 'https://www.googleapis.com/tasks/v1/users/@me/lists/@default')
+    end
+
+    it 'returns a json tasklist object' do
+      @oauth_user.save
+      response = @oauth_user.fetch_default_tasklist
+      expect(response['kind']).to eq 'tasks#taskList'
+    end
+  end
+
+  describe '#fname' do
+    it 'returns the name field split at the first space' do
+      expect(@user.fname).to eq 'User'
+    end
+  end
+
+  describe '#list_api_tasklists' do
+    it 'returns false if oauth_id is missing' do
+      @user.save
+      expect(@user.list_api_tasklists).to eq false
+    end
+
+    it 'makes an API call' do
+      @oauth_user.save
+      @oauth_user.list_api_tasklists
+      expect(WebMock).to have_requested(:get, 'https://www.googleapis.com/tasks/v1/users/@me/lists')
+    end
+
+    it 'returns a hash of google tasklist objects' do
+      @oauth_user.save
+      response = @oauth_user.list_api_tasklists
+      expect(response['kind']).to eq 'tasks#taskLists'
+    end
+  end
+
+  describe '#not_client?' do
+    let(:client)  { create :client_user }
+    let(:staff)   { create :user }
+    let(:no_type) { build :user, staff: false }
+
+    it 'returns false if user.client == true' do
+      expect(client.not_client?).to eq false
+    end
+
+    it 'returns false if type is empty, user is not admin, and user is not oauth' do
+      expect(no_type.client?).to eq false
+      expect(no_type.type.empty?).to eq true
+      expect(no_type.admin?).to eq false
+      expect(no_type.oauth?).to eq false
+      expect(no_type.not_client?).to eq false
+    end
+
+    it 'returns true if user.client == false, and one of the following is true: type is present, user is admin, or user is oauth' do
+      expect(staff.client?).to eq false
+      expect(staff.type.present?).to eq true
+      expect(staff.admin?).to eq false
+      expect(staff.oauth?).to eq false
+      expect(staff.not_client?).to eq true
+    end
+  end
+
+  describe '#oauth?' do
+    it 'returns true if user has oauth_id' do
+      expect(@user.oauth?).to eq false
+    end
+
+    it 'returns false if user doesn\'t have oauth_id' do
+      expect(@oauth_user.oauth?).to eq true
     end
   end
 
@@ -328,6 +365,19 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#readable_type' do
+    let(:no_type) { build :user, staff: false, oauth_id: 'present' }
+    let(:multiple_types) { build :user, staff: true, contractor: true, volunteer: true }
+
+    it 'returns "Staff" if oauth is true and type is empty' do
+      expect(no_type.readable_type).to eq 'Staff'
+    end
+
+    it 'returns the type(s) joined with commas' do
+      expect(multiple_types.readable_type).to eq 'Staff, Volunteer, Contractor'
+    end
+  end
+
   describe '#token_expired?' do
     let(:token_expired) { create :oauth_user, oauth_expires_at: Time.now - 1.hour }
     let(:token_fresh)   { create :oauth_user, oauth_expires_at: Time.now + 6.hours }
@@ -344,47 +394,108 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#list_api_tasklists' do
-    it 'returns false if oauth_id is missing' do
-      @user.save
-      expect(@user.list_api_tasklists).to eq false
-    end
+  describe '#type' do
+    let(:several_types) { build :user, staff: true, volunteer: true, contractor: true }
+    let(:volunteer)     { build :volunteer_user }
 
-    it 'makes an API call' do
-      @oauth_user.save
-      @oauth_user.list_api_tasklists
-      expect(WebMock).to have_requested(:get, 'https://www.googleapis.com/tasks/v1/users/@me/lists')
-    end
-
-    it 'returns a hash of google tasklist objects' do
-      @oauth_user.save
-      response = @oauth_user.list_api_tasklists
-      expect(response['kind']).to eq 'tasks#taskLists'
+    it 'returns an array of types that describe the user' do
+      expect(@user.type).to eq ['Staff']
+      expect(several_types.type).to eq ['Staff', 'Volunteer', 'Contractor']
+      expect(volunteer.type).to eq ['Volunteer']
     end
   end
 
-  describe '#fetch_default_tasklist' do
-    it 'returns false if oauth_id is missing' do
+  # begin private methods
+
+  describe '#admin_are_staff' do
+    let(:admin) { build :user, admin: true, staff: false, volunteer: true }
+    let(:bad_admin) { build :user, admin: true }
+
+    it 'only fires if admin is checked' do
+      expect(@user).not_to receive(:admin_are_staff)
+      @user.save!
+
+      expect(admin).to receive(:admin_are_staff)
+      admin.save!
+    end
+
+    it 'sets staff to true' do
+      expect(admin.staff?).to eq false
+      admin.save!
+      expect(admin.staff?).to eq true
+    end
+  end
+
+  describe '#api_headers' do
+    let(:user) { create :oauth_user }
+
+    it 'returns a hash' do
+      expect(user.send(:api_headers).is_a?(Hash)).to eq true
+    end
+  end
+
+  describe '#clients_are_limited' do
+    let(:client) { build :client_user, volunteer: true }
+    let(:client_and) { build :client_user, staff: true }
+
+    it 'returns true if the user isn\'t a client' do
+      expect(@user.send(:clients_are_limited)).to eq true
+    end
+
+    it 'returns true if the user is a volunteer' do
+      expect(client.send(:clients_are_limited)).to eq true
+    end
+
+    it 'adds an error if the user has been marked as more than just a client' do
+      client_and.send(:clients_are_limited)
+      expect(client_and.errors[:register_as]).to eq [': Clients can\'t be staff or contractors']
+    end
+  end
+
+  describe '#discard_connections' do
+    before :each do
       @user.save
-      expect(@user.fetch_default_tasklist).to eq false
+      3.times do
+        create(:connection, user: @user, relationship: 'staff contact')
+      end
     end
 
-    it 'makes an API call' do
-      @oauth_user.save
-      @oauth_user.fetch_default_tasklist
-      expect(WebMock).to have_requested(:get, 'https://www.googleapis.com/tasks/v1/users/@me/lists/@default')
+    context 'when discarded_at is not present' do
+      it 'doesn\'t fire' do
+        expect(@user).not_to receive(:discard_connections)
+        @user.update(name: 'new name')
+      end
     end
 
-    it 'returns a json tasklist object' do
-      @oauth_user.save
-      response = @oauth_user.fetch_default_tasklist
-      expect(response['kind']).to eq 'tasks#taskList'
+    context 'when discarded_at is present but was also present at last save' do
+      it 'doesn\'t fire' do
+        @user.discard
+
+        expect(@user).not_to receive(:discard_connections)
+        @user.update(discarded_at: Time.now + 2.minutes)
+      end
+    end
+
+    context 'when discarded_at is present and wasn\'t at last save' do
+      it 'fires' do
+        expect(@user).to receive(:discard_connections)
+        @user.discard
+      end
+
+      it 'sets all child connections as discarded' do
+        expect(@user.connections.active.count).to eq 3
+
+        @user.send(:discard_connections)
+
+        expect(@user.connections.active.count).to eq 0
+        expect(@user.connections.count).to eq 3
+      end
     end
   end
 
   describe '#must_have_type' do
-    let(:no_type) { build :user, program_staff: nil }
-    let(:several_types) { create :user, program_staff: true, admin_staff: true, project_staff: true }
+    let(:no_type)       { build :user, staff: false }
+    let(:several_types) { create :user, staff: true, admin: true, volunteer: true }
     let(:volunteer)     { create :volunteer_user }
 
     it 'returns true if the user has at least one type' do
@@ -398,46 +509,9 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#clients_are_singular' do
-    let(:client) { build :client_user }
-    let(:client_and) { build :client_user, program_staff: true }
-
-    it 'returns true if the user isn\'t a client' do
-      expect(@user.send(:clients_are_singular)).to eq true
-    end
-
-    it 'returns true if the user is only a client' do
-      expect(client.send(:clients_are_singular)).to eq true
-    end
-
-    it 'adds an error if the user has been marked as more than just a client' do
-      client_and.send(:clients_are_singular)
-      expect(client_and.errors[:register_as]).to eq [': Clients can\'t have another type']
-    end
-  end
-
-  describe '#system_admin_must_be_internal' do
-    let(:system_admin) { build :oauth_user, system_admin: true }
-    let(:bad_admin) { build :user, system_admin: true }
-
-    it 'only fires if system_admin is checked' do
-      expect(@user).not_to receive(:system_admin_must_be_internal)
-      @user.save!
-
-      expect(system_admin).to receive(:system_admin_must_be_internal)
-      system_admin.save!
-    end
-
-    it 'adds an error if the user doesn\'t have an oauth_id' do
-      bad_admin.save
-      expect(bad_admin.errors[:system_admin]).to eq ['must be internal staff with a linked Google account']
-      expect(system_admin.save!).to eq true
-    end
-  end
-
   describe '#propegate_tasklists' do
     before :each do
-      3.times { FactoryBot.create(:property) }
+      3.times { create(:property) }
     end
 
     it 'only fires if user has an oauth_id' do
@@ -456,11 +530,50 @@ RSpec.describe User, type: :model do
     end
 
     it 'creates tasklists for the new user' do
-      first_count = Tasklist.where(user: @oauth_user).count
-      prop_count = Property.public_visible.count
-      @oauth_user.save
+      # expect(Tasklist.where(user: @oauth_user).count).to eq first_count + prop_count
+      expect { @oauth_user.save }.to change { Tasklist.where(user: @oauth_user).count }.by(3)
+    end
+  end
 
-      expect(Tasklist.where(user: @oauth_user).count).to eq first_count + prop_count
+  describe '#undiscard_connections' do
+    before :each do
+      @user.discarded_at = Time.now
+      @user.save
+      3.times do
+        create(:connection, user: @user, relationship: 'staff contact', discarded_at: Time.now)
+      end
+    end
+
+    context 'when discarded_at is present' do
+      it 'doesn\'t fire' do
+        expect(@user).not_to receive(:undiscard_connections)
+        @user.discard
+      end
+    end
+
+    context 'when discarded_at is blank and was blank before last save' do
+      it 'doesn\'t fire' do
+        @user.undiscard
+
+        expect(@user).not_to receive(:undiscard_connections)
+        @user.update(name: 'new name')
+      end
+    end
+
+    context 'when discarded_at is blank and was present before last save' do
+      it 'fires' do
+        expect(@user).to receive(:undiscard_connections)
+        @user.undiscard
+      end
+
+      it 'sets all child connections as undiscarded' do
+        expect(@user.connections.discarded.count).to eq 3
+
+        @user.undiscard
+
+        expect(@user.connections.discarded.count).to eq 0
+        expect(@user.connections.count).to eq 3
+      end
     end
   end
 end

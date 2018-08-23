@@ -14,6 +14,7 @@ class RegistrationsController < Devise::RegistrationsController
     end
 
     if @user.save
+      # send an email to vol coordinator
       flash[:success] = "Welcome, #{@user.fname}"
       redirect_to @return_path
     else
@@ -30,11 +31,9 @@ class RegistrationsController < Devise::RegistrationsController
 
   def account_update_params
     params.require(:user).permit(:name, :title,
-                                 :program_staff, :project_staff, :admin_staff,
-                                 :client, :volunteer, :contractor,
+                                 :staff, :client, :volunteer, :contractor,
                                  :rate, :rate_cents, :rate_currency,
-                                 :phone1, :phone2, :address1, :address2, :city, :state, :postal_code,
-                                 :email, :password, :password_confirmation,
-                                 :system_admin, :discarded_at, :register_as)
+                                 :phone, :email, :password, :password_confirmation,
+                                 :admin, :discarded_at, :register_as)
   end
 end
