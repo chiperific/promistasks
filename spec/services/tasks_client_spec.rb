@@ -16,25 +16,6 @@ RSpec.describe TasksClient, type: :service do
     @new_task = stub_model(Task).as_new_record
   end
 
-  describe '#connect' do
-    it 'calls user.refresh_token!' do
-      expect(@user).to receive(:refresh_token!).once
-      @tc.connect
-    end
-  end
-
-  describe '#fetch' do
-    it 'calls #connect' do
-      expect(@tc).to receive(:connect).once
-      @tc.fetch
-    end
-
-    it 'calls tasklist.list_api_tasks' do
-      expect(@tasklist).to receive(:list_api_tasks).once
-      @tc.fetch
-    end
-  end
-
   describe 'self.fetch_with_tasklist_gid_and_user' do
     it 'returns false if user.oauth_token is not present' do
       allow(@user).to receive(:oauth_token).and_return(nil)
@@ -64,47 +45,6 @@ RSpec.describe TasksClient, type: :service do
     end
   end
 
-  describe '#sync' do
-    it 'calls #fetch' do
-      expect(@tc).to receive(:fetch).once
-      @tc.sync
-    end
-
-    it 'returns nil if tasks_json is nil' do
-      allow(@tc).to receive(:fetch).and_return(nil)
-      expect(@tc.sync).to eq nil
-    end
-
-    it 'returns tasks_json if tasks_json contains errors' do
-      allow(@tc).to receive(:fetch).and_return(@error_response)
-      expect(@tc.sync).to eq @error_response
-    end
-
-    it 'calls #handle_task for each tasks_json item' do
-      allow(@tc).to receive(:fetch).and_return(@list_api_tasks)
-
-      expect(@tc).to receive(:handle_task).exactly(8).times
-      @tc.sync
-    end
-  end
-
-  describe '#not_in_api' do
-    it 'calls #fetch' do
-      allow(@tc).to receive(:fetch).and_return(@list_api_tasks)
-
-      expect(@tc).to receive(:fetch).once
-      @tc.not_in_api
-    end
-
-    it 'calls TaskUser.where' do
-      allow(@tc).to receive(:fetch).and_return(@list_api_tasks)
-      allow(TaskUser).to receive_message_chain('where.where.where.not').and_return([1, 2])
-
-      expect(TaskUser).to receive_message_chain(:where, :where, :where, :not) { [1, 2] }
-      @tc.not_in_api
-    end
-  end
-
   describe 'self.not_in_api_with_tasklist_gid_and_user' do
     it 'calls self.fetch_with_tasklist_gid_and_user' do
       allow(TasksClient).to receive(:fetch_with_tasklist_gid_and_user).and_return(@list_api_tasks)
@@ -122,28 +62,10 @@ RSpec.describe TasksClient, type: :service do
     end
   end
 
-  describe '#push' do
-    it 'calls #not_in_api' do
-      allow(@tc).to receive(:fetch).and_return(@list_api_tasks)
-
-      expect(@tc).to receive(:not_in_api)
-      @tc.push
-    end
-
-    it 'returns false if #not_in_api returns nothing' do
-      allow(@tc).to receive(:not_in_api).and_return([])
-      expect(@tc.push).to eq false
-    end
-
-    it 'calls task_user.api_insert' do
-      taskuser1 = double(:task_user, api_insert: '')
-      taskuser2 = double(:task_user, api_insert: '')
-      tu_container = [taskuser1, taskuser2]
-      allow(@tc).to receive(:not_in_api).and_return(tu_container)
-      @tc.push
-
-      expect(taskuser1).to have_received(:api_insert).once
-      expect(taskuser2).to have_received(:api_insert).once
+  describe '#connect' do
+    it 'calls user.refresh_token!' do
+      expect(@user).to receive(:refresh_token!).once
+      @tc.connect
     end
   end
 
@@ -159,6 +81,41 @@ RSpec.describe TasksClient, type: :service do
       allow(@tc).to receive(:fetch).and_return(@list_api_tasks)
 
       expect(@tc.count).to eq 8
+    end
+  end
+
+  describe '#create_task' do
+    before :each do
+      allow(Task).to receive(:create).and_return(@new_task)
+      allow(@new_task).to receive(:save!).and_return(@task)
+      allow(@new_task).to receive(:reload).and_return(@task)
+    end
+
+    it 'calls Task.create' do
+      expect(Task).to receive(:create).once
+      @tc.create_task(@task_json)
+    end
+
+    it 'calls task.save!' do
+      expect(@new_task).to receive(:save!).once
+      @tc.create_task(@task_json)
+    end
+
+    it 'calls task.reload' do
+      expect(@new_task).to receive(:reload).once
+      @tc.create_task(@task_json)
+    end
+  end
+
+  describe '#fetch' do
+    it 'calls #connect' do
+      expect(@tc).to receive(:connect).once
+      @tc.fetch
+    end
+
+    it 'calls tasklist.list_api_tasks' do
+      expect(@tasklist).to receive(:list_api_tasks).once
+      @tc.fetch
     end
   end
 
@@ -229,26 +186,69 @@ RSpec.describe TasksClient, type: :service do
     end
   end
 
-  describe '#create_task' do
-    before :each do
-      allow(Task).to receive(:create).and_return(@new_task)
-      allow(@new_task).to receive(:save!).and_return(@task)
-      allow(@new_task).to receive(:reload).and_return(@task)
+  describe '#not_in_api' do
+    it 'calls #fetch' do
+      allow(@tc).to receive(:fetch).and_return(@list_api_tasks)
+
+      expect(@tc).to receive(:fetch).once
+      @tc.not_in_api
     end
 
-    it 'calls Task.create' do
-      expect(Task).to receive(:create).once
-      @tc.create_task(@task_json)
+    it 'calls TaskUser.where' do
+      allow(@tc).to receive(:fetch).and_return(@list_api_tasks)
+      allow(TaskUser).to receive_message_chain('where.where.where.not').and_return([1, 2])
+
+      expect(TaskUser).to receive_message_chain(:where, :where, :where, :not) { [1, 2] }
+      @tc.not_in_api
+    end
+  end
+
+  describe '#push' do
+    it 'calls #not_in_api' do
+      allow(@tc).to receive(:fetch).and_return(@list_api_tasks)
+
+      expect(@tc).to receive(:not_in_api)
+      @tc.push
     end
 
-    it 'calls task.save!' do
-      expect(@new_task).to receive(:save!).once
-      @tc.create_task(@task_json)
+    it 'returns false if #not_in_api returns nothing' do
+      allow(@tc).to receive(:not_in_api).and_return([])
+      expect(@tc.push).to eq false
     end
 
-    it 'calls task.reload' do
-      expect(@new_task).to receive(:reload).once
-      @tc.create_task(@task_json)
+    it 'calls task_user.api_insert' do
+      taskuser1 = double(:task_user, api_insert: '')
+      taskuser2 = double(:task_user, api_insert: '')
+      tu_container = [taskuser1, taskuser2]
+      allow(@tc).to receive(:not_in_api).and_return(tu_container)
+      @tc.push
+
+      expect(taskuser1).to have_received(:api_insert).once
+      expect(taskuser2).to have_received(:api_insert).once
+    end
+  end
+
+  describe '#sync' do
+    it 'calls #fetch' do
+      expect(@tc).to receive(:fetch).once
+      @tc.sync
+    end
+
+    it 'returns nil if tasks_json is nil' do
+      allow(@tc).to receive(:fetch).and_return(nil)
+      expect(@tc.sync).to eq nil
+    end
+
+    it 'returns tasks_json if tasks_json contains errors' do
+      allow(@tc).to receive(:fetch).and_return(@error_response)
+      expect(@tc.sync).to eq @error_response
+    end
+
+    it 'calls #handle_task for each tasks_json item' do
+      allow(@tc).to receive(:fetch).and_return(@list_api_tasks)
+
+      expect(@tc).to receive(:handle_task).exactly(8).times
+      @tc.sync
     end
   end
 
@@ -275,6 +275,7 @@ RSpec.describe TasksClient, type: :service do
       allow(@task_user).to receive(:user_id=)
       allow(@task_user).to receive(:assign_from_api_fields).with(@task_json)
       allow(@task_user).to receive(:tasklist_gid=)
+      allow(@task_user).to receive(:scope=)
       allow(@task_user).to receive(:save!).and_return(@task_user)
       allow(@task_user).to receive(:reload).and_return(@task_user)
     end

@@ -9,15 +9,6 @@ class TasksClient
     @user = @tasklist.user
   end
 
-  def connect
-    @user.refresh_token!
-  end
-
-  def fetch
-    connect
-    @tasklist.list_api_tasks
-  end
-
   def self.fetch_with_tasklist_gid_and_user(google_id, user)
     return false unless user.oauth_token.present?
     user.refresh_token!
@@ -29,25 +20,6 @@ class TasksClient
     response
   end
 
-  def sync
-    tasks_json = fetch
-    return tasks_json if tasks_json.blank? ||
-                         tasks_json['errors'].present? ||
-                         tasks_json['items'].blank?
-
-    tasks_json['items'].each do |task_json|
-      next if task_json['title'] == ''
-      handle_task(task_json)
-    end
-  end
-
-  def not_in_api
-    tasks_json = fetch
-    TaskUser.where(user: @user)
-            .where(tasklist_gid: @tasklist.google_id)
-            .where.not(google_id: tasks_json['items']&.map { |i| i['id'] })
-  end
-
   def self.not_in_api_with_tasklist_gid_and_user(google_id, user)
     tasks_json = fetch_with_tasklist_gid_and_user(google_id, user)
     TaskUser.where(user: @user)
@@ -55,15 +27,29 @@ class TasksClient
             .where.not(google_id: tasks_json['items']&.map { |i| i['id'] })
   end
 
-  def push
-    pushable = not_in_api
-    return false unless pushable.present?
-    pushable.each(&:api_insert)
+  def connect
+    @user.refresh_token!
   end
 
   def count
     task_json = fetch
     task_json['items'].present? ? task_json['items'].count : 0
+  end
+
+  def create_task(task_json)
+    task = Task.create.tap do |t|
+      t.creator_id = @user.id
+      t.owner_id = @user.id
+      t.property_id = @tasklist.property.id
+      t.assign_from_api_fields(task_json)
+    end
+    task.save!
+    task.reload
+  end
+
+  def fetch
+    connect
+    @tasklist.list_api_tasks
   end
 
   def handle_task(task_json)
@@ -83,15 +69,29 @@ class TasksClient
     end
   end
 
-  def create_task(task_json)
-    task = Task.create.tap do |t|
-      t.creator_id = @user.id
-      t.owner_id = @user.id
-      t.property_id = @tasklist.property.id
-      t.assign_from_api_fields(task_json)
+  def not_in_api
+    tasks_json = fetch
+    TaskUser.where(user: @user)
+            .where(tasklist_gid: @tasklist.google_id)
+            .where.not(google_id: tasks_json['items']&.map { |i| i['id'] })
+  end
+
+  def push
+    pushable = not_in_api
+    return false unless pushable.present?
+    pushable.each(&:api_insert)
+  end
+
+  def sync
+    tasks_json = fetch
+    return tasks_json if tasks_json.blank? ||
+                         tasks_json['errors'].present? ||
+                         tasks_json['items'].blank?
+
+    tasks_json['items'].each do |task_json|
+      next if task_json['title'] == ''
+      handle_task(task_json)
     end
-    task.save!
-    task.reload
   end
 
   def update_task(task, task_json)
