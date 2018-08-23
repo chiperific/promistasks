@@ -1,9 +1,6 @@
 # Google Tasks API Extension for Family Promise GR
 
 ## To do:
-2. Model Tests:
-  - Practically re-write
-
 3. Service Tests:
   - Nerfed
 
