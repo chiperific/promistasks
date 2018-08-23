@@ -3,7 +3,7 @@
 class CreateUtilities < ActiveRecord::Migration[5.2]
   def change
     create_table :utilities do |t|
-      t.string :name
+      t.string :name, null: false
       t.text :notes
       t.string :address
       t.string :city

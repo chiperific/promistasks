@@ -13,23 +13,16 @@ class Utility < ApplicationRecord
 
   geocoded_by :full_address
 
-  after_validation :geocode, if: -> { address_has_changed? }
-  after_save :cascade_discard, if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
-  after_save :cascade_undisacrd, if: -> { discarded_at.nil? && discarded_at_before_last_save.present? }
+  after_validation :geocode,      if: -> { address_has_changed? }
+  after_save :discard_payments,   if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
+  after_save :undiscard_payments, if: -> { discarded_at.nil? && discarded_at_before_last_save.present? }
 
   def address_has_changed?
+    return false if address.blank?
     address_changed? ||
       city_changed? ||
       state_changed? ||
       postal_code_changed?
-  end
-
-  def cascade_discard
-    payments.each(&:discard)
-  end
-
-  def cascade_undiscard
-    payments.each(&:undiscard)
   end
 
   def full_address
@@ -52,8 +45,20 @@ class Utility < ApplicationRecord
   end
 
   def google_map_link
-    return false if full_address.blank?
+    return false unless good_address?
     base = 'https://www.google.com/maps/?q='
     base + full_address.tr(' ', '+')
   end
+
+  private
+
+  def discard_payments
+    payments.each(&:discard)
+  end
+
+  def undiscard_payments
+    self.reload
+    payments.each(&:undiscard)
+  end
+
 end

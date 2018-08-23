@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
+  sequence :utility_name do |n|
+    "Necessary Utility Services #{n}"
+  end
+
   factory :utility do
-    sequence(:name) { |n| "Necessary Utility Services #{n}" }
+    name { generate(:utility_name) }
   end
 end

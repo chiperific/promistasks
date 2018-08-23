@@ -317,7 +317,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
   end
 
   create_table "utilities", force: :cascade do |t|
-    t.string "name"
+    t.string "name", null: false
     t.text "notes"
     t.string "address"
     t.string "city"
