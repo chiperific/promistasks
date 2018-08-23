@@ -38,13 +38,6 @@ RSpec.describe UsersHelper, type: :helper do
         expect(helper.pulse_alert(tasks_no_past_due, props_no_nearing_budget)).to eq true
       end
 
-      it 'returns true if there are properties nearing budget' do
-        tasks_no_past_due = double(:task, past_due: [])
-        props_no_over_budget = double(:property, over_budget: [], nearing_budget: [1, 2, 3, 4])
-
-        expect(helper.pulse_alert(tasks_no_past_due, props_no_over_budget)).to eq true
-      end
-
       it 'returns false if no conditions are met' do
         tasks_no_past_due = double(:task, past_due: [])
         props_no_budgets = double(:property, over_budget: [], nearing_budget: [])
@@ -109,7 +102,7 @@ RSpec.describe UsersHelper, type: :helper do
     describe '#alert_color' do
       it 'returns red if pulse_alert is true' do
         tasks = double(:task, past_due: [1, 2, 3, 4], needs_more_info: [], due_within: [])
-        properties = double(:property)
+        properties = double(:property, over_budget: [], nearing_budget: [])
 
         expect(helper.alert_color(tasks, properties)).to eq 'red'
       end
@@ -121,7 +114,7 @@ RSpec.describe UsersHelper, type: :helper do
         expect(helper.alert_color(tasks, properties)).to eq 'amber'
       end
 
-      it 'returns yellow if there are tasks that need more information but not due within 7 days and pulse_alert is false' do
+      it 'returns orange if there are tasks that need more information but not due within 7 days and pulse_alert is false' do
         tasks = double(:task, past_due: [], needs_more_info: [], due_within: [])
         properties = double(:property, over_budget: [], nearing_budget: [1, 2])
 
