@@ -11,18 +11,19 @@ class TasklistsClient
     @user.refresh_token!
   end
 
-  def fetch_default
-    connect
-    @user.fetch_default_tasklist
+  def count
+    tl_json = fetch
+    tl_json['items'].present? ? tl_json['items'].count : 0
   end
 
-  def sync_default
-    default_tasklist_json = fetch_default
-    return default_tasklist_json if default_tasklist_json.nil? || default_tasklist_json['errors'].present?
-
-    id = handle_tasklist(default_tasklist_json, true)
-
-    Tasklist.find(id)
+  def create_property(title, default)
+    Property.create(
+      name: title,
+      creator: @user,
+      is_default: default,
+      is_private: true,
+      created_from_api: true
+    )
   end
 
   def fetch
@@ -30,35 +31,9 @@ class TasklistsClient
     @user.list_api_tasklists
   end
 
-  def sync
-    tasklists_json = fetch
-    return tasklists_json if tasklists_json.nil? || tasklists_json['errors'].present?
-    default_id = fetch_default['id']
-    tasklist_ids = []
-
-    tasklists_json['items'].each do |tasklist_json|
-      next if tasklist_json['id'] == default_id
-      tasklist_ids << handle_tasklist(tasklist_json)
-    end
-
-    Tasklist.where(id: tasklist_ids.uniq)
-  end
-
-  def not_in_api
-    tls_json = fetch
-    items = tls_json['items'].present? ? tls_json['items'].map { |i| i['id'] } : 0
-    Tasklist.where(user: @user).where.not(google_id: items)
-  end
-
-  def push
-    pushable = not_in_api
-    return false unless pushable.present?
-    pushable.each(&:api_insert)
-  end
-
-  def count
-    tl_json = fetch
-    tl_json['items'].present? ? tl_json['items'].count : 0
+  def fetch_default
+    connect
+    @user.fetch_default_tasklist
   end
 
   def handle_tasklist(tasklist_json, default = false)
@@ -80,14 +55,39 @@ class TasklistsClient
     tasklist.reload.id
   end
 
-  def create_property(title, default)
-    Property.create(
-      name: title,
-      creator: @user,
-      is_default: default,
-      is_private: true,
-      created_from_api: true
-    )
+  def not_in_api
+    tls_json = fetch
+    items = tls_json['items'].present? ? tls_json['items'].map { |i| i['id'] } : 0
+    Tasklist.where(user: @user).where.not(google_id: items)
+  end
+
+  def push
+    pushable = not_in_api
+    return false unless pushable.present?
+    pushable.each(&:api_insert)
+  end
+
+  def sync
+    tasklists_json = fetch
+    return tasklists_json if tasklists_json.nil? || tasklists_json['errors'].present?
+    default_id = fetch_default['id']
+    tasklist_ids = []
+
+    tasklists_json['items'].each do |tasklist_json|
+      next if tasklist_json['id'] == default_id
+      tasklist_ids << handle_tasklist(tasklist_json)
+    end
+
+    Tasklist.where(id: tasklist_ids.uniq)
+  end
+
+  def sync_default
+    default_tasklist_json = fetch_default
+    return default_tasklist_json if default_tasklist_json.nil? || default_tasklist_json['errors'].present?
+
+    id = handle_tasklist(default_tasklist_json, true)
+
+    Tasklist.find(id)
   end
 
   def update_property(property, title)
