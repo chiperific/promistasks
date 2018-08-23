@@ -33,6 +33,43 @@ RSpec.describe SyncUserWithApiJob, type: :job do
     allow(@tlc).to receive(:sync_default).and_return(@tasklist)
   end
 
+  describe '#oauth_creds_exist' do
+    it 'returns false if user has no oauth_id' do
+      allow(@user).to receive(:oauth_id).and_return(nil)
+      allow(@user).to receive(:oauth_token).and_return('1')
+      allow(@user).to receive(:oauth_refresh_token).and_return('1')
+
+      expect(@user.oauth_id.present?).to eq false
+      expect(@sync_job.oauth_creds_exist).to eq false
+    end
+
+    it 'returns false if user has no oauth_token' do
+      allow(@user).to receive(:oauth_id).and_return('1')
+      allow(@user).to receive(:oauth_token).and_return(nil)
+      allow(@user).to receive(:oauth_refresh_token).and_return('1')
+
+      expect(@user.oauth_token.present?).to eq false
+      expect(@sync_job.oauth_creds_exist).to eq false
+    end
+
+    it 'returns false if user has no oauth_refresh_token' do
+      allow(@user).to receive(:oauth_id).and_return('1')
+      allow(@user).to receive(:oauth_token).and_return('1')
+      allow(@user).to receive(:oauth_refresh_token).and_return(nil)
+
+      expect(@user.oauth_refresh_token.present?).to eq false
+      expect(@sync_job.oauth_creds_exist).to eq false
+    end
+
+    it 'returns true if all three oauth fields are present' do
+      allow(@user).to receive(:oauth_id).and_return('1')
+      allow(@user).to receive(:oauth_token).and_return('1')
+      allow(@user).to receive(:oauth_refresh_token).and_return('1')
+
+      expect(@sync_job.oauth_creds_exist).to eq true
+    end
+  end
+
   describe '#perform' do
     before :each do
       allow(@sync_job).to receive(:determine_progress_max)
@@ -42,6 +79,9 @@ RSpec.describe SyncUserWithApiJob, type: :job do
       allow(@sync_job).to receive(:push_tasklists)
       allow(@sync_job).to receive(:push_from_app)
       allow(@tlc).to receive(:not_in_api).and_return([1, 2, 3, 4, 5])
+      allow(@user).to receive(:oauth_id).and_return('1')
+      allow(@user).to receive(:oauth_token).and_return('1')
+      allow(@user).to receive(:oauth_refresh_token).and_return('1')
     end
 
     it 'calls #determine_progress_max' do
