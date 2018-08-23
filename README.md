@@ -1,12 +1,6 @@
 # Google Tasks API Extension for Family Promise GR
 
 ## To do:
-2. Model Tests:
-  - Practically re-write
-
-3. Service Tests:
-  - Nerfed
-
 4. Controllers:
   - Process changes from models
   - System sends email when new [Volunteer, Contractor, ] signs up
