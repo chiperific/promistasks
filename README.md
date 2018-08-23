@@ -72,3 +72,4 @@
   - open an additional terminal session (i.e. a new shell)
   - enter pry-remote and the state is loaded
 10. IceCube date recurrences: https://github.com/seejohnrun/ice_cube
+11. Mailer previews: http://localhost:3000/rails/mailers
