@@ -41,7 +41,7 @@ class Property < ApplicationRecord
   after_save :discard_connections,                  if: -> { discarded_at.present? }
   after_save :undiscard_connections,                if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
-  scope :except_default, ->       { undiscarded.where(is_default: false) }
+  scope :except_default, ->       { where(is_default: false) }
   scope :needs_title,    ->       { undiscarded.where(certificate_number: nil) }
   scope :public_visible, ->       { undiscarded.where(is_private: false) }
   scope :created_by,     ->(user) { undiscarded.where(creator: user) }
@@ -53,6 +53,7 @@ class Property < ApplicationRecord
   scope :created_since,  ->(time) { where('created_at >= ?', time) }
   # ready to be occupied: stage == 'complete', no connections.where(relationship: 'tennant')
   # ready to be archived: stage == 'complete', one connection.where(relationship: 'tennant', stage: 'title transferred')
+  # ^ happens automatically when connection is created with stage 'transferred title'
   # scopes to match stages?
 
   class << self
@@ -73,7 +74,6 @@ class Property < ApplicationRecord
   def self.complete
     ary = []
     Property.except_default.each do |property|
-      next if property.discarded?
       ary << property if property.occupancy_status == 'complete'
     end
     ary

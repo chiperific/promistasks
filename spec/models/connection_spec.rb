@@ -45,10 +45,10 @@ RSpec.describe Connection, type: :model do
   end
 
   describe '#archive_property' do
-    let(:archivable)              { build :connection_stage, stage: 'title transferred' }
+    let(:archivable)              { build :connection_stage, stage: 'transferred title' }
     let(:wrong_stage)             { build :connection_stage, stage: 'approved' }
-    let(:not_archivable_property) { build :connection_stage, stage: 'title transferred' }
-    let(:not_archivable_tasks)    { build :connection_stage, stage: 'title transferred' }
+    let(:not_archivable_property) { build :connection_stage, stage: 'transferred title' }
+    let(:not_archivable_tasks)    { build :connection_stage, stage: 'transferred title' }
 
     context 'when stage != title transferred' do
       it 'doesn\'t fire' do
@@ -68,7 +68,6 @@ RSpec.describe Connection, type: :model do
           expect(archivable.property.discarded?).to eq false
 
           archivable.save
-          archivable.reload
           expect(archivable.property.discarded?).to eq true
         end
       end

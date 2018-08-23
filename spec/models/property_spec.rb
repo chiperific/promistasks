@@ -172,7 +172,7 @@ RSpec.describe Property, type: :model do
       expect(Property.approved).not_to include @vacant
     end
 
-    it 'self.complete returns active properties where occupancy_status == approved applicant' do
+    it 'self.complete returns properties where occupancy_status == approved applicant' do
       expect(Property.complete).not_to include @approved
       expect(Property.complete).to include @complete
       expect(Property.complete).not_to include @occupied

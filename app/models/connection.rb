@@ -14,7 +14,8 @@ class Connection < ApplicationRecord
   before_validation :relationship_appropriate_for_stage, if: -> { stage.present? && relationship != 'tennant' }
   before_validation :relationship_must_match_user_type,  if: -> { relationship.present? }
   before_validation :stage_date_and_stage,               if: -> { stage.present? || stage_date.present? }
-  after_save :archive_property,                          if: -> { stage == 'title transferred' }
+  after_save :archive_property,                          if: -> { stage == 'transferred title' }
+  # ^ is this too aggressive to do automatically?
 
   scope :except_tennants, -> { kept.where.not(relationship: 'tennant').order(:created_at) }
   scope :only_tennants,   -> { kept.where(relationship: 'tennant').order(stage_date: :desc) }

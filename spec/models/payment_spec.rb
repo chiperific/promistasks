@@ -181,7 +181,7 @@ RSpec.describe Payment, type: :model do
     end
   end
 
-  fdescribe '#next_recurrence' do
+  describe '#next_recurrence' do
     context 'when recurrence is not present' do
       let(:no_recurrence) { build :payment }
 

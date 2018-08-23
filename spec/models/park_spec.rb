@@ -76,7 +76,7 @@ RSpec.describe Park, type: :model do
 
     context 'when discarded_at is present and was not present in last save' do
       let(:park_user) { create :park_user, park: park }
-      let(:payment) { create :payment_park, park: park }
+      let(:payment) { create :payment, park: park }
 
       it 'fires' do
         expect(park).to receive(:cascade_discard)
@@ -121,7 +121,7 @@ RSpec.describe Park, type: :model do
     context 'when discarded_at is nil, but was present in last save' do
       before :each do
         @park_user = create(:park_user, park: park)
-        @payment = create(:payment_park, park: park)
+        @payment = create(:payment, park: park)
 
         park.discard
       end
