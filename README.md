@@ -3,7 +3,7 @@
 ## To do:
 4. Controllers:
   - Process changes from models
-  - System sends email when new [Volunteer, Contractor, ] signs up
+  - System sends email when new non-oauth signs up
   - Reports
     - Date range filtering
   - Archiving property in app (when no open tasks) removes from GT.

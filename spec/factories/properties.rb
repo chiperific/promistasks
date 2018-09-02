@@ -18,7 +18,7 @@ FactoryBot.define do
   factory :property_ready, class: Property do
     name
     address
-    stage 'complete'
+    stage { 'complete' }
     association :creator, factory: :oauth_user
   end
 end

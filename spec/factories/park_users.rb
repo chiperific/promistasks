@@ -4,6 +4,6 @@ FactoryBot.define do
   factory :park_user do
     park
     user
-    relationship 'staff contact'
+    relationship { 'staff contact' }
   end
 end
