@@ -10,6 +10,6 @@ class Organization < ApplicationRecord
   validate :highlander
 
   def highlander
-    errors.add(:name, 'There can be only one organization') if Organization.all.count.positive?
+    errors.add(:name, 'There can be only one organization') if Organization.all.count > 1
   end
 end

@@ -43,6 +43,7 @@ ActiveRecord::Migration.maintain_test_schema!
 RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
   config.include Devise::Test::IntegrationHelpers, type: :system
+  config.include Warden::Test::Helpers
   config.include FormHelper, type: :system
 
   # config.fixture_path = "#{::Rails.root}/spec/fixtures"
@@ -103,19 +104,24 @@ RSpec.configure do |config|
     )
   end
 
+  config.before(:each, type: :system) do
+    driven_by :rack_test
+    Rails.application.load_seed
+  end
+
+  config.before(:each, type: :system, js: true) do
+    driven_by :selenium_chrome_headless
+    Capybara.page.driver.browser.manage.window.resize_to(1920, 2024)
+  end
+
   config.around(:each) do |example|
     DatabaseCleaner.cleaning do
       example.run
     end
   end
 
-  config.before(:each, type: :system) do
-    driven_by :rack_test
-  end
-
-  config.before(:each, type: :system, js: true) do
-    driven_by :selenium_chrome_headless
-    Capybara.page.driver.browser.manage.window.resize_to(1920, 2024)
+  config.after(:each) do
+    Warden.test_reset!
   end
 end
 

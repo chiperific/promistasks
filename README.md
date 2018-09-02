@@ -2,6 +2,49 @@
 
 ## To do:
 4. Controllers:
+  - System tests needed for:
+    * login using db
+    * login using oauth
+    * logout
+    * view users
+    * view a user
+    * create user in db
+    * create user from oauth (use allow().to return())
+    * edit user
+    * user index
+    * view default tasklist
+    * view my tasks
+    * view tasks
+    * view a task (public)
+    * view a task
+    * view properties
+    * view a property
+    * create a property
+    * edit a property
+    * view parks
+    * view a park
+    * create a park
+    * edit a park
+    * view utilities
+    * view a utility
+    * create a utility
+    * edit a utility
+    * view payments
+    * view a payment
+    * create a payment
+    * edit a payment
+    * view the organization
+    * edit the organization
+    * view skills
+    * view a skill
+    * create a skill
+    * edit a skill
+    * view a task's skills
+    * edit a task's skill
+    * view a user's skills
+    * edit a user's skills
+
+
   - Process changes from models
   - System sends email when new non-oauth signs up
   - Reports
@@ -40,13 +83,11 @@
   - Suppress auto-fill: Connections#new / #edit
   - Rely upon later update val?
 
-7. System tests:
-  - Every view
-    -- As sys_admin, staff, not_staff, client, not_logged_in
-  - Every AJAX (use controllers to find)
-
 8. Jobs
   - Get data from Google: On a cron job every hour
+
+## Decisions
+- Footer: Anyone logged in can create a task
 
 ## Keep in mind
 - Could do a progress bar on property show, related to Property#occupancy_status: *--*--*--*

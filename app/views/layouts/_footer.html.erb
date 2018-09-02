@@ -1,25 +1,47 @@
 <div class="fixed-action-btn">
-  <a href="#" class="btn-floating btn-large red darken-3 z-depth-3 prevent_default">
+  <a href="#" class="btn-floating btn-large red darken-3 z-depth-3 prevent_default" id="footer_add_btn">
     <i class="large material-icons">add</i>
   </a>
   <ul>
     <li>
-      <%= link_to new_task_path, class: 'btn-floating light-blue lighten-1 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Task' do %>
+      <%= link_to new_task_path, class: 'btn-floating light-blue lighten-1 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Task', id: 'footer_link_task' do %>
         <i class="material-icons">check_circle_outline</i>
       <% end %>
     </li>
 
-    <li>
-      <%= link_to '<i class="material-icons">home</i>'.html_safe, new_property_path, class: 'btn-floating amber tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Property' %>
-    </li>
+    <% if current_user.staff? %>
+      <li>
+        <%= link_to new_payment_path, class: 'btn-floating green darken-2 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Payment', id: 'footer_link_payment' do %>
+          <i class="material-icons">attach_money</i>
+        <% end %>
+      </li>
+      <li>
+        <%= link_to new_property_path, class: 'btn-floating amber tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Property', id: 'footer_link_property' do %>
+          <i class="material-icons">home</i>
+        <% end %>
+      </li>
+      <li>
+        <%= link_to new_park_path, class: 'btn-floating red darken-3 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Park', id: 'footer_link_park' do %>
+          <i class="material-icons">store_mall_directory</i>
+        <% end %>
+      </li>
+      <li>
+        <%= link_to new_utility_path, class: 'btn-floating deep-purple tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Utility', id: 'footer_link_utility' do %>
+          <i class="material-icons">offline_bolt</i>
+        <% end %>
+      </li>
+      <li>
+        <%= link_to new_skill_path, class: 'btn-floating deep-purple darken-4 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Skill', id: 'footer_link_skill' do %>
+          <i class="material-icons">build</i>
+        <% end %>
+      </li>
+    <% end %>
 
     <% if current_user.admin? %>
       <li>
-        <%= link_to '<i class="material-icons">people</i>'.html_safe, new_user_path, class: 'btn-floating green darken-1 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New User' %>
-      </li>
-
-      <li>
-        <%= link_to '<i class="material-icons">build</i>'.html_safe, new_skill_path, class: 'btn-floating purple darken-1 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Skill' %>
+        <%= link_to new_user_path, class: 'btn-floating green darken-1 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New User', id: 'footer_link_user' do %>
+          <i class="material-icons">people</i>
+        <% end %>
       </li>
     <% end %>
   </ul>
