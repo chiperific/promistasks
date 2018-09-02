@@ -4,15 +4,19 @@ require 'rails_helper'
 
 RSpec.describe Organization, type: :model do
   describe 'must be valid' do
-    let(:organization) { build :organization }
-    let(:no_name) { build :organization, name: nil }
-    let(:no_domain) { build :organization, domain: nil }
+    let(:organization)     { build :organization }
+    let(:no_name)          { build :organization, name: nil }
+    let(:no_domain)        { build :organization, domain: nil }
+    let(:no_default_email) { build :organization, default_email: nil }
+    let(:no_default_phone) { build :organization, default_phone: nil }
 
     context 'against the schema' do
       it 'in order to save' do
         expect { organization.save!(validate: false) }.not_to raise_error
         expect { no_name.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
         expect { no_domain.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { no_default_email.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+        expect { no_default_phone.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
       end
     end
 
@@ -21,6 +25,8 @@ RSpec.describe Organization, type: :model do
         expect { organization.save! }.not_to raise_error
         expect { no_name.save! }.to raise_error ActiveRecord::RecordInvalid
         expect { no_domain.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_default_email.save! }.to raise_error ActiveRecord::RecordInvalid
+        expect { no_default_phone.save! }.to raise_error ActiveRecord::RecordInvalid
       end
     end
   end

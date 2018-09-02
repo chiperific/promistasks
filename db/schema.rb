@@ -60,7 +60,8 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
   create_table "organizations", force: :cascade do |t|
     t.string "name", default: "Family Promise GR", null: false
     t.string "domain", default: "familypromisegr.org", null: false
-    t.string "default_staff_phone", default: "(616) 475-5220", null: false
+    t.string "default_email", default: "info@familypromisegr.org", null: false
+    t.string "default_phone", default: "(616) 475-5220", null: false
     t.bigint "billing_contact_id"
     t.bigint "maintenance_contact_id"
     t.bigint "volunteer_contact_id"

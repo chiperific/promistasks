@@ -66,11 +66,11 @@ example_id                                            | status  | run_time      
 ./spec/models/connection_spec.rb[1:5:1]               | passed  | 0.64355 seconds |
 ./spec/models/connection_spec.rb[1:5:2]               | passed  | 7.8 seconds     |
 ./spec/models/connection_spec.rb[1:6:1]               | passed  | 0.84365 seconds |
-./spec/models/organization_spec.rb[1:1:1:1]           | passed  | 0.27118 seconds |
-./spec/models/organization_spec.rb[1:1:2:1]           | passed  | 0.54357 seconds |
-./spec/models/organization_spec.rb[1:2:1:1]           | passed  | 0.34559 seconds |
-./spec/models/organization_spec.rb[1:2:2:1]           | passed  | 0.24313 seconds |
-./spec/models/organization_spec.rb[1:2:2:2]           | passed  | 0.25049 seconds |
+./spec/models/organization_spec.rb[1:1:1:1]           | passed  | 0.44194 seconds |
+./spec/models/organization_spec.rb[1:1:2:1]           | passed  | 0.65022 seconds |
+./spec/models/organization_spec.rb[1:2:1:1]           | passed  | 0.29903 seconds |
+./spec/models/organization_spec.rb[1:2:2:1]           | passed  | 0.21117 seconds |
+./spec/models/organization_spec.rb[1:2:2:2]           | passed  | 0.22952 seconds |
 ./spec/models/park_spec.rb[1:1:1:1]                   | passed  | 0.17337 seconds |
 ./spec/models/park_spec.rb[1:1:2:1]                   | passed  | 0.10787 seconds |
 ./spec/models/park_spec.rb[1:2:1]                     | passed  | 0.18158 seconds |

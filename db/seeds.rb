@@ -10,3 +10,5 @@ skills = %w[plumbing HVAC drywall painting electrical cleaning landscaping roofi
 skills.each do |skill|
   Skill.create(name: skill.capitalize)
 end
+
+Organization.new.save!

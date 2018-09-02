@@ -10,6 +10,6 @@
 <div class="row section center-align z-depth-1 deep-purple darken-4 grey-text text-lighten-3 white-links">
   <div class="col s12">
     <p class="big-p">Want to find group opportunities? Have a question?</p>
-    <p><%= Constant::Organization::CONTACT_NAME %> can help! Just email <%= mail_to Constant::Organization::CONTACT_EMAIL %> or call <%= link_to Constant::Organization::CONTACT_PHONE, "tel:#{Constant::Organization::CONTACT_PHONE}" %>.</p>
+    <p><%= @org_contact_name %> can help! Just email <%= mail_to @org_contact_email %> or call <%= link_to @org_contact_phone, "tel:#{@org_contact_phone}" %>.</p>
   </div>
 </div>

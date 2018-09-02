@@ -5,7 +5,7 @@ class Organization < ApplicationRecord
   belongs_to :maintenance_contact, class_name: 'User', inverse_of: :organization_maintenance, optional: true
   belongs_to :volunteer_contact,   class_name: 'User', inverse_of: :organization_volunteer, optional: true
 
-  validates_presence_of :name, :domain
+  validates_presence_of :name, :domain, :default_email, :default_phone
 
   validate :highlander
 

@@ -153,6 +153,18 @@ class TasksController < ApplicationController
 
   def public_index
     authorize @tasks = Task.in_process.public_visible
+    @organization = Organization.first
+
+    if @organization.volunteer_contact.present?
+      contact = @organization.volunteer_contact
+      @org_contact_name = contact.fname
+      @org_contact_email = contact.email
+      @org_contact_phone = contact.phone
+    else
+      @org_contact_name = 'We'
+      @org_contact_email = @organization.default_email
+      @org_contact_phone = @organization.default_phone
+    end
   end
 
   def complete
