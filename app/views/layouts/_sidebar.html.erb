@@ -3,7 +3,7 @@
     <div class="user-view">
       <div class="background">
       </div>
-      <% if current_user.oauth? %>
+      <% if current_user.oauth_image_link.present? %>
         <%= image_tag current_user.oauth_image_link, class: "circle"  %>
       <% else %>
         <i class="material-icons white-text no-pic">account_circle</i>
@@ -60,7 +60,7 @@
       </li>
     <% end %>
 
-    <% if current_user.system_admin? %>
+    <% if current_user.admin? %>
       <li>
         <%= link_to users_path, 'data-turbolinks'=> 'false' do %>
           <i class="material-icons">people</i>

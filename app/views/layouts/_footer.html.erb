@@ -13,7 +13,7 @@
       <%= link_to '<i class="material-icons">home</i>'.html_safe, new_property_path, class: 'btn-floating amber tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Property' %>
     </li>
 
-    <% if current_user.system_admin? %>
+    <% if current_user.admin? %>
       <li>
         <%= link_to '<i class="material-icons">people</i>'.html_safe, new_user_path, class: 'btn-floating green darken-1 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New User' %>
       </li>
