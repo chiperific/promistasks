@@ -4,10 +4,10 @@ class ConnectionsController < ApplicationController
   def index
     authorize Connection.first
 
-    @connection_properties = Property.kept.left_outer_joins(:connections).where.not( connections: { id: nil } ).where.not( connections: { relationship: 'tennant' } ).uniq
-    @occupancy_properties =  Property.kept.left_outer_joins(:connections).where.not( connections: { id: nil } ).where( connections: { relationship: 'tennant' } ).uniq
-    @connection_users =      User.kept.left_outer_joins(:connections).where.not( connections: { id: nil } ).where.not( connections: { relationship: 'tennant' } ).uniq
-    @occupancy_users =       User.kept.left_outer_joins(:connections).where.not( connections: { id: nil } ).where( connections: { relationship: 'tennant' } ).uniq
+    @connection_properties = Property.kept.left_outer_joins(:connections).where.not(connections: { id: nil }).where.not(connections: { relationship: 'tennant' }).uniq
+    @occupancy_properties =  Property.kept.left_outer_joins(:connections).where.not(connections: { id: nil }).where(connections: { relationship: 'tennant' }).uniq
+    @connection_users =      User.kept.left_outer_joins(:connections).where.not(connections: { id: nil }).where.not(connections: { relationship: 'tennant' }).uniq
+    @occupancy_users =       User.kept.left_outer_joins(:connections).where.not(connections: { id: nil }).where(connections: { relationship: 'tennant' }).uniq
   end
 
   def new
