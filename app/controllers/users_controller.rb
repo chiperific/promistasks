@@ -25,8 +25,8 @@ class UsersController < ApplicationController
       @users = users.contractors
       @empty_msg = 'No contractors'
     when 'admins'
-      @users = users.system_admins
-      @empty_msg = 'No System Admins'
+      @users = users.admins
+      @empty_msg = 'No Administrators'
     when 'archived'
       @users = users.discarded
       @empty_msg = 'No archived people'
