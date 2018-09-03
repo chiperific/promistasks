@@ -2,7 +2,8 @@
 
 class PropertiesController < ApplicationController
   def index
-    authorize @properties = Property.where(is_default: false).visible_to(current_user)
+    authorize Property
+    @properties = Property.where(is_default: false).visible_to(current_user)
   end
 
   def list

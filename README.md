@@ -3,9 +3,9 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * login using db
-    * login using oauth
     * logout
+    * login using oauth
+    * register a user
     * view users
     * view a user
     * create user in db

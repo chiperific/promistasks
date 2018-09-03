@@ -107,6 +107,7 @@ RSpec.configure do |config|
   config.before(:each, type: :system) do
     driven_by :rack_test
     Rails.application.load_seed
+    # Capybara.server = :puma
   end
 
   config.before(:each, type: :system, js: true) do
