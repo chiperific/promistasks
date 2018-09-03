@@ -1,0 +1,8 @@
+description:
+  This generator creates a system spec file customized for this app
+
+Example:
+  rails g system_spec login
+
+  this will create:
+    spec/system/login_spec.rb
