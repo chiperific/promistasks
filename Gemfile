@@ -39,6 +39,7 @@ group :development, :test do
   gem 'cucumber-rails', require: false
   gem 'factory_bot_rails'
   gem 'foreman'
+  gem 'letter_opener_web'
   gem 'listen', '>= 3.0.5', '< 3.2'
   # gem 'pry-byebug'
   gem 'pry-remote'

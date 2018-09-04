@@ -3,8 +3,9 @@
 class RegistrationMailer < ApplicationMailer
 
   def new_registration_notification
-    @notify = Organization.first.volunteer_contact
+    org = Organization.first
+    @notify = org.volunteer_contact.present? ? org.volunteer_contact.email : org.default_email
     @new_user = params[:user]
-    mail(to: @notify.email, subject: 'New user signed up on PromiseTasks')
+    mail(to: @notify, subject: 'New user signed up on PromiseTasks')
   end
 end

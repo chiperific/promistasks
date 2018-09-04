@@ -14,10 +14,23 @@ class RegistrationsController < Devise::RegistrationsController
     end
 
     if @user.save
+      sign_in @user if current_user.nil?
       # send an email to vol coordinator
-      RegistrationMailer.with(user: @user).new_registration_notification.deliver_later
+      if Rails.env.production?
+        RegistrationMailer.with(user: @user).new_registration_notification.deliver_later
+      else
+        RegistrationMailer.with(user: @user).new_registration_notification.deliver_now
+      end
+
       flash[:success] = "Welcome, #{@user.fname}"
-      redirect_to @return_path
+
+      redirect_to root_path
+
+      # if @return_path == new_user_registration_path || @return_path == new_user_session_path
+      #   redirect_to properties_path
+      # else
+      #   redirect_to @return_path
+      # end
     else
       flash[:warning] = 'Oops, found some errors'
       render 'new'
@@ -27,14 +40,15 @@ class RegistrationsController < Devise::RegistrationsController
   private
 
   def sign_up_params
-    params.require(:user).permit(:name, :email, :password, :password_confirmation, :register_as)
+    params.require(:user).permit(:name, :email, :phone, :password, :password_confirmation, :register_as)
   end
 
   def account_update_params
     params.require(:user).permit(:name, :title,
-                                 :staff, :client, :volunteer, :contractor,
+                                 :staff, :client, :volunteer, :contractor, :admin,
+                                 :adults, :children,
                                  :rate, :rate_cents, :rate_currency,
                                  :phone, :email, :password, :password_confirmation,
-                                 :admin, :discarded_at, :register_as)
+                                 :discarded_at, :register_as)
   end
 end

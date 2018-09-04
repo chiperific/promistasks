@@ -5,7 +5,8 @@ class UsersController < ApplicationController
   # https://github.com/plataformatec/devise/wiki/How-To:-Manage-users-through-a-CRUD-interface
 
   def index
-    authorize users = User.all.order(:name)
+    authorize User
+    users = User.all.order(:name)
     @show_new = users.created_since(current_user.last_sign_in_at).count.positive?
 
     case params[:filter]

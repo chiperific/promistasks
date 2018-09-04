@@ -2,10 +2,16 @@
 
 require 'rails_helper'
 
-RSpec.describe '<%= human_string %>', type: :system do
+RSpec.describe '<%= human_string %>', type: :system, js: true do
+  before :each do
+    visit root_path
+  end
+
   context 'when not current_user' do
     it 'redirects to login page' do
-      expect(page).to redirect_to(new_user_session_path)
+      visit #path
+      expect(current_path).to eq new_user_session_path
+      expect(page).to have_content('You need to sign in first')
     end
   end
 

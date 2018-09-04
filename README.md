@@ -3,15 +3,13 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * register a user
-    * view users
     * view a user
     * create user in db
     * create user from oauth (use allow().to return())
     * edit user
     * user index
     * view default tasklist
-    * view my tasks
+    * view my tasks (user/:id/tasks)
     * view tasks
     * view a task (public)
     * view a task

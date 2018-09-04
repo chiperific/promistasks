@@ -37,7 +37,7 @@
       </div>
     </main>
     <footer id="footer">
-      <% if Rails.env.development? %>
+      <% if !Rails.env.production? %>
         Return path: <%= @return_path %> |
         Previous: <%= @view_previous %> |
         Pre-previous: <%= @view_pre_previous %>
