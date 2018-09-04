@@ -36,7 +36,7 @@
         Click on 'PromiseTasks' from the list of Third-party apps with account access
       </li>
       <li>Click the 'Remove Access' button (don't worry, no information will be lost)</li>
-      <li>Log out of this site</li>
+      <li><%= link_to "Log out", destroy_user_session_path, method: :delete %> of this site</li>
       <li>Sign into this site again, using the 'Staff Sign In' button</li>
       <li>You'll be asked to allow PromiseTasks to have access to your Google account</li>
       <li>When you click 'Allow', your credentials will be reset</li>
@@ -47,7 +47,7 @@
   </div>
 </div>
 
-<% @sys_admins = User.system_admins %>
+<% @sys_admins = User.admins %>
 <% if @sys_admins.any? %>
   <div class="row section center-align z-depth-1 deep-purple darken-4 grey-text text-lighten-3">
     <div class="col s12">

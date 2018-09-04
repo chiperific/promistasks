@@ -6,14 +6,14 @@
       <% else %>
         <%= @user.name %>
       <% end %>
-      <% if @user.system_admin? %>
+      <% if @user.admin? %>
         <i class="material-icons tooltipped" data-position="right" data-tooltip="System Administrator">verified_user</i>
       <% end %>
     </h4>
   </div>
   <div class="col s2">
-    <% if current_user&.system_admin? || current_user == @user %>
-      <%= link_to edit_user_path(@user), class: 'btn-floating waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false' do  %>
+    <% if current_user&.admin? || current_user&.staff? || current_user == @user %>
+      <%= link_to edit_user_path(@user), class: 'btn-floating waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false', id: 'edit_user_link' do  %>
         <i class="material-icons">edit</i>
       <% end %>
     <% end %>
@@ -39,7 +39,7 @@
 
 <div class="row">
   <div class="col s12">
-    <%= link_to tasks_user_path(@user), class: 'btn btn-large green waves-effect waves-light' do %>
+    <%= link_to tasks_user_path(@user), class: 'btn btn-large green waves-effect waves-light', id: 'show_user_tasks_link' do %>
       <span>See tasks</span>
       <i class="material-icons right">arrow_forward</i>
     <% end %>
@@ -51,7 +51,7 @@
     <h5>Skills</h5>
   </div>
   <div class="col s2">
-    <%= link_to skills_user_path(@user), class: 'btn-floating btn-small blue darken-2' do %>
+    <%= link_to skills_user_path(@user), class: 'btn-floating btn-small blue darken-2', id: 'edit_user_skills_link' do %>
       <i class="material-icons">edit</i>
     <% end %>
   </div>
@@ -117,7 +117,7 @@
     <h5>Connections</h5>
   </div>
   <div class="col s2">
-    <%= link_to new_connection_path(user: @user), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false' do %>
+    <%= link_to new_connection_path(user: @user), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false', id: 'new_user_connection_link' do %>
       <i class="material-icons">add</i>
     <% end %>
   </div>
@@ -149,7 +149,7 @@
 <% if @user.staff? %>
   <div class="row">
     <div class="col s12">
-      <%= link_to oauth_check_user_path(@user), class: 'btn btn-large green waves-effect waves-light' do %>
+      <%= link_to oauth_check_user_path(@user), class: 'btn btn-large green waves-effect waves-light', id: 'check_credentials_link' do %>
         <span>Check credentials</span>
         <i class="material-icons right">arrow_forward</i>
       <% end %>

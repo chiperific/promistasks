@@ -3,7 +3,8 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * view a user
+    * show a user
+    * check oauth credentials
     * create user in db
     * create user from oauth (use allow().to return())
     * edit user

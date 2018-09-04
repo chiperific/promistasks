@@ -177,6 +177,8 @@ class User < ActiveRecord::Base
       ary << i if send(i.downcase)
     end
 
+    ary << 'Admin' if admin?
+
     ary
   end
 

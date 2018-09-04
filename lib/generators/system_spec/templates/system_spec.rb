@@ -42,26 +42,6 @@ RSpec.describe '<%= human_string %>', type: :system, js: true do
       end
     end
 
-    context 'is staff' do
-      before :each do
-        user = create(:user)
-        login_as(user, scope: :user)
-        visit #path
-      end
-
-      pending 'displays something'
-    end
-
-    context 'is admin' do
-      before :each do
-        user = create(:admin)
-        login_as(user, scope: :user)
-        visit #path
-      end
-
-      pending 'displays something'
-    end
-
     context 'is volunteer' do
       before :each do
         user = create(:volunteer_user)
@@ -75,6 +55,26 @@ RSpec.describe '<%= human_string %>', type: :system, js: true do
     context 'is contractor' do
       before :each do
         user = create(:contractor_user)
+        login_as(user, scope: :user)
+        visit #path
+      end
+
+      pending 'displays something'
+    end
+
+    context 'is staff' do
+      before :each do
+        user = create(:user)
+        login_as(user, scope: :user)
+        visit #path
+      end
+
+      pending 'displays something'
+    end
+
+    context 'is admin' do
+      before :each do
+        user = create(:admin)
         login_as(user, scope: :user)
         visit #path
       end

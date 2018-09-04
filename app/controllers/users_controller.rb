@@ -55,10 +55,7 @@ class UsersController < ApplicationController
       'Email': @user.email,
       'Title': @user.title.blank? ? '-' : @user.title,
       'Type': @user.readable_type,
-      'Phone 1': @user.phone1.blank? ? '-' : @user.phone1,
-      'Phone 2': @user.phone2.blank? ? '-' : @user.phone2,
-      'Address': @user.first_address.blank? ? '-' : @user.first_address,
-      'Location': @user.location_address.blank? ? '-' : @user.location_address
+      'Phone': @user.phone
     }
 
     @skills = @user.skills.order(:name)
@@ -191,7 +188,7 @@ class UsersController < ApplicationController
       'Google ID?': @user.oauth_id.present? ? 'OK' : 'MISSING',
       'Google Token?': @user.oauth_token.present? ? 'OK' : 'MISSING',
       'Google Refresh Token?': @user.oauth_refresh_token.present? ? 'OK' : 'MISSING',
-      'Google Token Expires at:': human_datetime(@user.oauth_expires_at.localtime)
+      'Google Token Expires at:': @user.oauth_expires_at.present? ? human_datetime(@user.oauth_expires_at.localtime) : 'MISSING'
     }
   end
 
