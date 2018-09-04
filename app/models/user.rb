@@ -95,7 +95,7 @@ class User < ActiveRecord::Base
       user.oauth_refresh_token ||= auth.credentials.refresh_token
       user.oauth_expires_at = Time.at(auth.credentials.expires_at)
       user.staff = true
-      user.phone = Organization.first.default_staff_phone
+      user.phone = Organization.first.default_phone
     end
     @user.save
     @user.reload

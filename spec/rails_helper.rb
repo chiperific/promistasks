@@ -17,8 +17,6 @@ require 'selenium-webdriver'
 require 'webmock/rspec'
 require 'support/form_helper'
 require 'database_cleaner'
-
-WebMock.disable_net_connect!(allow_localhost: true)
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
@@ -39,6 +37,8 @@ WebMock.disable_net_connect!(allow_localhost: true)
 # Checks for pending migrations and applies them before tests are run.
 # If you are not using ActiveRecord, you can remove this line.
 ActiveRecord::Migration.maintain_test_schema!
+
+WebMock.disable_net_connect!(allow_localhost: true)
 
 RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
@@ -107,7 +107,6 @@ RSpec.configure do |config|
   config.before(:each, type: :system) do
     driven_by :rack_test
     Rails.application.load_seed
-    # Capybara.server = :puma
   end
 
   config.before(:each, type: :system, js: true) do
