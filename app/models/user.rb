@@ -143,6 +143,11 @@ class User < ActiveRecord::Base
       (type.present? || admin? || oauth?)
   end
 
+  def not_staff?
+    admin? == false &&
+      staff? == false
+  end
+
   def oauth?
     oauth_id.present?
   end

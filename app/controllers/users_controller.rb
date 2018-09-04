@@ -182,6 +182,11 @@ class UsersController < ApplicationController
   def oauth_check
     authorize @user = User.find(params[:id])
 
+    if @user.not_staff?
+      flash[:error] = "#{@user.name} has no credentials to check."
+      redirect_to @return_path
+    end
+
     @show_error_view = params[:err] == 'true'
 
     @primary_info_hash = {
