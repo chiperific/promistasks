@@ -7,9 +7,9 @@ class Organization < ApplicationRecord
 
   validates_presence_of :name, :domain, :default_email, :default_phone
 
-  validate :highlander
+  validate :highlander, if: -> { new_record? }
 
   def highlander
-    errors.add(:name, 'There can be only one organization') if Organization.all.count > 1
+    errors.add(:name, 'There can be only one... organization') unless Organization.count.zero?
   end
 end

@@ -95,18 +95,19 @@ RSpec.describe 'View user list', type: :system, js: true do
     end
   end
 
-  fcontext 'when users are present' do
+  context 'when users are present' do
     before :each do
       3.times { create(:user) }
       admin = create(:admin)
       4.times { create(:client_user) }
       2.times { create(:volunteer_user) }
+      create(:contractor_user)
       login_as(admin, scope: :user)
       visit users_path
     end
 
     it 'can show all user records' do
-      expect(page).to have_css('tbody#user_table_body tr', count: 10)
+      expect(page).to have_css('tbody#user_table_body tr', count: User.count)
     end
 
     it 'can show staff users' do

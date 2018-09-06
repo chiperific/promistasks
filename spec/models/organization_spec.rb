@@ -32,7 +32,7 @@ RSpec.describe Organization, type: :model do
   end
 
   describe '#highlander' do
-    let(:organization) { create :organization }
+    let(:organization) { build :organization }
 
     context 'when no other organization exists' do
       it 'does nothing' do
@@ -46,7 +46,7 @@ RSpec.describe Organization, type: :model do
 
     context 'when an organization already exists' do
       before :each do
-        organization
+        organization.save
         @second = build(:organization, name: 'Not family promise', domain: 'as far as the eye can see')
       end
 
@@ -57,6 +57,16 @@ RSpec.describe Organization, type: :model do
 
       it 'prevents the record from being created' do
         expect { @second.save }.not_to change { Organization.count }
+      end
+    end
+
+    context 'when editing the organization' do
+      it 'doesn\'t fire' do
+        organization.save
+
+        expect(organization).not_to receive(:highlander)
+
+        organization.update(name: 'Family Commitment')
       end
     end
   end

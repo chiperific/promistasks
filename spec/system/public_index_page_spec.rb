@@ -14,7 +14,7 @@ RSpec.describe 'Tasks#Public_index Page', type: :system do
 
   context 'when organization.volunteer_contact is present' do
     it 'uses volunteer_contact information' do
-      user = create(:user)
+      user = create(:user, name: 'bob employee')
       Organization.first.update(volunteer_contact: user)
       visit current_path
 

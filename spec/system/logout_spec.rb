@@ -6,11 +6,11 @@ RSpec.describe 'Logout', type: :system, js: true do
   context 'when not current_user' do
     before :each do
       visit root_path
-      visit '/users/sign_out'
+      visit destroy_user_session_path
     end
 
     it 'redirects away' do
-      expect(current_path).not_to eq '/users/sign_out'
+      expect(current_path).not_to eq destroy_user_session_path
     end
 
     it 'flashes a message' do
@@ -28,14 +28,14 @@ RSpec.describe 'Logout', type: :system, js: true do
     it 'logs out the user' do
       expect(@user.current_sign_in_at).not_to eq nil
 
-      visit '/users/sign_out'
+      visit destroy_user_session_path
 
       @user.reload
       expect(@user.current_sign_in_at).to eq nil
     end
 
     it 'displays a confirmation message' do
-      visit '/users/sign_out'
+      visit destroy_user_session_path
       expect(page).to have_content 'Signed out successfully.'
     end
   end

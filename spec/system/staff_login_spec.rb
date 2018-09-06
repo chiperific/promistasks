@@ -8,8 +8,6 @@ OmniAuth.config.mock_auth[:google_oauth2] = OmniAuth::AuthHash.new(raw_auth)
 
 RSpec.describe 'Staff Login', type: :system do
   before :each do
-    # Rails.application.env_config['devise.mapping'] = Devise.mappings[:user]
-    # Rails.application.env_config['omniauth.auth'] = OmniAuth.config.mock_auth[:google_oauth2]
     visit new_user_session_path
   end
 
@@ -24,7 +22,7 @@ RSpec.describe 'Staff Login', type: :system do
     it 'creates and signs in a user' do
       click_link('Staff Sign In')
 
-      visit '/users/auth/google_oauth2/callback'
+      visit user_google_oauth2_omniauth_callback_path
 
       expect(page).to have_css('a#logout')
       expect(User.where(email: 'someperson@gmail.com').count).to eq 1

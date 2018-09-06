@@ -146,15 +146,27 @@ class UsersController < ApplicationController
   def new
     authorize @user = User.new
     @hide_rate = 'scale-out'
+    @org = Organization.first
   end
 
   def create
     authorize @user = User.new(user_params)
 
+    case user_params[:register_as]
+    when 'Volunteer'
+      @user.volunteer = true
+    when 'Contractor'
+      @user.contractor = true
+    when 'Client'
+      @user.client = true
+    end
+
     if @user.save
-      redirect_to @return_path, notice: 'User created'
+      redirect_to @return_path, notice: 'Person created'
     else
       flash[:warning] = 'Oops, found some errors'
+      @hide_rate = 'scale-out'
+      @org = Organization.first
       render 'new'
     end
   end
@@ -283,7 +295,8 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:name, :title,
-                                 :staff, :client, :volunteer, :contractor, :admin,
+                                 :staff, :client, :volunteer, :contractor,
+                                 :register_as, :admin,
                                  :rate, :rate_cents, :rate_currency,
                                  :phone, :email,
                                  :password, :password_confirmation)
