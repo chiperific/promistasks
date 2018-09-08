@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe '<%= human_string %>', type: :system, js: true do
   before :each do
+    @#record = create(:#record)
     visit root_path
   end
 
@@ -23,7 +24,7 @@ RSpec.describe '<%= human_string %>', type: :system, js: true do
         visit #path
       end
 
-      pending 'displays something'
+      pending 'loads the page'
     end
 
     context 'is client' do
@@ -49,7 +50,7 @@ RSpec.describe '<%= human_string %>', type: :system, js: true do
         visit #path
       end
 
-      pending 'displays something'
+      pending 'loads the page'
     end
 
     context 'is contractor' do
@@ -59,7 +60,7 @@ RSpec.describe '<%= human_string %>', type: :system, js: true do
         visit #path
       end
 
-      pending 'displays something'
+      pending 'loads the page'
     end
 
     context 'is staff' do
@@ -84,8 +85,26 @@ RSpec.describe '<%= human_string %>', type: :system, js: true do
   end
 
   context 'when #records are present' do
+    before :each do
+      user = create(:admin)
+      login_as(user, scope: :user)
+      visit #path
+      3.times { create(:#record) }
+      visit #path
+    end
+
+    pending 'shows the #records'
   end
 
   context 'when #records are not present' do
+    before :each do
+      user = create(:admin)
+      login_as(user, scope: :user)
+      visit #path
+    end
+    it 'shows the empty partial' do
+      visit #path
+      expect(page).to have_content 'It\'s pretty empty in here'
+    end
   end
 end

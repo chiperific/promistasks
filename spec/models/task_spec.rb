@@ -736,23 +736,27 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#due_cant_be_past' do
+  describe '#due_must_be_after_created' do
     let(:past_due)   { build :task, property: @property, creator: @creator, owner: @owner, due: Date.today - 1.day }
     let(:future_due) { build :task, property: @property, creator: @creator, owner: @owner, due: Date.today + 1.day }
+    let(:past_due_hack)   { build :task, property: @property, creator: @creator, owner: @owner, due: Date.today - 1.day, created_at: Time.now - 2.days }
 
     it 'returns true if due is nil' do
       @task.save
       expect(@task.errors[:due].empty?).to eq true
     end
 
-    it 'adds an error if due is in the past' do
+    it 'adds an error if due is older than created_at' do
       past_due.save
       expect(past_due.errors[:due]).to eq ['must be in the future']
     end
 
-    it 'returns true if due is in the future' do
+    it 'returns true if due is newer than created_at' do
       future_due.save
       expect(future_due.errors[:due].empty?).to eq true
+
+      past_due_hack.save
+      expect(past_due_hack.errors[:due].empty?).to eq true
     end
   end
 

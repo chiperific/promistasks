@@ -10,13 +10,15 @@
       <% else %>
         <%= image_tag property.google_map, alt: "property street view" %>
       <% end %>
-      <% if params[:action] == 'index' || params[:controller] == 'tasks' || property.is_default? %>
-        <%= link_to property_path(property), class: 'btn-floating halfway-fab waves-effect waves-light green', 'data-turbolinks'=> 'false'  do  %>
-          <i class="material-icons">arrow_forward</i>
-        <% end %>
-      <% else %>
-        <%= link_to edit_property_path(property), class: 'btn-floating halfway-fab waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false' do  %>
-          <i class="material-icons">edit</i>
+      <% unless property.is_default? %>
+        <% if params[:action] == 'index' || params[:controller] == 'tasks' %>
+          <%= link_to property_path(property), class: 'btn-floating halfway-fab waves-effect waves-light green', 'data-turbolinks'=> 'false', id: 'show_property_link' do  %>
+            <i class="material-icons">arrow_forward</i>
+          <% end %>
+        <% else %>
+          <%= link_to edit_property_path(property), class: 'btn-floating halfway-fab waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false', id: 'edit_property_link' do  %>
+            <i class="material-icons">edit</i>
+          <% end %>
         <% end %>
       <% end %>
     </div>

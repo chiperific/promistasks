@@ -100,7 +100,7 @@
       </div>
     </div>
 
-    <% if current_user&.system_admin? %>
+    <% if current_user&.admin? %>
       <div class="col s12 m6 l3">
         <div class="input-field">
           <%= text_field_tag 'creator_lkup', task.creator&.name || current_user.name, class: "autocomplete-owners", autocomplete: "off" %>

@@ -33,7 +33,7 @@ class Task < ApplicationRecord
   monetize :budget_cents, :cost_cents, allow_nil: true, allow_blank: true
 
   validates :title, presence: true, uniqueness: { scope: :property }
-  validate :due_cant_be_past
+  validate :due_must_be_after_created
   validate :require_cost, if: -> { budget.present? && cost.nil? && completed_at.present? }
 
   before_validation :visibility_must_be_2, if: -> { property&.is_default? && visibility != 2 }
@@ -232,10 +232,12 @@ class Task < ApplicationRecord
     true
   end
 
-  def due_cant_be_past
+  def due_must_be_after_created
     return true if due.nil?
     return true if created_from_api?
-    if due.past?
+    comparison = created_at.present? ? created_at : Date.today
+
+    if due < comparison.to_date
       errors.add(:due, 'must be in the future')
       false
     else

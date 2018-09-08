@@ -3,15 +3,14 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * edit user
-    * user index
-    * view default tasklist
-    * view my tasks (user/:id/tasks)
     * view tasks
     * view a task (public)
     * view a task
+      - expect(page).to have_css 'a#show_property_link'
     * view properties
+    * view own properties
     * view a property
+      - expect(page).to have_css 'a#edit_property_link'
     * create a property
     * edit a property
     * view parks
@@ -83,6 +82,11 @@
 - Footer: Anyone logged in can create a task
 
 ## Keep in mind
+- System Spec Naming convention:
+  * create = #new
+  * edit = #edit
+  * show = #show
+  * view = #index
 - Could do a progress bar on property show, related to Property#occupancy_status: *--*--*--*
 - PRIVATE properties must take self.tasks.map(&:owners &:creators) into account before removing
 

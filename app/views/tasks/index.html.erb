@@ -35,7 +35,7 @@
       <li class="tab">
         <%= link_to 'Missing Info', tasks_path(filter: 'missing-info'), id: 'tasks_missing-info', remote: true %>
       </li>
-      <% if current_user.system_admin? %>
+      <% if current_user.admin? %>
         <li class="tab">
           <%= link_to 'Archived', tasks_path(filter: 'archived'), id: 'tasks_archived', remote: true %>
         </li>

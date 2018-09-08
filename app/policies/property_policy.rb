@@ -4,39 +4,39 @@ class PropertyPolicy < ApplicationPolicy
   attr_reader :user, :record
 
   def index?
-    user&.staff?
+    user&.staff? || user&.admin?
   end
 
   def list?
-    user&.staff?
+    user&.staff? || user&.admin?
   end
 
   def show?
-    user&.staff? || record.visible_to?(user)
+    user&.staff? || user&.admin? || record.visible_to?(user)
   end
 
   def new?
-    user&.staff?
+    user&.staff? || user&.admin?
   end
 
   def create?
-    user&.staff?
+    user&.staff? || user&.admin?
   end
 
   def edit?
-    user&.staff? || record.visible_to?(user)
+    user&.staff? || user&.admin? || record.visible_to?(user)
   end
 
   def update?
-    user&.staff? || record.visible_to?(user)
+    user&.staff? || user&.admin? || record.visible_to?(user)
   end
 
   def default?
-    user&.staff?
+    user&.staff? || user&.admin?
   end
 
   def reports?
-    user&.staff?
+    user&.staff? || user&.admin?
   end
 
   def tasks_filter?

@@ -70,7 +70,8 @@ class PropertiesController < ApplicationController
       @primary_info_hash['Occupancy status'] = @property.occupancy_details
       @primary_info_hash['Lot rent'] = @property.lot_rent || 'Not recorded'
       @primary_info_hash['Acquired on'] = human_date(@property.acquired_on) || 'Not recorded'
-      @primary_info_hash['Beds & Baths'] = @property.bed_bath.present? ? @property.bed_bath : 'Not recorded'
+      @primary_info_hash['Beds'] = @property.beds.present? ? @property.beds : 'Not recorded'
+      @primary_info_hash['Baths'] = @property.baths.present? ? @property.baths : 'Not recorded'
     end
 
     @secondary_info_hash = {
@@ -120,9 +121,14 @@ class PropertiesController < ApplicationController
   end
 
   def default
-    authorize @property = Property.where(is_default: true, creator: current_user).first
+    authorize Property
+    @property = Property.where(is_default: true, creator: current_user).first
 
-    redirect_to property_path(@property)
+    if @property.present?
+      redirect_to property_path(@property)
+    else
+      redirect_to @return_path, notice: 'No default tasklist found'
+    end
   end
 
   def reports

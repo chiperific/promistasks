@@ -57,7 +57,7 @@
           <h4>Tasks</h4>
       </div>
       <div class="col s12 m2">
-        <%= link_to new_task_path(property: @property), class: 'btn waves-effect waves-light green darken 2', 'data-turbolinks'=> 'false' do %>
+        <%= link_to new_task_path(property: @property), class: 'btn waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false' do %>
           <i class="material-icons">add</i>
           <i class="material-icons">check_circle_outline</i>
         <% end %>
@@ -77,7 +77,7 @@
           <li class="tab">
             <%= link_to 'Completed', tasks_filter_property_path(@property, tasks: 'completed'), id: 'tasks_completed', remote: true %>
           </li>
-          <% if current_user.system_admin? %>
+          <% if current_user.admin? %>
             <li class="tab">
               <%= link_to 'All', tasks_filter_property_path(@property, tasks: 'all'), id: 'tasks_all', remote: true %>
             </li>
@@ -198,9 +198,9 @@
       </table>
     </div>
   </div>
-
-  <%= render partial: 'properties/explanations' %>
 <% end %>
+
+<%= render partial: 'properties/explanations' %>
 
 <%= link_to @return_path, class: 'waves-effect waves-light btn' do %>
   <i class="material-icons left">arrow_back_ios</i>Back
