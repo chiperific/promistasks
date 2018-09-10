@@ -88,7 +88,6 @@ RSpec.describe '<%= human_string %>', type: :system, js: true do
     before :each do
       user = create(:admin)
       login_as(user, scope: :user)
-      visit #path
       3.times { create(:#record) }
       visit #path
     end

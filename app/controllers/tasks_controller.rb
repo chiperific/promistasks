@@ -88,8 +88,28 @@ class TasksController < ApplicationController
   def public
     authorize @task = Task.find(params[:id])
 
-    @contact_phone = Constant::Organization::CONTACT_PHONE
-    @contact_phone = @task.owner.phone1 if @task.owner.staff? && !@task.owner.phone1.blank?
+    @organization = Organization.first
+
+    if @organization.maintenance_contact.present?
+      @task_contact = @organization.maintenance_contact.fname
+      @task_email = @organization.maintenance_contact.email
+      @task_phone = @organization.maintenance_contact.phone
+    else
+      @task_contact = @organization.name
+      @task_email = @organization.default_email
+      @task_phone = @organization.default_phone
+    end
+
+    if @organization.volunteer_contact.present?
+      contact = @organization.volunteer_contact
+      @org_contact_name = contact.fname
+      @org_contact_email = contact.email
+      @org_contact_phone = contact.phone
+    else
+      @org_contact_name = 'We'
+      @org_contact_email = @organization.default_email
+      @org_contact_phone = @organization.default_phone
+    end
   end
 
   def users_finder
