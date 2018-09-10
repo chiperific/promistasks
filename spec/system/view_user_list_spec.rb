@@ -106,38 +106,20 @@ RSpec.describe 'View user list', type: :system, js: true do
       visit users_path
     end
 
-    it 'can show all user records' do
+    it 'can show filtered user records' do
       expect(page).to have_css('tbody#user_table_body tr', count: User.count)
-    end
-
-    it 'can show staff users' do
       click_link 'Staff'
       expect(page).to have_css('tbody#user_table_body tr', count: User.staff.count)
-    end
-
-    it 'can show client users' do
-      click_link 'Staff'
+      click_link 'Clients'
       expect(page).to have_css('tbody#user_table_body tr', count: User.clients.count)
-    end
-
-    it 'can show volunteer users' do
       click_link 'Volunteer'
       expect(page).to have_css('tbody#user_table_body tr', count: User.volunteers.count)
-    end
-
-    it 'can show contractor users' do
       click_link 'Contractor'
       expect(page).to have_css('tbody#user_table_body tr', count: User.contractors.count)
-    end
-
-    it 'can show admin users' do
       click_link 'Admins'
       expect(page).to have_css('tbody#user_table_body tr', count: User.admins.count)
-    end
 
-    it 'can show archived users' do
       User.find([1, 3, 5]).each(&:discard)
-
       click_link 'Archived'
       expect(page).to have_css('tbody#user_table_body tr', count: User.discarded.count)
     end

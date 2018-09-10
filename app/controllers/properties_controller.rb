@@ -8,7 +8,7 @@ class PropertiesController < ApplicationController
 
   def list
     authorize Property
-    properties = Property.except_default.visible_to(current_user)
+    properties = Property.except_default.related_to(current_user)
 
     @show_new = properties.created_since(current_user.last_sign_in_at).count.positive?
 
@@ -29,7 +29,7 @@ class PropertiesController < ApplicationController
       @properties = Property.occupied
       @empty_msg = 'No occupied properties'
     when 'tasks'
-      @properties = Property.where(is_default: false).with_tasks_for(current_user)
+      @properties = Property.except_default.with_tasks_for(current_user)
       @empty_msg = 'No properties with tasks for you'
     when 'over'
       @properties = properties.over_budget
@@ -41,10 +41,10 @@ class PropertiesController < ApplicationController
       @properties = properties.needs_title
       @empty_msg = 'No properties missing titles'
     when 'admin'
-      @properties = Property.where(is_default: false)
+      @properties = Property.except_default
       @empty_msg = 'No properties in system'
     when 'all'
-      @properties = Property.where(is_default: false).visible_to(current_user)
+      @properties = Property.except_default.visible_to(current_user)
       @empty_msg = 'No properties visible to you'
     else # 'yours' || nil
       @properties = properties
