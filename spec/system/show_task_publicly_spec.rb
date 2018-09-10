@@ -41,7 +41,7 @@ RSpec.describe 'Show task publicly', type: :system, js: true do
     end
 
     it 'redirects away' do
-      expect(current_path).not_to eq user_path(@task)
+      expect(current_path).to eq root_path
     end
   end
 end

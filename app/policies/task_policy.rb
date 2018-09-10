@@ -8,7 +8,7 @@ class TaskPolicy < ApplicationPolicy
   end
 
   def show?
-    record.visible_to?(user)
+    user.present? && record.visible_to?(user)
   end
 
   def public?

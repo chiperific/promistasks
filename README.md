@@ -3,7 +3,6 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * show a task publicly
     * show a task
       - expect(page).to have_css 'a#show_property_link'
     * view properties
