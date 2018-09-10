@@ -27,6 +27,7 @@ RSpec.describe 'Show task', type: :system, js: true do
       it 'loads the page' do
         expect(page).to have_content @task.title
         expect(page).to have_content @task.property.name
+        expect(page).to have_css 'a#show_property_link'
         expect(page).to have_css 'a#edit_task_link'
         expect(page).to have_css 'a#needs_more_info_link'
         expect(page).to have_css 'a#edit_skills_link'

@@ -3,10 +3,8 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * show a task
-      - expect(page).to have_css 'a#show_property_link'
-    * view properties
-    * show own properties
+    * view properties list
+    * show default properties
     * show a property
       - expect(page).to have_css 'a#edit_property_link'
     * create a property

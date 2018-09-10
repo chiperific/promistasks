@@ -3,11 +3,12 @@
 class PropertiesController < ApplicationController
   def index
     authorize Property
-    @properties = Property.where(is_default: false).visible_to(current_user)
+    @properties = Property.except_default.visible_to(current_user)
   end
 
   def list
-    authorize properties = Property.where(is_default: false).related_to(current_user)
+    authorize Property
+    properties = Property.except_default.visible_to(current_user)
 
     @show_new = properties.created_since(current_user.last_sign_in_at).count.positive?
 
