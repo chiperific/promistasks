@@ -16,6 +16,7 @@ require 'capybara/rspec'
 require 'selenium-webdriver'
 require 'webmock/rspec'
 require 'support/form_helper'
+require 'support/webmock_helper'
 require 'database_cleaner'
 require 'pundit/rspec'
 # Add additional requires below this line. Rails is not loaded until this point!
@@ -46,12 +47,14 @@ RSpec.configure do |config|
   config.include Devise::Test::IntegrationHelpers, type: :system
   config.include Warden::Test::Helpers
   config.include FormHelper, type: :system
+  config.include WebmockHelper
 
   # config.fixture_path = "#{::Rails.root}/spec/fixtures"
   config.file_fixture_path = "#{::Rails.root}/spec/fixtures"
   config.use_transactional_fixtures = false
   config.infer_spec_type_from_file_location!
   config.filter_rails_from_backtrace!
+
 
   config.expect_with :rspec do |expectations|
     expectations.syntax = %i[should expect]
@@ -60,49 +63,6 @@ RSpec.configure do |config|
   config.before(:suite) do
     DatabaseCleaner.strategy = [:truncation, pre_count: true, reset_ids: true]
     DatabaseCleaner.clean_with(:truncation)
-  end
-
-  config.before(:each) do
-    WebMock.stub_request(:post, 'https://accounts.google.com/o/oauth2/token').to_return(
-      headers: { 'Content-Type' => 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:user_json).marshal_dump.to_json
-    )
-    WebMock.stub_request(:any, Constant::Regex::TASK).to_return(
-      headers: { 'Content-Type' => 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:task_json).marshal_dump.to_json
-    )
-    WebMock.stub_request(:get, Constant::Regex::LIST_TASKS).to_return(
-      headers: { 'Content-Type' => 'application/json' },
-      status: 200,
-      body: file_fixture('list_tasks_json_spec.json').read
-    )
-    WebMock.stub_request(:any, Constant::Regex::TASKLIST).to_return(
-      headers: { 'Content-Type' => 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:tasklist_json).marshal_dump.to_json
-    )
-    WebMock.stub_request(:get, Constant::Regex::LIST_TASKLISTS).to_return(
-      headers: { 'Content-Type' => 'application/json' },
-      status: 200,
-      body: file_fixture('list_tasklists_json_spec.json').read
-    )
-    WebMock.stub_request(:get, Constant::Regex::DEFAULT_TASKLIST).to_return(
-      headers: { 'Content-Type' => 'application/json' },
-      status: 200,
-      body: FactoryBot.create(:default_tasklist_json).marshal_dump.to_json
-    )
-    WebMock.stub_request(:get, Constant::Regex::STATIC_MAP).to_return(
-      headers: { 'Content-Type' => 'image/png' },
-      status: 200,
-      body: 'http://localhost:300/assets/images/no_property.png'
-    )
-    WebMock.stub_request(:get, Constant::Regex::GEOCODE).to_return(
-      headers: { 'Content-Type' => 'application/json' },
-      status: 200,
-      body: file_fixture('geocode_response_json_spec.json').read
-    )
   end
 
   config.before(:each, type: :system) do

@@ -36,7 +36,7 @@ group :development, :test do
   gem 'better_errors'
   gem 'binding_of_caller'
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
-  gem 'cucumber-rails', require: false
+  # gem 'cucumber-rails', require: false
   gem 'factory_bot_rails'
   gem 'foreman'
   gem 'letter_opener_web'
@@ -45,6 +45,7 @@ group :development, :test do
   gem 'pry-remote'
   gem 'rubocop'
   gem 'spring'
+  gem 'spring-commands-rspec'
   gem 'spring-watcher-listen', '~> 2.0.0'
 end
 

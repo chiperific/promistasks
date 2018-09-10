@@ -70,7 +70,7 @@ RSpec.describe '<%= human_string %>', type: :system, js: true do
         visit #path
       end
 
-      pending 'displays something'
+      pending 'loads the page'
     end
 
     context 'is admin' do
@@ -80,7 +80,7 @@ RSpec.describe '<%= human_string %>', type: :system, js: true do
         visit #path
       end
 
-      pending 'displays something'
+      pending 'loads the page'
     end
   end
 

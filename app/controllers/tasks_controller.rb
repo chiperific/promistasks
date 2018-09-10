@@ -4,7 +4,8 @@ class TasksController < ApplicationController
   include TasksHelper
 
   def index
-    authorize tasks = Task.except_primary.visible_to(current_user)
+    authorize Task
+    tasks = Task.except_primary.visible_to(current_user)
 
     @show_new = tasks.created_since(current_user.last_sign_in_at).count.positive?
 

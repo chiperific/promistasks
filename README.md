@@ -4,36 +4,36 @@
 4. Controllers:
   - System tests needed for:
     * view tasks
-    * view a task (public)
-    * view a task
+    * show a task publicly
+    * show a task
       - expect(page).to have_css 'a#show_property_link'
     * view properties
-    * view own properties
-    * view a property
+    * show own properties
+    * show a property
       - expect(page).to have_css 'a#edit_property_link'
     * create a property
     * edit a property
     * view parks
-    * view a park
+    * show a park
     * create a park
     * edit a park
     * view utilities
-    * view a utility
+    * show a utility
     * create a utility
     * edit a utility
     * view payments
-    * view a payment
+    * show a payment
     * create a payment
     * edit a payment
     * view the organization
     * edit the organization
     * view skills
-    * view a skill
+    * show a skill
     * create a skill
     * edit a skill
-    * view a task's skills
+    * show a task's skills
     * edit a task's skill
-    * view a user's skills
+    * show a user's skills
     * edit a user's skills
 
 
