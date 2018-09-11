@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Edit user', type: :system, js: true do
+RSpec.describe 'Edit user', type: :system do
   before :each do
     visit root_path
     @user = create(:client_user)
@@ -12,7 +12,6 @@ RSpec.describe 'Edit user', type: :system, js: true do
     it 'redirects to login page' do
       visit edit_user_path(@user)
       expect(current_path).to eq new_user_session_path
-      expect(page).to have_content('You need to sign in first')
     end
   end
 
@@ -45,10 +44,6 @@ RSpec.describe 'Edit user', type: :system, js: true do
         visit edit_user_path(@user)
       end
 
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
-      end
-
       it 'redirects away' do
         expect(current_path).not_to eq edit_user_path(@user)
       end
@@ -61,10 +56,6 @@ RSpec.describe 'Edit user', type: :system, js: true do
         visit edit_user_path(@user)
       end
 
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
-      end
-
       it 'redirects away' do
         expect(current_path).not_to eq edit_user_path(@user)
       end
@@ -75,10 +66,6 @@ RSpec.describe 'Edit user', type: :system, js: true do
         user = create(:contractor_user)
         login_as(user, scope: :user)
         visit edit_user_path(@user)
-      end
-
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
       end
 
       it 'redirects away' do
@@ -125,17 +112,14 @@ RSpec.describe 'Edit user', type: :system, js: true do
       fill_in 'user_password_confirmation', with: @new_user.password
       fill_in 'user_phone', with: @new_user.phone
       fill_in 'user_title', with: 'Grand Champion'
-      find('input.select-dropdown').click
-      find('li', text: 'Volunteer').click
+      select 'Volunteer', from: 'user_register_as'
+
+      # when materialize.js is loaded
+      # find('input.select-dropdown').click
+      # find('li', text: 'Volunteer').click
     end
 
     context 'with good info' do
-      it 'accepts changes' do
-        click_submit
-
-        expect(page).to have_content 'Update successful'
-      end
-
       it 'navigates away' do
         click_submit
 
@@ -162,12 +146,6 @@ RSpec.describe 'Edit user', type: :system, js: true do
         fill_in 'user_title', with: 'Grand Champion'
       end
 
-      it 'flashes an error message' do
-        click_submit
-
-        expect(page).to have_content 'Oops, found some errors'
-      end
-
       it 'lists the errors' do
         click_submit
 
@@ -183,10 +161,6 @@ RSpec.describe 'Edit user', type: :system, js: true do
       user = create(:admin)
       login_as(user, scope: :user)
       visit edit_user_path(999999)
-    end
-
-    it 'flashes error message' do
-      expect(page).to have_content('Nothing was found')
     end
 
     it 'redirects away' do

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe '<%= human_string %>', type: :system, js: true do
+RSpec.describe '<%= human_string %>', type: :system do
   before :each do
     @#record = create(:#record)
     visit root_path
@@ -12,7 +12,7 @@ RSpec.describe '<%= human_string %>', type: :system, js: true do
     it 'redirects to login page' do
       visit #path
       expect(current_path).to eq new_user_session_path
-      expect(page).to have_content('You need to sign in first')
+      # expect(page).to have_content('You need to sign in first')
     end
   end
 
@@ -32,10 +32,6 @@ RSpec.describe '<%= human_string %>', type: :system, js: true do
         user = create(:client_user)
         login_as(user, scope: :user)
         visit #path
-      end
-
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
       end
 
       it 'redirects away' do

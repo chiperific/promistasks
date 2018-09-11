@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Show property', type: :system, js: true do
+RSpec.describe 'Show property', type: :system do
   before :each do
     @user = create(:user)
     @property = create(:property, creator: @user)
@@ -13,7 +13,6 @@ RSpec.describe 'Show property', type: :system, js: true do
     it 'redirects to login page' do
       visit property_path(@property)
       expect(current_path).to eq new_user_session_path
-      expect(page).to have_content('You need to sign in first')
     end
   end
 
@@ -36,10 +35,6 @@ RSpec.describe 'Show property', type: :system, js: true do
         visit property_path(@property)
       end
 
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
-      end
-
       it 'redirects away' do
         expect(current_path).not_to eq property_path(@property)
       end
@@ -52,10 +47,6 @@ RSpec.describe 'Show property', type: :system, js: true do
         visit property_path(@property)
       end
 
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
-      end
-
       it 'redirects away' do
         expect(current_path).not_to eq property_path(@property)
       end
@@ -66,10 +57,6 @@ RSpec.describe 'Show property', type: :system, js: true do
         user = create(:contractor_user)
         login_as(user, scope: :user)
         visit property_path(@property)
-      end
-
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
       end
 
       it 'redirects away' do
@@ -112,6 +99,7 @@ RSpec.describe 'Show property', type: :system, js: true do
 
     it 'shows the property and details' do
       expect(page).to have_css 'img.street-map'
+      expect(page).to have_css 'a#edit_property_link'
       expect(page).to have_content 'Creator'
       expect(page).to have_content 'Occupancy status'
       expect(page).to have_content 'Lot rent'
@@ -134,8 +122,8 @@ RSpec.describe 'Show property', type: :system, js: true do
       login_as(user, scope: :user)
       visit property_path(9999999)
     end
-    it 'shows the empty partial' do
-      expect(page).to have_content 'Nothing was found'
+    it 'redirects away' do
+      expect(current_path).to eq root_path
     end
   end
 end

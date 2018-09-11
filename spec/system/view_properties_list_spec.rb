@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'View properties list', type: :system, js: true do
+RSpec.describe 'View properties list', type: :system do
   before :each do
     visit root_path
   end
@@ -11,7 +11,6 @@ RSpec.describe 'View properties list', type: :system, js: true do
     it 'redirects to login page' do
       visit list_properties_path
       expect(current_path).to eq new_user_session_path
-      expect(page).to have_content('You need to sign in first')
     end
   end
 
@@ -21,10 +20,6 @@ RSpec.describe 'View properties list', type: :system, js: true do
         user = create(:client_user)
         login_as(user, scope: :user)
         visit list_properties_path
-      end
-
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
       end
 
       it 'redirects away' do
@@ -39,10 +34,6 @@ RSpec.describe 'View properties list', type: :system, js: true do
         visit list_properties_path
       end
 
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
-      end
-
       it 'redirects away' do
         expect(current_path).not_to eq list_properties_path
       end
@@ -53,10 +44,6 @@ RSpec.describe 'View properties list', type: :system, js: true do
         user = create(:contractor_user)
         login_as(user, scope: :user)
         visit list_properties_path
-      end
-
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
       end
 
       it 'redirects away' do
@@ -111,7 +98,7 @@ RSpec.describe 'View properties list', type: :system, js: true do
       click_link 'Missing title'
       expect(page).to have_css('tbody#property_table_body tr', count: Property.except_default.related_to(@user).needs_title.count)
 
-      click_link 'All'
+      click_link 'properties_admin'
       expect(page).to have_css('tbody#property_table_body tr', count: Property.except_default.visible_to(@user).count)
 
       click_link 'Over budget'

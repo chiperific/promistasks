@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Create new user', type: :system, js: true do
+RSpec.describe 'Create new user', type: :system do
   before :each do
     visit root_path
   end
@@ -11,7 +11,6 @@ RSpec.describe 'Create new user', type: :system, js: true do
     it 'redirects to login page' do
       visit new_user_path
       expect(current_path).to eq new_user_session_path
-      expect(page).to have_content('You need to sign in first')
     end
   end
 
@@ -21,10 +20,6 @@ RSpec.describe 'Create new user', type: :system, js: true do
         user = create(:client_user)
         login_as(user, scope: :user)
         visit new_user_path
-      end
-
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
       end
 
       it 'redirects away' do
@@ -39,10 +34,6 @@ RSpec.describe 'Create new user', type: :system, js: true do
         visit new_user_path
       end
 
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
-      end
-
       it 'redirects away' do
         expect(current_path).not_to eq new_user_path
       end
@@ -53,10 +44,6 @@ RSpec.describe 'Create new user', type: :system, js: true do
         user = create(:contractor_user)
         login_as(user, scope: :user)
         visit new_user_path
-      end
-
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
       end
 
       it 'redirects away' do
@@ -107,8 +94,11 @@ RSpec.describe 'Create new user', type: :system, js: true do
       fill_in 'user_password_confirmation', with: @user.password
       fill_in 'user_phone', with: @user.phone
       fill_in 'user_title', with: 'Grand Champion'
-      find('input.select-dropdown').click
-      find('li', text: 'Volunteer').click
+      select 'Volunteer', from: 'user_register_as'
+
+      # when materialize.js is loaded
+      # find('input.select-dropdown').click
+      # find('li', text: 'Volunteer').click
     end
 
     it 'creates a user' do
@@ -124,12 +114,6 @@ RSpec.describe 'Create new user', type: :system, js: true do
 
       expect(current_path).not_to eq new_user_path
     end
-
-    it 'flashes a success message' do
-      click_submit
-
-      expect(page).to have_content 'Person created'
-    end
   end
 
   context 'when form fields are bad' do
@@ -144,13 +128,11 @@ RSpec.describe 'Create new user', type: :system, js: true do
       fill_in 'user_password_confirmation', with: @user.password
       # fill_in 'user_phone', with: @user.phone
       fill_in 'user_title', with: 'Grand Champion'
-      find('input.select-dropdown').click
-      find('li', text: 'Volunteer').click
-    end
+      select 'Volunteer', from: 'user_register_as'
 
-    it 'flashes an error message' do
-      click_submit
-      expect(page).to have_content 'Oops, found some errors'
+      # when materialize.js is loaded
+      # find('input.select-dropdown').click
+      # find('li', text: 'Volunteer').click
     end
 
     it 'lists the errors' do

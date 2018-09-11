@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Show task', type: :system, js: true do
+RSpec.describe 'Show task', type: :system do
   before :each do
     @user = create(:user)
     @task = create(:task, creator: @user, owner: @user)
@@ -13,7 +13,6 @@ RSpec.describe 'Show task', type: :system, js: true do
     it 'redirects to login page' do
       visit task_path(@task)
       expect(current_path).to eq new_user_session_path
-      expect(page).to have_content('You need to sign in first')
     end
   end
 
@@ -43,10 +42,6 @@ RSpec.describe 'Show task', type: :system, js: true do
         visit task_path(@task)
       end
 
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
-      end
-
       it 'redirects away' do
         expect(current_path).not_to eq task_path(@task)
       end
@@ -58,10 +53,6 @@ RSpec.describe 'Show task', type: :system, js: true do
       user = create(:admin)
       login_as(user, scope: :user)
       visit task_path(9999999)
-    end
-
-    it 'flashes error message' do
-      expect(page).to have_content('Nothing was found')
     end
 
     it 'redirects away' do

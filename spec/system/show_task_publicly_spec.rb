@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Show task publicly', type: :system, js: true do
+RSpec.describe 'Show task publicly', type: :system do
   before :each do
     @task = create(:task, visibility: 1)
     visit root_path
@@ -34,10 +34,6 @@ RSpec.describe 'Show task publicly', type: :system, js: true do
       user = create(:admin)
       login_as(user, scope: :user)
       visit public_task_path(99999999)
-    end
-
-    it 'flashes error message' do
-      expect(page).to have_content('Nothing was found')
     end
 
     it 'redirects away' do

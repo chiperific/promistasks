@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Check oauth credentials', type: :system, js: true do
+RSpec.describe 'Check oauth credentials', type: :system do
   before :each do
     @staff = create(:user)
     @client = create(:client_user)
@@ -13,7 +13,6 @@ RSpec.describe 'Check oauth credentials', type: :system, js: true do
     it 'redirects to login page' do
       visit oauth_check_user_path(@staff)
       expect(current_path).to eq new_user_session_path
-      expect(page).to have_content('You need to sign in first')
     end
   end
 
@@ -36,10 +35,6 @@ RSpec.describe 'Check oauth credentials', type: :system, js: true do
         visit oauth_check_user_path(@staff)
       end
 
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
-      end
-
       it 'redirects away' do
         expect(current_path).not_to eq oauth_check_user_path(@staff)
       end
@@ -52,10 +47,6 @@ RSpec.describe 'Check oauth credentials', type: :system, js: true do
         visit oauth_check_user_path(@staff)
       end
 
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
-      end
-
       it 'redirects away' do
         expect(current_path).not_to eq oauth_check_user_path(@staff)
       end
@@ -66,10 +57,6 @@ RSpec.describe 'Check oauth credentials', type: :system, js: true do
         user = create(:contractor_user)
         login_as(user, scope: :user)
         visit oauth_check_user_path(@staff)
-      end
-
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
       end
 
       it 'redirects away' do
@@ -126,10 +113,6 @@ RSpec.describe 'Check oauth credentials', type: :system, js: true do
       user = create(:admin)
       login_as(user, scope: :user)
       visit oauth_check_user_path(@client)
-    end
-
-    it 'flashes error message' do
-      expect(page).to have_content "#{@client.name} has no credentials to check."
     end
 
     it 'redirects away' do

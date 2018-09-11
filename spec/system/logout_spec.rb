@@ -9,11 +9,8 @@ RSpec.describe 'Logout', type: :system, js: true do
       visit destroy_user_session_path
     end
 
-    it 'redirects away' do
+    it 'redirects away and flashes a message' do
       expect(current_path).not_to eq destroy_user_session_path
-    end
-
-    it 'flashes a message' do
       expect(page).to have_content 'Signed out successfully.'
     end
   end
@@ -25,18 +22,15 @@ RSpec.describe 'Logout', type: :system, js: true do
       visit root_path
     end
 
-    it 'logs out the user' do
+    it 'logs out the user and displays a confirmation message' do
       expect(@user.current_sign_in_at).not_to eq nil
 
       visit destroy_user_session_path
 
+      expect(page).to have_content 'Signed out successfully.'
+
       @user.reload
       expect(@user.current_sign_in_at).to eq nil
-    end
-
-    it 'displays a confirmation message' do
-      visit destroy_user_session_path
-      expect(page).to have_content 'Signed out successfully.'
     end
   end
 end

@@ -50,7 +50,8 @@ group :development, :test do
 end
 
 group :test do
-  gem 'capybara', '~> 2.13'
+  gem 'capybara'
+  gem 'capybara-slow_finder_errors'
   gem 'database_cleaner'
   gem 'faker'
   gem 'launchy'

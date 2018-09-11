@@ -10,11 +10,8 @@ RSpec.describe 'Login using db', type: :system, js: true do
       visit new_user_session_path
     end
 
-    it 'redirects away' do
+    it 'redirects away and flashes a message' do
       expect(current_path).not_to eq new_user_session_path
-    end
-
-    it 'flashes a message' do
       expect(page).to have_content 'You are already signed in.'
     end
   end
@@ -36,13 +33,9 @@ RSpec.describe 'Login using db', type: :system, js: true do
       fill_in 'user_password', with: 'password'
     end
 
-    it 'logs in the user' do
+    it 'logs in the user and redirects away' do
       click_submit
       expect(page).to have_content 'Signed in successfully.'
-    end
-
-    it 'redirects away from the login page' do
-      click_submit
       expect(current_path).not_to eq new_user_session_path
     end
   end
@@ -57,6 +50,7 @@ RSpec.describe 'Login using db', type: :system, js: true do
     it 'displays an error' do
       click_submit
       expect(page).to have_content 'Invalid Email or Password'
+      expect(current_path).to eq new_user_session_path
     end
   end
 end

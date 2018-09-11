@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Show user', type: :system, js: true do
+RSpec.describe 'Show user', type: :system do
   before :each do
     @record = create(:user)
     visit root_path
@@ -12,7 +12,6 @@ RSpec.describe 'Show user', type: :system, js: true do
     it 'redirects to login page' do
       visit user_path(@record)
       expect(current_path).to eq new_user_session_path
-      expect(page).to have_content('You need to sign in first')
     end
   end
 
@@ -35,10 +34,6 @@ RSpec.describe 'Show user', type: :system, js: true do
         visit user_path(@record)
       end
 
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
-      end
-
       it 'redirects away' do
         expect(current_path).not_to eq user_path(@record)
       end
@@ -51,10 +46,6 @@ RSpec.describe 'Show user', type: :system, js: true do
         visit user_path(@record)
       end
 
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
-      end
-
       it 'redirects away' do
         expect(current_path).not_to eq user_path(@record)
       end
@@ -65,10 +56,6 @@ RSpec.describe 'Show user', type: :system, js: true do
         user = create(:contractor_user)
         login_as(user, scope: :user)
         visit user_path(@record)
-      end
-
-      it 'flashes error message' do
-        expect(page).to have_content('You do not have permission')
       end
 
       it 'redirects away' do
@@ -110,10 +97,6 @@ RSpec.describe 'Show user', type: :system, js: true do
       user = create(:admin)
       login_as(user, scope: :user)
       visit user_path(99999999999)
-    end
-
-    it 'flashes error message' do
-      expect(page).to have_content('Nothing was found')
     end
 
     it 'redirects away' do

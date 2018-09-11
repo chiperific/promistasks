@@ -3,8 +3,6 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * show a property
-      - expect(page).to have_css 'a#edit_property_link'
     * create a property
     * edit a property
     * view parks

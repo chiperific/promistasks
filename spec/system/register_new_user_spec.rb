@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Register new user', type: :system, js: true do
+RSpec.describe 'Register new user', type: :system do
   context 'when current_user' do
     before :each do
       user = create(:user)
@@ -12,10 +12,6 @@ RSpec.describe 'Register new user', type: :system, js: true do
 
     it 'redirects away' do
       expect(current_path).not_to eq new_user_registration_path
-    end
-
-    it 'flashes a message' do
-      expect(page).to have_content 'You are already signed in.'
     end
   end
 
@@ -39,14 +35,16 @@ RSpec.describe 'Register new user', type: :system, js: true do
       fill_in 'Phone', with: @user.phone
       fill_in 'user[password]', with: @user.password
       fill_in 'user[password_confirmation]', with: @user.password
-      find('input.select-dropdown').click
-      find('li', text: 'Volunteer').click
+      select 'Volunteer', from: 'user_register_as'
+
+      # when materialize.js is loaded
+      # find('input.select-dropdown').click
+      # find('li', text: 'Volunteer').click
     end
 
     it 'logs in the user' do
       click_submit
 
-      expect(page).to have_content "Welcome, #{@user.fname}"
       expect(page).to have_css 'a#sidenav'
       click_link 'sidenav'
       expect(page).to have_css 'a#sidebar_link_profile'
