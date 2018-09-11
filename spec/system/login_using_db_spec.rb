@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Login using db', type: :system, js: true do
+RSpec.describe 'Login using db', type: :system do
   context 'when current_user' do
     before :each do
       user = create(:user)
@@ -12,7 +12,6 @@ RSpec.describe 'Login using db', type: :system, js: true do
 
     it 'redirects away and flashes a message' do
       expect(current_path).not_to eq new_user_session_path
-      expect(page).to have_content 'You are already signed in.'
     end
   end
 
@@ -35,8 +34,8 @@ RSpec.describe 'Login using db', type: :system, js: true do
 
     it 'logs in the user and redirects away' do
       click_submit
-      expect(page).to have_content 'Signed in successfully.'
       expect(current_path).not_to eq new_user_session_path
+      expect(page).to have_css 'body[data-user="1"]'
     end
   end
 
@@ -47,9 +46,8 @@ RSpec.describe 'Login using db', type: :system, js: true do
       fill_in 'user_password', with: 'badbad'
     end
 
-    it 'displays an error' do
+    it 'stays on the page' do
       click_submit
-      expect(page).to have_content 'Invalid Email or Password'
       expect(current_path).to eq new_user_session_path
     end
   end

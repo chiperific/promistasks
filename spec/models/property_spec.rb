@@ -399,49 +399,56 @@ RSpec.describe Property, type: :model do
   end
 
   describe '#occupancy_status' do
-    before :each do
-      @approved = create(:property_ready)
-      @complete = create(:property_ready)
-      @occupied = create(:property_ready)
-      @pending =  create(:property_ready)
-      @vacant =   create(:property_ready)
-      @returned = create(:property_ready)
-      @initial =  create(:property_ready)
-      @final =    create(:property_ready)
-
-      create(:connection_stage, stage: 'approved', property: @approved)
-      create(:connection_stage, stage: 'transferred title', property: @complete)
-      create(:connection_stage, stage: 'applied', property: @pending)
-      create(:connection_stage, stage: 'vacated', property: @vacant)
-      create(:connection_stage, stage: 'returned property', property: @returned)
-      create(:connection_stage, stage: 'moved in', property: @occupied)
-      create(:connection_stage, stage: 'initial walkthrough', property: @initial)
-      create(:connection_stage, stage: 'final walkthrough', property: @final)
-    end
-
     it 'returns "vacant" if there are no associated occupancies' do
       expect(@property.occupancies.count).to eq 0
       expect(@property.occupancy_status).to eq 'vacant'
     end
 
     it 'returns "approved applicant" if the latest occupancy is "approved"' do
+      @approved = create(:property_ready)
+      create(:connection_stage, stage: 'approved', property: @approved)
+
       expect(@approved.occupancy_status).to eq 'approved applicant'
     end
 
     it 'returns "complete" if the latest occupancy is "transferred title"' do
+      @complete = create(:property_ready)
+      create(:connection_stage, stage: 'transferred title', property: @complete)
+
       expect(@complete.occupancy_status).to eq 'complete'
     end
 
     it 'returns "pending application" if the latest occupancy is "applied"' do
+      @pending = create(:property_ready)
+      create(:connection_stage, stage: 'applied', property: @pending)
+
       expect(@pending.occupancy_status).to eq 'pending application'
     end
 
     it 'returns "vacant" if the latest occupancy is "vacated" or "returned property"' do
+      @vacant = create(:property_ready)
+      create(:connection_stage, stage: 'vacated', property: @vacant)
+
+      @returned = create(:property_ready)
+      create(:connection_stage, stage: 'returned property', property: @returned)
+
       expect(@vacant.occupancies.count).not_to eq 0
       expect(@vacant.occupancy_status).to eq 'vacant'
+
+      expect(@returned.occupancies.count).not_to eq 0
+      expect(@returned.occupancy_status).to eq 'vacant'
     end
 
     it 'returns "occupied" if the latest stage is "moved in", "initial walkthrough", or "final walkthrough"' do
+      @occupied = create(:property_ready)
+      create(:connection_stage, stage: 'moved in', property: @occupied)
+
+      @initial = create(:property_ready)
+      create(:connection_stage, stage: 'initial walkthrough', property: @initial)
+
+      @final = create(:property_ready)
+      create(:connection_stage, stage: 'final walkthrough', property: @final)
+
       expect(@occupied.occupancies.count).not_to eq 0
       expect(@initial.occupancies.count).not_to eq 0
       expect(@final.occupancies.count).not_to eq 0
