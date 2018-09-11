@@ -99,10 +99,9 @@ RSpec.describe '<%= human_string %>', type: :system, js: true do
     before :each do
       user = create(:admin)
       login_as(user, scope: :user)
-      visit #path
+      visit #missing_path
     end
     it 'shows the empty partial' do
-      visit #path
       expect(page).to have_content 'It\'s pretty empty in here'
     end
   end

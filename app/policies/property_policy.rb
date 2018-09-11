@@ -12,7 +12,7 @@ class PropertyPolicy < ApplicationPolicy
   end
 
   def show?
-    user&.staff? || user&.admin? || record.visible_to?(user)
+    user&.staff? || user&.admin? || record.creator == user
   end
 
   def new?
@@ -24,11 +24,11 @@ class PropertyPolicy < ApplicationPolicy
   end
 
   def edit?
-    user&.staff? || user&.admin? || record.visible_to?(user)
+    user&.staff? || user&.admin? || record.creator == user
   end
 
   def update?
-    user&.staff? || user&.admin? || record.visible_to?(user)
+    user&.staff? || user&.admin? || record.creator == user
   end
 
   def default?

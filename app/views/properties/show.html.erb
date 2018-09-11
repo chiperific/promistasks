@@ -57,7 +57,7 @@
           <h4>Tasks</h4>
       </div>
       <div class="col s12 m2">
-        <%= link_to new_task_path(property: @property), class: 'btn waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false' do %>
+        <%= link_to new_task_path(property: @property), class: 'btn waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false', id: 'new_task_link' do %>
           <i class="material-icons">add</i>
           <i class="material-icons">check_circle_outline</i>
         <% end %>
@@ -202,6 +202,6 @@
 
 <%= render partial: 'properties/explanations' %>
 
-<%= link_to @return_path, class: 'waves-effect waves-light btn' do %>
+<%= link_to @return_path, class: 'waves-effect waves-light btn', id: 'back_btn' do %>
   <i class="material-icons left">arrow_back_ios</i>Back
 <% end %>

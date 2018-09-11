@@ -94,10 +94,10 @@ RSpec.describe 'View properties list', type: :system, js: true do
       @user = create(:admin)
       login_as(@user, scope: :user)
       create(:property, creator: @user) # Yours
+      over_budget    = create(:property, budget_cents: 100, creator: @user) # over budget
+      nearing_budget = create(:property, budget_cents: 900, creator: @user) # nearing budget
       create(:task, creator: @user, owner: @user) # Have your tasks
-      over_budget = create(:property, budget_cents: 100) # over budget
       create(:task, property: over_budget, cost_cents: 900)
-      nearing_budget = create(:property, budget_cents: 900) # nearing budget
       create(:task, property: nearing_budget, cost_cents: 200)
       visit list_properties_path
     end

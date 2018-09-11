@@ -6,9 +6,9 @@
   <% end %>
     <div class="card-image">
       <% if property.is_default? %>
-        <%= image_tag "default_tasklist.jpg", alt: "default tasklist" %>
+        <%= image_tag "default_tasklist.jpg", alt: "default tasklist", class: 'default-map' %>
       <% else %>
-        <%= image_tag property.google_map, alt: "property street view" %>
+        <%= image_tag property.google_map, alt: "property street view", class: 'street-map' %>
       <% end %>
       <% unless property.is_default? %>
         <% if params[:action] == 'index' || params[:controller] == 'tasks' %>
