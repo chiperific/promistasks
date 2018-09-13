@@ -2,28 +2,41 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Create new property', type: :system do
+RSpec.describe 'Edit property', type: :system do
   before :each do
+    @creator = create(:user)
+    @property = create(:property, creator: @creator)
     visit root_path
   end
 
   context 'when not current_user' do
     it 'redirects to login page' do
-      visit new_property_path
+      visit edit_property_path(@property)
       expect(current_path).to eq new_user_session_path
     end
   end
 
   context 'when current_user' do
+    context 'created the record' do
+      before :each do
+        login_as(@creator, scope: :user)
+        visit edit_property_path(@property)
+      end
+
+      it 'loads the page' do
+        expect(page).to have_content 'Edit Property'
+      end
+    end
+
     context 'is client' do
       before :each do
         user = create(:client_user)
         login_as(user, scope: :user)
-        visit new_property_path
+        visit edit_property_path(@property)
       end
 
       it 'redirects away' do
-        expect(current_path).not_to eq new_property_path
+        expect(current_path).not_to eq edit_property_path(@property)
       end
     end
 
@@ -31,11 +44,11 @@ RSpec.describe 'Create new property', type: :system do
       before :each do
         user = create(:volunteer_user)
         login_as(user, scope: :user)
-        visit new_property_path
+        visit edit_property_path(@property)
       end
 
       it 'redirects away' do
-        expect(current_path).not_to eq new_property_path
+        expect(current_path).not_to eq edit_property_path(@property)
       end
     end
 
@@ -43,11 +56,11 @@ RSpec.describe 'Create new property', type: :system do
       before :each do
         user = create(:contractor_user)
         login_as(user, scope: :user)
-        visit new_property_path
+        visit edit_property_path(@property)
       end
 
       it 'redirects away' do
-        expect(current_path).not_to eq new_property_path
+        expect(current_path).not_to eq edit_property_path(@property)
       end
     end
 
@@ -55,11 +68,11 @@ RSpec.describe 'Create new property', type: :system do
       before :each do
         user = create(:user)
         login_as(user, scope: :user)
-        visit new_property_path
+        visit edit_property_path(@property)
       end
 
       it 'loads the page' do
-        expect(page).to have_content 'New Property'
+        expect(page).to have_content 'Edit Property'
       end
     end
 
@@ -67,11 +80,11 @@ RSpec.describe 'Create new property', type: :system do
       before :each do
         user = create(:admin)
         login_as(user, scope: :user)
-        visit new_property_path
+        visit edit_property_path(@property)
       end
 
       it 'loads the page' do
-        expect(page).to have_content 'New Property'
+        expect(page).to have_content 'Edit Property'
       end
     end
   end
@@ -80,7 +93,8 @@ RSpec.describe 'Create new property', type: :system do
     before :each do
       user = create(:admin)
       login_as(user, scope: :user)
-      visit new_property_path
+      @property = create(:property)
+      visit edit_property_path(@property)
     end
 
     context 'have no errors' do
@@ -91,12 +105,12 @@ RSpec.describe 'Create new property', type: :system do
         fill_in 'property_state', with: 'Sweden'
       end
 
-      it 'creates a property' do
-        first_count = Property.count
-
+      it 'updates the property' do
         click_submit
 
-        expect(Property.count).to eq first_count + 1
+        expect(page).to have_css 'div#public_tasks'
+
+        expect(@property.reload.name).to eq 'Capybara Place'
       end
 
       it 'redirects away' do
@@ -105,15 +119,17 @@ RSpec.describe 'Create new property', type: :system do
         expect(current_path).not_to eq new_property_path
       end
     end
+  end
 
-    context 'have errors' do
-      it 'shows errors' do
-        click_submit
+  context 'when property is not present' do
+    before :each do
+      user = create(:admin)
+      login_as(user, scope: :user)
+      visit edit_property_path(99999)
+    end
 
-        expect(page).to have_content '2 errors found:'
-        expect(page).to have_content 'Address can\'t be blank'
-        expect(page).to have_content 'Name can\'t be blank'
-      end
+    it 'redirects away' do
+      expect(current_path).not_to eq edit_property_path(@property)
     end
   end
 end

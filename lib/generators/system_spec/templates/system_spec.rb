@@ -97,6 +97,7 @@ RSpec.describe '<%= human_string %>', type: :system do
       login_as(user, scope: :user)
       visit #missing_path
     end
+
     it 'shows the empty partial' do
       expect(page).to have_content 'It\'s pretty empty in here'
     end

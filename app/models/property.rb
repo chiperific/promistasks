@@ -211,7 +211,7 @@ class Property < ApplicationRecord
     else
       User.staff.each do |user|
         tasklist = ensure_tasklist_exists_for(user)
-        tasklist.api_update
+        tasklist.api_update unless tasklist == false
       end
     end
   end

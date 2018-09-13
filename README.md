@@ -3,7 +3,6 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * create a property
     * edit a property
     * view parks
     * show a park
