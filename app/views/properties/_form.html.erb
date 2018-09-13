@@ -81,10 +81,12 @@
   <div class="row">
     <div class="input-field col m8 s12">
       <%= f.text_area :description, class: 'materialize-textarea' %>
+      <i class="material-icons prefix">message</i>
       <label for="property_description">Description & notes</label>
     </div>
 
     <div class="input-field col m4 s12">
+      <i class="material-icons prefix">event</i>
       <%= f.text_field :acquired_on, class: 'datepicker' %>
       <label for="property_acquired_on">Date acquired</label>
     </div>
@@ -110,18 +112,25 @@
 
   <div class="row">
     <div class="input-field col m2 s12">
-      <%= f.number_field :year_manufacture, min: Time.now.year - 100, max: Time.now.year + 1, step: 1 %>
+      <i class="material-icons prefix">event</i>
+      <%= f.select :year_manufacture, year_ary(60), include_blank: true %>
       <label for="property_year_maufacture">Model Year</label>
     </div>
 
-    <div class="input-field col m5 s12">
+    <div class="input-field col m4 s12">
       <%= f.text_field :manufacturer %>
       <label for="property_manufacturer">Manufacturer</label>
     </div>
 
-    <div class="input-field col m5 s12">
-      <%= f.text_field :bed_bath %>
-      <label for="property_bed_bath">Bed & Bath</label>
+    <div class="input-field col m2 s12">
+      <i class="material-icons prefix">hotel</i>
+      <%= f.select :beds, (0..5).to_a %>
+      <label for="property_beds">Beds</label>
+    </div>
+    <div class="input-field col m2 s12">
+      <i class="material-icons prefix">meeting_room</i>
+      <%= f.select :baths, (0..4).to_a %>
+      <label for="property_beds">Baths</label>
     </div>
   </div>
 
