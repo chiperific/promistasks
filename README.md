@@ -3,7 +3,6 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * view parks as a graphic (mimic properties)
     * view parks in a list
     * show a park
     * create a park
@@ -29,6 +28,8 @@
 
 
   - Property form needs Park field
+  - Property#list and #index need quick-set for STAGE
+    -- And Park#show's list of associated properties
   - Property#show needs payments partial (which handles utility accounts)
   - Park#show needs payments partial
   - Utility#show needs payments partial

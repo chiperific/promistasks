@@ -18,14 +18,14 @@
   <ul class="tabs z-depth-1" name="parks">
     <% if @show_new %>
       <li class="tab">
-        <%= link_to 'New', parks_path(filter: 'new'), id: 'parks_new', remote: true %>
+        <%= link_to 'New', list_parks_path(filter: 'new'), id: 'parks_new', remote: true %>
       </li>
     <% end %>
     <li class="tab">
-      <%= link_to 'Active', parks_path(filter: 'active'), id: 'parks_active', remote: true %>
+      <%= link_to 'Active', list_parks_path(filter: 'active'), id: 'parks_active', remote: true %>
     </li>
     <li class="tab">
-      <%= link_to 'Archived', parks_path(filter: 'archived'), id: 'parks_archive', remote: true %>
+      <%= link_to 'Archived', list_parks_path(filter: 'archived'), id: 'parks_archived', remote: true %>
     </li>
   </ul>
 </div>
@@ -34,14 +34,21 @@
   <table class="highlight responsive-table">
     <thead>
       <tr>
+        <th></th>
+        <th colspan="<%= Constant::Property::STAGES.count %>" class="center">Properties by stage</th>
+        <th colspan="3"></th>
+      </tr>
+      <tr>
         <th>Name</th>
-        <th># Properties</th>
+        <% Constant::Property::STAGES.each do |stage| %>
+          <th class="small-text center"><%= stage.capitalize %></th>
+        <% end %>
         <th></th>
         <th></th>
         <th></th>
       </tr>
     </thead>
-    <tbody id="property_table_body">
+    <tbody id="park_table_body">
       <%= render partial: 'parks', collection: @parks %>
     </tbody>
   </table>

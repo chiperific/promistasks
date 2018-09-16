@@ -14,7 +14,7 @@ class CreateProperties < ActiveRecord::Migration[5.1]
       t.monetize :cost,     amount: { null: true, default: nil }
       t.monetize :lot_rent, amount: { null: true, default: nil }
       t.monetize :budget,   amount: { null: true, default: nil }
-      t.string :stage,      default: 'acquired'
+      t.string :stage,      null: false, default: 'acquired'
       t.date :expected_completion_date
       t.date :actual_completion_date
       t.string :certificate_number

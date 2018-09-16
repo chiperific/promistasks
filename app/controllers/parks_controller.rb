@@ -13,6 +13,10 @@ class ParksController < ApplicationController
     parks = Park.all.order(:name)
     @show_new = parks.created_since(current_user.last_sign_in_at).count.positive?
 
+    # binding.pry
+
+    @colspan = Constant::Property::STAGES.count + 4
+
     case params[:filter]
     when 'new'
       @parks = parks.created_since(current_user.last_sign_in_at)

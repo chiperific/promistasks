@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
   include ErrorHandler
   include ApplicationHelper
 
-  protect_from_forgery with: :exception
+  # protect_from_forgery with: :exception
 
   # REMOVE BEFORE PRODUCTION
   after_action :verify_authorized, unless: :devise_controller?
