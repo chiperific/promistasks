@@ -118,6 +118,19 @@ class User < ActiveRecord::Base
     super && !discarded_at
   end
 
+  def all_tasks
+    created_tasks.or(owned_tasks)
+  end
+
+  def can_view_park(park)
+    return true if admin? || staff?
+
+    return true if created_properties.where(park: park).count.positive?
+    return true if all_tasks.joins(:property).where('properties.park_id = ?', park.id).count.positive?
+
+    false
+  end
+
   def fetch_default_tasklist
     return false unless oauth_id.present?
     response = HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists/@default', headers: api_headers)

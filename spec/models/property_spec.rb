@@ -140,6 +140,8 @@ RSpec.describe Property, type: :model do
       expect(Property.nearing_budget).not_to include @property
     end
 
+    pending '#created_since'
+
     it '#archived is alias of #discarded' do
       expect(Property.archived).to eq Property.discarded
     end

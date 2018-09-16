@@ -3,7 +3,7 @@
     <h2>Properties</h2>
   </div>
   <div class="col s2">
-    <%= link_to properties_path, class: 'btn-floating waves-effect waves-light blue darken-2' do %>
+    <%= link_to properties_path, class: 'btn-floating waves-effect waves-light blue darken-2', id: 'properties_link' do %>
       <i class="material-icons">apps</i>
     <% end %>
   </div>
@@ -30,7 +30,7 @@
   <ul class="tabs z-depth-1" id="properties_tasks">
     <% if @show_new %>
       <li class="tab">
-        <%= link_to 'New', list_properties_path(filter: 'new'), id: 'properties_new' %>
+        <%= link_to 'New', list_properties_path(filter: 'new'), id: 'properties_new', remote: true %>
       </li>
     <% end %>
     <li class="tab">

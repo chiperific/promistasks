@@ -1,0 +1,52 @@
+<div class="row valign-wrapper">
+  <div class="col s8">
+    <h2>Parks</h2>
+  </div>
+  <div class="col s2">
+    <%= link_to parks_path, class: 'btn-floating waves-effect waves-light blue darken-2', id: 'parks_link' do %>
+      <i class="material-icons">apps</i>
+    <% end %>
+  </div>
+  <div class="col s2">
+    <%= link_to new_park_path, class: 'btn-floating btn-large waves-effect waves-light green darken-2', id: 'new_park_link' do %>
+      <i class="material-icons">add</i>
+    <% end %>
+  </div>
+</div>
+
+<div class="row center-align no-bottom-margin">
+  <ul class="tabs z-depth-1" name="parks">
+    <% if @show_new %>
+      <li class="tab">
+        <%= link_to 'New', parks_path(filter: 'new'), id: 'parks_new', remote: true %>
+      </li>
+    <% end %>
+    <li class="tab">
+      <%= link_to 'Active', parks_path(filter: 'active'), id: 'parks_active', remote: true %>
+    </li>
+    <li class="tab">
+      <%= link_to 'Archived', parks_path(filter: 'archived'), id: 'parks_archive', remote: true %>
+    </li>
+  </ul>
+</div>
+
+<div class="row extra-top-margin">
+  <table class="highlight responsive-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th># Properties</th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="property_table_body">
+      <%= render partial: 'parks', collection: @parks %>
+    </tbody>
+  </table>
+</div>
+
+<% if @parks.empty? %>
+  <%= render partial: 'admin_contact' %>
+<% end %>

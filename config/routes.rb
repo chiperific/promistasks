@@ -32,7 +32,9 @@ Rails.application.routes.draw do
 
   resources :connections
 
-  resources :parks
+  resources :parks do
+    get 'list', on: :collection
+  end
 
   resources :payments
 

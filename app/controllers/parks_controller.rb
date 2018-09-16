@@ -1,76 +1,74 @@
 # frozen_string_literal: true
 
 class ParksController < ApplicationController
-  before_action :set_park, only: [:show, :edit, :update, :destroy]
+  before_action :set_park, only: %i[show edit update destroy]
 
-  # GET /parks
-  # GET /parks.json
   def index
-    @parks = Park.all
+    authorize Park
+    @parks = Park.undiscarded.order(:name)
   end
 
-  # GET /parks/1
-  # GET /parks/1.json
+  def list
+    authorize Park
+    parks = Park.all.order(:name)
+    @show_new = parks.created_since(current_user.last_sign_in_at).count.positive?
+
+    case params[:filter]
+    when 'new'
+      @parks = parks.created_since(current_user.last_sign_in_at)
+      @empty_msg = 'No new parks'
+    when 'archived'
+      @parks = parks.discarded
+      @empty_msg = 'No archived parks'
+    else # 'active'
+      @parks = parks.undiscarded
+      @empty_msg = 'No parks found'
+    end
+
+    respond_to do |format|
+      format.js
+      format.html
+    end
+  end
+
   def show
+    authorize @park
   end
 
-  # GET /parks/new
   def new
-    @park = Park.new
+    authorize @park = Park.new
   end
 
-  # GET /parks/1/edit
   def edit
+    authorize @park
   end
 
-  # POST /parks
-  # POST /parks.json
   def create
+    authorize Park
     @park = Park.new(park_params)
-
-    respond_to do |format|
-      if @park.save
-        format.html { redirect_to @park, notice: 'Park was successfully created.' }
-        format.json { render :show, status: :created, location: @park }
-      else
-        format.html { render :new }
-        format.json { render json: @park.errors, status: :unprocessable_entity }
-      end
+    if @park.save
+      format.html { redirect_to @park, notice: 'Park was successfully created.' }
+    else
+      format.html { render :new }
     end
   end
 
-  # PATCH/PUT /parks/1
-  # PATCH/PUT /parks/1.json
   def update
-    respond_to do |format|
-      if @park.update(park_params)
-        format.html { redirect_to @park, notice: 'Park was successfully updated.' }
-        format.json { render :show, status: :ok, location: @park }
-      else
-        format.html { render :edit }
-        format.json { render json: @park.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # DELETE /parks/1
-  # DELETE /parks/1.json
-  def destroy
-    @park.destroy
-    respond_to do |format|
-      format.html { redirect_to parks_url, notice: 'Park was successfully destroyed.' }
-      format.json { head :no_content }
+    authorize @park
+    if @park.update(park_params)
+      format.html { redirect_to @park, notice: 'Park was successfully updated.' }
+    else
+      format.html { render :edit }
     end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_park
-      @park = Park.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def park_params
-      params.fetch(:park, {})
-    end
+  def set_park
+    @park = Park.find(params[:id])
+  end
+
+  def park_params
+    params.fetch(:park, {})
+  end
 end

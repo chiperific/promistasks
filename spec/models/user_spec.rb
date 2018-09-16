@@ -259,6 +259,45 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#all_tasks' do
+    pending 'returns tasks the user created'
+
+    pending 'returns tasks the user owns'
+  end
+
+  describe '#can_view_park' do
+    before :each do
+      @park = create(:park)
+    end
+
+    it 'returns true if user is admin' do
+      @admin = create(:admin)
+      expect(@admin.can_view_park(@park)).to eq true
+    end
+
+    it 'returns true if user is staff' do
+      @user.save
+      expect(@user.can_view_park(@park)).to eq true
+    end
+
+    it 'returns true if user created an associated property' do
+      @user = create(:volunteer_user)
+      create(:property, creator: @user, park: @park)
+
+      expect(@user.can_view_park(@park)).to eq true
+    end
+
+    it 'returns true if user has tasks for an associated property' do
+      @volunteer = create(:volunteer_user)
+      @contractor = create(:contractor_user)
+      @property = create(:property, park: @park)
+      create(:task, property: @property, creator: @volunteer, owner: @contractor)
+
+      expect(@volunteer.can_view_park(@park)).to eq true
+      expect(@contractor.can_view_park(@park)).to eq true
+    end
+  end
+
   describe '#fetch_default_tasklist' do
     it 'returns false if oauth_id is missing' do
       @user.save

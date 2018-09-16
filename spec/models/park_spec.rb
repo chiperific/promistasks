@@ -37,6 +37,10 @@ RSpec.describe Park, type: :model do
     end
   end
 
+  describe 'limits records by scope' do
+    pending '#created_since'
+  end
+
   describe '#address_has_changed?' do
     let(:park) { create :park, address: 'address' }
 

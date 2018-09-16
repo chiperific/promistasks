@@ -3,7 +3,8 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * view parks
+    * view parks as a graphic (mimic properties)
+    * view parks in a list
     * show a park
     * create a park
     * edit a park
@@ -27,8 +28,16 @@
     * edit a user's skills
 
 
-  - Process changes from models
+  - Property form needs Park field
+  - Property#show needs payments partial (which handles utility accounts)
+  - Park#show needs payments partial
+  - Utility#show needs payments partial
+  - Task#show needs payments partial
+  - Users#show needs payments partial
+  - Alerts needs payment reminders
   - System sends email when new non-oauth signs up
+  - System sends email when payment is due
+
   - Reports
     - Date range filtering
   - Archiving property in app (when no open tasks) removes from GT.
@@ -56,8 +65,10 @@
   - How to ignore duplicate tasks (same tasklist) from API?
 
 6. Views:
-  - Organization#show and "#edit if user.admin?
   - Client reporting: public form with limited options for types of errors
+    -- Looks up property by client
+    -- creates a task for property.connections.where(relationship: 'staff contact').last || Organization.maintenance_contact
+    -- Sends an email alert to the owner.
   - Task#public mailto: link needs subject and body text
   - Task#user_finder user_table needs skills tabs in view
   - Vol / Contractor can't get past the homepage / task view

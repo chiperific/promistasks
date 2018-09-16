@@ -1,0 +1,19 @@
+<div class="col s12 m6 l4 park">
+  <div class="card amber z-depth-3">
+    <div class="card-image">
+      <%= image_tag park.google_map, alt: "park street view", class: 'street-map' %>
+      <%= link_to edit_park_path(park), class: 'btn-floating halfway-fab waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false', id: 'edit_park_link' do  %>
+        <i class="material-icons">edit</i>
+      <% end %>
+    </div>
+    <div class="card-content grey-text text-darken-4">
+      <span class="card-title"><%= park.name %></span>
+      <p class="small-text">
+        <%= pluralize(park.properties.active.count, 'Property') %>
+        <% if park.staff_contact.present? %>
+          | Staff contact: <%= park.staff_contact.name %>
+        <% end %>
+      </p>
+    </div>
+  </div>
+</div>
