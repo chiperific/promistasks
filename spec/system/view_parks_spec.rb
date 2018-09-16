@@ -15,16 +15,6 @@ RSpec.describe 'View parks', type: :system do
   end
 
   context 'when current_user' do
-    context 'is anyone' do
-      before :each do
-        user = create(:user)
-        login_as(user, scope: :user)
-        visit parks_path
-      end
-
-      pending 'loads the page'
-    end
-
     context 'is client' do
       before :each do
         user = create(:client_user)
@@ -44,7 +34,9 @@ RSpec.describe 'View parks', type: :system do
         visit parks_path
       end
 
-      pending 'loads the page'
+      it 'redirects away' do
+        expect(current_path).not_to eq parks_path
+      end
     end
 
     context 'is contractor' do
@@ -54,7 +46,9 @@ RSpec.describe 'View parks', type: :system do
         visit parks_path
       end
 
-      pending 'loads the page'
+      it 'redirects away' do
+        expect(current_path).not_to eq parks_path
+      end
     end
 
     context 'is staff' do
@@ -64,7 +58,9 @@ RSpec.describe 'View parks', type: :system do
         visit parks_path
       end
 
-      pending 'loads the page'
+      it 'loads the page' do
+        expect(page).to have_content 'Parks'
+      end
     end
 
     context 'is admin' do
@@ -74,7 +70,9 @@ RSpec.describe 'View parks', type: :system do
         visit parks_path
       end
 
-      pending 'loads the page'
+      it 'loads the page' do
+        expect(page).to have_content 'Parks'
+      end
     end
   end
 
@@ -82,11 +80,18 @@ RSpec.describe 'View parks', type: :system do
     before :each do
       user = create(:admin)
       login_as(user, scope: :user)
-      3.times { create(:park) }
+      2.times { create(:park) }
       visit parks_path
     end
 
-    pending 'shows the parks'
+    it 'shows the parks' do
+      Park.all.each do |park|
+        expect(page).to have_content park.name
+      end
+
+      expect(page).to have_css 'img.street-map', count: 2
+      expect(page).to have_css 'a#show_park_link', count: 2
+    end
   end
 
   context 'when parks are not present' do
