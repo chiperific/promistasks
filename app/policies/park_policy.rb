@@ -34,4 +34,12 @@ class ParkPolicy < ApplicationPolicy
   def update?
     user&.staff? || user&.admin?
   end
+
+  def properties_filter?
+    user&.can_view_park(record)
+  end
+
+  def users?
+    user&.staff? || user&.admin?
+  end
 end

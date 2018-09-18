@@ -3,12 +3,12 @@
 class CreatePayments < ActiveRecord::Migration[5.2]
   def change
     create_table :payments do |t|
-      t.references :property,   foreign_key: true
-      t.references :park,       foreign_key: true
-      t.references :utility,    foreign_key: true
-      t.references :task,       foreign_key: true
-      t.references :contractor, references: :users
-      t.references :client,     references: :users
+      t.references :contractor, references: :users # paid_to
+      t.references :park,       foreign_key: true # paid_to
+      t.references :utility,    foreign_key: true # paid_to
+      t.references :client,     references: :users # paid_to && on_behalf_of
+      t.references :property,   foreign_key: true # on_behalf_of
+      t.references :task,       foreign_key: true # related_to
       t.string :utility_type # use Constant::Utility::TYPES
       t.string :utility_account
       t.date :utility_service_started

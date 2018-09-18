@@ -1,0 +1,15 @@
+<tr>
+  <td><%= park_user_table.user.name %></td>
+  <td><%= park_user_table.relationship.capitalize %></td>
+  <td><%= human_date(park_user_table.created_at) %></td>
+  <td class="slim">
+    <%= link_to edit_park_user_path(park_user_table), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false' do  %>
+      <i class="material-icons">edit</i>
+    <% end %>
+  </td>
+  <td class="slim">
+    <%= link_to park_user_path(park_user_table), method: :delete, data: { confirm: 'Delete this connection?' }, class: 'btn-floating btn-small red darken-3' do  %>
+      <i class="material-icons">delete</i>
+    <% end %>
+  </td>
+</tr>

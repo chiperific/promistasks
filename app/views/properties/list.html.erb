@@ -63,9 +63,6 @@
 <div class="row center-align no-bottom-margin">
   <ul class="tabs z-depth-1" id="properties_status">
     <li class="tab">
-      <%= link_to 'All', list_properties_path(filter: 'yours'), id: 'properties_all', remote: true  %>
-    </li>
-    <li class="tab">
       <%= link_to 'Vacant', list_properties_path(filter: 'vacant'), id: 'properties_vacant', remote: true  %>
     </li>
     <li class="tab">
@@ -77,23 +74,16 @@
     <li class="tab">
       <%= link_to 'Occupied', list_properties_path(filter: 'occupied'), id: 'properties_occupied', remote: true  %>
     </li>
+    <li class="tab">
+      <%= link_to 'All', list_properties_path(filter: 'all'), id: 'properties_all', remote: true  %>
+    </li>
   </ul>
 </div>
 
 <div class="row extra-top-margin">
   <table class="highlight responsive-table">
     <thead>
-      <tr>
-        <th class="hide-on-small-only"></th>
-        <th>Name</th>
-        <th>Occupancy</th>
-        <th>$ Remaining</th>
-        <th>Total Tasks</th>
-        <th>Tasks for you</th>
-        <th></th>
-        <th></th>
-        <th></th>
-      </tr>
+      <%= render partial: 'properties_table_header' %>
     </thead>
     <tbody id="property_table_body">
       <%= render partial: 'properties', collection: @properties %>

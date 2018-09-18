@@ -21,6 +21,10 @@ module Constant
                  un_complete users update update_skills update_tasks update_users].freeze
   end
 
+  class Park
+    RELATIONSHIPS = ['staff contact', 'contractor', 'volunteer'].freeze
+  end
+
   class Payment
     METHODS = %w[ACH auto-pay cash check credit].freeze
   end

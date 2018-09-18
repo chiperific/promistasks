@@ -1,12 +1,19 @@
-# Google Tasks API Extension for Family Promise GR
+# Task and Resource Manager with Google Tasks API Extension for Family Promise GR
 
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * view parks in a list
     * show a park
+      -- CURRENT: Payment table needs work (see below)
+      -- ParkUser needs controller, views, forms, etc. - scaffold it out!
+      -- Add a ParkUser from here (aka Connections)
+      -- Edit a ParkUser from here
+      -- Delete a ParkUser from here (remote: true ?)
     * create a park
     * edit a park
+    * create a park_user (from Park and User)
+    * edit a park_user (from Park and User)
+    * delete a park_user (from Park and User)
     * view utilities
     * show a utility
     * create a utility
@@ -26,15 +33,17 @@
     * show a user's skills
     * edit a user's skills
 
-
+  - Payment model needs to indicate paid_to, related_to, and on_behalf_of:
+    -- e.g. Park 1 was paid $400 for Property 3, related_to Task 13
+    -- re-work payments factory to reflect this
   - Property form needs Park field
   - Property#list and #index need quick-set for STAGE
     -- And Park#show's list of associated properties
-  - Property#show needs payments partial (which handles utility accounts)
-  - Park#show needs payments partial
-  - Utility#show needs payments partial
-  - Task#show needs payments partial
-  - Users#show needs payments partial
+  - Property#show needs payments table (which handles utility accounts)
+  - Park#show needs payments table
+  - Utility#show needs payments table
+  - Task#show needs payments table
+  - Users#show needs payments table
   - Alerts needs payment reminders
   - System sends email when new non-oauth signs up
   - System sends email when payment is due

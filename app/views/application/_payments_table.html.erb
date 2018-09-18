@@ -1,0 +1,18 @@
+<tr>
+  <td><%= payments_table.utility_type %></td>
+  <td><%= payments_table.bill_amt.format %></td>
+  <td><%= human_date(payments_table.received) %></td>
+  <td><%= human_date(payments_table.due) %></td>
+  <td><%= human_date(payments_table.paid) %></td>
+  <td><%= human_boolean(payments_table.recurring) %></td>
+  <td class="slim">
+    <%= link_to payment_path(payments_table), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false' do  %>
+          <i class="material-icons">arrow_forward</i>
+        <% end %>
+  </td>
+  <td class="slim">
+    <%= link_to edit_payment_path(payments_table), class: 'btn-floating btn-small blue darken-2', 'data-turbolinks'=> 'false' do  %>
+      <i class="material-icons">edit</i>
+    <% end %>
+  </td>
+</tr>

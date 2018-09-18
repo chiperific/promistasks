@@ -1,5 +1,5 @@
 $(document).on 'turbolinks:load', ->
-  return unless controllerMatches(['properties']) && actionMatches(['list'])
+  return unless controllerMatches(['properties', 'parks']) && actionMatches(['list', 'show'])
 
   tabRowVisibility = ->
     chooser = $('#tab_switch').prop('checked')

@@ -67,7 +67,7 @@ class PropertiesController < ApplicationController
       'Creator': @property.creator.name
     }
 
-    if !@property.is_default?
+    unless @property.is_default?
       @primary_info_hash['Occupancy status'] = @property.occupancy_details
       @primary_info_hash['Lot rent'] = @property.lot_rent || 'Not recorded'
       @primary_info_hash['Acquired on'] = human_date(@property.acquired_on) || 'Not recorded'

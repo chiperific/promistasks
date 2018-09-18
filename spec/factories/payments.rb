@@ -7,6 +7,7 @@ FactoryBot.define do
     received { Date.today }
     due { Date.today + 15.days }
     association :creator, factory: :user
+    utility_type { Constant::Utility::TYPES.sample }
   end
 
   factory :payment_property, class: Payment do
@@ -15,6 +16,7 @@ FactoryBot.define do
     received { Date.today }
     due { Date.today + 15.days }
     association :creator, factory: :user
+    utility_type { Constant::Utility::TYPES.sample }
   end
 
   factory :payment_utility, class: Payment do
@@ -23,6 +25,7 @@ FactoryBot.define do
     received { Date.today }
     due { Date.today + 15.days }
     association :creator, factory: :user
+    utility_type { Constant::Utility::TYPES.sample }
   end
 
   factory :payment_task, class: Payment do
@@ -31,6 +34,7 @@ FactoryBot.define do
     received { Date.today }
     due { Date.today + 15.days }
     association :creator, factory: :user
+    utility_type { Constant::Utility::TYPES.sample }
   end
 
   factory :payment_contractor, class: Payment do
@@ -39,6 +43,7 @@ FactoryBot.define do
     received { Date.today }
     due { Date.today + 15.days }
     association :creator, factory: :user
+    utility_type { Constant::Utility::TYPES.sample }
   end
 
   factory :payment_client, class: Payment do
@@ -47,5 +52,6 @@ FactoryBot.define do
     received { Date.today }
     due { Date.today + 15.days }
     association :creator, factory: :user
+    utility_type { Constant::Utility::TYPES.sample }
   end
 end

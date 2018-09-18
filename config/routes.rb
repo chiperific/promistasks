@@ -32,8 +32,14 @@ Rails.application.routes.draw do
 
   resources :connections
 
+  resources :park_users
+
   resources :parks do
     get 'list', on: :collection
+    get 'properties_filter', on: :member
+    get 'connections', on: :member
+    get 'connection', on: :member
+    get 'delete_user', on: :member
   end
 
   resources :payments

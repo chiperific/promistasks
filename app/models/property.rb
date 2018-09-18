@@ -42,15 +42,15 @@ class Property < ApplicationRecord
   after_save :undiscard_connections,                if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
   scope :except_default, ->       { where(is_default: false) }
-  scope :needs_title,    ->       { undiscarded.where(certificate_number: nil) }
-  scope :public_visible, ->       { undiscarded.where(is_private: false) }
-  scope :created_by,     ->(user) { undiscarded.where(creator: user) }
-  scope :with_tasks_for, ->(user) { undiscarded.where(id: Task.select(:property_id).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id)) }
-  scope :related_to,     ->(user) { created_by(user).or(with_tasks_for(user)) }
+  scope :needs_title,    ->       { except_default.undiscarded.where(certificate_number: nil) }
+  scope :public_visible, ->       { except_default.undiscarded.where(is_private: false) }
+  scope :created_by,     ->(user) { except_default.undiscarded.where(creator: user) }
+  scope :with_tasks_for, ->(user) { except_default.undiscarded.where(id: Task.select(:property_id).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id)) }
+  scope :related_to,     ->(user) { except_default.created_by(user).or(with_tasks_for(user)) }
   scope :visible_to,     ->(user) { related_to(user).or(public_visible) }
-  scope :over_budget,    ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents') }
-  scope :nearing_budget, ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
-  scope :created_since,  ->(time) { where('created_at >= ?', time) }
+  scope :over_budget,    ->       { except_default.where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents') }
+  scope :nearing_budget, ->       { except_default.where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
+  scope :created_since,  ->(time) { except_default.where('created_at >= ?', time) }
   # ready to be occupied: stage == 'complete', no connections.where(relationship: 'tennant')
   # ready to be archived: stage == 'complete', one connection.where(relationship: 'tennant', stage: 'title transferred')
   # ^ happens automatically when connection is created with stage 'transferred title'

@@ -1,4 +1,195 @@
-<p id="notice"><%= notice %></p>
+<div class="row center-align">
+  <%= render @park %>
+  <div class="col s12 m6 l8">
+    <table class="striped">
+      <tbody>
+        <% @primary_info_hash.each do |k,v| %>
+          <%= render partial: 'info_table', locals: { k: k, v: v } %>
+        <% end %>
+        <tr>
+          <td colspan="2">
+            <%= link_to 'Map', @park.google_map_link, class: 'btn blue darken-2 waves-effect', target: '_blank' %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 
-<%= link_to 'Edit', edit_park_path(@park) %> |
-<%= link_to 'Back', parks_path %>
+<div class="row section">
+  <div class="col s12">
+    <% if @park.notes.present? %>
+      <div class="row">
+        <div class="col s12">
+          <h5>Notes</h5>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col s12">
+          <%= @park.notes %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<div class="row section">
+  <div class="col s12">
+    <div class="row valign-wrapper">
+      <div class="col s12 m10">
+          <h4>Properties</h4>
+      </div>
+      <div class="col s12 m2">
+        <%= link_to new_property_path(park: @park), class: 'btn waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false', id: 'new_task_link' do %>
+          <i class="material-icons">add</i>
+          <i class="material-icons">home</i>
+        <% end %>
+      </div>
+    </div>
+
+    <% if @properties.any? %>
+      <div class="row center-align">
+        Filter by:
+        <div class="switch">
+          <label>
+            Tasks
+            <input type="checkbox" id="tab_switch">
+            <span class="lever"></span>
+            Status
+          </label>
+        </div>
+      </div>
+
+      <div class="row center-align no-bottom-margin">
+        <ul class="tabs z-depth-1" id="properties_tasks">
+          <% if @show_new %>
+            <li class="tab">
+              <%= link_to 'New', properties_filter_park_path(@park, properties: 'new'), id: 'properties_new', remote: true %>
+            </li>
+          <% end %>
+          <li class="tab">
+            <%= link_to 'Yours', properties_filter_park_path(@park, properties: 'yours'), id: 'properties_yours', class: 'active', remote: true  %>
+          </li>
+          <li class="tab">
+            <%= link_to 'Have Your Tasks', properties_filter_park_path(@park, properties: 'tasks'), id: 'properties_tasks', remote: true  %>
+          </li>
+          <li class="tab">
+            <%= link_to 'Over budget', properties_filter_park_path(@park, properties: 'over'), id: 'properties_over', remote: true  %>
+          </li>
+          <li class="tab">
+            <%= link_to 'Nearing budget', properties_filter_park_path(@park, properties: 'near'), id: 'properties_near', remote: true  %>
+          </li>
+          <li class="tab">
+            <%= link_to 'Missing title', properties_filter_park_path(@park, properties: 'title'), id: 'properties_title', remote: true  %>
+          </li>
+          <% if current_user.admin? %>
+            <li class="tab">
+              <%= link_to 'All', properties_filter_park_path(@park, properties: 'admin'), id: 'properties_admin', remote: true  %>
+            </li>
+          <% elsif current_user.staff? %>
+            <li class="tab">
+              <%= link_to 'All', properties_filter_park_path(@park, properties: 'all'), id: 'properties_all', remote: true  %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+
+      <div class="row center-align no-bottom-margin">
+        <ul class="tabs z-depth-1" id="properties_status">
+          <li class="tab">
+            <%= link_to 'Vacant', properties_filter_park_path(@park, properties: 'vacant'), id: 'properties_vacant', remote: true  %>
+          </li>
+          <li class="tab">
+            <%= link_to 'Pending', properties_filter_park_path(@park, properties: 'pending'), id: 'properties_pending', remote: true  %>
+          </li>
+          <li class="tab">
+            <%= link_to 'Approved', properties_filter_park_path(@park, properties: 'approved'), id: 'properties_approved', remote: true  %>
+          </li>
+          <li class="tab">
+            <%= link_to 'Occupied', properties_filter_park_path(@park, properties: 'occupied'), id: 'properties_occupied', remote: true  %>
+          </li>
+          <li class="tab">
+            <%= link_to 'All', properties_filter_park_path(@park, properties: 'all'), id: 'properties_all', remote: true  %>
+          </li>
+        </ul>
+      </div>
+
+      <div class="row">
+        <table class='highlight responsive-table' id='property_table'>
+          <thead>
+            <%= render partial: 'properties/properties_table_header' %>
+          </thead>
+          <tbody id='property_table_body'>
+            <%= render partial: 'properties/properties', collection: @properties %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="center">No properties</p>
+    <% end %>
+  </div>
+</div>
+
+<div class="row section">
+  <div class="col s12">
+    <div class="row valign-wrapper">
+      <div class="col s12 m10">
+        <h4>Payments</h4>
+      </div>
+      <div class="col s12 m2">
+        <%= link_to new_payment_path(park: @park), class: 'btn waves-effect waves-light green darken 2', 'data-turbolinks'=> 'false' do %>
+          <i class="material-icons">add</i>
+          <i class="material-icons">attach_money</i>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="row center-align">
+      <% if @payments.any? %>
+        <table class='striped responsive-table'>
+          <thead>
+            <%= render partial: 'payments_table_head' %>
+          </thead>
+          <tbody>
+            <%= render partial: 'payments_table', collection: @payments %>
+          </tbody>
+        </table>
+      <% else %>
+        <p class="center">No payment history</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<% if current_user&.admin? || current_user&.staff? %>
+  <div class="row section">
+    <div class="col s12">
+      <div class="row valign-wrapper">
+        <div class="col s12 m10">
+          <h4>Connections</h4>
+        </div>
+        <div class="col s12 m2">
+          <%= link_to new_park_user_path(park: @park), class: 'btn waves-effect waves-light green darken 2', 'data-turbolinks'=> 'false' do %>
+            <i class="material-icons">add</i>
+            <i class="material-icons">how_to_reg</i>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="row center-align">
+        <% if @connections.any? %>
+          <table class='striped responsive-table'>
+            <thead>
+              <%= render partial: 'park_user_table_head' %>
+            </thead>
+            <tbody>
+              <%= render partial: 'park_user_table', collection: @connections %>
+            </tbody>
+          </table>
+        <% else %>
+          <p class="center">No people connected to this park</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
