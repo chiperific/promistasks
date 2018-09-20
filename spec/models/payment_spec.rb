@@ -38,8 +38,12 @@ RSpec.describe Payment, type: :model do
   describe 'validates inclusions: ' do
     let(:good_utility) { build :payment, utility_type: 'gas' }
     let(:good_method)  { build :payment, method: 'cash' }
+    let(:good_paid_to) { build :payment, paid_to: 'park' }
+    let(:good_obo)     { build :payment, on_behalf_of: 'property' }
     let(:bad_utility)  { build :payment, utility_type: 'helium' }
     let(:bad_method)   { build :payment, method: 'monopoly money' }
+    let(:bad_paid_to) { build :payment, paid_to: 'bookie' }
+    let(:bad_obo)     { build :payment, on_behalf_of: 'girlfriend' }
 
     it '#utility_type' do
       expect(good_utility.save).to eq true
@@ -125,13 +129,12 @@ RSpec.describe Payment, type: :model do
   end
 
   describe '#must_have_association' do
-    let(:property_association) { build :payment_property }
+    let(:property_association) { build :payment }
     let(:park_association) { build :payment }
     let(:utility_association) { build :payment_utility }
-    let(:task_association) { build :payment_task }
     let(:contractor_association) { build :payment_contractor }
     let(:client_association) { build :payment_client }
-    let(:no_associations) { build :payment, park_id: nil }
+    let(:no_associations) { build :payment, park_id: nil, property_id: nil }
 
     context 'when property is associated' do
       it 'returns true' do
@@ -148,12 +151,6 @@ RSpec.describe Payment, type: :model do
     context 'when utility is associated' do
       it 'returns true' do
         expect(utility_association.send(:must_have_association)).to eq true
-      end
-    end
-
-    context 'when task is associated' do
-      it 'returns true' do
-        expect(task_association.send(:must_have_association)).to eq true
       end
     end
 

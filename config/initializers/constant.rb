@@ -27,6 +27,8 @@ module Constant
 
   class Payment
     METHODS = %w[ACH auto-pay cash check credit].freeze
+    PAID_TO = %w[client contractor organization park property utility].freeze
+    ON_BEHALF_OF = %w[client property].freeze
   end
 
   class Property

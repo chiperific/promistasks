@@ -139,6 +139,10 @@ class Task < ApplicationRecord
     task_user.reload
   end
 
+  def name
+    title
+  end
+
   def on_default?
     property.is_default?
   end

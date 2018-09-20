@@ -9,6 +9,8 @@ class CreatePayments < ActiveRecord::Migration[5.2]
       t.references :client,     references: :users # paid_to && on_behalf_of
       t.references :property,   foreign_key: true # on_behalf_of
       t.references :task,       foreign_key: true # related_to
+      t.string :paid_to      # use Constant::Payment::PAID_TO
+      t.string :on_behalf_of # use Constnat::Payment::ON_BEHALF_OF
       t.string :utility_type # use Constant::Utility::TYPES
       t.string :utility_account
       t.date :utility_service_started

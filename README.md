@@ -33,9 +33,13 @@
     * show a user's skills
     * edit a user's skills
 
-  - Payment model needs to indicate paid_to, related_to, and on_behalf_of:
-    -- e.g. Park 1 was paid $400 for Property 3, related_to Task 13
-    -- re-work payments factory to reflect this
+  - Payment model indicates paid_to, related_to, and on_behalf_of:
+    -- New payments from other models should link intellegently:
+    `model_id: @model.id, (paid_to: 'model' || on_behalf_of: 'model')`
+    -- Payment form needs to handle `paid_to` and `on_behalf_of` with good UX
+
+
+
   - Property form needs Park field
   - Property#list and #index need quick-set for STAGE
     -- And Park#show's list of associated properties

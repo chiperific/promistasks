@@ -17,8 +17,10 @@ class Payment < ApplicationRecord
 
   serialize :recurrence, IceCube::Schedule
 
-  validates_inclusion_of :method, in: Constant::Payment::METHODS, message: "must be one of these: #{Constant::Payment::METHODS.to_sentence}", allow_blank: true
+  validates_inclusion_of :method,       in: Constant::Payment::METHODS, message: "must be one of these: #{Constant::Payment::METHODS.to_sentence}", allow_blank: true
   validates_inclusion_of :utility_type, in: Constant::Utility::TYPES, message: "must be one of these: #{Constant::Utility::TYPES.to_sentence}", allow_blank: true
+  validates_inclusion_of :paid_to,      in: Constant::Payment::PAID_TO, message: "must be one of these: #{Constant::Payment::PAID_TO.to_sentence}"
+  validates_inclusion_of :on_behalf_of, in: Constant::Payment::ON_BEHALF_OF, message: "must be one of these: #{Constant::Payment::ON_BEHALF_OF.to_sentence}"
   validates_inclusion_of :recurring, :send_email_reminders, :suppress_system_alerts,
                          in: [true, false]
   validates_presence_of :creator_id
@@ -40,6 +42,15 @@ class Payment < ApplicationRecord
   class << self
     alias archived discarded
     alias active kept
+  end
+
+  def for
+    public_send(on_behalf_of)
+  end
+
+  def to
+    return Organization.first if paid_to == 'organization'
+    public_send(paid_to)
   end
 
   private
