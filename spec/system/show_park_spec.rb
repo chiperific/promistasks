@@ -4,13 +4,13 @@ require 'rails_helper'
 
 RSpec.describe 'Show park', type: :system do
   before :each do
-    @#record = create(:#record)
+    @park = create(:park)
     visit root_path
   end
 
   context 'when not current_user' do
     it 'redirects to login page' do
-      visit #path
+      visit park_path(@park)
       expect(current_path).to eq new_user_session_path
       # expect(page).to have_content('You need to sign in first')
     end
@@ -21,7 +21,7 @@ RSpec.describe 'Show park', type: :system do
       before :each do
         user = create(:user)
         login_as(user, scope: :user)
-        visit #path
+        visit park_path(@park)
       end
 
       pending 'loads the page'
@@ -31,11 +31,11 @@ RSpec.describe 'Show park', type: :system do
       before :each do
         user = create(:client_user)
         login_as(user, scope: :user)
-        visit #path
+        visit park_path(@park)
       end
 
       it 'redirects away' do
-        expect(current_path).not_to eq #path
+        expect(current_path).not_to eq park_path(@park)
       end
     end
 
@@ -43,7 +43,7 @@ RSpec.describe 'Show park', type: :system do
       before :each do
         user = create(:volunteer_user)
         login_as(user, scope: :user)
-        visit #path
+        visit park_path(@park)
       end
 
       pending 'loads the page'
@@ -53,7 +53,7 @@ RSpec.describe 'Show park', type: :system do
       before :each do
         user = create(:contractor_user)
         login_as(user, scope: :user)
-        visit #path
+        visit park_path(@park)
       end
 
       pending 'loads the page'
@@ -63,7 +63,7 @@ RSpec.describe 'Show park', type: :system do
       before :each do
         user = create(:user)
         login_as(user, scope: :user)
-        visit #path
+        visit park_path(@park)
       end
 
       pending 'loads the page'
@@ -73,33 +73,10 @@ RSpec.describe 'Show park', type: :system do
       before :each do
         user = create(:admin)
         login_as(user, scope: :user)
-        visit #path
+        visit park_path(@park)
       end
 
       pending 'loads the page'
-    end
-  end
-
-  context 'when #records are present' do
-    before :each do
-      user = create(:admin)
-      login_as(user, scope: :user)
-      3.times { create(:#record) }
-      visit #path
-    end
-
-    pending 'shows the #records'
-  end
-
-  context 'when #records are not present' do
-    before :each do
-      user = create(:admin)
-      login_as(user, scope: :user)
-      visit #missing_path
-    end
-
-    it 'shows the empty partial' do
-      expect(page).to have_content 'It\'s pretty empty in here'
     end
   end
 end

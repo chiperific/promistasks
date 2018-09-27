@@ -6,11 +6,13 @@
         <% @primary_info_hash.each do |k,v| %>
           <%= render partial: 'info_table', locals: { k: k, v: v } %>
         <% end %>
-        <tr>
-          <td colspan="2">
-            <%= link_to 'Map', @park.google_map_link, class: 'btn blue darken-2 waves-effect', target: '_blank' %>
-          </td>
-        </tr>
+        <% if @park.google_map_link %>
+          <tr>
+            <td colspan="2">
+              <%= link_to 'Map', @park.google_map_link, class: 'btn blue darken-2 waves-effect', target: '_blank' %>
+            </td>
+          </tr>
+        <% end %>
       </tbody>
     </table>
   </div>

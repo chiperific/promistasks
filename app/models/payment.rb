@@ -48,6 +48,25 @@ class Payment < ApplicationRecord
     public_send(on_behalf_of)
   end
 
+  def past_due?
+    return false unless due.present?
+    due.past?
+  end
+
+  def status
+    if paid.present?
+      'Paid on' + paid.strftime('%b %-d, %Y')
+    elsif due.present? && due.future?
+      'Due on ' + due.strftime('%b %-d, %Y')
+    elsif past_due?
+      'PAST DUE as of ' + due.strftime('%b %-d, %Y')
+    elsif received.present?
+      'Received on' + received.strftime('%b %-d, %Y')
+    else
+      'Upcoming'
+    end
+  end
+
   def to
     return Organization.first if paid_to == 'organization'
     public_send(paid_to)
