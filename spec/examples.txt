@@ -582,6 +582,14 @@ example_id                                             | status  | run_time     
 ./spec/system/create_new_user_spec.rb[1:3:1]           | passed  | 0.34787 seconds |
 ./spec/system/create_new_user_spec.rb[1:3:2]           | passed  | 0.31483 seconds |
 ./spec/system/create_new_user_spec.rb[1:4:1]           | passed  | 0.32186 seconds |
+./spec/system/edit_park_spec.rb[1:1:1]                 | passed  | 0.22225 seconds |
+./spec/system/edit_park_spec.rb[1:2:1:1]               | passed  | 0.2824 seconds  |
+./spec/system/edit_park_spec.rb[1:2:2:1]               | passed  | 0.25801 seconds |
+./spec/system/edit_park_spec.rb[1:2:3:1]               | passed  | 0.30145 seconds |
+./spec/system/edit_park_spec.rb[1:2:4:1]               | passed  | 0.25539 seconds |
+./spec/system/edit_park_spec.rb[1:2:5:1]               | passed  | 0.27384 seconds |
+./spec/system/edit_park_spec.rb[1:3:1:1]               | passed  | 1.41 seconds    |
+./spec/system/edit_park_spec.rb[1:3:2:1]               | passed  | 0.3637 seconds  |
 ./spec/system/edit_property_spec.rb[1:1:1]             | passed  | 0.38357 seconds |
 ./spec/system/edit_property_spec.rb[1:2:1:1]           | passed  | 0.40391 seconds |
 ./spec/system/edit_property_spec.rb[1:2:2:1]           | passed  | 0.38035 seconds |

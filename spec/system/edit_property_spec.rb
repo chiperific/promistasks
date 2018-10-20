@@ -120,16 +120,4 @@ RSpec.describe 'Edit property', type: :system do
       end
     end
   end
-
-  context 'when property is not present' do
-    before :each do
-      user = create(:admin)
-      login_as(user, scope: :user)
-      visit edit_property_path(99999)
-    end
-
-    it 'redirects away' do
-      expect(current_path).not_to eq edit_property_path(@property)
-    end
-  end
 end
