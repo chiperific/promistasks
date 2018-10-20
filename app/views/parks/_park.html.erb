@@ -7,7 +7,7 @@
           <i class="material-icons">arrow_forward</i>
         <% end %>
       <% else %>
-        <%= link_to park_path(park), class: 'btn-floating halfway-fab waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false', id: 'show_park_link' do  %>
+        <%= link_to edit_park_path(park), class: 'btn-floating halfway-fab waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false', id: 'edit_park_link' do  %>
           <i class="material-icons">edit</i>
         <% end %>
       <% end %>

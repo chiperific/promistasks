@@ -59,21 +59,27 @@ class ParksController < ApplicationController
   end
 
   def create
-    authorize Park
-    @park = Park.new(park_params)
+    authorize @park = Park.new(park_params)
+
     if @park.save
-      format.html { redirect_to @park, notice: 'Park was successfully created.' }
+      redirect_to @return_path, notice: 'Park was successfully created.'
     else
-      format.html { render :new }
+      flash[:warning] = 'Oops, found some errors'
+      render 'new'
     end
   end
 
   def update
     authorize @park
+
+    @park.discard if params[:park][:archived] == '1' && !@park.discarded?
+    @park.undiscard if params[:park][:archived] == '0' && @park.discarded?
+
     if @park.update(park_params)
-      format.html { redirect_to @park, notice: 'Park was successfully updated.' }
+      redirect_to @return_path, notice: 'Park updated'
     else
-      format.html { render :edit }
+      flash[:warning] = 'Oops, found some errors'
+      render 'edit'
     end
   end
 
@@ -146,6 +152,7 @@ class ParksController < ApplicationController
   end
 
   def park_params
-    params.fetch(:park, {})
+    params.require(:park).permit(:name, :address, :city, :state, :postal_code,
+                                 :notes, :poc_name, :poc_email, :poc_phone)
   end
 end
