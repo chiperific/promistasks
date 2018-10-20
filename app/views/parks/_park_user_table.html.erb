@@ -8,7 +8,7 @@
     <% end %>
   </td>
   <td class="slim">
-    <%= link_to park_user_path(park_user_table), method: :delete, data: { confirm: 'Delete this connection?' }, class: 'btn-floating btn-small red darken-3' do  %>
+    <%= link_to park_user_path(park_user_table), method: :delete, data: { confirm: 'Delete this connection?' }, remote: true, class: 'btn-floating btn-small red darken-3' do  %>
       <i class="material-icons">delete</i>
     <% end %>
   </td>

@@ -3,17 +3,12 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * show a park
-      -- CURRENT: Payment table needs work (see below)
-      -- ParkUser needs controller, views, forms, etc. - scaffold it out!
-      -- Add a ParkUser from here (aka Connections)
-      -- Edit a ParkUser from here
-      -- Delete a ParkUser from here (remote: true ?)
     * create a park
     * edit a park
     * create a park_user (from Park and User)
     * edit a park_user (from Park and User)
     * delete a park_user (from Park and User)
+    * add a property to a park && remove a property from a park (park_properties_path)
     * view utilities
     * show a utility
     * create a utility

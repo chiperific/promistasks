@@ -40,6 +40,8 @@ Rails.application.routes.draw do
     get 'connections', on: :member
     get 'connection', on: :member
     get 'delete_user', on: :member
+    get 'properties', on: :member
+    post 'update_properties', on: :member
   end
 
   resources :payments

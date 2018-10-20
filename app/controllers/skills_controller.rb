@@ -8,8 +8,8 @@ class SkillsController < ApplicationController
   def show
     authorize @skill = Skill.find(params[:id])
 
-    @skill_users = @skill.skill_users.kept
-    @skill_tasks = @skill.skill_tasks.kept
+    @skill_users = @skill.skill_users
+    @skill_tasks = @skill.skill_tasks
   end
 
   def new
