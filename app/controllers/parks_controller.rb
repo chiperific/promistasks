@@ -145,6 +145,26 @@ class ParksController < ApplicationController
   def update_properties
   end
 
+  def park_enum
+    authorize parks = Park.undiscarded.select(:name)
+
+    hsh = {}
+    parks.each do |park|
+      hsh[park.name] = nil
+    end
+    render json: hsh
+  end
+
+  def find_id_by_name
+    authorize current_user
+
+    parks = Park.where(name: params[:name])
+
+    park_id = parks.present? ? parks.first.id : 0
+
+    render json: park_id
+  end
+
   private
 
   def set_park

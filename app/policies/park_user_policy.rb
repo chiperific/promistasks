@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ConnectionPolicy < ApplicationPolicy
+class ParkUserPolicy < ApplicationPolicy
   attr_reader :user, :record
 
   def index?
@@ -20,6 +20,10 @@ class ConnectionPolicy < ApplicationPolicy
   end
 
   def update?
+    user.staff? || user.admin?
+  end
+
+  def destroy?
     user.staff? || user.admin?
   end
 end

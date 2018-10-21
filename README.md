@@ -3,8 +3,6 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * create a park
-    * edit a park
     * create a park_user (from Park and User)
     * edit a park_user (from Park and User)
     * delete a park_user (from Park and User)

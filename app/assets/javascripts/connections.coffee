@@ -48,16 +48,15 @@ $(document).on 'turbolinks:load', ->
   $('#property_lkup').on
     'input'      : -> findPropertyByName(this, '#connection_property_id')
     'change'     : -> findPropertyByName(this, '#connection_property_id')
-    'blur'       : -> findPropertyByName(this, '#connection_property_id')
-    'focusout'   : -> findPropertyByName(this, '#connection_property_id')
-    'mouseleave' : -> findPropertyByName(this, '#connection_property_id')
 
   $('#user_lkup').on
     'input'      : -> findUserByName(this, '#connection_user_id')
     'change'     : -> findUserByName(this, '#connection_user_id')
-    'blur'       : -> findUserByName(this, '#connection_user_id')
-    'focusout'   : -> findUserByName(this, '#connection_user_id')
-    'mouseleave' : -> findUserByName(this, '#connection_user_id')
+
+  $('.dropdown-content').on
+    'click': ->
+      findPropertyByName($('#property_lkup', '#connection_park_id'))
+      findUserByName($('#user_lkup', '#connection_user_id'))
 
   $('#select_relationship').on 'change', 'select', ->
     checkRelationship()

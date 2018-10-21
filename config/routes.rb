@@ -42,6 +42,8 @@ Rails.application.routes.draw do
     get 'delete_user', on: :member
     get 'properties', on: :member
     post 'update_properties', on: :member
+    get 'park_enum', on: :collection
+    get 'find_id_by_name', on: :collection
   end
 
   resources :payments

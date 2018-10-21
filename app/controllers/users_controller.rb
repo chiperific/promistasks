@@ -152,14 +152,7 @@ class UsersController < ApplicationController
   def create
     authorize @user = User.new(user_params)
 
-    case user_params[:register_as]
-    when 'Volunteer'
-      @user.volunteer = true
-    when 'Contractor'
-      @user.contractor = true
-    when 'Client'
-      @user.client = true
-    end
+    @user.write_type(user_params[:register_as])
 
     if @user.save
       redirect_to @return_path, notice: 'Person created'
@@ -181,12 +174,14 @@ class UsersController < ApplicationController
     @user.discard if params[:user][:archive] == '1' && !@user.discarded?
     @user.undiscard if params[:user][:archive] == '0' && @user.discarded?
 
+    @user.write_type(user_params[:register_as])
+
     # .reject removes password and password_confirmation if they are blank
     if @user.update(user_params.reject { |k, v| k.include?('password') && v.blank? })
       redirect_to @return_path, notice: 'Update successful'
     else
       flash[:warning] = 'Oops, found some errors'
-      @hide_rate = 'scale-out' unless @user.contractor? || user_params[:contractor] != '0'
+      @hide_rate = 'scale-out' unless @user.contractor?
       render 'edit'
     end
   end
@@ -295,7 +290,6 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:name, :title,
-                                 :staff, :client, :volunteer, :contractor,
                                  :register_as, :admin,
                                  :rate, :rate_cents, :rate_currency,
                                  :phone, :email,

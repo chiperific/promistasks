@@ -64,8 +64,6 @@ class User < ActiveRecord::Base
   after_save :discard_connections,   if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
   after_save :undiscard_connections, if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
-  # rubocop:disable Layout/IndentationConsistency
-  # rubocop:disable Layout/IndentationWidth
   scope :staff,                       -> { undiscarded.where.not(oauth_id: nil).or(where(staff: true)).or(where(admin: true)) }
   scope :not_clients,                 -> { undiscarded.where(client: false).or(where(client: true, volunteer: true)) }
   scope :staff_except,                ->(user) { undiscarded.staff.where.not(id: user) }
@@ -81,8 +79,6 @@ class User < ActiveRecord::Base
   scope :volunteers,                  -> { undiscarded.where(volunteer: true) }
   scope :contractors,                 -> { undiscarded.where(contractor: true) }
   scope :admins,                      -> { undiscarded.where(admin: true) }
-  # rubocop:enable Layout/IndentationConsistency
-  # rubocop:enable Layout/IndentationWidth
 
   def self.from_omniauth(auth)
     @user = where(email: auth.info.email).first_or_create.tap do |user|
@@ -181,6 +177,24 @@ class User < ActiveRecord::Base
   def readable_type
     return 'Staff' if oauth? && type.empty?
     type.join(', ')
+  end
+
+  def write_type(registration)
+    self.staff = false
+    self.client = false
+    self.volunteer = false
+    self.contractor = false
+
+    case registration
+    when 'Staff'
+      self.staff = true
+    when 'Volunteer'
+      self.volunteer = true
+    when 'Client'
+      self.client = true
+    when 'Contractor'
+      self.contractor = true
+    end
   end
 
   def token_expired?

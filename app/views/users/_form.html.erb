@@ -61,19 +61,24 @@
       <div class="input-field <%= 'field_with_errors' if user.errors[:register_as].present? %>">
         <i class="material-icons prefix">account_box</i>
         <select name="user[register_as]" id="user_register_as" class="required" required="required" aria-required="true">
-          <option value="0" disabled selected>Type...</option>
-          <option value="Volunteer">Volunteer</option>
-          <option value="Contractor">Contractor</option>
-          <option value="Client">Client</option>
+          <option value="0" disabled <%= 'selected' if user.type.empty? %>>Type...</option>
+          <option value="Volunteer" <%= 'selected' if user.volunteer? %>>Volunteer</option>
+          <option value="Contractor" <%= 'selected' if user.contractor? %>>Contractor</option>
+          <option value="Client" <%= 'selected' if user.client? %>>Client</option>
+          <% if user.new_record? || current_user.admin? %>
+            <option value="Staff" <%= 'selected' if user.staff? %>>Staff</option>
+          <% end %>
         </select>
         <label for="user_register_as">Account type</label>
       </div>
     <% end %>
   <% end %>
 
-  <div class="row input-field scale-transition <%= @hide_rate %>" id="rate_div">
-    <%= f.number_field :rate %>
-    <label for="user_rate">Contractor hourly rate</label>
+  <div class="row scale-transition <%= @hide_rate %> center-align" id="rate_div">
+    <div class="col s12 input-field">
+      <%= f.number_field :rate %>
+      <label for="user_rate">Contractor hourly rate</label>
+    </div>
   </div>
 
   <% if current_user&.admin? && current_user == user %>

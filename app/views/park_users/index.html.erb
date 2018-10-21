@@ -1,0 +1,25 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Park Users</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @park_users.each do |park_user| %>
+      <tr>
+        <td><%= link_to 'Show', park_user %></td>
+        <td><%= link_to 'Edit', edit_park_user_path(park_user) %></td>
+        <td><%= link_to 'Destroy', park_user, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Park User', new_park_user_path %>

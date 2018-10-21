@@ -83,12 +83,12 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
   end
 
   create_table "parks", force: :cascade do |t|
-    # t.string "name", null: false
-    # t.string "address"
-    # t.string "city"
-    # t.string "state", default: "MI"
-    # t.string "postal_code"
-    # t.text "notes"
+    t.string "name", null: false
+    t.string "address"
+    t.string "city"
+    t.string "state", default: "MI"
+    t.string "postal_code"
+    t.text "notes"
     t.string "poc_name"
     t.string "poc_email"
     t.string "poc_phone"
