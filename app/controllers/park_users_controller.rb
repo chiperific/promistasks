@@ -3,12 +3,6 @@
 class ParkUsersController < ApplicationController
   before_action :set_park_user, only: %i[edit update destroy]
 
-  def index
-    authorize ParkUser
-
-    @park_users = ParkUser.all
-  end
-
   def new
     authorize @park_user = ParkUser.new
 

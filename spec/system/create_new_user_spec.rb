@@ -95,10 +95,6 @@ RSpec.describe 'Create new user', type: :system do
       fill_in 'user_phone', with: @user.phone
       fill_in 'user_title', with: 'Grand Champion'
       select 'Volunteer', from: 'user_register_as'
-
-      # when materialize.js is loaded
-      # find('input.select-dropdown').click
-      # find('li', text: 'Volunteer').click
     end
 
     it 'creates a user' do
@@ -126,7 +122,6 @@ RSpec.describe 'Create new user', type: :system do
       fill_in 'user_email', with: @user.email
       fill_in 'user_password', with: @user.password
       fill_in 'user_password_confirmation', with: @user.password
-      # fill_in 'user_phone', with: @user.phone
       fill_in 'user_title', with: 'Grand Champion'
       select 'Volunteer', from: 'user_register_as'
 

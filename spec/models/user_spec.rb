@@ -444,6 +444,12 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#write_type' do
+    pending 'sets booleans based upon a text field'
+
+    pending 'adds an error when the text is invalid'
+  end
+
   # begin private methods
 
   describe '#admin_are_staff' do

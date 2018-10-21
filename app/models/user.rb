@@ -179,24 +179,6 @@ class User < ActiveRecord::Base
     type.join(', ')
   end
 
-  def write_type(registration)
-    self.staff = false
-    self.client = false
-    self.volunteer = false
-    self.contractor = false
-
-    case registration
-    when 'Staff'
-      self.staff = true
-    when 'Volunteer'
-      self.volunteer = true
-    when 'Client'
-      self.client = true
-    when 'Contractor'
-      self.contractor = true
-    end
-  end
-
   def token_expired?
     return nil unless oauth_id.present? && oauth_expires_at.present?
     Time.at(oauth_expires_at) < Time.now
@@ -212,6 +194,26 @@ class User < ActiveRecord::Base
     ary << 'Admin' if admin?
 
     ary
+  end
+
+  def write_type(registration)
+    self.staff = false
+    self.client = false
+    self.volunteer = false
+    self.contractor = false
+
+    case registration
+    when 'Staff'
+      self.staff = true
+    when 'Volunteer'
+      self.volunteer = true
+    when 'Client'
+      self.client = true
+    when 'Contractor'
+      self.contractor = true
+    else
+      errors.add(:register_as, 'a user type from the list')
+    end
   end
 
   private

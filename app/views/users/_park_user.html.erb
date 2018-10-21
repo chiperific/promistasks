@@ -1,0 +1,10 @@
+<tr>
+  <td><%= park_user.park.name %></td>
+  <td><%= park_user.relationship %></td>
+  <td><%= human_date(park_user.created_at) %></td>
+  <td class="slim">
+    <%= link_to edit_park_user_path(park_user), class: 'btn-floating btn-small blue darken-2', 'data-turbolinks'=> 'false' do %>
+      <i class="material-icons">edit</i>
+    <% end %>
+  </td>
+</tr>

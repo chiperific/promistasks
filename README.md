@@ -3,7 +3,6 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * create a park_user (from Park and User)
     * edit a park_user (from Park and User)
     * delete a park_user (from Park and User)
     * add a property to a park && remove a property from a park (park_properties_path)
@@ -41,6 +40,7 @@
   - Utility#show needs payments table
   - Task#show needs payments table
   - Users#show needs payments table
+  - Users#show #connections needs Parks table
   - Alerts needs payment reminders
   - System sends email when new non-oauth signs up
   - System sends email when payment is due

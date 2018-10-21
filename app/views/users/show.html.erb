@@ -114,7 +114,7 @@
 
 <div class="row section valign-wrapper">
   <div class="col s10">
-    <h5>Connections</h5>
+    <h5>Property Connections</h5>
   </div>
   <div class="col s2">
     <%= link_to new_connection_path(user: @user), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false', id: 'new_user_connection_link' do %>
@@ -135,6 +135,40 @@
     <tbody>
       <% if @connections.any? %>
         <%= render partial: 'connection', collection: @connections %>
+      <% else %>
+        <tr>
+          <td colspan="4" class="center-align">
+            None
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="row section valign-wrapper">
+  <div class="col s10">
+    <h5>Park Connections</h5>
+  </div>
+  <div class="col s2">
+    <%= link_to new_park_user_path(user: @user), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false', id: 'new_park_user_link' do %>
+      <i class="material-icons">add</i>
+    <% end %>
+  </div>
+</div>
+<div class="row">
+  <table class="striped responsive">
+    <thead>
+      <tr>
+        <th>Park</th>
+        <th>Relationship</th>
+        <th>Date</th>
+        <th class="slim"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if @user.park_users.any? %>
+        <%= render partial: 'park_user', collection: @user.park_users %>
       <% else %>
         <tr>
           <td colspan="4" class="center-align">
