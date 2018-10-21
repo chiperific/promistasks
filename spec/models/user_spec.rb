@@ -260,9 +260,24 @@ RSpec.describe User, type: :model do
   end
 
   describe '#all_tasks' do
-    pending 'returns tasks the user created'
+    before :each do
+      @user.save
+      @no = create(:task)
+    end
 
-    pending 'returns tasks the user owns'
+    it 'returns tasks the user created' do
+      yes = FactoryBot.create(:task, creator: @user)
+
+      expect(@user.all_tasks).to include yes
+      expect(@user.all_tasks).not_to include @no
+    end
+
+    it 'returns tasks the user owns' do
+      yes = create(:task, owner: @user)
+
+      expect(@user.all_tasks).to include yes
+      expect(@user.all_tasks).not_to include @no
+    end
   end
 
   describe '#can_view_park' do
