@@ -78,6 +78,9 @@ RSpec.describe Property, type: :model do
       @not_this_user     = create(:property)
       @task_creator      = create(:task, creator: @user, property: @not_this_user)
       @task_owner        = create(:task, owner: @user, property: @not_this_user)
+      @past              = create(:property, created_at: Time.now - 2.days)
+      @present           = create(:property, created_at: Time.now)
+      @future            = create(:property, created_at: Time.now + 2.days)
     end
 
     it '#needs_title returns only records without a certificate_number' do
@@ -140,7 +143,12 @@ RSpec.describe Property, type: :model do
       expect(Property.nearing_budget).not_to include @property
     end
 
-    pending '#created_since'
+    it '#created_since returns only Properties created since the provided time variable' do
+      time = Time.now - 1.hour
+      expect(Property.created_since(time)).to include @present
+      expect(Property.created_since(time)).to include @future
+      expect(Property.created_since(time)).not_to include @past
+    end
 
     it '#archived is alias of #discarded' do
       expect(Property.archived).to eq Property.discarded
