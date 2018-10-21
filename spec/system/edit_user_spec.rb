@@ -26,7 +26,7 @@ RSpec.describe 'Edit user', type: :system do
         expect(page).to have_content 'Edit your profile'
       end
 
-      fit 'accepts changes' do
+      it 'accepts changes' do
         fill_in 'Name', with: 'Gary Oldman'
 
         click_submit
