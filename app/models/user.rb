@@ -202,14 +202,14 @@ class User < ActiveRecord::Base
     self.volunteer = false
     self.contractor = false
 
-    case registration
-    when 'Staff'
+    case registration.downcase
+    when 'staff'
       self.staff = true
-    when 'Volunteer'
+    when 'volunteer'
       self.volunteer = true
-    when 'Client'
+    when 'client'
       self.client = true
-    when 'Contractor'
+    when 'contractor'
       self.contractor = true
     else
       errors.add(:register_as, 'a user type from the list')

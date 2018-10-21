@@ -460,9 +460,25 @@ RSpec.describe User, type: :model do
   end
 
   describe '#write_type' do
-    pending 'sets booleans based upon a text field'
+    it 'sets booleans based upon a text field' do
+      expect(@user.staff?).to eq true
+      expect(@user.volunteer?).to eq false
 
-    pending 'adds an error when the text is invalid'
+      @user.write_type('Volunteer')
+
+      expect(@user.staff?).to eq false
+      expect(@user.volunteer?).to eq true
+    end
+
+    it 'adds an error when the text is invalid' do
+      expect(@user.staff?).to eq true
+      expect(@user.valid?).to eq true
+
+      @user.write_type('badbad')
+
+      expect(@user.staff?).to eq false
+      expect(@user.valid?).to eq false
+    end
   end
 
   # begin private methods

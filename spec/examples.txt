@@ -439,8 +439,8 @@ example_id                                             | status  | run_time     
 ./spec/models/user_spec.rb[1:17:2]                     | passed  | 0.1533 seconds  |
 ./spec/models/user_spec.rb[1:17:3]                     | passed  | 0.19703 seconds |
 ./spec/models/user_spec.rb[1:18:1]                     | passed  | 0.03706 seconds |
-./spec/models/user_spec.rb[1:19:1]                     | passed  | 0.14593 seconds |
-./spec/models/user_spec.rb[1:19:2]                     | passed  | 0.18598 seconds |
+./spec/models/user_spec.rb[1:19:1]                     | passed  | 0.12779 seconds |
+./spec/models/user_spec.rb[1:19:2]                     | passed  | 0.04971 seconds |
 ./spec/models/user_spec.rb[1:20:1]                     | passed  | 0.15849 seconds |
 ./spec/models/user_spec.rb[1:20:2]                     | unknown |                 |
 ./spec/models/user_spec.rb[1:21:1]                     | passed  | 0.03299 seconds |
