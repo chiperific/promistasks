@@ -38,7 +38,16 @@ RSpec.describe Park, type: :model do
   end
 
   describe 'limits records by scope' do
-    pending '#created_since'
+    let(:past)    { create :park, created_at: Time.now - 2.days }
+    let(:present) { create :park, created_at: Time.now - 1.hour }
+    let(:future) { create :park, created_at: Time.now + 2.days }
+
+    it '#created_since returns only Parks created since the provided time variable' do
+      time = Time.now - 2.hours
+      expect(Park.created_since(time)).to include present
+      expect(Park.created_since(time)).to include future
+      expect(Park.created_since(time)).not_to include past
+    end
   end
 
   describe '#address_has_changed?' do
