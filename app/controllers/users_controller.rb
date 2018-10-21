@@ -174,7 +174,7 @@ class UsersController < ApplicationController
     @user.discard if params[:user][:archive] == '1' && !@user.discarded?
     @user.undiscard if params[:user][:archive] == '0' && @user.discarded?
 
-    @user.write_type(user_params[:register_as])
+    @user.write_type(user_params[:register_as]) if user_params[:register_as].present?
 
     # .reject removes password and password_confirmation if they are blank
     if @user.update(user_params.reject { |k, v| k.include?('password') && v.blank? })

@@ -26,14 +26,13 @@ RSpec.describe 'Edit user', type: :system do
         expect(page).to have_content 'Edit your profile'
       end
 
-      it 'accepts changes' do
+      fit 'accepts changes' do
         fill_in 'Name', with: 'Gary Oldman'
 
         click_submit
 
-        @user.reload
-
-        expect(@user.name).to eq 'Gary Oldman'
+        expect(current_path).not_to eq edit_user_path(@user)
+        expect(@user.reload.name).to eq 'Gary Oldman'
       end
     end
 
