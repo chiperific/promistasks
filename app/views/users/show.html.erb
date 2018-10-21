@@ -117,8 +117,9 @@
     <h5>Property Connections</h5>
   </div>
   <div class="col s2">
-    <%= link_to new_connection_path(user: @user), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false', id: 'new_user_connection_link' do %>
+    <%= link_to new_connection_path(user: @user), class: 'btn waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false', id: 'new_user_connection_link' do %>
       <i class="material-icons">add</i>
+      <i class="material-icons">home</i>
     <% end %>
   </div>
 </div>
@@ -151,8 +152,9 @@
     <h5>Park Connections</h5>
   </div>
   <div class="col s2">
-    <%= link_to new_park_user_path(user: @user), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false', id: 'new_park_user_link' do %>
+    <%= link_to new_park_user_path(user: @user), class: 'btn waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false', id: 'new_park_user_link' do %>
       <i class="material-icons">add</i>
+      <i class="material-icons">store_mall_directory</i>
     <% end %>
   </div>
 </div>

@@ -1,14 +1,20 @@
 <tr>
-  <td><%= park_user_table.user.name %></td>
+  <td>
+    <% if current_user&.staff? || current_user&.admin? %>
+      <%= link_to park_user_table.user.name, user_path(park_user_table.user) %>
+    <% else %>
+      <%= park_user_table.user.name %>
+    <% end %>
+  </td>
   <td><%= park_user_table.relationship.capitalize %></td>
   <td><%= human_date(park_user_table.created_at) %></td>
   <td class="slim">
-    <%= link_to edit_park_user_path(park_user_table), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false' do  %>
+    <%= link_to edit_park_user_path(park_user_table), class: 'btn-floating btn-small blue darken-2 edit_park_user_link', 'data-turbolinks'=> 'false' do  %>
       <i class="material-icons">edit</i>
     <% end %>
   </td>
   <td class="slim">
-    <%= link_to park_user_path(park_user_table), method: :delete, data: { confirm: 'Delete this connection?' }, remote: true, class: 'btn-floating btn-small red darken-3' do  %>
+    <%= link_to park_user_path(park_user_table), method: :delete, data: { confirm: 'Delete this connection?' }, remote: true, class: 'btn-floating btn-small red darken-3 delete_park_user_link' do  %>
       <i class="material-icons">delete</i>
     <% end %>
   </td>

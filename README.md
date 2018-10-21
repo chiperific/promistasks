@@ -3,8 +3,6 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * edit a park_user (from Park and User)
-    * delete a park_user (from Park and User)
     * add a property to a park && remove a property from a park (park_properties_path)
     * view utilities
     * show a utility
@@ -22,15 +20,15 @@
     * edit a skill
     * show a task's skills
     * edit a task's skill
+    * delete a tasks's skill
     * show a user's skills
     * edit a user's skills
+    * delete a user's skill
 
   - Payment model indicates paid_to, related_to, and on_behalf_of:
     -- New payments from other models should link intellegently:
     `model_id: @model.id, (paid_to: 'model' || on_behalf_of: 'model')`
     -- Payment form needs to handle `paid_to` and `on_behalf_of` with good UX
-
-
 
   - Property form needs Park field
   - Property#list and #index need quick-set for STAGE
@@ -52,10 +50,10 @@
   - Creating a user tries to create a session?
   - When a new Property is created, default tasks are also generated:
     -- From a fake seeds file?
-    -- What tasks?
-    -- Get the title
-    -- Inspect the property
-    -- Setup utilities
+    -- What tasks:
+      + Get the title
+      + Inspect the property
+      + Setup utilities
     -- Assign based upon Organization#{apropriate}_contact
   - When a user discards a Property in this app:
     -- Provide the option to re-assign each task's creator && owner? || actually 'discard' for all (delete through API for all users)

@@ -80,7 +80,7 @@ RSpec.describe 'Create new park user', type: :system do
       end
 
       it 'loads the page' do
-        expect(page).to have_content 'New Park User'
+        expect(page).to have_content 'New Connection'
       end
     end
 
@@ -92,7 +92,7 @@ RSpec.describe 'Create new park user', type: :system do
       end
 
       it 'loads the page' do
-        expect(page).to have_content 'New Park User'
+        expect(page).to have_content 'New Connection'
       end
     end
   end

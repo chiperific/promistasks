@@ -13,7 +13,7 @@ class ParkUser < ApplicationRecord
   private
 
   def relationship_must_match_user_type
-    return false if user_id.blank?
+    return false unless user_id.positive?
     case relationship
     when 'tennant'
       errors.add(:relationship, ': only Clients can be tenants') unless user.client?
