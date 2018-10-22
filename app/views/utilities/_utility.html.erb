@@ -1,0 +1,28 @@
+<tr class='utility-row'>
+  <td>
+    <%= utility.name %>
+  </td>
+  <td>
+    <%= utility.full_address %>
+  </td>
+  <td>
+    <%= utility.poc_name %>
+  </td>
+  <% if utility.good_address? %>
+    <td class="slim">
+      <%= link_to utility.google_map_link, class: 'btn-floating btn-small amber darken-2', 'data-turbolinks'=> 'false', target: '_blank' do %>
+        <i class="material-icons">map</i>
+      <% end %>
+    </td>
+  <% end %>
+  <td class="slim">
+    <%= link_to utility_path(utility), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false' do %>
+      <i class="material-icons">arrow_forward</i>
+    <% end %>
+  </td>
+  <td class="slim">
+    <%= link_to edit_utility_path(utility), class: 'btn-floating btn-small blue darken-2', 'data-turbolinks'=> 'false' do %>
+      <i class="material-icons">edit</i>
+    <% end %>
+  </td>
+</tr>

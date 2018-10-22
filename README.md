@@ -3,7 +3,6 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * reassign properties (from park#show)
     * view utilities
     * show a utility
     * create a utility
