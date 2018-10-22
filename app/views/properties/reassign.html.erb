@@ -22,6 +22,10 @@
   </table>
 </div>
 
+<% if @properties.empty? %>
+  <%= render partial: 'admin_contact' %>
+<% end %>
+
 <div class='row' id='park_list'>
   <%= render partial: 'park', collection: @parks %>
 </div>
