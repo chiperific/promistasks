@@ -38,13 +38,18 @@
 <div class="row section">
   <div class="col s12">
     <div class="row valign-wrapper">
-      <div class="col s12 m10">
+      <div class="col s12 m8">
           <h4>Properties</h4>
       </div>
       <div class="col s12 m2">
-        <%= link_to properties_park_path(), class: 'btn waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false', id: 'new_task_link' do %>
+        <%= link_to new_property_path(park: @park.id), class: 'btn waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false', id: 'new_property_link' do %>
           <i class="material-icons">add</i>
           <i class="material-icons">home</i>
+        <% end %>
+      </div>
+      <div class="col s12 m2">
+        <%= link_to reassign_properties_path(), class: 'btn waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false', id: 'reassign_properties_link' do %>
+          <i class="material-icons">compare_arrows</i>
         <% end %>
       </div>
     </div>

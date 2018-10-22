@@ -91,6 +91,8 @@ class PropertiesController < ApplicationController
 
   def new
     authorize @property = Property.new
+
+    @property.park_id = params[:park] if params[:park].present?
   end
 
   def create
@@ -185,6 +187,25 @@ class PropertiesController < ApplicationController
     property_id = properties.present? ? properties.first.id : 0
 
     render json: property_id
+  end
+
+  def reassign
+    authorize @properties = Property.active.order(:name)
+
+    @parks = Park.all.active.order(:name)
+  end
+
+  def reassign_to
+    authorize @property = Property.find(params[:id])
+    @park = Park.find(params[:park_id])
+
+    if @property.update(park: @park)
+      status = 'success'
+    else
+      status = 'failed'
+    end
+
+    render json: { property_id: @property.id.to_s, property_name: @property.name, park_name: @park.name, status: status }
   end
 
   private

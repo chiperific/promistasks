@@ -39,14 +39,6 @@ class ParkPolicy < ApplicationPolicy
     user&.can_view_park(record)
   end
 
-  def properties?
-    user&.staff? || user&.admin?
-  end
-
-  def update_properties?
-    user&.staff? || user&.admin?
-  end
-
   def park_enum?
     user&.staff? || user&.admin?
   end

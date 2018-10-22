@@ -3,7 +3,7 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * add a property to a park && remove a property from a park (park_properties_path)
+    * reassign properties (from park#show)
     * view utilities
     * show a utility
     * create a utility
@@ -83,6 +83,11 @@
 
 8. Jobs
   - Get data from Google: On a cron job every hour
+
+9. Mailers (need tests)
+  - System sends email when new non-oauth signs up
+  - System sends email when payment is due
+  - Client Reports send an email when created
 
 ## Decisions
 - Footer: Anyone logged in can create a task

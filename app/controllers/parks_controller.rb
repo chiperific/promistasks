@@ -134,17 +134,6 @@ class ParksController < ApplicationController
     end
   end
 
-  def properties
-    @park = Park.find(params[:id])
-
-    @associated_properties = @park.properties.active
-
-    @other_properties = Property.active.where.not(park_id: @park.id)
-  end
-
-  def update_properties
-  end
-
   def park_enum
     authorize parks = Park.undiscarded.select(:name)
 

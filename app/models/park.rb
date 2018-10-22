@@ -23,6 +23,11 @@ class Park < ApplicationRecord
 
   scope :created_since, ->(time) { where('created_at >= ?', time) }
 
+  class << self
+    alias archived discarded
+    alias active kept
+  end
+
   def address_has_changed?
     return false if address.blank?
     address_changed? ||

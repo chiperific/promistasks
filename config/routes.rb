@@ -21,6 +21,8 @@ Rails.application.routes.draw do
     get 'property_enum', on: :collection
     get 'find_id_by_name', on: :collection
     get 'tasks_filter', on: :member
+    get 'reassign', on: :collection
+    get 'reassign_to', on: :member
   end
 
   resources :skills do
@@ -40,8 +42,6 @@ Rails.application.routes.draw do
     get 'connections', on: :member
     get 'connection', on: :member
     get 'delete_user', on: :member
-    get 'properties', on: :member
-    post 'update_properties', on: :member
     get 'park_enum', on: :collection
     get 'find_id_by_name', on: :collection
   end

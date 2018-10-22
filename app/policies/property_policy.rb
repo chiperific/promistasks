@@ -46,4 +46,12 @@ class PropertyPolicy < ApplicationPolicy
   def property_enum?
     user&.not_client?
   end
+
+  def reassign?
+    user&.staff? || user&.admin?
+  end
+
+  def reassign_to?
+    user&.staff? || user&.admin?
+  end
 end
