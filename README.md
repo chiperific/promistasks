@@ -3,7 +3,6 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * view utilities
     * show a utility
     * create a utility
     * edit a utility

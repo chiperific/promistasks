@@ -12,4 +12,8 @@ class UtilityPolicy < ApplicationPolicy
   def index?
     user&.staff? || user&.admin?
   end
+
+  def show?
+    user&.staff? || user&.admin?
+  end
 end

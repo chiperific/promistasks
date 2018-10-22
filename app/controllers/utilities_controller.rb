@@ -7,6 +7,12 @@ class UtilitiesController < ApplicationController
     authorize @utilities = Utility.active.order(:name)
   end
 
+  def show
+    authorize @utility
+
+    @payments = Payment.where(utility_id: @utility.id)
+  end
+
   private
 
   def set_utility

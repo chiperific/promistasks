@@ -8,7 +8,7 @@
       <% if property.is_default? %>
         <%= image_tag "default_tasklist.jpg", alt: "default tasklist", class: 'default-map' %>
       <% else %>
-        <%= image_tag property.google_map, alt: "property street view", class: 'street-map' %>
+        <%= image_tag property.google_map, alt: "property map", class: 'street-map' %>
       <% end %>
       <% unless property.is_default? %>
         <% if params[:action] == 'index' || params[:controller] == 'tasks' %>

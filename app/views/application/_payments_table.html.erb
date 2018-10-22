@@ -9,7 +9,9 @@
   <td><%= payments_table.utility_type.capitalize %></td>
   <td><%= payments_table.bill_amt.format %></td>
   <td><%= payments_table.status %></td>
-  <td><%= payments_table.for.name %></td>
+  <td>
+    <%= link_to payments_table.for.name, payments_table.for %>
+  </td>
   <td><%= human_boolean(payments_table.recurring) %></td>
   <td class="slim">
     <%= link_to payment_path(payments_table), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false' do  %>
