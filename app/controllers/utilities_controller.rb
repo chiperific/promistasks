@@ -13,6 +13,29 @@ class UtilitiesController < ApplicationController
     @payments = Payment.where(utility_id: @utility.id)
   end
 
+  def new
+    authorize @utility = Utility.new
+  end
+
+  def create
+    authorize @utility = Utility.new(utility_params)
+
+    if @utility.save
+      redirect_to @return_path, notice: 'Utility created'
+    else
+      flash[:warning] = 'Oops, found some errors'
+      render 'new'
+    end
+  end
+
+  def edit
+    authorize @utility
+  end
+
+  def update
+    authorize @utility
+  end
+
   private
 
   def set_utility
