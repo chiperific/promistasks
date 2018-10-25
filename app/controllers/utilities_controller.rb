@@ -34,6 +34,16 @@ class UtilitiesController < ApplicationController
 
   def update
     authorize @utility
+
+    @utility.discard if params[:utility][:archived] == '1' && !@park.discarded?
+    @utility.undiscard if params[:utility][:archived] == '0' && @park.discarded?
+
+    if @utility.update(utility_params)
+      redirect_to @return_path, notice: 'Utility updated'
+    else
+      flash[:warning] = 'Oops, found some errors'
+      render 'edit'
+    end
   end
 
   private
