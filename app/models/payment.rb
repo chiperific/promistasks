@@ -35,9 +35,11 @@ class Payment < ApplicationRecord
   scope :for_contractors, -> { undiscarded.where.not(contractor_id: nil) }
   scope :for_clients,     -> { undiscarded.where.not(client_id: nil) }
   scope :paid,            -> { undiscarded.where.not(paid: nil) }
-  scope :past_due,        -> { undiscarded.where('due < ?', Date.today) }
+  scope :past_due,        -> { undiscarded.where('due < ?', Date.today).where(paid: nil) }
+  scope :relevant,        -> { undiscarded.past_due.or(where('due > ?', Date.today)) }
+  scope :irrelevant,      -> { undiscarded.paid.or(where('due < ?', Date.today).where.not(paid: nil)) }
 
-  after_save :create_next_instance, if: -> { recurrence.present? && recurring.present? && paid.present? && paid_before_last_save.blank? }
+  after_save :create_next_instance, if: -> { recurrence.present? && recurring && paid.present? && paid_before_last_save.blank? }
 
   class << self
     alias archived discarded
@@ -45,6 +47,7 @@ class Payment < ApplicationRecord
   end
 
   def for
+    return nil unless on_behalf_of.present? && Constant::Payment::ON_BEHALF_OF.include?(on_behalf_of)
     public_send(on_behalf_of)
   end
 
@@ -63,11 +66,12 @@ class Payment < ApplicationRecord
     elsif received.present?
       'Received on' + received.strftime('%b %-d, %Y')
     else
-      'Upcoming'
+      'No dates set'
     end
   end
 
   def to
+    return nil unless paid_to.present? && Constant::Payment::PAID_TO.include?(paid_to)
     return Organization.first if paid_to == 'organization'
     public_send(paid_to)
   end
@@ -81,10 +85,12 @@ class Payment < ApplicationRecord
       c.paid = nil
       c.discarded_at = nil
       c.payment_amt_cents = nil
+      c.suppress_system_alerts = false
       c.created_at = Time.now
       c.due = next_recurrence
-      c.save
     end
+
+    child.save!
   end
 
   def must_have_association

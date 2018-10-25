@@ -3,8 +3,6 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * create a utility
-    * edit a utility
     * view payments
     * show a payment
     * create a payment
@@ -21,6 +19,8 @@
     * show a user's skills
     * edit a user's skills
     * delete a user's skill
+
+  - Get creator == current_user out of forms and into controllers where it can't be hacked
 
   - Payment model indicates paid_to, related_to, and on_behalf_of:
     -- New payments from other models should link intellegently:

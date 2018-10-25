@@ -2,18 +2,6 @@
 
 FactoryBot.define do
   factory :payment do
-    park
-    property
-    paid_to { 'park' }
-    on_behalf_of { 'property' }
-    bill_amt { 400 }
-    received { Date.today }
-    due { Date.today + 15.days }
-    association :creator, factory: :user
-    utility_type { Constant::Utility::TYPES.sample }
-  end
-
-  factory :payment_utility, class: Payment do
     utility
     property
     paid_to { 'utility' }
@@ -62,7 +50,6 @@ FactoryBot.define do
   end
 
   factory :payment_org, class: Payment do
-    utility
     property
     paid_to { 'organization' }
     on_behalf_of { 'property' }

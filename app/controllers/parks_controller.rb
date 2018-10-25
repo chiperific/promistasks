@@ -72,8 +72,8 @@ class ParksController < ApplicationController
   def update
     authorize @park
 
-    @park.discard if params[:park][:archived] == '1' && !@park.discarded?
-    @park.undiscard if params[:park][:archived] == '0' && @park.discarded?
+    @park.discard if params[:park][:archive] == '1' && !@park.discarded?
+    @park.undiscard if params[:park][:archive] == '0' && @park.discarded?
 
     if @park.update(park_params)
       redirect_to @return_path, notice: 'Park updated'

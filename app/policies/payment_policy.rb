@@ -6,4 +6,8 @@ class PaymentPolicy < ApplicationPolicy
       scope
     end
   end
+
+  def index?
+    user&.staff? || user&.admin?
+  end
 end
