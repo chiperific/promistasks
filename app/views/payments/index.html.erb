@@ -8,3 +8,9 @@
     <% end %>
   </div>
 </div>
+
+<% if @payments.present? %>
+  Needs a table
+<% else %>
+  <%= render partial: 'admin_contact' %>
+<% end %>

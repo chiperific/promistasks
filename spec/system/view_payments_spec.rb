@@ -58,7 +58,9 @@ RSpec.describe 'View payments', type: :system do
         visit payments_path
       end
 
-      pending 'loads the page'
+      it 'loads the page' do
+        expect(page).to have_content 'Payments'
+      end
     end
 
     context 'is admin' do
@@ -68,26 +70,28 @@ RSpec.describe 'View payments', type: :system do
         visit payments_path
       end
 
-      pending 'loads the page'
+      it 'loads the page' do
+        expect(page).to have_content 'Payments'
+      end
     end
   end
 
-  context 'when #records are present' do
+  context 'when payments are present' do
     before :each do
       user = create(:admin)
       login_as(user, scope: :user)
-      3.times { create(:#record) }
+      3.times { create(:payment) }
       visit payments_path
     end
 
-    pending 'shows the #records'
+    pending 'shows the payments'
   end
 
-  context 'when #records are not present' do
+  context 'when payments are not present' do
     before :each do
       user = create(:admin)
       login_as(user, scope: :user)
-      visit #missing_path
+      visit payments_path
     end
 
     it 'shows the empty partial' do

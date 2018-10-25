@@ -4,7 +4,7 @@ class PaymentsController < ApplicationController
   before_action :set_payment, only: %i[show edit update]
 
   def index
-    authorize @payments = Payment.unpaid_or_future
+    authorize @payments = Payment.relevant
   end
 
   def show
@@ -40,8 +40,6 @@ class PaymentsController < ApplicationController
     @payment.discard if params[:payment][:archive] == '1' && !@payment.discarded?
     @payment.undiscard if params[:payment][:archive] == '0' && @payment.discarded?
 
-    # if recurr
-
     if @payment.update(payment_params)
       redirect_to @return_path, notice: 'Payment updated'
     else
@@ -65,4 +63,5 @@ class PaymentsController < ApplicationController
                                     :received, :due, :paid,
                                     :recurrence, :recurring,
                                     :send_email_reminders, :suppress_system_alerts)
+  end
 end

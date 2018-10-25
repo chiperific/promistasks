@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Create new utility', type: :system do
+RSpec.describe 'Edit utility', type: :system do
   before :each do
     @utility = create(:utility)
     visit root_path

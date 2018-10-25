@@ -35,8 +35,8 @@ class UtilitiesController < ApplicationController
   def update
     authorize @utility
 
-    @utility.discard if params[:utility][:archive] == '1' && !@park.discarded?
-    @utility.undiscard if params[:utility][:archive] == '0' && @park.discarded?
+    @utility.discard if params[:utility][:archive] == '1' && !@utility.discarded?
+    @utility.undiscard if params[:utility][:archive] == '0' && @utility.discarded?
 
     if @utility.update(utility_params)
       redirect_to @return_path, notice: 'Utility updated'
