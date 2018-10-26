@@ -46,7 +46,9 @@ Rails.application.routes.draw do
     get 'find_id_by_name', on: :collection
   end
 
-  resources :payments
+  resources :payments do
+    get 'history', on: :collection
+  end
 
   resources :utilities
 

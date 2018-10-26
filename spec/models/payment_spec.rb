@@ -109,6 +109,25 @@ RSpec.describe Payment, type: :model do
     end
   end
 
+  describe '#from' do
+    let(:pay_org)  { build :payment_org }
+    let(:pay_util) { build :payment }
+    let(:pay_park) { build :payment_park }
+
+    context 'when paid_to != organization' do
+      it 'returns the Organization' do
+        expect(pay_util.from).to eq Organization.first
+        expect(pay_park.from).to eq Organization.first
+      end
+    end
+
+    context 'when paid_to == organization' do
+      it 'returns a model object' do
+        expect(pay_org.from.is_a?(Utility)).to eq true
+      end
+    end
+  end
+
   describe '#past_due?' do
     let(:no_due)     { build :payment, due: nil }
     let(:past_due)   { build :payment, due: Date.today - 3.days }

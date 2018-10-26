@@ -2,14 +2,14 @@
 
 require 'rails_helper'
 
-RSpec.describe 'View payments', type: :system do
+RSpec.describe 'View historical payments', type: :system do
   before :each do
     visit root_path
   end
 
   context 'when not current_user' do
     it 'redirects to login page' do
-      visit payments_path
+      visit history_payments_path
       expect(current_path).to eq new_user_session_path
     end
   end
@@ -19,11 +19,11 @@ RSpec.describe 'View payments', type: :system do
       before :each do
         user = create(:client_user)
         login_as(user, scope: :user)
-        visit payments_path
+        visit history_payments_path
       end
 
       it 'redirects away' do
-        expect(current_path).not_to eq payments_path
+        expect(current_path).not_to eq history_payments_path
       end
     end
 
@@ -31,11 +31,11 @@ RSpec.describe 'View payments', type: :system do
       before :each do
         user = create(:volunteer_user)
         login_as(user, scope: :user)
-        visit payments_path
+        visit history_payments_path
       end
 
       it 'redirects away' do
-        expect(current_path).not_to eq payments_path
+        expect(current_path).not_to eq history_payments_path
       end
     end
 
@@ -43,11 +43,11 @@ RSpec.describe 'View payments', type: :system do
       before :each do
         user = create(:contractor_user)
         login_as(user, scope: :user)
-        visit payments_path
+        visit history_payments_path
       end
 
       it 'redirects away' do
-        expect(current_path).not_to eq payments_path
+        expect(current_path).not_to eq history_payments_path
       end
     end
 
@@ -55,7 +55,7 @@ RSpec.describe 'View payments', type: :system do
       before :each do
         user = create(:user)
         login_as(user, scope: :user)
-        visit payments_path
+        visit history_payments_path
       end
 
       it 'loads the page' do
@@ -67,7 +67,7 @@ RSpec.describe 'View payments', type: :system do
       before :each do
         user = create(:admin)
         login_as(user, scope: :user)
-        visit payments_path
+        visit history_payments_path
       end
 
       it 'loads the page' do
@@ -80,8 +80,8 @@ RSpec.describe 'View payments', type: :system do
     before :each do
       user = create(:admin)
       login_as(user, scope: :user)
-      3.times { create(:payment) }
-      visit payments_path
+      3.times { create(:old_payment) }
+      visit history_payments_path
     end
 
     it 'shows the payments' do
@@ -93,7 +93,7 @@ RSpec.describe 'View payments', type: :system do
     before :each do
       user = create(:admin)
       login_as(user, scope: :user)
-      visit payments_path
+      visit history_payments_path
     end
 
     it 'shows the empty partial' do

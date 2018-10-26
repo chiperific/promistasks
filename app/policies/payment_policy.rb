@@ -10,4 +10,8 @@ class PaymentPolicy < ApplicationPolicy
   def index?
     user&.staff? || user&.admin?
   end
+
+  def history?
+    user&.staff? || user&.admin?
+  end
 end

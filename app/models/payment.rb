@@ -36,19 +36,23 @@ class Payment < ApplicationRecord
   scope :for_clients,     -> { undiscarded.where.not(client_id: nil) }
   scope :paid,            -> { undiscarded.where.not(paid: nil) }
   scope :past_due,        -> { undiscarded.where('due < ?', Date.today).where(paid: nil) }
-  scope :relevant,        -> { undiscarded.past_due.or(where('due > ?', Date.today)) }
-  scope :irrelevant,      -> { undiscarded.paid.or(where('due < ?', Date.today).where.not(paid: nil)) }
+  scope :active,          -> { undiscarded.past_due.or(where('due > ?', Date.today)) }
+  scope :history,         -> { undiscarded.paid.or(where('due < ?', Date.today).where.not(paid: nil)) }
 
   after_save :create_next_instance, if: -> { recurrence.present? && recurring && paid.present? && paid_before_last_save.blank? }
-
-  class << self
-    alias archived discarded
-    alias active kept
-  end
 
   def for
     return nil unless on_behalf_of.present? && Constant::Payment::ON_BEHALF_OF.include?(on_behalf_of)
     public_send(on_behalf_of)
+  end
+
+  def from
+    return Organization.first unless paid_to == 'organization'
+    from = contractor if contractor_id.present?
+    from = park if park_id.present?
+    from = utility if utility_id.present?
+    from = client if client_id.present? && on_behalf_of != 'client'
+    from
   end
 
   def past_due?
@@ -58,7 +62,7 @@ class Payment < ApplicationRecord
 
   def status
     if paid.present?
-      'Paid on' + paid.strftime('%b %-d, %Y')
+      'Paid on ' + paid.strftime('%b %-d, %Y')
     elsif due.present? && due.future?
       'Due on ' + due.strftime('%b %-d, %Y')
     elsif past_due?

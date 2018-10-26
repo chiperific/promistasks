@@ -51,7 +51,22 @@ FactoryBot.define do
 
   factory :payment_org, class: Payment do
     property
+    utility
     paid_to { 'organization' }
     on_behalf_of { 'property' }
+  end
+
+  factory :old_payment, class: Payment do
+    utility
+    property
+    paid_to { 'utility' }
+    on_behalf_of { 'property' }
+    bill_amt { 400 }
+    payment_amt { 400 }
+    received { Date.today - 2.months }
+    due { Date.today - 1.month }
+    paid { Date.today - 38.days }
+    association :creator, factory: :user
+    utility_type { Constant::Utility::TYPES.sample }
   end
 end

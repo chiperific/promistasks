@@ -4,7 +4,11 @@ class PaymentsController < ApplicationController
   before_action :set_payment, only: %i[show edit update]
 
   def index
-    authorize @payments = Payment.relevant
+    authorize @payments = Payment.active.order(:due, :received, :paid)
+  end
+
+  def history
+    authorize @payments = Payment.history.order(:due, :received, :paid)
   end
 
   def show
