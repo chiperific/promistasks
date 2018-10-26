@@ -59,7 +59,7 @@ RSpec.describe 'View historical payments', type: :system do
       end
 
       it 'loads the page' do
-        expect(page).to have_content 'Payments'
+        expect(page).to have_content 'Historical Payments'
       end
     end
 
@@ -71,7 +71,7 @@ RSpec.describe 'View historical payments', type: :system do
       end
 
       it 'loads the page' do
-        expect(page).to have_content 'Payments'
+        expect(page).to have_content 'Historical Payments'
       end
     end
   end

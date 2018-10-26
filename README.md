@@ -3,7 +3,6 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * view payments
     * show a payment
     * create a payment
     * edit a payment
