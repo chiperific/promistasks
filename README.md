@@ -3,8 +3,10 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * show a payment
     * create a payment
+      -- started form, JS worls for selecting :to and :for
+      -- Needs rest of forms
+      -- Payment#create and Payment#update need to consider :to and :for when assigning related models, also need to throw custom errors if :to, :for and the models of such are blank
     * edit a payment
     * view the organization
     * edit the organization

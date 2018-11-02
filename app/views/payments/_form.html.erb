@@ -1,0 +1,105 @@
+<%= form_for payment, html: { autocomplete: 'nope' } do |f| %>
+  <%= render 'form_errors', object: payment %>
+
+  <div id="to_checkboxes" class="row center-align form-inputs">
+    <%= f.hidden_field :to %>
+    <h4>Pay to:</h4>
+    <div class="col s6 m3">
+      <p>
+        <label for="to_utility_opt">
+          <input type="checkbox" value="1" id="to_utility_opt" <%= 'checked' if @to_utility %>>
+          <span>Utility</span>
+        </label>
+      </p>
+    </div>
+
+    <div class="col s6 m3">
+      <p>
+        <label for="to_park_opt">
+          <input type="checkbox" value="1" id="to_park_opt" <%= 'checked' if @to_park %>>
+          <span>Park</span>
+        </label>
+      </p>
+    </div>
+
+    <div class="col s6 m3">
+      <p>
+        <label for="to_contractor_opt">
+          <input type="checkbox" value="1" id="to_contractor_opt" <%= 'checked' if @to_contractor %>>
+          <span>Contractor</span>
+        </label>
+      </p>
+    </div>
+
+    <div class="col s6 m3">
+      <p>
+        <label for="to_client_opt">
+          <input type="checkbox" value="1" id="to_client_opt" <%= 'checked' if @to_client %>>
+          <span>Client</span>
+        </label>
+      </p>
+    </div>
+  </div>
+
+  <div class="row center-align form-inputs" id="to_select_fields">
+    <div id="to_utility" class="input-field col s12 to_toggle">
+      <%= f.select :utility, @utilities, include_blank: true %>
+      <label for="payment_utility">Utility</label>
+    </div>
+
+    <div id="to_park" class="input-field col s12 to_toggle">
+      <%= f.select :park, @parks, include_blank: true %>
+      <label for="payment_park">Park</label>
+    </div>
+
+    <div id="to_contractor" class="input-field col s12 to_toggle">
+      <%= f.select :contractor, @contractors, include_blank: true %>
+      <label for="payment_contractor">Contractor</label>
+    </div>
+
+    <div id="to_client" class="input-field col s12 to_toggle">
+      <%= f.select :client, @clients, include_blank: true %>
+      <label for="payment_client">Client</label>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div id="for_checkboxes" class="row center-align form-inputs">
+    <%= f.hidden_field :for %>
+    <h4>On behalf of:</h4>
+
+    <div class="col s6 m3 offset-m3">
+      <p>
+        <label for="for_client_opt">
+          <input type="checkbox" value="1" id="for_client_opt" <%= 'checked' if @for_client %>>
+          <span>Client</span>
+        </label>
+      </p>
+    </div>
+
+    <div class="col s6 m3">
+      <p>
+        <label for="for_property_opt">
+          <input type="checkbox" value="1" id="for_property_opt" <%= 'checked' if @for_property %>>
+          <span>Property</span>
+        </label>
+      </p>
+    </div>
+  </div>
+
+  <div class="row center-align form-inputs" id="for_select_fields">
+    <div id="for_client" class="input-field col s12 for_toggle">
+      <%= f.select :client, @clients, include_blank: true %>
+      <label for="payment_client">Client</label>
+    </div>
+
+    <div id="for_property" class="input-field col s12 for_toggle">
+      <%= f.select :property, @properties, include_blank: true %>
+      <label for="payment_property">Property</label>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+<% end %>

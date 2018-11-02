@@ -18,4 +18,20 @@ class PaymentPolicy < ApplicationPolicy
   def show?
     user&.staff? || user&.admin?
   end
+
+  def new?
+    user&.staff? || user&.admin?
+  end
+
+  def create?
+    user&.staff? || user&.admin?
+  end
+
+  def edit?
+    user&.staff? || user&.admin?
+  end
+
+  def update?
+    user&.staff? || user&.admin?
+  end
 end

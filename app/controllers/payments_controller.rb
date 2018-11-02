@@ -56,7 +56,44 @@ class PaymentsController < ApplicationController
   def new
     authorize @payment = Payment.new
 
-    # handle params for everything
+    if params[:utility].present?
+      @to_utility = true
+      @payment.utility = Utility.find(params[:utility])
+    end
+
+    if params[:park].present?
+      @to_park = true
+      @payment.park = Park.find(params[:park])
+    end
+
+    if params[:contractor].present?
+      @to_contractor = true
+      @payment.contractor = User.find(params[:contractor])
+    end
+
+    if params[:pay_client].present?
+      @to_client = true
+      @payment.client = User.find(params[:pay_client])
+    end
+
+    if params[:for_client].present?
+      @for_client = true
+      @payment.client = User.find(params[:pay_client])
+    end
+
+    if params[:property].present?
+      @for_property = true
+      @payment.property = Property.find(params[:property])
+    end
+
+    @to_organization = true if params[:organization].present?
+
+    @utilities   = Utility.kept.order(:name).map { |m| [m.name, m.id] }
+    @parks       = Park.kept.order(:name).map { |m| [m.name, m.id] }
+    @users       = User.kept.order(:name)
+    @contractors = @users.where(contractor: true).map { |u| [u.name, u.id] }
+    @clients     = @users.where(client: true).map { |u| [u.name, u.id] }
+    @properties  = Property.kept.order(:name).map { |m| [m.name, m.id] }
   end
 
   def create

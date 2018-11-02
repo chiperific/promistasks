@@ -35,6 +35,8 @@ $(document).on 'turbolinks:load', ->
     'dismissable': true
     })
 
+  $('select').formSelect()
+
   tooltips = document.querySelectorAll('.tooltipped')
   M.Tooltip.init(tooltips, {
     'enterDelay': 800
