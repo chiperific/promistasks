@@ -14,4 +14,8 @@ class PaymentPolicy < ApplicationPolicy
   def history?
     user&.staff? || user&.admin?
   end
+
+  def show?
+    user&.staff? || user&.admin?
+  end
 end

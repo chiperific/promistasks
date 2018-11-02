@@ -13,6 +13,44 @@ class PaymentsController < ApplicationController
 
   def show
     authorize @payment
+
+    @money_hsh = {
+      'Bill amount': @payment.bill_amt.format,
+      'Payment amount': @payment.payment_amt&.format,
+      'Payment method': @payment.method
+    }
+
+    @date_hsh = {
+      'Receved on': human_date(@payment.received),
+      'Due on': human_date(@payment.due),
+      'Paid on': human_date(@payment.paid)
+    }
+
+    @related_hsh = {
+      'Paid to': @payment.to.is_a?(Organization) ? @payment.to.name : view_context.link_to(@payment.to.name, @payment.to),
+      'On behalf of': view_context.link_to(@payment.for.name, @payment.for)
+    }
+
+    if @payment.to.is_a? Organization
+      @related_hsh['Paid from'] = view_context.link_to(@payment.from.name, @payment.from)
+    end
+
+    @recurrence_hsh = {
+      'Recurring': human_boolean(@payment.recurring?),
+      'Recurrence': @payment.recurrence
+    }
+
+    @utility_hsh = {
+      'Utility type': @payment.utility_type,
+      'Utility account #': @payment.utility_account,
+      'Utility started': human_date(@payment.utility_service_started)
+    }
+
+    @last_hsh = {
+      'Created by': @payment.creator.name,
+      'Send email reminders': human_boolean(@payment.send_email_reminders),
+      'Suppress system alerts': human_boolean(@payment.suppress_system_alerts)
+    }
   end
 
   def new
