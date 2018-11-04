@@ -2,8 +2,16 @@
   <%= render 'form_errors', object: payment %>
 
   <div id="to_checkboxes" class="row center-align form-inputs">
-    <%= f.hidden_field :to %>
-    <h4>Pay to:</h4>
+    <div class="col s12">
+      <% if @to_organization %>
+        <%= f.hidden_field :paid_to, { value: 'organization', disabled: true } %>
+        <h4>Payment from:</h4>
+      <% else %>
+        <%= f.hidden_field :paid_to %>
+        <h4>Pay to:</h4>
+      <% end %>
+    </div>
+
     <div class="col s6 m3">
       <p>
         <label for="to_utility_opt">
@@ -63,10 +71,8 @@
     </div>
   </div>
 
-  <div class="divider"></div>
-
   <div id="for_checkboxes" class="row center-align form-inputs">
-    <%= f.hidden_field :for %>
+    <%= f.hidden_field :on_behalf_of %>
     <h4>On behalf of:</h4>
 
     <div class="col s6 m3 offset-m3">
@@ -89,17 +95,88 @@
   </div>
 
   <div class="row center-align form-inputs" id="for_select_fields">
-    <div id="for_client" class="input-field col s12 for_toggle">
-      <%= f.select :client, @clients, include_blank: true %>
-      <label for="payment_client">Client</label>
-    </div>
+    <div class="col s12">
+      <div id="for_client" class="input-field for_toggle">
+        <%= f.select :client, @clients, include_blank: true %>
+        <label for="payment_client">Client</label>
+      </div>
 
-    <div id="for_property" class="input-field col s12 for_toggle">
-      <%= f.select :property, @properties, include_blank: true %>
-      <label for="payment_property">Property</label>
+      <div id="for_property" class="input-field for_toggle">
+        <%= f.select :property, @properties, include_blank: true %>
+        <label for="payment_property">Property</label>
+      </div>
     </div>
   </div>
 
-  <div class="divider"></div>
+  <div class="row form-inputs">
+    <div class="col s12 input-field">
+      <%= f.select :task, @tasks, include_blank: true %>
+      <label for="payment_task">Task</label>
+    </div>
 
+    <div class="col s12 input-field">
+      <%= f.text_field :notes %>
+      <label for='payment_notes'>Notes</label>
+    </div>
+  </div>
+
+  <div class="row center-align form-inputs" id="money_div">
+    <h4>Cost:</h4>
+    <div class="col s12 m4 input-field">
+      <%= f.text_field :bill_amt %>
+      <label for="payment_bill_amt">Bill $</label>
+    </div>
+    <div class="col s12 m4 input-field">
+      <%= f.text_field :payment_amt %>
+      <label for="payment_payment_amt">Payment $</label>
+    </div>
+    <div class="col s12 m4 input-field">
+      <%= f.select :method, Constant::Payment::METHODS, include_blank: true %>
+      <label for="payment_method">Payment method</label>
+    </div>
+  </div>
+
+  <div class="row center-align form-inputs" id="date_div">
+    <h4>Dates:</h4>
+    <div class="col s12 m4 input-field">
+      <%= f.text_field :received, value: human_date(payment.received), class: 'datepicker' %>
+      <label for='payment_received'>Received on</label>
+    </div>
+    <div class="col s12 m4 input-field">
+      <%= f.text_field :due, value: human_date(payment.due), class: 'datepicker' %>
+      <label for='payment_due'>Due on</label>
+    </div>
+    <div class="col s12 m4 input-field">
+      <%= f.text_field :paid, value: human_date(payment.paid), class: 'datepicker' %>
+      <label for='payment_paid'>Paid on</label>
+    </div>
+  </div>
+
+  <div class="row center-align form-inputs" id="utility_div">
+    <h4>Utility info:</h4>
+
+    <div class="col s12 m4 input-field">
+      <%= f.select :utility_type, Constant::Utility::TYPES, include_blank: true %>
+      <label for="payment_utility_type">Type</label>
+    </div>
+
+    <div class="col s12 m4 input-field">
+      <%= f.text_field :utility_account %>
+      <label for="payment_utility_account">Account #</label>
+    </div>
+
+    <div class="col s12 m4 input-field">
+      <%= f.text_field :utility_service_started, value: human_date(payment.utility_service_started), class: 'datepicker' %>
+      <label for="payment_utility_service_started">Service start date</label>
+    </div>
+  </div>
+
+  <div class="row center-align form-actions">
+    <div class="col m6">
+      <%= f.submit class: 'btn green' %>
+    </div>
+    <div class="col m6">
+      <%= link_to 'Cancel', @return_path, class: 'btn red lighten-1' %>
+    </div>
+  </div>
 <% end %>

@@ -74,6 +74,11 @@ class Payment < ApplicationRecord
     end
   end
 
+  def target
+    # form field
+    to
+  end
+
   def to
     return nil unless paid_to.present? && Constant::Payment::PAID_TO.include?(paid_to)
     return Organization.first if paid_to == 'organization'

@@ -127,7 +127,7 @@ class Task < ApplicationRecord
     task_user = task_users.where(user: user).first_or_initialize
     return task_user unless task_user.new_record? || task_user.google_id.blank?
     tasklist = property.ensure_tasklist_exists_for(user)
-    task_user.tasklist_gid = tasklist.google_id
+    task_user.tasklist_gid = tasklist.google_id if tasklist.present?
 
     if creator == owner
       task_user.scope = 'both'

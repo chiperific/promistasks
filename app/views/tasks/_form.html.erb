@@ -105,7 +105,9 @@
         <div class="input-field">
           <%= text_field_tag 'creator_lkup', task.creator&.name || current_user.name, class: "autocomplete-owners", autocomplete: "off" %>
           <label for="creator_lkup">Creator</label>
-          <i>Only change if user must be deleted.</i>
+          <% unless task.new_record? %>
+            <i>Only change if user must be deleted.</i>
+          <% end %>
           <%= f.hidden_field :creator_id %>
         </div>
       </div>

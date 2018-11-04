@@ -94,6 +94,7 @@ class PaymentsController < ApplicationController
     @contractors = @users.where(contractor: true).map { |u| [u.name, u.id] }
     @clients     = @users.where(client: true).map { |u| [u.name, u.id] }
     @properties  = Property.kept.order(:name).map { |m| [m.name, m.id] }
+    @tasks       = Task.kept.map { |m| [m.title, m.id] }
   end
 
   def create

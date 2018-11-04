@@ -15,8 +15,8 @@
   </div>
 </div>
 
-<div class="row center-align">
-  <ul class="tabs z-depth-1" name="tasks">
+<div class="row center-align full-row">
+  <ul class="tabs z-depth-1 user-tasks-tabs" name="tasks">
     <% if @show_new %>
       <li class='tab'>
         <%= link_to 'New', tasks_user_path(@user, filter: 'new'), id: 'tasks_new', remote: true %>

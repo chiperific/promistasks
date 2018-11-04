@@ -4,9 +4,9 @@
 4. Controllers:
   - System tests needed for:
     * create a payment
-      -- started form, JS worls for selecting :to and :for
-      -- Needs rest of forms
-      -- Payment#create and Payment#update need to consider :to and :for when assigning related models, also need to throw custom errors if :to, :for and the models of such are blank
+      -- Needs rest of form
+      -- Payment#create and Payment#update need to consider :paid_to and :on_behalf_of when assigning related models, also need to throw custom errors if :paid_to, :on_behalf_of and the models of such are blank
+      -- Linking a task should ++ the task.cost
     * edit a payment
     * view the organization
     * edit the organization
@@ -26,7 +26,6 @@
   - Payment model indicates paid_to, related_to, and on_behalf_of:
     -- New payments from other models should link intellegently:
     `model_id: @model.id, (paid_to: 'model' || on_behalf_of: 'model')`
-    -- Payment form needs to handle `paid_to` and `on_behalf_of` with good UX
 
   - Property form needs Park field
   - Property#list and #index need quick-set for STAGE
@@ -34,7 +33,8 @@
   - Property#show needs payments table (which handles utility accounts)
   - Park#show needs payments table
   - Utility#show needs payments table
-  - Task#show needs payments table
+  - Task#show needs payments table and extra fields Schema:266-272
+  - Task#form needs extra fields Schema:266-272
   - Users#show needs payments table
   - Users#show #connections needs Parks table
   - Alerts needs payment reminders

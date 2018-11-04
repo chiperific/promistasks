@@ -1,3 +1,14 @@
-<h1>New Payment</h1>
+<div class="row valign-wrapper">
+  <div class="col s12 m9">
+    <h2>New Payment</h2>
+  </div>
+  <div class="col s12 m3">
+    <% if @to_organization %>
+      <%= link_to "send $", new_payment_path, class: 'btn waves-effect waves-light green darken-2', id: 'new_payment_to_org_link' %>
+    <% else %>
+      <%= link_to "receive $", new_payment_path(organization: true), class: 'btn waves-effect waves-light green darken-2', id: 'new_payment_to_org_link' %>
+    <% end %>
+  </div>
+</div>
 
 <%= render 'form', payment: @payment %>

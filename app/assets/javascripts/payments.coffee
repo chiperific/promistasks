@@ -13,10 +13,11 @@ $(document).on 'turbolinks:load', ->
 
   setMasterField = (value, focus) ->
     if focus == 't'
-      target = 'input#payment_to'
+      target = 'input#payment_paid_to'
     else
-      target = 'input#payment_for'
-    $(target).val(value)
+      target = 'input#payment_on_behalf_of'
+    unless $(target).val() == 'organization'
+      $(target).val(value)
 
   $('span').on 'click', ->
     checker = $(this).siblings('input[type="checkbox"]').prop('checked')
