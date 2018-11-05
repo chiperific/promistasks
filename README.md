@@ -4,7 +4,7 @@
 4. Controllers:
   - System tests needed for:
     * create a payment
-      -- Needs rest of form
+      -- Needs recurrence modal. Try: https://github.com/GetJobber/recurring_select
       -- Payment#create and Payment#update need to consider :paid_to and :on_behalf_of when assigning related models, also need to throw custom errors if :paid_to, :on_behalf_of and the models of such are blank
       -- Linking a task should ++ the task.cost
     * edit a payment
@@ -22,6 +22,8 @@
     * delete a user's skill
 
   - Get creator == current_user out of forms and into controllers where it can't be hacked
+
+  - Do all submitable form checkboxes need <input type="hidden" name=""> precursors?
 
   - Payment model indicates paid_to, related_to, and on_behalf_of:
     -- New payments from other models should link intellegently:

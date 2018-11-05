@@ -1,6 +1,27 @@
 <%= form_for payment, html: { autocomplete: 'nope' } do |f| %>
   <%= render 'form_errors', object: payment %>
 
+  <div class="row center-align form-inputs">
+    <input type="hidden" value="0" name="payment[send_email_reminders]">
+    <div class="col s12 m6 input-field">
+      <p>
+        <label for='payment_send_email_reminders'>
+          <input type="checkbox" value="1" name="payment[send_email_reminders]" id="payment_send_email_reminders">
+          <span>Send email reminders?</span>
+        </label>
+      </p>
+    </div>
+
+    <div class="col s12 m6 input-field">
+      <p>
+        <label for='suppress_system_alerts'>
+          <input type="checkbox" value="1" name="payment[suppress_system_alerts]" id="payment_suppress_system_alerts">
+          <span>Suppress system alerts?</span>
+        </label>
+      </p>
+    </div>
+  </div>
+
   <div id="to_checkboxes" class="row center-align form-inputs">
     <div class="col s12">
       <% if @to_organization %>
@@ -12,7 +33,7 @@
       <% end %>
     </div>
 
-    <div class="col s6 m3">
+    <div class="col s6 m3 input-field">
       <p>
         <label for="to_utility_opt">
           <input type="checkbox" value="1" id="to_utility_opt" <%= 'checked' if @to_utility %>>
@@ -21,7 +42,7 @@
       </p>
     </div>
 
-    <div class="col s6 m3">
+    <div class="col s6 m3 input-field">
       <p>
         <label for="to_park_opt">
           <input type="checkbox" value="1" id="to_park_opt" <%= 'checked' if @to_park %>>
@@ -30,7 +51,7 @@
       </p>
     </div>
 
-    <div class="col s6 m3">
+    <div class="col s6 m3 input-field">
       <p>
         <label for="to_contractor_opt">
           <input type="checkbox" value="1" id="to_contractor_opt" <%= 'checked' if @to_contractor %>>
@@ -39,7 +60,7 @@
       </p>
     </div>
 
-    <div class="col s6 m3">
+    <div class="col s6 m3 input-field">
       <p>
         <label for="to_client_opt">
           <input type="checkbox" value="1" id="to_client_opt" <%= 'checked' if @to_client %>>
@@ -75,7 +96,7 @@
     <%= f.hidden_field :on_behalf_of %>
     <h4>On behalf of:</h4>
 
-    <div class="col s6 m3 offset-m3">
+    <div class="col s6 m3 offset-m3 input-field">
       <p>
         <label for="for_client_opt">
           <input type="checkbox" value="1" id="for_client_opt" <%= 'checked' if @for_client %>>
@@ -84,7 +105,7 @@
       </p>
     </div>
 
-    <div class="col s6 m3">
+    <div class="col s6 m3 input-field">
       <p>
         <label for="for_property_opt">
           <input type="checkbox" value="1" id="for_property_opt" <%= 'checked' if @for_property %>>
@@ -95,7 +116,7 @@
   </div>
 
   <div class="row center-align form-inputs" id="for_select_fields">
-    <div class="col s12">
+    <div class="col s12 input-field">
       <div id="for_client" class="input-field for_toggle">
         <%= f.select :client, @clients, include_blank: true %>
         <label for="payment_client">Client</label>
@@ -171,11 +192,41 @@
     </div>
   </div>
 
-  <div class="row center-align form-actions">
+  <div class="row center-align valign-wrapper form-inputs">
+    <input type="hidden" value="0" name="payment[recurring]">
     <div class="col m6">
+      <h4>Recurring</h4>
+    </div>
+
+    <div class="col m4 input-field">
+      <p>
+        <label for="payment_recurring">
+          <input type="checkbox" value="1" name="payment[recurring]" id="payment_recurring" <%= 'checked' if payment.recurring %>>
+          <span>Make recurring?</span>
+        </label>
+      </p>
+    </div>
+
+  </div>
+
+  <div class="row" id="recurrence_div">
+    Try https://github.com/GetJobber/recurring_select
+  </div>
+
+  <div class="row center-align form-actions valign-wrapper">
+    <input type="hidden" value="0" name="payment[archive]">
+    <div class="col m4 input-field">
+      <p>
+        <label for="payment_archive">
+          <input type="checkbox" value="1" name="payment[archive]" id="payment_archive" <%= 'checked' if payment.discarded_at.present? %>>
+          <span>Archive?</span>
+        </label>
+      </p>
+    </div>
+    <div class="col m4">
       <%= f.submit class: 'btn green' %>
     </div>
-    <div class="col m6">
+    <div class="col m4">
       <%= link_to 'Cancel', @return_path, class: 'btn red lighten-1' %>
     </div>
   </div>

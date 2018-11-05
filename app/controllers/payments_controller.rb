@@ -102,6 +102,10 @@ class PaymentsController < ApplicationController
 
     @payment.creator = current_user
 
+    # create the recurrence
+    # @payment.sent_recurrence if recurring <-- custom method in model
+    # Or something magical from this: https://github.com/GetJobber/recurring_select
+
     if @payment.save
       redirect_to @return_path, notice: 'Payment created'
     else
