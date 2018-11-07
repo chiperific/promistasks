@@ -37,7 +37,7 @@
       <p>
         <label for="to_utility_opt">
           <input type="checkbox" value="1" id="to_utility_opt" <%= 'checked' if @to_utility %>>
-          <span>Utility</span>
+          <span class='hidden-field-setter'>Utility</span>
         </label>
       </p>
     </div>
@@ -46,7 +46,7 @@
       <p>
         <label for="to_park_opt">
           <input type="checkbox" value="1" id="to_park_opt" <%= 'checked' if @to_park %>>
-          <span>Park</span>
+          <span class='hidden-field-setter'>Park</span>
         </label>
       </p>
     </div>
@@ -55,7 +55,7 @@
       <p>
         <label for="to_contractor_opt">
           <input type="checkbox" value="1" id="to_contractor_opt" <%= 'checked' if @to_contractor %>>
-          <span>Contractor</span>
+          <span class='hidden-field-setter'>Contractor</span>
         </label>
       </p>
     </div>
@@ -64,7 +64,7 @@
       <p>
         <label for="to_client_opt">
           <input type="checkbox" value="1" id="to_client_opt" <%= 'checked' if @to_client %>>
-          <span>Client</span>
+          <span class='hidden-field-setter'>Client</span>
         </label>
       </p>
     </div>
@@ -100,7 +100,7 @@
       <p>
         <label for="for_client_opt">
           <input type="checkbox" value="1" id="for_client_opt" <%= 'checked' if @for_client %>>
-          <span>Client</span>
+          <span class='hidden-field-setter'>Client</span>
         </label>
       </p>
     </div>
@@ -109,7 +109,7 @@
       <p>
         <label for="for_property_opt">
           <input type="checkbox" value="1" id="for_property_opt" <%= 'checked' if @for_property %>>
-          <span>Property</span>
+          <span class='hidden-field-setter'>Property</span>
         </label>
       </p>
     </div>
@@ -118,12 +118,12 @@
   <div class="row center-align form-inputs" id="for_select_fields">
     <div class="col s12 input-field">
       <div id="for_client" class="input-field for_toggle">
-        <%= f.select :client, @clients, include_blank: true %>
-        <label for="payment_client">Client</label>
+        <%= f.select :client, @clients, { include_blank: true }, { id: 'payment_client_obo', name: 'payment[client_id_obo]' } %>
+        <label for="payment_client_obo">Client</label>
       </div>
 
       <div id="for_property" class="input-field for_toggle">
-        <%= f.select :property, @properties, include_blank: true %>
+        <%= f.select :property, @properties, { include_blank: true } %>
         <label for="payment_property">Property</label>
       </div>
     </div>
@@ -202,7 +202,7 @@
       <p>
         <label for="payment_recurring">
           <input type="checkbox" value="1" name="payment[recurring]" id="payment_recurring" <%= 'checked' if payment.recurring %>>
-          <span>Make recurring?</span>
+          <span class="recurrence-setter">Make recurring?</span>
         </label>
       </p>
     </div>
@@ -210,19 +210,26 @@
   </div>
 
   <div class="row" id="recurrence_div">
-    Try https://github.com/GetJobber/recurring_select
+    <div class="col s12 input-field">
+      <%= f.select :recurrence, Constant::Payment::RECURRENCE, include_blank: true %>
+      <label for="payment_recurrence">Repeat every</label>
+    </div>
+    <div class="col s12 field_with_errors" id="recurrence_no_paid">A new payment will not be created until this payment has a "Paid on" date.</div>
+    <div class="col s12 field_with_errors" id="recurrence_no_due">A "Due on" date is needed to make this payment recurring.</div>
   </div>
 
   <div class="row center-align form-actions valign-wrapper">
     <input type="hidden" value="0" name="payment[archive]">
-    <div class="col m4 input-field">
-      <p>
-        <label for="payment_archive">
-          <input type="checkbox" value="1" name="payment[archive]" id="payment_archive" <%= 'checked' if payment.discarded_at.present? %>>
-          <span>Archive?</span>
-        </label>
-      </p>
-    </div>
+    <% unless payment.new_record? %>
+      <div class="col m4 input-field">
+        <p>
+          <label for="payment_archive">
+            <input type="checkbox" value="1" name="payment[archive]" id="payment_archive" <%= 'checked' if payment.discarded_at.present? %>>
+            <span>Archive?</span>
+          </label>
+        </p>
+      </div>
+    <% end %>
     <div class="col m4">
       <%= f.submit class: 'btn green' %>
     </div>

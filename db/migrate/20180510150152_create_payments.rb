@@ -21,7 +21,7 @@ class CreatePayments < ActiveRecord::Migration[5.2]
       t.date :received
       t.date :due
       t.date :paid
-      t.text :recurrence # YAML from IceCube::Schedule
+      t.text :recurrence # use Constant::Payment::RECURRENCE = ['month', '3 months', '6 months', 'year']
       t.boolean :recurring,              null: false, default: false
       t.boolean :send_email_reminders,   null: false, default: false
       t.boolean :suppress_system_alerts, null: false, default: false

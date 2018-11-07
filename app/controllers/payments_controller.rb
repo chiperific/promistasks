@@ -98,6 +98,7 @@ class PaymentsController < ApplicationController
   end
 
   def create
+    badbad
     authorize @payment = Payment.new(payment_params)
 
     @payment.creator = current_user
@@ -140,6 +141,7 @@ class PaymentsController < ApplicationController
 
   def payment_params
     params.require(:payment).permit(:contractor_id, :park_id, :utility_id, :client_id, :property_id, :task_id,
+                                    :client_id_obo,
                                     :paid_to, :on_behalf_of,
                                     :utility_type, :utility_account,
                                     :utility_service_started,

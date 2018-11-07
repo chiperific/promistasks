@@ -29,6 +29,7 @@ module Constant
     METHODS = %w[ACH auto-pay cash check credit].freeze
     PAID_TO = %w[client contractor organization park utility].freeze
     ON_BEHALF_OF = %w[client property].freeze
+    RECURRENCE = ['month', '3 months', '6 months', 'year'].freeze
   end
 
   class Property

@@ -16,7 +16,6 @@ gem 'discard', '~> 1.0'
 gem 'geocoder'
 # gem 'google-api-client' # use instead of HTTParty when I can figure it out
 gem 'httparty'
-gem 'ice_cube'
 gem 'jbuilder', '~> 2.5'
 gem 'jquery-rails'
 gem 'money-rails'
@@ -27,10 +26,11 @@ gem 'pundit'
 gem 'rails', '>= 5.2'
 gem 'rspec-activemodel-mocks'
 gem 'sass-rails', '~> 5.0'
+gem 'schedulable'
 gem 'therubyracer', platforms: :ruby
 gem 'turbolinks', '~> 5'
 gem 'uglifier', '>= 1.3.0'
-gem 'webmock', git: 'https://github.com/bblimke/webmock.git', branch: 'master'
+gem 'webmock' #, git: 'https://github.com/bblimke/webmock.git', branch: 'master' #should be patched now
 
 group :development, :test do
   gem 'better_errors'

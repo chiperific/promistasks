@@ -2,7 +2,6 @@
 
 class Payment < ApplicationRecord
   include Discard::Model
-  include IceCube
 
   belongs_to :property, inverse_of: :payments, optional: true
   belongs_to :park,     inverse_of: :payments, optional: true
@@ -15,12 +14,11 @@ class Payment < ApplicationRecord
   monetize :bill_amt_cents
   monetize :payment_amt_cents, allow_nil: true, allow_blank: true
 
-  serialize :recurrence, IceCube::Schedule
-
   validates_inclusion_of :method,       in: Constant::Payment::METHODS, message: "must be one of these: #{Constant::Payment::METHODS.to_sentence}", allow_blank: true
   validates_inclusion_of :utility_type, in: Constant::Utility::TYPES, message: "must be one of these: #{Constant::Utility::TYPES.to_sentence}", allow_blank: true
   validates_inclusion_of :paid_to,      in: Constant::Payment::PAID_TO, message: "must be one of these: #{Constant::Payment::PAID_TO.to_sentence}"
   validates_inclusion_of :on_behalf_of, in: Constant::Payment::ON_BEHALF_OF, message: "must be one of these: #{Constant::Payment::ON_BEHALF_OF.to_sentence}"
+  validates_inclusion_of :recurrence,   in: Constant::Payment::RECURRENCE, message: "must be one of these: #{Constant::Payment::RECURRENCE.to_sentence}"
   validates_inclusion_of :recurring, :send_email_reminders, :suppress_system_alerts,
                          in: [true, false]
   validates_presence_of :creator_id
@@ -43,11 +41,13 @@ class Payment < ApplicationRecord
 
   def for
     return nil unless on_behalf_of.present? && Constant::Payment::ON_BEHALF_OF.include?(on_behalf_of)
+
     public_send(on_behalf_of)
   end
 
   def from
     return Organization.first unless paid_to == 'organization'
+
     from = contractor if contractor_id.present?
     from = park if park_id.present?
     from = utility if utility_id.present?
@@ -57,6 +57,7 @@ class Payment < ApplicationRecord
 
   def past_due?
     return false unless due.present?
+
     due.past?
   end
 
@@ -82,6 +83,7 @@ class Payment < ApplicationRecord
   def to
     return nil unless paid_to.present? && Constant::Payment::PAID_TO.include?(paid_to)
     return Organization.first if paid_to == 'organization'
+
     public_send(paid_to)
   end
 
@@ -103,18 +105,36 @@ class Payment < ApplicationRecord
   end
 
   def must_have_association
-    return true if property_id.present? ||
-                   park_id.present? ||
-                   utility_id.present? ||
-                   task_id.present? ||
-                   contractor_id.present? ||
-                   client_id.present?
-    errors.add(:bill_amt, 'please select an association')
-    false
+    case to.class.to_s
+    when 'Utility'
+      errors.add(:utility, 'Please select a Utility from the list') if :utility_id.blank?
+    when 'Park'
+      errors.add(:park, 'Please select a Park from the list') if :park_id.blank?
+    when 'User'
+      errors.add(:contractor, 'Please select a Contractor from the list') if :contractor_id.blank?
+      errors.add(:client, 'Please select a Client from the list') if :client_id.blank?
+    end
+
+    case self.for.class.to_s
+    when 'User'
+      errors.add(:client_obo_id, 'Please select a Client from the list') if :client_id.blank? && on_behalf_of == 'client'
+    when 'Property'
+      errors.add(:property, 'Please select a Property from the list') if :property_id.blank?
+    end
   end
 
   def next_recurrence
     return nil unless recurrence.present?
-    recurrence.next_occurrence(due).to_date
+
+    case recurrence
+    when 'month'
+      due + 1.month
+    when '3 months'
+      due + 3.months
+    when '6 months'
+      due + 6.months
+    when 'year'
+      due + 1.year
+    end
   end
 end

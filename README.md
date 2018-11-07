@@ -4,7 +4,8 @@
 4. Controllers:
   - System tests needed for:
     * create a payment
-      -- Needs recurrence modal. Try: https://github.com/GetJobber/recurring_select
+      -- Rolled my own recurrence (scrapped IceCube)
+      -- NERFED payment spec
       -- Payment#create and Payment#update need to consider :paid_to and :on_behalf_of when assigning related models, also need to throw custom errors if :paid_to, :on_behalf_of and the models of such are blank
       -- Linking a task should ++ the task.cost
     * edit a payment

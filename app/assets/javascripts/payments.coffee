@@ -19,7 +19,30 @@ $(document).on 'turbolinks:load', ->
     unless $(target).val() == 'organization'
       $(target).val(value)
 
-  $('span').on 'click', ->
+  checkForAssociated = () ->
+    paid = $('input#payment_paid')
+    due = $('input#payment_due')
+
+    if paid.val().length == 0
+      $('div#recurrence_no_paid').show()
+      paid.addClass('field_with_errors')
+    if due.val().length == 0
+      $('div#recurrence_no_due').show()
+      due.addClass('field_with_errors')
+
+  resetAssociatedErrors = (context) ->
+    if $('input#payment_recurring').prop('checked') == true
+      if context.value.length > 0
+        $(context).removeClass('field_with_errors')
+        target = $(context).attr("id").substring($(context).attr("id").indexOf("_"), $(context).attr("id").length)
+        div = 'div#recurrence_no' + target
+        $(div).hide()
+      else
+        checkForAssociated()
+
+
+
+  $('span.hidden-field-setter').on 'click', ->
     checker = $(this).siblings('input[type="checkbox"]').prop('checked')
     focus = $(this).siblings('input[type="checkbox"]').attr('id').substring(0,1)
     target = $(this).siblings('input').attr('id')
@@ -37,3 +60,19 @@ $(document).on 'turbolinks:load', ->
     else
       setMasterField('', focus)
       $(this).siblings('input[type="checkbox"]').prop('checked', true)
+
+  $('span.recurrence-setter').on 'click', ->
+    checker = $(this).siblings('input[type="checkbox"]').prop('checked')
+    if !checker
+      $('div#recurrence_div').show()
+      checkForAssociated()
+    else
+      $('div#recurrence_div').hide()
+      $('select#payment_recurrence').val('')
+      $('#recurrence_div').find('input').val('')
+
+  $('input#payment_paid').on 'change', ->
+    resetAssociatedErrors(this)
+
+  $('input#payment_due').on 'change', ->
+    resetAssociatedErrors(this)

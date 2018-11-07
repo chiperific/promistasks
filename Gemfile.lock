@@ -1,14 +1,4 @@
 GIT
-  remote: https://github.com/bblimke/webmock.git
-  revision: 5c5b75928d92d04f5f637b97bab06050aab9745d
-  branch: master
-  specs:
-    webmock (3.4.2)
-      addressable (>= 2.3.6)
-      crack (>= 0.3.2)
-      hashdiff
-
-GIT
   remote: https://github.com/thoughtbot/shoulda-matchers.git
   revision: 4b160bd19ecca7f97d7ac22dccd5fde9b0da5a9f
   branch: rails-5
@@ -313,6 +303,9 @@ GEM
       sprockets (>= 2.8, < 4.0)
       sprockets-rails (>= 2.0, < 4.0)
       tilt (>= 1.1, < 3)
+    schedulable (0.0.10)
+      ice_cube
+      rails (>= 4.0.3)
     selenium-webdriver (3.14.0)
       childprocess (~> 0.5)
       rubyzip (~> 1.2)
@@ -352,6 +345,10 @@ GEM
       activemodel (>= 5.0)
       bindex (>= 0.4.0)
       railties (>= 5.0)
+    webmock (3.4.2)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
+      hashdiff
     websocket-driver (0.7.0)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.3)
@@ -378,7 +375,6 @@ DEPENDENCIES
   foreman
   geocoder
   httparty
-  ice_cube
   jbuilder (~> 2.5)
   jquery-rails
   launchy
@@ -398,6 +394,7 @@ DEPENDENCIES
   rspec_junit_formatter
   rubocop
   sass-rails (~> 5.0)
+  schedulable
   selenium-webdriver
   shoulda-matchers!
   spring
@@ -407,7 +404,7 @@ DEPENDENCIES
   turbolinks (~> 5)
   uglifier (>= 1.3.0)
   web-console (>= 3.3.0)
-  webmock!
+  webmock
 
 RUBY VERSION
    ruby 2.4.4p296
