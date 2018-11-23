@@ -38,6 +38,7 @@
     </main>
     <footer id="footer">
       <% if Rails.env.development? %>
+        <%= params.inspect %> <br>
         Return path: <%= @return_path %> |
         Previous: <%= @view_previous %> |
         Pre-previous: <%= @view_pre_previous %>
