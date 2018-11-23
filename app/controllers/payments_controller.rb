@@ -78,7 +78,7 @@ class PaymentsController < ApplicationController
 
     if params[:for_client].present?
       @for_client = true
-      @payment.client = User.find(params[:pay_client])
+      @payment.client = User.find(params[:for_client])
     end
 
     if params[:property].present?

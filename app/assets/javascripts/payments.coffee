@@ -2,6 +2,26 @@ $(document).on 'turbolinks:load', ->
   return unless controllerMatches(['payments']) &&
     actionMatches(['create', 'edit', 'new', 'update'])
 
+  uri = window.location.href
+
+  defaultShowFields = (target, uri, focus) ->
+    # focus == 't' || 'f' : as in 'to_' and 'for_'
+    if focus == 't'
+      finder = 'div#to_'
+    else
+      finder = 'div#for_'
+
+    if getParameterByName(target, uri) != null
+      if target == 'pay_client' || target == 'for_client'
+        target = 'client'
+      $(finder + target).show()
+
+  toLoop = ['utility', 'park', 'contractor', 'pay_client']
+  defaultShowFields target, uri, 't' for target in toLoop
+
+  forLoop = ['for_client', 'property']
+  defaultShowFields target, uri, 'f' for target in forLoop
+
   unselectCheckboxes = (target, focus) ->
     # focus == 't' || 'f' : as in 'to_' and 'for_'
     if focus == 't'
