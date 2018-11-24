@@ -55,8 +55,8 @@ $(document).on 'turbolinks:load', ->
 
   $('.dropdown-content').on
     'click': ->
-      findPropertyByName($('#property_lkup', '#connection_park_id'))
-      findUserByName($('#user_lkup', '#connection_user_id'))
+      findPropertyByName('#property_lkup', '#connection_park_id')
+      findUserByName('#user_lkup', '#connection_user_id')
 
   $('#select_relationship').on 'change', 'select', ->
     checkRelationship()

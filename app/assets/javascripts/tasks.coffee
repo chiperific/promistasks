@@ -42,30 +42,25 @@ $(document).on 'turbolinks:load', ->
   $('#owner_lkup').on
     'input'      : -> findUserByName(this, '#task_owner_id')
     'change'     : -> findUserByName(this, '#task_owner_id')
-    'blur'       : -> findUserByName(this, '#task_owner_id')
-    'focusout'   : -> findUserByName(this, '#task_owner_id')
-    'mouseleave' : -> findUserByName(this, '#task_owner_id')
 
   $('#creator_lkup').on
     'input'      : -> findUserByName(this, '#task_creator_id')
     'change'     : -> findUserByName(this, '#task_creator_id')
-    'blur'       : -> findUserByName(this, '#task_creator_id')
-    'focusout'   : -> findUserByName(this, '#task_creator_id')
-    'mouseleave' : -> findUserByName(this, '#task_creator_id')
 
   $('#subject_lkup').on
     'input'      : -> findUserByName(this, '#task_subject_id')
     'change'     : -> findUserByName(this, '#task_subject_id')
-    'blur'       : -> findUserByName(this, '#task_subject_id')
-    'focusout'   : -> findUserByName(this, '#task_subject_id')
-    'mouseleave' : -> findUserByName(this, '#task_subject_id')
 
   $('#property_lkup').on
     'input'      : -> findPropertyByName(this, '#task_property_id')
     'change'     : -> findPropertyByName(this, '#task_property_id')
-    'blur'       : -> findPropertyByName(this, '#task_property_id')
-    'focusout'   : -> findPropertyByName(this, '#task_property_id')
-    'mouseleave' : -> findPropertyByName(this, '#task_property_id')
   true
+
+  $('.dropdown-content').on
+    'click': ->
+      findUserByName('#owner_lkup', '#task_owner_id')
+      findUserByName('#creator_lkup', '#task_creator_id')
+      findUserByName('#subject_lkup', '#task_subject_id')
+      findUserByName('#property_lkup', '#task_property_id')
 
 

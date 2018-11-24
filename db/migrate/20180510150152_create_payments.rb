@@ -6,7 +6,7 @@ class CreatePayments < ActiveRecord::Migration[5.2]
       t.references :contractor, references: :users # paid_to
       t.references :park,       foreign_key: true # paid_to
       t.references :utility,    foreign_key: true # paid_to
-      t.references :client,     references: :users # paid_to && on_behalf_of
+      t.references :client,     references: :users # paid_to || on_behalf_of
       t.references :property,   foreign_key: true # on_behalf_of
       t.references :task,       foreign_key: true # related_to
       t.string :paid_to      # use Constant::Payment::PAID_TO

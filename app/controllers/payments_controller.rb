@@ -98,14 +98,29 @@ class PaymentsController < ApplicationController
   end
 
   def create
-    badbad
-    authorize @payment = Payment.new(payment_params)
-
+    authorize @payment = Payment.new(payment_params_wo_relations)
     @payment.creator = current_user
 
-    # create the recurrence
-    # @payment.sent_recurrence if recurring <-- custom method in model
-    # Or something magical from this: https://github.com/GetJobber/recurring_select
+    # manage relations individually, regardless of what gets sent from the form
+    case payment_params[:paid_to]
+    when 'utility'
+      @payment.utility_id = payment_params[:utility_id]
+    when 'park'
+      @payment.park_id = payment_params[:park_id]
+    when 'contractor'
+      @payment.contractor_id = payment_params[:contractor_id]
+    when 'client'
+      @payment.client_id = payment_params[:client_id]
+    end
+
+    case payment_params[:on_behalf_of]
+    when 'property'
+      @payment.property_id = payment_params[:property_id]
+    when 'client'
+      @payment.client_id = payment_params[:client_id_obo]
+    end
+
+    @payment.task_id = nil if payment_params[:task_id] == '0' || payment_params[:task_id] == 0 || payment_params[:task_id].blank?
 
     if @payment.save
       redirect_to @return_path, notice: 'Payment created'
@@ -140,14 +155,22 @@ class PaymentsController < ApplicationController
   end
 
   def payment_params
-    params.require(:payment).permit(:contractor_id, :park_id, :utility_id, :client_id, :property_id, :task_id,
-                                    :client_id_obo,
+    params.require(:payment).permit(:send_email_reminders, :suppress_system_alerts,
                                     :paid_to, :on_behalf_of,
-                                    :utility_type, :utility_account,
-                                    :utility_service_started,
-                                    :notes, :bill_amt, :payment_amt, :bill_amt_currency, :payment_amt_currency, :method,
+                                    :contractor_id, :park_id, :utility_id, :client_id, :property_id,
+                                    :client_id_obo, :task_id,
+                                    :notes, :bill_amt, :payment_amt, :method,
                                     :received, :due, :paid,
-                                    :recurrence, :recurring,
-                                    :send_email_reminders, :suppress_system_alerts)
+                                    :utility_type, :utility_account, :utility_service_started,
+                                    :recurring, :recurrence)
+  end
+
+  def payment_params_wo_relations
+    params.require(:payment).permit(:send_email_reminders, :suppress_system_alerts,
+                                    :paid_to, :on_behalf_of, :task_id,
+                                    :notes, :bill_amt, :payment_amt, :method,
+                                    :received, :due, :paid,
+                                    :utility_type, :utility_account, :utility_service_started,
+                                    :recurring, :recurrence)
   end
 end

@@ -2,6 +2,14 @@ $(document).on 'turbolinks:load', ->
   return unless controllerMatches(['payments']) &&
     actionMatches(['create', 'edit', 'new', 'update'])
 
+  setMasterField = (value, focus) ->
+    if focus == 't'
+      target = 'input#payment_paid_to'
+    else
+      target = 'input#payment_on_behalf_of'
+    unless $(target).val() == 'organization'
+      $(target).val(value)
+
   uri = window.location.href
 
   defaultShowFields = (target, uri, focus) ->
@@ -15,6 +23,8 @@ $(document).on 'turbolinks:load', ->
       if target == 'pay_client' || target == 'for_client'
         target = 'client'
       $(finder + target).show()
+      setMasterField(target, focus)
+
 
   toLoop = ['utility', 'park', 'contractor', 'pay_client']
   defaultShowFields target, uri, 't' for target in toLoop
@@ -30,14 +40,6 @@ $(document).on 'turbolinks:load', ->
       scope = 'div#for_checkboxes'
 
     $(scope).find('input[type="checkbox"]').prop("checked", false)
-
-  setMasterField = (value, focus) ->
-    if focus == 't'
-      target = 'input#payment_paid_to'
-    else
-      target = 'input#payment_on_behalf_of'
-    unless $(target).val() == 'organization'
-      $(target).val(value)
 
   checkForAssociated = () ->
     paid = $('input#payment_paid')
@@ -112,10 +114,10 @@ $(document).on 'turbolinks:load', ->
     autoComplete = document.querySelectorAll('input.autocomplete-tasks')
     M.Autocomplete.init(autoComplete, { data: response })
 
-
   $('#task_lkup').on
     'input'      : -> findTaskByTitle(this, '#payment_task_id')
     'change'     : -> findTaskByTitle(this, '#payment_task_id')
-    'blur'       : -> findTaskByTitle(this, '#payment_task_id')
-    'focusout'   : -> findTaskByTitle(this, '#payment_task_id')
-    'mouseleave' : -> findTaskByTitle(this, '#payment_task_id')
+
+  $('.dropdown-content').on
+    'click': ->
+      findTaskByTitle('#task_lkup', '#payment_task_id')

@@ -117,7 +117,7 @@ class Payment < ApplicationRecord
 
     case self.for.class.to_s
     when 'User'
-      errors.add(:client_obo_id, 'Please select a Client from the list') if :client_id.blank? && on_behalf_of == 'client'
+      errors.add(:client_id_obo, 'Please select a Client from the list') if :client_id.blank? && on_behalf_of == 'client'
     when 'Property'
       errors.add(:property, 'Please select a Property from the list') if :property_id.blank?
     end
