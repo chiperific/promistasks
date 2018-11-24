@@ -8,7 +8,7 @@ class TaskPolicy < ApplicationPolicy
   end
 
   def show?
-    user.present? && record.visible_to?(user)
+    user&.present? && record.visible_to?(user)
   end
 
   def public?
@@ -16,11 +16,11 @@ class TaskPolicy < ApplicationPolicy
   end
 
   def skills?
-    record.related_to?(user) || user.staff?
+    record.related_to?(user) || user&.staff?
   end
 
   def update_skills?
-    record.related_to?(user) || user.staff?
+    record.related_to?(user) || user&.staff?
   end
 
   def new?
@@ -44,14 +44,18 @@ class TaskPolicy < ApplicationPolicy
   end
 
   def users_finder?
-    record.related_to?(user) || user.staff?
+    record.related_to?(user) || user&.staff? || user&.admin?
   end
 
   def complete?
-    record.related_to?(user) || user.staff?
+    record.related_to?(user) || user&.staff? || user&.admin?
   end
 
   def un_complete?
-    record.related_to?(user) || user.staff?
+    record.related_to?(user) || user&.staff? || user&.admin?
+  end
+
+  def task_enum?
+    user&.admin? || user&.staff?
   end
 end

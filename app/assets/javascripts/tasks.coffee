@@ -29,21 +29,15 @@ $(document).on 'turbolinks:load', ->
 
   $.ajax(url: '/users/owner_enum').done (response) ->
     autoComplete = document.querySelectorAll('input.autocomplete-owners')
-    M.Autocomplete.init(autoComplete, {
-      data: response
-    })
+    M.Autocomplete.init(autoComplete, { data: response })
 
   $.ajax(url: '/users/subject_enum').done (response) ->
     autoComplete = document.querySelectorAll('input.autocomplete-subjects')
-    M.Autocomplete.init(autoComplete, {
-      data: response
-    })
+    M.Autocomplete.init(autoComplete, { data: response })
 
   $.ajax(url: '/properties/property_enum').done (response) ->
     autoComplete = document.querySelectorAll('input.autocomplete-properties')
-    M.Autocomplete.init(autoComplete, {
-      data: response
-    })
+    M.Autocomplete.init(autoComplete, { data: response })
 
   $('#owner_lkup').on
     'input'      : -> findUserByName(this, '#task_owner_id')

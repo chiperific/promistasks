@@ -60,8 +60,6 @@ $(document).on 'turbolinks:load', ->
       else
         checkForAssociated()
 
-
-
   $('span.hidden-field-setter').on 'click', ->
     checker = $(this).siblings('input[type="checkbox"]').prop('checked')
     focus = $(this).siblings('input[type="checkbox"]').attr('id').substring(0,1)
@@ -96,3 +94,28 @@ $(document).on 'turbolinks:load', ->
 
   $('input#payment_due').on 'change', ->
     resetAssociatedErrors(this)
+
+  highlightField = (elem, value) ->
+    if value != "0" && value != "" && value != 0
+      $(elem).addClass('found_match')
+    else
+      $(elem).removeClass('found_match')
+
+  findTaskByTitle = (elem, targetString) ->
+    name = $(elem).prop('value').replace(' ','+')
+    target = '/tasks/find_id_by_title/?title=' + name
+    $.ajax(url: target).done (response) ->
+      $(targetString).val(response)
+      highlightField(elem, response)
+
+  $.ajax(url: '/tasks/task_enum').done (response) ->
+    autoComplete = document.querySelectorAll('input.autocomplete-tasks')
+    M.Autocomplete.init(autoComplete, { data: response })
+
+
+  $('#task_lkup').on
+    'input'      : -> findTaskByTitle(this, '#payment_task_id')
+    'change'     : -> findTaskByTitle(this, '#payment_task_id')
+    'blur'       : -> findTaskByTitle(this, '#payment_task_id')
+    'focusout'   : -> findTaskByTitle(this, '#payment_task_id')
+    'mouseleave' : -> findTaskByTitle(this, '#payment_task_id')

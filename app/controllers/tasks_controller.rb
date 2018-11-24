@@ -202,6 +202,26 @@ class TasksController < ApplicationController
     render json: { id: @task.id.to_s, status: status }
   end
 
+  def task_enum
+    authorize tasks = Task.kept.select(:title)
+
+    hsh = {}
+    tasks.each do |task|
+      hsh[task.title] = nil
+    end
+
+    render json: hsh
+  end
+
+  def find_id_by_title
+    authorize current_user
+    tasks = Task.where(title: params[:title])
+
+    task_id = tasks.present? ? tasks.first.id : 0
+
+    render json: task_id
+  end
+
   private
 
   def task_params

@@ -12,6 +12,8 @@ Rails.application.routes.draw do
     get 'users_finder', on: :member
     get 'complete', on: :member
     get 'un_complete', on: :member
+    get 'task_enum', on: :collection
+    get 'find_id_by_title', on: :collection
   end
 
   resources :properties do

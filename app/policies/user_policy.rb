@@ -71,4 +71,8 @@ class UserPolicy < ApplicationPolicy
   def find_id_by_name?
     user&.not_client?
   end
+
+  def find_id_by_title?
+    user&.admin?
+  end
 end
