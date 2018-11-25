@@ -110,10 +110,10 @@ RSpec.describe 'Create payment', type: :system do
     end
 
     context 'have errors' do
-      it 'shows errors' do
+      fit 'shows errors' do
         click_submit
 
-        expect(page).to have_content '2 errors found:'
+        expect(page).to have_content '4 errors found:'
       end
     end
   end

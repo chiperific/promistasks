@@ -120,6 +120,7 @@ class TaskUser < ApplicationRecord
 
   def sequence_google_id(response_id)
     return response_id if task&.title == 'validate'
+
     number = TaskUser.count.positive? ? TaskUser.last.id + 1 : 1
     response_id + number.to_s + Random.rand(0...3000).to_s
   end

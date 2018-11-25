@@ -237,7 +237,7 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#assign_from_api_fields(task_json' do
+  describe '#assign_from_api_fields(task_json)' do
     it 'returns false if task_json is null' do
       task = Task.new
       expect(task.assign_from_api_fields(nil)).to eq false

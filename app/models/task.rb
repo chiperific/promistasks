@@ -204,6 +204,7 @@ class Task < ApplicationRecord
   def update_task_users
     # if the users change, then new task_users will be created, which triggers the #api_create on after_create callback
     return false if saved_changes_to_users? || discarded_at.present?
+
     [creator, owner].each do |user|
       task_user = ensure_task_user_exists_for(user)
       # changing details about the task won't trigger an api call from task_user
@@ -237,8 +238,8 @@ class Task < ApplicationRecord
   end
 
   def due_must_be_after_created
-    return true if due.nil?
-    return true if created_from_api?
+    return true if due.nil? || created_from_api?
+
     comparison = created_at.present? ? created_at : Date.today
 
     if due < comparison.to_date

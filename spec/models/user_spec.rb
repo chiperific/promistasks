@@ -383,6 +383,21 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#not_staff?' do
+    let(:client)  { create :client_user }
+    let(:staff)   { create :user }
+    let(:admin)   { create :admin }
+
+    it 'returns true if user is not staff and not admin' do
+      expect(client.not_staff?).to eq true
+    end
+
+    it 'returns false if user is staff or admin' do
+      expect(staff.not_staff?).to eq false
+      expect(admin.not_staff?).to eq false
+    end
+  end
+
   describe '#oauth?' do
     it 'returns true if user has oauth_id' do
       expect(@user.oauth?).to eq false

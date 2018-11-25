@@ -14,14 +14,15 @@ class Payment < ApplicationRecord
   monetize :bill_amt_cents
   monetize :payment_amt_cents, allow_nil: true, allow_blank: true
 
+  validates_presence_of :creator_id
+
   validates_inclusion_of :method,       in: Constant::Payment::METHODS, message: "must be one of these: #{Constant::Payment::METHODS.to_sentence}", allow_blank: true
-  validates_inclusion_of :utility_type, in: Constant::Utility::TYPES, message: "must be one of these: #{Constant::Utility::TYPES.to_sentence}", allow_blank: true
-  validates_inclusion_of :paid_to,      in: Constant::Payment::PAID_TO, message: "must be one of these: #{Constant::Payment::PAID_TO.to_sentence}"
   validates_inclusion_of :on_behalf_of, in: Constant::Payment::ON_BEHALF_OF, message: "must be one of these: #{Constant::Payment::ON_BEHALF_OF.to_sentence}"
+  validates_inclusion_of :paid_to,      in: Constant::Payment::PAID_TO, message: "must be one of these: #{Constant::Payment::PAID_TO.to_sentence}"
   validates_inclusion_of :recurrence,   in: Constant::Payment::RECURRENCE, message: "must be one of these: #{Constant::Payment::RECURRENCE.to_sentence}", allow_blank: true
+  validates_inclusion_of :utility_type, in: Constant::Utility::TYPES, message: "must be one of these: #{Constant::Utility::TYPES.to_sentence}", allow_blank: true
   validates_inclusion_of :recurring, :send_email_reminders, :suppress_system_alerts,
                          in: [true, false]
-  validates_presence_of :creator_id
 
   validate :must_have_association
 
@@ -38,6 +39,11 @@ class Payment < ApplicationRecord
   scope :history,         -> { undiscarded.paid.or(where('due < ?', Date.today).where.not(paid: nil)) }
 
   after_save :create_next_instance, if: -> { recurrence.present? && recurring && paid.present? && paid_before_last_save.blank? }
+
+  class << self
+    alias archived discarded
+    alias active kept
+  end
 
   def for
     return nil unless on_behalf_of.present? && Constant::Payment::ON_BEHALF_OF.include?(on_behalf_of)
@@ -83,15 +89,6 @@ class Payment < ApplicationRecord
     return false unless due.present?
 
     due.past?
-  end
-
-  def remove_relationships
-    self.utility_id = nil
-    self.park_id = nil
-    self.contractor_id = nil
-    self.client_id = nil
-    self.property_id = nil
-    self.task_id = nil
   end
 
   def status
@@ -146,6 +143,8 @@ class Payment < ApplicationRecord
     when 'User'
       errors.add(:contractor, 'Please select a Contractor from the list') if :contractor_id.blank?
       errors.add(:client, 'Please select a Client from the list') if :client_id.blank?
+    when 'NilClass'
+      errors.add(:paid_to, 'Please select a Utility, Park, Contractor or Client')
     end
 
     case self.for.class.to_s
@@ -153,7 +152,13 @@ class Payment < ApplicationRecord
       errors.add(:client_id_obo, 'Please select a Client from the list') if :client_id.blank? && on_behalf_of == 'client'
     when 'Property'
       errors.add(:property, 'Please select a Property from the list') if :property_id.blank?
+    when 'NilClass'
+      errors.add(:on_behalf_of, 'Please select a Property or Client')
     end
+
+    return false if errors.any?
+
+    true
   end
 
   def next_recurrence
@@ -169,5 +174,14 @@ class Payment < ApplicationRecord
     when 'year'
       due + 1.year
     end
+  end
+
+  def remove_relationships
+    self.utility_id = nil
+    self.park_id = nil
+    self.contractor_id = nil
+    self.client_id = nil
+    self.property_id = nil
+    self.task_id = nil
   end
 end

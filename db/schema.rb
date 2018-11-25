@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_11_07_033825) do
+ActiveRecord::Schema.define(version: 2018_08_11_185130) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -108,8 +108,8 @@ ActiveRecord::Schema.define(version: 2018_11_07_033825) do
     t.bigint "client_id"
     t.bigint "property_id"
     t.bigint "task_id"
-    t.string "paid_to"
-    t.string "on_behalf_of"
+    t.string "paid_to", null: false
+    t.string "on_behalf_of", null: false
     t.string "utility_type"
     t.string "utility_account"
     t.date "utility_service_started"
@@ -180,22 +180,6 @@ ActiveRecord::Schema.define(version: 2018_11_07_033825) do
     t.index ["discarded_at"], name: "index_properties_on_discarded_at"
     t.index ["name"], name: "index_properties_on_name", unique: true
     t.index ["park_id"], name: "index_properties_on_park_id"
-  end
-
-  create_table "schedules", force: :cascade do |t|
-    t.string "schedulable_type"
-    t.bigint "schedulable_id"
-    t.date "date"
-    t.time "time"
-    t.string "rule"
-    t.string "interval"
-    t.text "day"
-    t.text "day_of_week"
-    t.datetime "until"
-    t.integer "count"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["schedulable_type", "schedulable_id"], name: "index_schedules_on_schedulable_type_and_schedulable_id"
   end
 
   create_table "skill_tasks", force: :cascade do |t|

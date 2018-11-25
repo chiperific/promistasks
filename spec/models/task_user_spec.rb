@@ -87,6 +87,35 @@ RSpec.describe TaskUser, type: :model do
       WebMock.reset_executed_requests!
     end
 
+    describe '#api_delete' do
+      it 'only fires during the after_destroy callback' do
+        expect(@unsaved_task_user).not_to receive(:api_delete)
+        @unsaved_task_user.save!
+
+        expect(@task_user).to receive(:api_delete)
+        @task_user.destroy!
+      end
+
+      it 'returns false for non-oauth users' do
+        expect(@local_task_user.api_delete).to eq false
+      end
+
+      it 'returns false if there\'s no google_id' do
+        @task_user.google_id = nil
+        expect(@task_user.api_delete).to eq false
+      end
+
+      it 'returns false if there\'s no tasklist_gid' do
+        @task_user.tasklist_gid = nil
+        expect(@task_user.api_delete).to eq false
+      end
+
+      it 'makes an API call' do
+        @task_user.api_delete
+        expect(WebMock).to have_requested(:delete, Constant::Regex::TASK)
+      end
+    end
+
     describe '#api_get' do
       it 'returns false for non-oauth users' do
         expect(@local_task_user.api_get).to eq false
@@ -165,35 +194,6 @@ RSpec.describe TaskUser, type: :model do
       it 'returns the API response' do
         response = @task_user.api_update
         expect(response['kind']).to eq 'tasks#task'
-      end
-    end
-
-    describe '#api_delete' do
-      it 'only fires during the after_destroy callback' do
-        expect(@unsaved_task_user).not_to receive(:api_delete)
-        @unsaved_task_user.save!
-
-        expect(@task_user).to receive(:api_delete)
-        @task_user.destroy!
-      end
-
-      it 'returns false for non-oauth users' do
-        expect(@local_task_user.api_delete).to eq false
-      end
-
-      it 'returns false if there\'s no google_id' do
-        @task_user.google_id = nil
-        expect(@task_user.api_delete).to eq false
-      end
-
-      it 'returns false if there\'s no tasklist_gid' do
-        @task_user.tasklist_gid = nil
-        expect(@task_user.api_delete).to eq false
-      end
-
-      it 'makes an API call' do
-        @task_user.api_delete
-        expect(WebMock).to have_requested(:delete, Constant::Regex::TASK)
       end
     end
   end

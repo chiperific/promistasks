@@ -13,25 +13,31 @@ class Tasklist < ApplicationRecord
   before_destroy :api_delete
   after_create   :api_insert, unless: -> { google_id.present? }
 
-  def list_api_tasks
-    return false unless user.oauth_token.present?
+  def api_delete
+    return false unless user.oauth_id.present? && google_id.present?
+
     user.refresh_token!
-    response = HTTParty.get('https://www.googleapis.com/tasks/v1/lists/' + google_id + '/tasks/', headers: api_headers)
+    response = HTTParty.delete(BASE_URI + google_id, headers: api_headers)
+
     return false unless response.present?
+
     response
   end
 
   def api_get
     return false unless user.oauth_id.present? && google_id.present?
+
     user.refresh_token!
     response = HTTParty.get(BASE_URI + google_id, headers: api_headers)
     return false unless response.present?
+
     response
   end
 
   def api_insert
     #                                       this keeps api_insert from duplicating the tasklist for the creator
     return false if user.oauth_id.blank? || (property.created_from_api? && user == property.creator)
+
     user.refresh_token!
     body = { title: property.name }.to_json
     response = HTTParty.post(BASE_URI, { headers: api_headers, body: body })
@@ -46,6 +52,7 @@ class Tasklist < ApplicationRecord
 
   def api_update
     return false unless user.oauth_id.present? && google_id.present?
+
     user.refresh_token!
     body = { title: property.name }.to_json
     response = HTTParty.patch(BASE_URI + google_id, { headers: api_headers, body: body })
@@ -56,12 +63,13 @@ class Tasklist < ApplicationRecord
     response
   end
 
-  def api_delete
-    return false unless user.oauth_id.present? && google_id.present?
-    user.refresh_token!
-    response = HTTParty.delete(BASE_URI + google_id, headers: api_headers)
+  def list_api_tasks
+    return false unless user.oauth_token.present?
 
+    user.refresh_token!
+    response = HTTParty.get('https://www.googleapis.com/tasks/v1/lists/' + google_id + '/tasks/', headers: api_headers)
     return false unless response.present?
+
     response
   end
 
@@ -69,6 +77,7 @@ class Tasklist < ApplicationRecord
 
   def sequence_google_id(response_id)
     return response_id if property&.name == 'validate'
+
     number = Tasklist.count.positive? ? Tasklist.last.id + 1 : 1
     response_id + number.to_s + Random.rand(0...3000).to_s
   end

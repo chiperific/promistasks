@@ -105,7 +105,7 @@ RSpec.describe 'Edit payment', type: :system do
     end
 
     context 'have errors' do
-      fit 'shows errors' do
+      it 'shows errors' do
         fill_in 'Bill $', with: nil
         click_submit
 

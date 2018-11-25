@@ -129,9 +129,11 @@ class User < ActiveRecord::Base
 
   def fetch_default_tasklist
     return false unless oauth_id.present?
+
     response = HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists/@default', headers: api_headers)
 
     return false if response.nil?
+
     response
   end
 
@@ -141,9 +143,11 @@ class User < ActiveRecord::Base
 
   def list_api_tasklists
     return false unless oauth_id.present?
+
     response = HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists', headers: api_headers)
 
     return false if response.nil?
+
     response
   end
 
@@ -163,6 +167,7 @@ class User < ActiveRecord::Base
 
   def refresh_token!
     return false unless token_expired? && oauth_id.present? && oauth_token.present? && oauth_refresh_token.present?
+
     data = {
       grant_type: 'refresh_token',
       client_id: Rails.application.secrets.google_client_id,
@@ -176,11 +181,13 @@ class User < ActiveRecord::Base
 
   def readable_type
     return 'Staff' if oauth? && type.empty?
+
     type.join(', ')
   end
 
   def token_expired?
     return nil unless oauth_id.present? && oauth_expires_at.present?
+
     Time.at(oauth_expires_at) < Time.now
   end
 
@@ -230,6 +237,7 @@ class User < ActiveRecord::Base
   def clients_are_limited
     return true unless client?
     return true if volunteer?
+
     errors.add(:register_as, ': Clients can\'t be staff or contractors') if type.count > 1
     true
   end
@@ -239,7 +247,8 @@ class User < ActiveRecord::Base
   end
 
   def must_have_type
-    return true if oauth_id.present? # skip this if it's an oauth user
+    return true if oauth_id.present?
+
     if type.empty?
       errors.add(:register_as, 'a user type from the list')
       false

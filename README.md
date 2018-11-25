@@ -1,21 +1,6 @@
 # Task and Resource Manager with Google Tasks API Extension for Family Promise GR
 
 ## To do:
-1. Get tests back to green:
-/park_spec.rb:106
-/park_spec.rb:147
-/payment_spec.rb:290
-/payment_spec.rb:294
-/payment_spec.rb:284
-/payment_spec.rb:266
-/payment_spec.rb:260
-/payment_spec.rb:278
-/payment_spec.rb:272
-/payment_spec.rb:313
-/payment_spec.rb:240
-/payment_spec.rb:245
-/utility_spec.rb:177
-
 4. Controllers:
   - System tests needed for:
     * view the organization

@@ -60,38 +60,32 @@ RSpec.describe Tasklist, type: :model do
     end
   end
 
-  describe '#list_api_tasks' do
-    before :each do
-      @local_user = create(:user)
-      @local_tasklist = create(:tasklist, user: @local_user)
-    end
-
-    it 'returns false for non-oauth users' do
-      expect(@local_tasklist.list_api_tasks).to eq false
-    end
-
-    it 'calls user.refresh_token!' do
-      user = @tasklist.user
-      expect(user).to receive(:refresh_token!)
-      @tasklist.list_api_tasks
-    end
-
-    it 'makes an API call' do
-      @tasklist.list_api_tasks
-      expect(WebMock).to have_requested(:get, 'https://www.googleapis.com/tasks/v1/lists/' + @tasklist.google_id + '/tasks/')
-    end
-
-    it 'returns a list of tasks related to the tasklist' do
-      response = @tasklist.list_api_tasks
-      expect(response['kind']).to eq 'tasks#tasks'
-    end
-  end
-
   describe 'api interactions' do
     before :each do
       @local_user = create(:user)
       @local_tasklist = create(:tasklist, user: @local_user)
       WebMock.reset_executed_requests!
+    end
+
+    describe '#api_delete' do
+      it 'returns false if user isn\'t oauth' do
+        expect(@local_tasklist.api_delete).to eq false
+      end
+
+      it 'returns false if google_id is missing' do
+        @tasklist.google_id = nil
+        expect(@tasklist.api_delete).to eq false
+      end
+
+      it 'makes an API call' do
+        @tasklist.api_delete
+        expect(WebMock).to have_requested(:delete, Constant::Regex::TASKLIST)
+      end
+
+      it 'returns the API response' do
+        response = @tasklist.api_delete
+        expect(response['kind']).to eq 'tasks#taskList'
+      end
     end
 
     describe '#api_get' do
@@ -151,26 +145,41 @@ RSpec.describe Tasklist, type: :model do
         expect(response['kind']).to eq 'tasks#taskList'
       end
     end
+  end
 
-    describe '#api_delete' do
-      it 'returns false if user isn\'t oauth' do
-        expect(@local_tasklist.api_delete).to eq false
-      end
 
-      it 'returns false if google_id is missing' do
-        @tasklist.google_id = nil
-        expect(@tasklist.api_delete).to eq false
-      end
+  describe '#list_api_tasks' do
+    before :each do
+      @local_user = create(:user)
+      @local_tasklist = create(:tasklist, user: @local_user)
+    end
 
-      it 'makes an API call' do
-        @tasklist.api_delete
-        expect(WebMock).to have_requested(:delete, Constant::Regex::TASKLIST)
-      end
+    it 'returns false for non-oauth users' do
+      expect(@local_tasklist.list_api_tasks).to eq false
+    end
 
-      it 'returns the API response' do
-        response = @tasklist.api_delete
-        expect(response['kind']).to eq 'tasks#taskList'
-      end
+    it 'calls user.refresh_token!' do
+      user = @tasklist.user
+      expect(user).to receive(:refresh_token!)
+      @tasklist.list_api_tasks
+    end
+
+    it 'makes an API call' do
+      @tasklist.list_api_tasks
+      expect(WebMock).to have_requested(:get, 'https://www.googleapis.com/tasks/v1/lists/' + @tasklist.google_id + '/tasks/')
+    end
+
+    it 'returns a list of tasks related to the tasklist' do
+      response = @tasklist.list_api_tasks
+      expect(response['kind']).to eq 'tasks#tasks'
+    end
+  end
+
+  # Private methods:
+
+  describe '#sequence_google_id(response_id)' do
+    it 'is a construct for testing only' do
+      expect(true).to eq true
     end
   end
 
