@@ -126,6 +126,13 @@ class PaymentsController < ApplicationController
       redirect_to @return_path, notice: 'Payment created'
     else
       flash[:warning] = 'Oops, found some errors'
+      @utilities   = Utility.kept.order(:name).map { |m| [m.name, m.id] }
+      @parks       = Park.kept.order(:name).map { |m| [m.name, m.id] }
+      @users       = User.kept.order(:name)
+      @contractors = @users.where(contractor: true).map { |u| [u.name, u.id] }
+      @clients     = @users.where(client: true).map { |u| [u.name, u.id] }
+      @properties  = Property.kept.order(:name).map { |m| [m.name, m.id] }
+      @tasks       = Task.kept.map { |m| [m.title, m.id] }
       render 'new'
     end
   end
