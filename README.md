@@ -18,7 +18,6 @@
 
 4. Controllers:
   - System tests needed for:
-    * edit a payment
     * view the organization
     * edit the organization
     * view skills
