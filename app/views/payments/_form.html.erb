@@ -6,7 +6,7 @@
     <div class="col s12 m6 input-field">
       <p>
         <label for='payment_send_email_reminders'>
-          <input type="checkbox" value="1" name="payment[send_email_reminders]" id="payment_send_email_reminders">
+          <input type="checkbox" value="1" name="payment[send_email_reminders]" id="payment_send_email_reminders" <%= 'checked' if payment.send_email_reminders %>>
           <span>Send email reminders?</span>
         </label>
       </p>
@@ -15,7 +15,7 @@
     <div class="col s12 m6 input-field">
       <p>
         <label for='payment_suppress_system_alerts'>
-          <input type="checkbox" value="1" name="payment[suppress_system_alerts]" id="payment_suppress_system_alerts">
+          <input type="checkbox" value="1" name="payment[suppress_system_alerts]" id="payment_suppress_system_alerts" <%= 'checked' if payment.suppress_system_alerts %>>
           <span>Suppress system alerts?</span>
         </label>
       </p>
@@ -71,22 +71,22 @@
   </div>
 
   <div class="row center-align form-inputs" id="to_select_fields">
-    <div id="to_utility" class="input-field col s12 to_toggle">
+    <div id="to_utility" class="input-field col s12 to_toggle <%= 'visible' if @to_utility %>">
       <%= f.select :utility_id, @utilities, selected: payment.utility&.id, include_blank: true %>
       <label for="payment_utility_id">Utility</label>
     </div>
 
-    <div id="to_park" class="input-field col s12 to_toggle">
+    <div id="to_park" class="input-field col s12 to_toggle <%= 'visible' if @to_park %>">
       <%= f.select :park_id, @parks, selected: payment.park&.id, include_blank: true %>
       <label for="payment_park_id">Park</label>
     </div>
 
-    <div id="to_contractor" class="input-field col s12 to_toggle">
+    <div id="to_contractor" class="input-field col s12 to_toggle <%= 'visible' if @to_contractor %>">
       <%= f.select :contractor_id, @contractors, selected: payment.contractor&.id,include_blank: true %>
       <label for="payment_contractor_id">Contractor</label>
     </div>
 
-    <div id="to_client" class="input-field col s12 to_toggle">
+    <div id="to_client" class="input-field col s12 to_toggle <%= 'visible' if @to_client %>">
       <%= f.select :client_id, @clients, selected: payment.client&.id,include_blank: true %>
       <label for="payment_client_id">Client</label>
     </div>
@@ -117,12 +117,12 @@
 
   <div class="row center-align form-inputs" id="for_select_fields">
     <div class="col s12 input-field">
-      <div id="for_client" class="input-field for_toggle">
+      <div id="for_client" class="input-field for_toggle <%= 'visible' if @for_client %>">
         <%= f.select :client_id, options_for_select(@clients, [ payment.client&.name, payment.client&.id ]), { include_blank: true }, { id: 'payment_client_id_obo', name: 'payment[client_id_obo]' } %>
         <label for="payment_client_id_obo">Client</label>
       </div>
 
-      <div id="for_property" class="input-field for_toggle">
+      <div id="for_property" class="input-field for_toggle <%= 'visible' if @for_property %>">
         <%= f.select :property_id, @properties, selected: payment.property&.id, include_blank: true %>
         <label for="payment_property_id">Property</label>
       </div>

@@ -1,3 +1,7 @@
 .to_toggle, .for_toggle, #recurrence_div, #recurrence_no_paid, #recurrence_no_due {
   display: none;
 }
+
+.visible {
+  display: contents;
+}

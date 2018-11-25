@@ -55,10 +55,43 @@ class Payment < ApplicationRecord
     from
   end
 
+  def manage_relationships(payment_params)
+    remove_relationships
+    # manage relations individually, regardless of what gets sent from the form
+    case payment_params[:paid_to]
+    when 'utility'
+      self.utility_id = payment_params[:utility_id]
+    when 'park'
+      self.park_id = payment_params[:park_id]
+    when 'contractor'
+      self.contractor_id = payment_params[:contractor_id]
+    when 'client'
+      self.client_id = payment_params[:client_id]
+    end
+
+    case payment_params[:on_behalf_of]
+    when 'property'
+      self.property_id = payment_params[:property_id]
+    when 'client'
+      self.client_id = payment_params[:client_id_obo]
+    end
+
+    self.task_id = payment_params[:task_id] unless payment_params[:task_id] == '0' || payment_params[:task_id] == 0 || payment_params[:task_id].blank?
+  end
+
   def past_due?
     return false unless due.present?
 
     due.past?
+  end
+
+  def remove_relationships
+    self.utility_id = nil
+    self.park_id = nil
+    self.contractor_id = nil
+    self.client_id = nil
+    self.property_id = nil
+    self.task_id = nil
   end
 
   def status

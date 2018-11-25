@@ -101,26 +101,7 @@ class PaymentsController < ApplicationController
     authorize @payment = Payment.new(payment_params_wo_relations)
     @payment.creator = current_user
 
-    # manage relations individually, regardless of what gets sent from the form
-    case payment_params[:paid_to]
-    when 'utility'
-      @payment.utility_id = payment_params[:utility_id]
-    when 'park'
-      @payment.park_id = payment_params[:park_id]
-    when 'contractor'
-      @payment.contractor_id = payment_params[:contractor_id]
-    when 'client'
-      @payment.client_id = payment_params[:client_id]
-    end
-
-    case payment_params[:on_behalf_of]
-    when 'property'
-      @payment.property_id = payment_params[:property_id]
-    when 'client'
-      @payment.client_id = payment_params[:client_id_obo]
-    end
-
-    @payment.task_id = nil if payment_params[:task_id] == '0' || payment_params[:task_id] == 0 || payment_params[:task_id].blank?
+    @payment.manage_relationships(payment_params)
 
     if @payment.save
       redirect_to @return_path, notice: 'Payment created'
@@ -139,6 +120,21 @@ class PaymentsController < ApplicationController
 
   def edit
     authorize @payment
+
+    @to_utility    = @payment.utility_id.present?
+    @to_park       = @payment.park_id.present?
+    @to_contractor = @payment.contractor_id.present?
+    @to_client     = @payment.client_id.present? && @payment.paid_to == 'client'
+    @for_client    = @payment.client_id.present? && @payment.on_behalf_of == 'client'
+    @for_property  = @payment.property_id.present?
+
+    @utilities   = Utility.kept.order(:name).map { |m| [m.name, m.id] }
+    @parks       = Park.kept.order(:name).map { |m| [m.name, m.id] }
+    @users       = User.kept.order(:name)
+    @contractors = @users.where(contractor: true).map { |u| [u.name, u.id] }
+    @clients     = @users.where(client: true).map { |u| [u.name, u.id] }
+    @properties  = Property.kept.order(:name).map { |m| [m.name, m.id] }
+    @tasks       = Task.kept.map { |m| [m.title, m.id] }
   end
 
   def update
@@ -147,10 +143,19 @@ class PaymentsController < ApplicationController
     @payment.discard if params[:payment][:archive] == '1' && !@payment.discarded?
     @payment.undiscard if params[:payment][:archive] == '0' && @payment.discarded?
 
-    if @payment.update(payment_params)
+    @payment.manage_relationships(payment_params)
+
+    if @payment.update(payment_params_wo_relations)
       redirect_to @return_path, notice: 'Payment updated'
     else
       flash[:warning] = 'Oops, found some errors'
+      @utilities   = Utility.kept.order(:name).map { |m| [m.name, m.id] }
+      @parks       = Park.kept.order(:name).map { |m| [m.name, m.id] }
+      @users       = User.kept.order(:name)
+      @contractors = @users.where(contractor: true).map { |u| [u.name, u.id] }
+      @clients     = @users.where(client: true).map { |u| [u.name, u.id] }
+      @properties  = Property.kept.order(:name).map { |m| [m.name, m.id] }
+      @tasks       = Task.kept.map { |m| [m.title, m.id] }
       render 'edit'
     end
   end

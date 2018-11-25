@@ -1,4 +1,14 @@
 GIT
+  remote: https://github.com/bblimke/webmock.git
+  revision: 8951288d914ad66a2406231db7437bd0c6c137a3
+  branch: master
+  specs:
+    webmock (3.4.2)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
+      hashdiff
+
+GIT
   remote: https://github.com/thoughtbot/shoulda-matchers.git
   revision: 4b160bd19ecca7f97d7ac22dccd5fde9b0da5a9f
   branch: rails-5
@@ -345,10 +355,6 @@ GEM
       activemodel (>= 5.0)
       bindex (>= 0.4.0)
       railties (>= 5.0)
-    webmock (3.4.2)
-      addressable (>= 2.3.6)
-      crack (>= 0.3.2)
-      hashdiff
     websocket-driver (0.7.0)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.3)
@@ -404,7 +410,7 @@ DEPENDENCIES
   turbolinks (~> 5)
   uglifier (>= 1.3.0)
   web-console (>= 3.3.0)
-  webmock
+  webmock!
 
 RUBY VERSION
    ruby 2.4.4p296

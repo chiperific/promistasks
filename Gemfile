@@ -30,7 +30,7 @@ gem 'schedulable'
 gem 'therubyracer', platforms: :ruby
 gem 'turbolinks', '~> 5'
 gem 'uglifier', '>= 1.3.0'
-gem 'webmock' #, git: 'https://github.com/bblimke/webmock.git', branch: 'master' #should be patched now
+gem 'webmock', git: 'https://github.com/bblimke/webmock.git', branch: 'master'
 
 group :development, :test do
   gem 'better_errors'
