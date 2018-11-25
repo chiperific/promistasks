@@ -3,7 +3,6 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * view the organization
     * edit the organization
     * view skills
     * show a skill

@@ -122,6 +122,10 @@ RSpec.describe 'Sidebar', type: :system do
       it 'has a link to skills' do
         expect(page).to have_css('a#sidebar_link_skills')
       end
+
+      it 'has a link to organization' do
+        expect(page).to have_css('a#sidebar_link_org')
+      end
     end
   end
 end

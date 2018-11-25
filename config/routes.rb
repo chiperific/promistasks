@@ -74,7 +74,9 @@ Rails.application.routes.draw do
     get 'alerts', on: :member
   end
 
-  resources :organizations, only: %i[show edit update]
+  resource :organization, only: %i[show edit update]
+  resolve('Organization') { [:organization] }
+
 
   mount DelayedJobProgress::Engine => '/delayed' if Rails.env.development?
 
