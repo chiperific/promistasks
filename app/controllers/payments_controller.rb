@@ -88,13 +88,13 @@ class PaymentsController < ApplicationController
 
     @to_organization = true if params[:organization].present?
 
-    @utilities   = Utility.kept.order(:name).map { |m| [m.name, m.id] }
-    @parks       = Park.kept.order(:name).map { |m| [m.name, m.id] }
+    @utilities   = Utility.kept.order(:name).pluck(:name, :id)
+    @parks       = Park.kept.order(:name).pluck(:name, :id)
     @users       = User.kept.order(:name)
-    @contractors = @users.where(contractor: true).map { |u| [u.name, u.id] }
-    @clients     = @users.where(client: true).map { |u| [u.name, u.id] }
-    @properties  = Property.kept.order(:name).map { |m| [m.name, m.id] }
-    @tasks       = Task.kept.map { |m| [m.title, m.id] }
+    @contractors = @users.where(contractor: true).map { |u| [u.name, :id] }
+    @clients     = @users.where(client: true).map { |u| [u.name, :id] }
+    @properties  = Property.kept.order(:name).pluck(:name, :id)
+    @tasks       = Task.kept.pluck(:title, :id)
   end
 
   def create
@@ -107,13 +107,13 @@ class PaymentsController < ApplicationController
       redirect_to @return_path, notice: 'Payment created'
     else
       flash[:warning] = 'Oops, found some errors'
-      @utilities   = Utility.kept.order(:name).map { |m| [m.name, m.id] }
-      @parks       = Park.kept.order(:name).map { |m| [m.name, m.id] }
+      @utilities   = Utility.kept.order(:name).pluck(:name, :id)
+      @parks       = Park.kept.order(:name).pluck(:name, :id)
       @users       = User.kept.order(:name)
-      @contractors = @users.where(contractor: true).map { |u| [u.name, u.id] }
-      @clients     = @users.where(client: true).map { |u| [u.name, u.id] }
-      @properties  = Property.kept.order(:name).map { |m| [m.name, m.id] }
-      @tasks       = Task.kept.map { |m| [m.title, m.id] }
+      @contractors = @users.where(contractor: true).map { |u| [u.name, :id] }
+      @clients     = @users.where(client: true).map { |u| [u.name, :id] }
+      @properties  = Property.kept.order(:name).pluck(:name, :id)
+      @tasks       = Task.kept.pluck(:title, :id)
       render 'new'
     end
   end
@@ -128,13 +128,13 @@ class PaymentsController < ApplicationController
     @for_client    = @payment.client_id.present? && @payment.on_behalf_of == 'client'
     @for_property  = @payment.property_id.present?
 
-    @utilities   = Utility.kept.order(:name).map { |m| [m.name, m.id] }
-    @parks       = Park.kept.order(:name).map { |m| [m.name, m.id] }
+    @utilities   = Utility.kept.order(:name).pluck(:name, :id)
+    @parks       = Park.kept.order(:name).pluck(:name, :id)
     @users       = User.kept.order(:name)
-    @contractors = @users.where(contractor: true).map { |u| [u.name, u.id] }
-    @clients     = @users.where(client: true).map { |u| [u.name, u.id] }
-    @properties  = Property.kept.order(:name).map { |m| [m.name, m.id] }
-    @tasks       = Task.kept.map { |m| [m.title, m.id] }
+    @contractors = @users.where(contractor: true).map { |u| [u.name, :id] }
+    @clients     = @users.where(client: true).map { |u| [u.name, :id] }
+    @properties  = Property.kept.order(:name).pluck(:name, :id)
+    @tasks       = Task.kept.pluck(:title, :id)
   end
 
   def update
@@ -149,13 +149,13 @@ class PaymentsController < ApplicationController
       redirect_to @return_path, notice: 'Payment updated'
     else
       flash[:warning] = 'Oops, found some errors'
-      @utilities   = Utility.kept.order(:name).map { |m| [m.name, m.id] }
-      @parks       = Park.kept.order(:name).map { |m| [m.name, m.id] }
+      @utilities   = Utility.kept.order(:name).pluck(:name, :id)
+      @parks       = Park.kept.order(:name).pluck(:name, :id)
       @users       = User.kept.order(:name)
-      @contractors = @users.where(contractor: true).map { |u| [u.name, u.id] }
-      @clients     = @users.where(client: true).map { |u| [u.name, u.id] }
-      @properties  = Property.kept.order(:name).map { |m| [m.name, m.id] }
-      @tasks       = Task.kept.map { |m| [m.title, m.id] }
+      @contractors = @users.where(contractor: true).map { |u| [u.name, :id] }
+      @clients     = @users.where(client: true).map { |u| [u.name, :id] }
+      @properties  = Property.kept.order(:name).pluck(:name, :id)
+      @tasks       = Task.kept.pluck(:title, :id)
       render 'edit'
     end
   end

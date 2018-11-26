@@ -97,9 +97,7 @@ class SkillsController < ApplicationController
   def update_tasks
     authorize @skill = Skill.find(params[:id])
 
-    badbad
-
-    current = @skill.tasks.map(&:id)
+    current = @skill.tasks.map(:id)
 
     if skill_tasks_params[:add_tasks].present?
       add = JSON.parse(skill_tasks_params[:add_tasks]).map(&:to_i)

@@ -30,13 +30,15 @@ class OrganizationsController < ApplicationController
         a: 'Volunteer Contact:',
         b: @organization.volunteer_contact.present? ? @organization.volunteer_contact.name : 'Not set',
         c: @organization.volunteer_contact.present? ? user_path(@organization.volunteer_contact) : nil,
-        d: 'Notified when a new person signs up, has their contact info displayed on public tasks and homepage.'
+        d: 'Notified when a new person signs up, also has their contact info displayed on public tasks and homepage.'
       }
     ]
   end
 
   def edit
     authorize @organization
+
+    @staff = User.staff.order(:name).pluck(:name, :id)
   end
 
   def update
@@ -46,6 +48,7 @@ class OrganizationsController < ApplicationController
       redirect_to @return_path, notice: 'Organization updated'
     else
       flash[:warning] = 'Oops, found some errors'
+      @staff = User.staff.order(:name).pluck(:name, :id)
       render 'edit'
     end
   end
@@ -57,7 +60,7 @@ class OrganizationsController < ApplicationController
   end
 
   def organization_params
-    params.require(:organization).permit(:name, :domain,
+    params.require(:organization).permit(:name, :domain, :default_phone, :default_email,
                                          :billing_contact_id,
                                          :maintenance_contact_id,
                                          :volunteer_contact_id)

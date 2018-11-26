@@ -10,6 +10,6 @@ class Organization < ApplicationRecord
   validate :highlander, if: -> { new_record? }
 
   def highlander
-    errors.add(:name, 'There can be only one... organization') unless Organization.count.zero?
+    errors.add(:name, '[Scottish accent:] There can be only one, highlander. Do not try this again.') unless Organization.count.zero?
   end
 end

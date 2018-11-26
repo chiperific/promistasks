@@ -61,6 +61,6 @@ $(document).on 'turbolinks:load', ->
       findUserByName('#owner_lkup', '#task_owner_id')
       findUserByName('#creator_lkup', '#task_creator_id')
       findUserByName('#subject_lkup', '#task_subject_id')
-      findUserByName('#property_lkup', '#task_property_id')
+      findPropertyByName('#property_lkup', '#task_property_id')
 
 

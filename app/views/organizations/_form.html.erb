@@ -1,0 +1,75 @@
+<%= form_for organization, html: { autocomplete: 'nope'} do |f| %>
+  <%= render 'form_errors', object: organization %>
+
+  <div class="form-inputs">
+    <div class="input-field">
+      <%= f.text_field :name %>
+      <label for="organization_name">Name</label>
+    </div>
+
+    <div class="input-field">
+      <%= f.text_field :domain %>
+      <label for="organization_domain">Web domain</label>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col s12 m6">
+      <div class="input-field">
+        <%= f.text_field :default_email %>
+        <label for="organization_default_email">Default email</label>
+      </div>
+    </div>
+    <div class="col s12 m6">
+      <div class="input-field">
+        <%= f.text_field :default_phone %>
+        <label for="organization_default_phone">Default phone</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="row form-inputs">
+    <div class="col s6 input-field">
+      <%= f.select :billing_contact_id, @staff, include_blank: true %>
+      <label for='organization_billing_contact_id'>Billing Contact</label>
+    </div>
+    <div class="col s6">
+      <p>
+        Select a person who should be notified of all upcoming payments, regardless of who created them. They must have a Staff account in the system.
+      </p>
+    </div>
+  </div>
+
+  <div class="row form-inputs">
+    <div class="col s6 input-field">
+      <%= f.select :maintenance_contact_id, @staff, include_blank: true %>
+      <label for='organization_maintenance_contact_id'>Maintenance Contact</label>
+    </div>
+    <div class="col s6">
+      <p>
+        Select a person who should be notified of all maintenance requests, regardless of park and property. They must have a Staff account in the system.
+      </p>
+    </div>
+  </div>
+
+  <div class="row form-inputs">
+    <div class="col s6 input-field">
+      <%= f.select :volunteer_contact_id, @staff, include_blank: true %>
+      <label for='organization_volunteer_contact_id'>Volunteer Contact</label>
+    </div>
+    <div class="col s6">
+      <p>
+        Select a person who should be notified when a new person signs up, and have their contact info displayed on public tasks and the homepage. They must have a Staff account in the system.
+      </p>
+    </div>
+  </div>
+
+  <div class="row center-align">
+    <div class="col m6">
+      <%= f.submit class: 'btn green' %>
+    </div>
+    <div class="col m6">
+      <%= link_to 'Cancel', @return_path, class: 'btn red lighten-1', 'data-turbolinks'=> 'false' %>
+    </div>
+  </div>
+<% end %>

@@ -66,6 +66,7 @@ class Property < ApplicationRecord
     ary = []
     Property.except_default.each do |property|
       next if property.discarded?
+
       ary << property if property.occupancy_status == 'approved applicant'
     end
     ary
@@ -83,6 +84,7 @@ class Property < ApplicationRecord
     ary = []
     Property.except_default.each do |property|
       next if property.discarded?
+
       ary << property if property.occupancy_status == 'occupied'
     end
     ary
@@ -92,6 +94,7 @@ class Property < ApplicationRecord
     ary = []
     Property.except_default.each do |property|
       next if property.discarded?
+
       ary << property if property.occupancy_status == 'pending application'
     end
     ary
@@ -101,6 +104,7 @@ class Property < ApplicationRecord
     ary = []
     Property.except_default.each do |property|
       next if property.discarded?
+
       ary << property if property.occupancy_status == 'vacant'
     end
     ary
@@ -109,6 +113,7 @@ class Property < ApplicationRecord
 
   def address_has_changed?
     return false if address.blank?
+
     address_changed? ||
       city_changed? ||
       state_changed? ||
@@ -118,14 +123,16 @@ class Property < ApplicationRecord
   def budget_remaining
     self.budget ||= default_budget
     task_ary = tasks.map(&:cost)
-    task_ary.map! { |b| b || 0 }
+    task_ary.map! { |c| c || 0 }
     self.budget - task_ary.sum
   end
 
   def ensure_tasklist_exists_for(user)
     return false if user.oauth_id.nil?
+
     tasklist = tasklists.where(user: user).first_or_initialize
     return tasklist unless tasklist.new_record? || tasklist.google_id.nil?
+
     tasklist.save
     tasklist.reload
   end
