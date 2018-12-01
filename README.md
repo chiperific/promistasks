@@ -3,7 +3,6 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * show a skill
     * create a skill
     * edit a skill
     * show a task's skills
