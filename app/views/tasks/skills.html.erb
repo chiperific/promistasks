@@ -36,8 +36,8 @@
       <% end %>
     </tbody>
   </table>
-  <%= hidden_field_tag 'task[add_skills]', nil, id: 'add' %>
-  <%= hidden_field_tag 'task[remove_skills]', nil, id: 'remove' %>
+  <%= text_field_tag 'task[add_skills]', nil, id: 'add' %>
+  <%= text_field_tag 'task[remove_skills]', nil, id: 'remove' %>
   <div class="row center-align section">
     <div class="col s6 m4">
       <%= submit_tag 'Save skills', class: 'btn green' %>

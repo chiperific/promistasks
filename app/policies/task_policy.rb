@@ -16,11 +16,11 @@ class TaskPolicy < ApplicationPolicy
   end
 
   def skills?
-    record.related_to?(user) || user&.staff?
+    record.related_to?(user) || user&.staff? || user&.admin?
   end
 
   def update_skills?
-    record.related_to?(user) || user&.staff?
+    record.related_to?(user) || user&.staff? || user&.admin?
   end
 
   def new?

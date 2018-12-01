@@ -3,12 +3,7 @@
 ## To do:
 4. Controllers:
   - System tests needed for:
-    * show a task's skills
-    * edit a task's skill
-    * delete a tasks's skill
-    * show a user's skills
-    * edit a user's skills
-    * delete a user's skill
+    * add & remove a user's skills (users/#id/skills)
 
   - Get creator == current_user out of forms and into controllers where it can't be hacked
 
