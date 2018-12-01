@@ -2,14 +2,15 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Create new skill', type: :system do
+RSpec.describe 'Edit skill', type: :system do
   before :each do
+    @skill = create(:skill)
     visit root_path
   end
 
   context 'when not current_user' do
     it 'redirects to login page' do
-      visit new_skill_path
+      visit edit_skill_path(@skill)
       expect(current_path).to eq new_user_session_path
       # expect(page).to have_content('You need to sign in first')
     end
@@ -20,11 +21,11 @@ RSpec.describe 'Create new skill', type: :system do
       before :each do
         user = create(:client_user)
         login_as(user, scope: :user)
-        visit new_skill_path
+        visit edit_skill_path(@skill)
       end
 
       it 'redirects away' do
-        expect(current_path).not_to eq new_skill_path
+        expect(current_path).not_to eq edit_skill_path(@skill)
       end
     end
 
@@ -32,11 +33,11 @@ RSpec.describe 'Create new skill', type: :system do
       before :each do
         user = create(:volunteer_user)
         login_as(user, scope: :user)
-        visit new_skill_path
+        visit edit_skill_path(@skill)
       end
 
       it 'redirects away' do
-        expect(current_path).not_to eq new_skill_path
+        expect(current_path).not_to eq edit_skill_path(@skill)
       end
     end
 
@@ -44,11 +45,11 @@ RSpec.describe 'Create new skill', type: :system do
       before :each do
         user = create(:contractor_user)
         login_as(user, scope: :user)
-        visit new_skill_path
+        visit edit_skill_path(@skill)
       end
 
       it 'redirects away' do
-        expect(current_path).not_to eq new_skill_path
+        expect(current_path).not_to eq edit_skill_path(@skill)
       end
     end
 
@@ -56,11 +57,11 @@ RSpec.describe 'Create new skill', type: :system do
       before :each do
         user = create(:user)
         login_as(user, scope: :user)
-        visit new_skill_path
+        visit edit_skill_path(@skill)
       end
 
       it 'loads the page' do
-        expect(page).to have_content 'New Skill'
+        expect(page).to have_content 'Edit skill'
       end
     end
 
@@ -68,11 +69,11 @@ RSpec.describe 'Create new skill', type: :system do
       before :each do
         user = create(:admin)
         login_as(user, scope: :user)
-        visit new_skill_path
+        visit edit_skill_path(@skill)
       end
 
       it 'loads the page' do
-        expect(page).to have_content 'New Skill'
+        expect(page).to have_content 'Edit skill'
       end
     end
   end
@@ -81,28 +82,25 @@ RSpec.describe 'Create new skill', type: :system do
     before :each do
       user = create(:admin)
       login_as(user, scope: :user)
-      visit new_skill_path
+      visit edit_skill_path(@skill)
     end
 
     context 'have no errors' do
-      before :each do
+      it 'updates the skill' do
         fill_in 'Name', with: 'The agility of the Capybara'
-      end
-
-      it 'creates a skill' do
-        first_count = Skill.count
 
         click_submit
 
-        expect(current_path).not_to eq new_skill_path
-        expect(Skill.count).to eq first_count + 1
-
-        expect(Skill.last.name).to eq 'The agility of the Capybara'
+        expect(page).not_to eq edit_skill_path(@skill)
+        @skill.reload
+        expect(@skill.name).to eq 'The agility of the Capybara'
       end
     end
 
     context 'have errors' do
       it 'shows errors' do
+        fill_in 'Name', with: ''
+
         click_submit
 
         expect(page).to have_content '1 error found:'
