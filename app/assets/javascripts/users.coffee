@@ -14,6 +14,8 @@ $(document).on 'turbolinks:load', ->
   $('#user_register_as').on
     'change': -> checkForContractor()
     'click' : -> checkForContractor()
+    true
 
   $('.dropdown-content').on
     'click': -> checkForContractor()
+    true

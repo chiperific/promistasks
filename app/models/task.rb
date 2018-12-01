@@ -38,7 +38,7 @@ class Task < ApplicationRecord
 
   before_validation :visibility_must_be_2, if: -> { property&.is_default? && visibility != 2 }
   before_save       :decide_record_completeness
-  after_create      :create_task_users,    unless: -> { discarded_at.present? || created_from_api? }
+  after_save        :create_task_users,    if: -> { discarded_at.blank? && !created_from_api? && new_record? }
   after_update      :update_task_users,    if: :saved_changes_to_api_fields?
   after_update      :relocate,             if: -> { saved_change_to_property_id? }
   after_update      :change_task_users,    if: :saved_changes_to_users?
@@ -117,6 +117,7 @@ class Task < ApplicationRecord
   end
 
   def create_task_users
+    binding.pry
     [creator, owner].each do |user|
       ensure_task_user_exists_for(user)
     end

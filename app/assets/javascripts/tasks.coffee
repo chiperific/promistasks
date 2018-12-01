@@ -62,5 +62,15 @@ $(document).on 'turbolinks:load', ->
       findUserByName('#creator_lkup', '#task_creator_id')
       findUserByName('#subject_lkup', '#task_subject_id')
       findPropertyByName('#property_lkup', '#task_property_id')
+      true
+
+  $('input[name="commit"]').on 'click', (e)->
+    e.preventDefault()
+    findUserByName('#owner_lkup', '#task_owner_id')
+    findUserByName('#creator_lkup', '#task_creator_id')
+    findUserByName('#subject_lkup', '#task_subject_id')
+    findPropertyByName('#property_lkup', '#task_property_id')
+    $('form').submit()
+    true
 
 

@@ -57,6 +57,14 @@ $(document).on 'turbolinks:load', ->
     'click': ->
       findPropertyByName('#property_lkup', '#connection_park_id')
       findUserByName('#user_lkup', '#connection_user_id')
+      true
+
+  $('input[name="commit"]').on 'click', (e)->
+    e.preventDefault()
+    findPropertyByName('#property_lkup', '#connection_park_id')
+    findUserByName('#user_lkup', '#connection_user_id')
+    $('form').submit()
+    true
 
   $('#select_relationship').on 'change', 'select', ->
     checkRelationship()

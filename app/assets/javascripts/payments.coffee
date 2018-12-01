@@ -121,3 +121,10 @@ $(document).on 'turbolinks:load', ->
   $('.dropdown-content').on
     'click': ->
       findTaskByTitle('#task_lkup', '#payment_task_id')
+      true
+
+  $('input[name="commit"]').on 'click', (e)->
+    e.preventDefault()
+    findTaskByTitle('#task_lkup', '#payment_task_id')
+    $('form').submit()
+    true

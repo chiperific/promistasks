@@ -49,3 +49,11 @@ $(document).on 'turbolinks:load', ->
     'click': ->
       findParkByName($('#park_lkup', '#park_user_park_id'))
       findUserByName($('#user_lkup', '#park_user_user_id'))
+      true
+
+  $('input[name="commit"]').on 'click', (e)->
+    e.preventDefault()
+    findParkByName($('#park_lkup', '#park_user_park_id'))
+    findUserByName($('#user_lkup', '#park_user_user_id'))
+    $('form').submit()
+    true
