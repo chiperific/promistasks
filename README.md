@@ -2,9 +2,6 @@
 
 ## To do:
 4. Controllers:
-  - System tests needed for:
-    * add & remove a user's skills (users/#id/skills)
-
   - Get creator == current_user out of forms and into controllers where it can't be hacked
 
   - Do all submitable form checkboxes need <input type="hidden" name=""> precursors?

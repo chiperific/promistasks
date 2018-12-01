@@ -302,6 +302,7 @@ RSpec.describe Task, type: :model do
     it 'sets completed_at on all related task_user records' do
       @task.save
       @task.reload
+
       task_user_comps = @task.task_users.map(&:completed_at)
       expect(task_user_comps.include?(nil)).to eq true
 

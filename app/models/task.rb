@@ -38,7 +38,7 @@ class Task < ApplicationRecord
 
   before_validation :visibility_must_be_2, if: -> { property&.is_default? && visibility != 2 }
   before_save       :decide_record_completeness
-  after_save        :create_task_users,    if: -> { discarded_at.blank? && !created_from_api? && new_record? }
+  after_save        :create_task_users,    if: -> { discarded_at.blank? && created_locally? && id_before_last_save.nil? }
   after_update      :update_task_users,    if: :saved_changes_to_api_fields?
   after_update      :relocate,             if: -> { saved_change_to_property_id? }
   after_update      :change_task_users,    if: :saved_changes_to_users?
@@ -117,7 +117,6 @@ class Task < ApplicationRecord
   end
 
   def create_task_users
-    binding.pry
     [creator, owner].each do |user|
       ensure_task_user_exists_for(user)
     end
@@ -125,8 +124,10 @@ class Task < ApplicationRecord
 
   def ensure_task_user_exists_for(user)
     return false if user.oauth_id.nil?
+
     task_user = task_users.where(user: user).first_or_initialize
     return task_user unless task_user.new_record? || task_user.google_id.blank?
+
     tasklist = property.ensure_tasklist_exists_for(user)
     task_user.tasklist_gid = tasklist.google_id if tasklist.present?
 
@@ -150,6 +151,7 @@ class Task < ApplicationRecord
 
   def past_due?
     return false unless due.present? && completed_at.blank?
+
     due < Date.today
   end
 
@@ -223,6 +225,10 @@ class Task < ApplicationRecord
   end
 
   private
+
+  def created_locally?
+    created_from_api == false
+  end
 
   def decide_record_completeness
     strikes = 0
