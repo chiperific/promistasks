@@ -161,6 +161,8 @@ class TasksController < ApplicationController
   def create
     authorize @task = Task.new(parse_completed_at(task_params.reject { |k, v| (k.include?('budget') || k.include?('cost')) && v.blank? }))
 
+    @task.creator_id = current_user.id
+
     if @task.save
       redirect_to @return_path, notice: 'Task created'
     else

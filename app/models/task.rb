@@ -24,6 +24,7 @@ class Task < ApplicationRecord
   has_many :users, through: :task_users
   accepts_nested_attributes_for :task_users, allow_destroy: true
 
+  validates :title, presence: true, uniqueness: { scope: :property }
   validates_presence_of :creator_id, :owner_id, :property_id, :min_volunteers, :max_volunteers
   validates_inclusion_of  :needs_more_info, :created_from_api, :professional, :volunteer_group,
                           in: [true, false]
@@ -32,7 +33,6 @@ class Task < ApplicationRecord
 
   monetize :budget_cents, :cost_cents, allow_nil: true, allow_blank: true
 
-  validates :title, presence: true, uniqueness: { scope: :property }
   validate :due_must_be_after_created
   validate :require_cost, if: -> { budget.present? && cost.nil? && completed_at.present? }
 

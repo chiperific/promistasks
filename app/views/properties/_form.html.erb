@@ -1,6 +1,5 @@
 <%= form_for property, html: { autocomplete: "nope" } do |f| %>
   <%= render 'form_errors', object: property %>
-  <%= f.hidden_field :creator_id, value: property.creator_id || current_user.id %>
 
   <div class="input-field">
     <%= f.text_field :name %>

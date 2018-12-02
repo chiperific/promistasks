@@ -97,6 +97,7 @@ class PropertiesController < ApplicationController
 
   def create
     authorize @property = Property.new(property_params)
+    @property.creator_id = current_user.id
 
     if @property.save
       redirect_to @return_path, notice: 'Property created'

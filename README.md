@@ -2,10 +2,6 @@
 
 ## To do:
 4. Controllers:
-  - Get creator == current_user out of forms and into controllers where it can't be hacked
-
-  - Do all submitable form checkboxes need <input type="hidden" name=""> precursors?
-
   - Payment model indicates paid_to, related_to, and on_behalf_of:
     -- New payments from other models should link intellegently:
     `model_id: @model.id, (paid_to: 'model' || on_behalf_of: 'model')`

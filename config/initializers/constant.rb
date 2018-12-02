@@ -50,7 +50,7 @@ module Constant
     STATUS = %w[needsAction completed].freeze
     PRIORITY = %w[urgent high medium low someday].freeze
     PRIORITY_ENUM = [['urgent', 0], ['high', 1], ['medium', 2], ['low', 3], ['someday', 4]].freeze
-    VISIBILITY = ['Staff', 'Public', 'Only associated people', 'Not clients'].freeze
+    VISIBILITY = ['Staff', 'Everyone', 'Only associated people', 'Not clients'].freeze
     VISIBILITY_ENUM = [['Staff', 0], ['Everyone', 1], ['Only associated people', 2], ['Not clients', 3]].freeze
   end
 

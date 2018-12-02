@@ -100,20 +100,20 @@
       </div>
     </div>
 
-    <% if current_user&.admin? %>
-      <div class="col s12 m6 l3">
-        <div class="input-field">
+    <div class="col s12 m6 l3 valign-wrapper">
+      <div class="input-field">
+        <% if current_user&.admin? %>
           <%= text_field_tag 'creator_lkup', task.creator&.name || current_user.name, class: "autocomplete-owners", autocomplete: "off" %>
           <label for="creator_lkup">Creator</label>
           <% unless task.new_record? %>
             <i>Only change if user must be deleted.</i>
           <% end %>
           <%= f.hidden_field :creator_id %>
-        </div>
+        <% else %>
+          <p>Creator: <%= current_user.name %></p>
+        <% end %>
       </div>
-    <% else %>
-      <%= f.hidden_field :creator_id %>
-    <% end %>
+    </div>
   </div>
 
   <div class="section row">
