@@ -130,31 +130,34 @@ example_id                                              | status  | run_time    
 ./spec/models/payment_spec.rb[1:7:1]                    | passed  | 0.33094 seconds |
 ./spec/models/payment_spec.rb[1:7:2]                    | passed  | 0.33164 seconds |
 ./spec/models/payment_spec.rb[1:7:3]                    | passed  | 0.32496 seconds |
-./spec/models/payment_spec.rb[1:8:1]                    | passed  | 0.41348 seconds |
-./spec/models/payment_spec.rb[1:8:2]                    | passed  | 0.31512 seconds |
-./spec/models/payment_spec.rb[1:8:3]                    | passed  | 0.33397 seconds |
-./spec/models/payment_spec.rb[1:8:4]                    | passed  | 0.34045 seconds |
-./spec/models/payment_spec.rb[1:8:5]                    | passed  | 0.31806 seconds |
-./spec/models/payment_spec.rb[1:9:1:1]                  | passed  | 0.34817 seconds |
-./spec/models/payment_spec.rb[1:9:2:1]                  | passed  | 0.3289 seconds  |
-./spec/models/payment_spec.rb[1:9:3:1]                  | passed  | 0.29942 seconds |
-./spec/models/payment_spec.rb[1:9:4:1]                  | passed  | 0.32773 seconds |
+./spec/models/payment_spec.rb[1:8:1]                    | passed  | 1.13 seconds    |
+./spec/models/payment_spec.rb[1:8:2]                    | passed  | 1.02 seconds    |
+./spec/models/payment_spec.rb[1:8:3]                    | passed  | 0.74227 seconds |
+./spec/models/payment_spec.rb[1:9:1]                    | unknown |                 |
+./spec/models/payment_spec.rb[1:9:2]                    | unknown |                 |
+./spec/models/payment_spec.rb[1:9:3]                    | unknown |                 |
+./spec/models/payment_spec.rb[1:9:4]                    | unknown |                 |
+./spec/models/payment_spec.rb[1:9:5]                    | unknown |                 |
 ./spec/models/payment_spec.rb[1:10:1:1]                 | passed  | 0.32782 seconds |
 ./spec/models/payment_spec.rb[1:10:2:1]                 | passed  | 0.33067 seconds |
 ./spec/models/payment_spec.rb[1:10:3:1]                 | passed  | 0.33873 seconds |
 ./spec/models/payment_spec.rb[1:10:4:1]                 | passed  | 0.38634 seconds |
-./spec/models/payment_spec.rb[1:10:5:1]                 | passed  | 0.3384 seconds  |
-./spec/models/payment_spec.rb[1:10:5:2]                 | passed  | 0.36637 seconds |
 ./spec/models/payment_spec.rb[1:11:1:1]                 | passed  | 0.3303 seconds  |
 ./spec/models/payment_spec.rb[1:11:2:1]                 | passed  | 0.32411 seconds |
 ./spec/models/payment_spec.rb[1:11:3:1]                 | passed  | 0.31636 seconds |
 ./spec/models/payment_spec.rb[1:11:4:1]                 | passed  | 0.1967 seconds  |
 ./spec/models/payment_spec.rb[1:11:5:1]                 | passed  | 0.28562 seconds |
-./spec/models/payment_spec.rb[1:11:6:1]                 | passed  | 0.14439 seconds |
-./spec/models/payment_spec.rb[1:11:6:2]                 | passed  | 0.1508 seconds  |
+./spec/models/payment_spec.rb[1:11:5:2]                 | unknown |                 |
 ./spec/models/payment_spec.rb[1:12:1:1]                 | passed  | 0.65644 seconds |
 ./spec/models/payment_spec.rb[1:12:2:1]                 | passed  | 0.67354 seconds |
-./spec/models/payment_spec.rb[1:13:1]                   | passed  | 0.43493 seconds |
+./spec/models/payment_spec.rb[1:12:3:1]                 | unknown |                 |
+./spec/models/payment_spec.rb[1:12:4:1]                 | unknown |                 |
+./spec/models/payment_spec.rb[1:12:5:1]                 | unknown |                 |
+./spec/models/payment_spec.rb[1:12:6:1]                 | unknown |                 |
+./spec/models/payment_spec.rb[1:12:6:2]                 | unknown |                 |
+./spec/models/payment_spec.rb[1:13:1:1]                 | unknown |                 |
+./spec/models/payment_spec.rb[1:13:2:1]                 | unknown |                 |
+./spec/models/payment_spec.rb[1:14:1]                   | unknown |                 |
 ./spec/models/property_spec.rb[1:1:1:1]                 | passed  | 0.45108 seconds |
 ./spec/models/property_spec.rb[1:1:2:1]                 | passed  | 0.6059 seconds  |
 ./spec/models/property_spec.rb[1:2:1]                   | passed  | 0.34414 seconds |
@@ -457,37 +460,38 @@ example_id                                              | status  | run_time    
 ./spec/models/user_spec.rb[1:14:2]                      | passed  | 0.51201 seconds |
 ./spec/models/user_spec.rb[1:15:1]                      | passed  | 0.04292 seconds |
 ./spec/models/user_spec.rb[1:15:2]                      | passed  | 0.04938 seconds |
-./spec/models/user_spec.rb[1:16:1]                      | passed  | 0.41546 seconds |
-./spec/models/user_spec.rb[1:16:2]                      | passed  | 0.03328 seconds |
-./spec/models/user_spec.rb[1:16:3]                      | passed  | 0.40037 seconds |
-./spec/models/user_spec.rb[1:16:4]                      | passed  | 0.21354 seconds |
+./spec/models/user_spec.rb[1:16:1]                      | passed  | 0.6099 seconds  |
 ./spec/models/user_spec.rb[1:17:1]                      | passed  | 0.03453 seconds |
 ./spec/models/user_spec.rb[1:17:2]                      | passed  | 0.03335 seconds |
+./spec/models/user_spec.rb[1:17:3]                      | unknown |                 |
+./spec/models/user_spec.rb[1:17:4]                      | unknown |                 |
 ./spec/models/user_spec.rb[1:18:1]                      | passed  | 0.03273 seconds |
 ./spec/models/user_spec.rb[1:18:2]                      | passed  | 0.18423 seconds |
-./spec/models/user_spec.rb[1:18:3]                      | passed  | 0.18979 seconds |
 ./spec/models/user_spec.rb[1:19:1]                      | passed  | 0.03812 seconds |
+./spec/models/user_spec.rb[1:19:2]                      | unknown |                 |
+./spec/models/user_spec.rb[1:19:3]                      | unknown |                 |
 ./spec/models/user_spec.rb[1:20:1]                      | passed  | 0.03174 seconds |
-./spec/models/user_spec.rb[1:20:2]                      | passed  | 0.04373 seconds |
 ./spec/models/user_spec.rb[1:21:1]                      | passed  | 0.1881 seconds  |
 ./spec/models/user_spec.rb[1:21:2]                      | passed  | 0.17461 seconds |
 ./spec/models/user_spec.rb[1:22:1]                      | passed  | 0.20277 seconds |
+./spec/models/user_spec.rb[1:22:2]                      | unknown |                 |
 ./spec/models/user_spec.rb[1:23:1]                      | passed  | 0.03383 seconds |
-./spec/models/user_spec.rb[1:23:2]                      | passed  | 0.03357 seconds |
-./spec/models/user_spec.rb[1:23:3]                      | passed  | 0.03861 seconds |
-./spec/models/user_spec.rb[1:24:1:1]                    | passed  | 0.70625 seconds |
-./spec/models/user_spec.rb[1:24:2:1]                    | passed  | 0.73763 seconds |
-./spec/models/user_spec.rb[1:24:3:1]                    | passed  | 0.70671 seconds |
-./spec/models/user_spec.rb[1:24:3:2]                    | passed  | 0.91976 seconds |
-./spec/models/user_spec.rb[1:25:1]                      | passed  | 0.20067 seconds |
-./spec/models/user_spec.rb[1:25:2]                      | passed  | 0.03362 seconds |
+./spec/models/user_spec.rb[1:24:1]                      | unknown |                 |
+./spec/models/user_spec.rb[1:24:2]                      | unknown |                 |
+./spec/models/user_spec.rb[1:24:3]                      | unknown |                 |
+./spec/models/user_spec.rb[1:25:1:1]                    | unknown |                 |
+./spec/models/user_spec.rb[1:25:2:1]                    | unknown |                 |
+./spec/models/user_spec.rb[1:25:3:1]                    | unknown |                 |
+./spec/models/user_spec.rb[1:25:3:2]                    | unknown |                 |
 ./spec/models/user_spec.rb[1:26:1]                      | passed  | 0.83429 seconds |
 ./spec/models/user_spec.rb[1:26:2]                      | passed  | 0.71981 seconds |
-./spec/models/user_spec.rb[1:26:3]                      | passed  | 0.79994 seconds |
-./spec/models/user_spec.rb[1:27:1:1]                    | passed  | 0.70986 seconds |
-./spec/models/user_spec.rb[1:27:2:1]                    | passed  | 0.75014 seconds |
-./spec/models/user_spec.rb[1:27:3:1]                    | passed  | 0.72973 seconds |
-./spec/models/user_spec.rb[1:27:3:2]                    | passed  | 0.73835 seconds |
+./spec/models/user_spec.rb[1:27:1]                      | unknown |                 |
+./spec/models/user_spec.rb[1:27:2]                      | unknown |                 |
+./spec/models/user_spec.rb[1:27:3]                      | unknown |                 |
+./spec/models/user_spec.rb[1:28:1:1]                    | unknown |                 |
+./spec/models/user_spec.rb[1:28:2:1]                    | unknown |                 |
+./spec/models/user_spec.rb[1:28:3:1]                    | unknown |                 |
+./spec/models/user_spec.rb[1:28:3:2]                    | unknown |                 |
 ./spec/models/utility_spec.rb[1:1:1:1]                  | passed  | 0.14895 seconds |
 ./spec/models/utility_spec.rb[1:1:2:1]                  | passed  | 0.1588 seconds  |
 ./spec/models/utility_spec.rb[1:2:1]                    | passed  | 0.03592 seconds |

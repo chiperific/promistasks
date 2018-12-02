@@ -408,6 +408,23 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#payments' do
+    let(:client) { create :client_user }
+    let(:contractor) { create :contractor_user }
+    let(:pmt1) { create :payment_contractor, client: client, contractor: contractor }
+    let(:pmt2) { create :payment_client, client: client }
+
+    it 'combines client_payments and contractor_payments' do
+      pmt1
+      pmt2
+
+      expect(client.payments).to include pmt1
+      expect(client.payments).to include pmt2
+      expect(contractor.payments).to include pmt1
+      expect(contractor.payments).not_to include pmt2
+    end
+  end
+
   describe '#refresh_token!' do
     let(:token_expired) { create :oauth_user, oauth_expires_at: Time.now - 1.hour }
     let(:token_fresh)   { create :oauth_user, oauth_expires_at: Time.now + 6.hours }

@@ -35,6 +35,10 @@ class PaymentsController < ApplicationController
       @related_hsh['Paid from'] = view_context.link_to(@payment.from.name, @payment.from)
     end
 
+    if @payment.task.present?
+      @related_hsh['Task'] = view_context.link_to(@payment.task.name, @payment.task)
+    end
+
     @recurrence_hsh = {
       'Recurring': human_boolean(@payment.recurring?),
       'Recurrence': @payment.recurrence

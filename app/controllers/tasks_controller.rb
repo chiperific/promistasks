@@ -82,6 +82,8 @@ class TasksController < ApplicationController
       'Source': @task.created_from_api? ? 'Google Tasks' : 'PromiseTasks'
     }
 
+    @payments = @task.payments
+
     @secondary_info_hash['Archived on'] = human_date(@task.discarded_at) if @task.archived?
   end
 

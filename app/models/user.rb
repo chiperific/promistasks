@@ -165,6 +165,10 @@ class User < ActiveRecord::Base
     oauth_id.present?
   end
 
+  def payments
+    client_payments.active + contractor_payments.active
+  end
+
   def refresh_token!
     return false unless token_expired? && oauth_id.present? && oauth_token.present? && oauth_refresh_token.present?
 

@@ -62,6 +62,8 @@ class UsersController < ApplicationController
     @tasks_finder_count = Task.visible_to(@user).joins(:skills).where(skills: { id: @skills.pluck(:id) }).uniq.count
     @connections = @user.connections.except_tennants
     @occupancies = @user.connections.only_tennants
+
+    @payments = @user.payments
   end
 
   def tasks

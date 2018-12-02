@@ -206,6 +206,32 @@ RSpec.describe Payment, type: :model do
     end
   end
 
+  describe '#reason' do
+    let(:pmt_util) { build :payment }
+    let(:task) { create :task }
+    let(:pmt_task) { create :payment, utility_type: nil, task: task }
+    let(:pmt_util_task) { create :payment, task: task }
+    let(:pmt_unkn) { create :payment, utility_type: nil }
+
+    it 'returns utility_type if present' do
+      task
+
+      expect(pmt_util.reason).to eq pmt_util.utility_type
+      expect(pmt_util_task.reason).to eq pmt_util_task.utility_type
+    end
+
+    it 'returns task.title if present and utility_type is not present' do
+      task
+
+      expect(pmt_task.reason).to eq pmt_task.task.title
+      expect(pmt_util_task.reason).not_to eq pmt_util_task.task.title
+    end
+
+    it 'returns "Unknown" if utility_type and task are not present' do
+      expect(pmt_unkn.reason).to eq 'Unknown'
+    end
+  end
+
   describe '#status' do
     let(:paid_present) { build :payment, paid: Date.today }
     let(:due_future) { build :payment }

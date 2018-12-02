@@ -2,10 +2,6 @@
 
 ## To do:
 4. Controllers:
-  - Payment model indicates paid_to, related_to, and on_behalf_of:
-    -- New payments from other models should link intellegently:
-    `model_id: @model.id, (paid_to: 'model' || on_behalf_of: 'model')`
-
   - Property form needs Park field
   - Property#list and #index need quick-set for STAGE
     -- And Park#show's list of associated properties

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Payment < ApplicationRecord
-  include Discard::Model
+include Discard::Model
 
   belongs_to :property, inverse_of: :payments, optional: true
   belongs_to :park,     inverse_of: :payments, optional: true
@@ -89,6 +89,16 @@ class Payment < ApplicationRecord
     return false unless due.present?
 
     due.past?
+  end
+
+  def reason
+    if utility_type.present?
+      utility_type
+    elsif task.present?
+      task.title
+    else
+      'Unknown'
+    end
   end
 
   def status
