@@ -2,9 +2,7 @@
 
 ## To do:
 4. Controllers:
-  - Property form needs Park field
-  - Property#list and #index need quick-set for STAGE
-    -- And Park#show's list of associated properties
+  - Park#show's list needs quick-set for Property#Stage (see Property#list)
   - Property#show needs payments table (which handles utility accounts)
   - Park#show needs payments table
   - Utility#show needs payments table

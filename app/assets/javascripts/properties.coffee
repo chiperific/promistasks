@@ -27,3 +27,11 @@ $(document).on 'turbolinks:load', ->
   $('#tab_switch').on 'change', ->
     tabRowVisibility()
     true
+
+  # properties#list AJAX stage updates
+  $('.stage-select').on 'change', ->
+    id = $(this).attr('data-finder')
+    stage = $(this).val()
+    uri = '/properties/' + id + '/update_stage?stage=' + stage
+    $.ajax(url: uri).done (response) ->
+      M.toast({html: response})

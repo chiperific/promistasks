@@ -25,6 +25,7 @@ Rails.application.routes.draw do
     get 'tasks_filter', on: :member
     get 'reassign', on: :collection
     get 'reassign_to', on: :member
+    get 'update_stage', on: :member
   end
 
   resources :skills do

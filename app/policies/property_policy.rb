@@ -54,4 +54,8 @@ class PropertyPolicy < ApplicationPolicy
   def reassign_to?
     user&.staff? || user&.admin?
   end
+
+  def update_stage?
+    user&.staff? || user&.admin?
+  end
 end

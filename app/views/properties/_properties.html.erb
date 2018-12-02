@@ -7,7 +7,9 @@
     <% end %>
   </td>
   <td><%= properties.name %></td>
-  <td><%= properties.stage %></td>
+  <td class="input-field stage-div">
+    <%= select_tag 'stage_' + properties.id.to_s, options_for_select(Constant::Property::STAGES, properties.stage), { class: 'stage-select browser-default', 'data-finder': properties.id } %>
+  </td>
   <td><%= properties.occupancy_status %></td>
   <% if properties.budget_remaining.negative? %>
     <td class='red-text text-darken-3'>

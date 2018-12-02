@@ -27,7 +27,7 @@
     <% else %>
       <div class="card-content grey-text text-darken-4">
     <% end %>
-      <span class="card-title"><%= property.name %></span>
+      <span class="card-title"><%= property.name %> - <%= property.stage %></span>
       <p class="small-text">
         <%= property.tasks.visible_to(current_user).count %> tasks related to you.<br>
         <% unless property.is_default? %>

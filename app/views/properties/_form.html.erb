@@ -1,9 +1,15 @@
 <%= form_for property, html: { autocomplete: "nope" } do |f| %>
   <%= render 'form_errors', object: property %>
 
-  <div class="input-field">
-    <%= f.text_field :name %>
-    <label for="property_name">Name (leave blank to use address)</label>
+  <div class="row">
+    <div class="input-field col m8 s12">
+      <%= f.text_field :name %>
+      <label for="property_name">Name (leave blank to use address)</label>
+    </div>
+    <div class="input-field col m4 s12">
+      <%= f.select :stage, Constant::Property::STAGES, selected: property.stage %>
+      <label for="property_stage">Stage</label>
+    </div>
   </div>
 
   <div class="input-field">
@@ -85,24 +91,28 @@
     </div>
 
     <div class="input-field col m4 s12">
-      <i class="material-icons prefix">event</i>
-      <%= f.text_field :acquired_on, class: 'datepicker' %>
-      <label for="property_acquired_on">Date acquired</label>
+      <%= f.select :park_id, @parks, selected: property.park&.id, include_blank: true %>
+      <label for='property_park_id'>Park</label>
     </div>
   </div>
 
   <div class="row">
-    <div class="input-field col m4 s12">
+    <div class="input-field col m6 s12">
+      <i class="material-icons prefix">event</i>
+      <%= f.text_field :acquired_on, class: 'datepicker' %>
+      <label for="property_acquired_on">Date acquired</label>
+    </div>
+    <div class="input-field col m6 s12">
       <i class="material-icons prefix">attach_money</i>
       <%= f.number_field :cost, min: 0, step: 0.01 %>
       <label for="property_cost">Cost to acquire</label>
     </div>
-    <div class="input-field col m4 s12">
+    <div class="input-field col m6 s12">
       <i class="material-icons prefix">attach_money</i>
       <%= f.number_field :lot_rent, min: 0, step: 0.01 %>
       <label for="property_cost">Lot rent</label>
     </div>
-    <div class="input-field col m4 s12">
+    <div class="input-field col m6 s12">
       <i class="material-icons prefix">attach_money</i>
       <%= f.number_field :budget, min: 0, step: 0.01 %>
       <label for="property_cost">Repair Budget</label>

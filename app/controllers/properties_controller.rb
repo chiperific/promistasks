@@ -73,7 +73,8 @@ class PropertiesController < ApplicationController
 
     @primary_info_hash = {
       'Creator': @creator_name,
-      'Park': @park_name
+      'Park': @park_name,
+      'Stage': @property.stage
     }
 
     unless @property.is_default?
@@ -104,6 +105,8 @@ class PropertiesController < ApplicationController
     authorize @property = Property.new
 
     @property.park_id = params[:park] if params[:park].present?
+
+    @parks = Park.kept.order(:name).pluck(:name, :id)
   end
 
   def create
@@ -120,6 +123,8 @@ class PropertiesController < ApplicationController
 
   def edit
     authorize @property = Property.find(params[:id])
+
+    @parks = Park.kept.order(:name).pluck(:name, :id)
   end
 
   def update
@@ -218,6 +223,16 @@ class PropertiesController < ApplicationController
     end
 
     render json: { property_id: @property.id.to_s, property_name: @property.name, park_name: @park.name, status: status }
+  end
+
+  def update_stage
+    authorize @property = Property.find(params[:id])
+
+    if @property.update(stage: params[:stage])
+      render json: (@property.name + '\'s stage updated to ' + @property.stage).to_json
+    else
+      render json: @property.errors[:stage]
+    end
   end
 
   private
