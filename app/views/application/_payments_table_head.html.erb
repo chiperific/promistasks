@@ -3,7 +3,11 @@
   <th>Utility</th>
   <th>Bill</th>
   <th>Status</th>
-  <th>For</th>
+  <% if source == 'Property' %>
+    <th>To</th>
+  <% else %>
+    <th>For</th>
+  <% end %>
   <th>Recurring?</th>
   <th></th>
   <th></th>

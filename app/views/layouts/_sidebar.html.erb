@@ -54,13 +54,6 @@
     </li>
 
     <li>
-      <%= link_to payments_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_payments' do %>
-        <i class="material-icons">attach_money</i>
-        <span>Payments</span>
-      <% end %>
-    </li>
-
-    <li>
       <%= link_to properties_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_properties' do %>
         <i class="material-icons">home</i>
         <span>Properties</span>
@@ -68,9 +61,23 @@
     </li>
 
     <li>
+      <%= link_to connections_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_connections' do %>
+        <i class="material-icons">swap_horiz</i>
+        <span>Connections</span>
+      <% end %>
+    </li>
+
+    <li>
       <%= link_to parks_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_parks' do %>
         <i class="material-icons">store_mall_directory</i>
         <span>Parks</span>
+      <% end %>
+    </li>
+
+    <li>
+      <%= link_to payments_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_payments' do %>
+        <i class="material-icons">attach_money</i>
+        <span>Payments</span>
       <% end %>
     </li>
 
@@ -88,13 +95,6 @@
         <%= link_to users_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_users' do %>
           <i class="material-icons">people</i>
           <span>People</span>
-        <% end %>
-      </li>
-
-      <li>
-        <%= link_to connections_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_connections' do %>
-          <i class="material-icons">swap_horiz</i>
-          <span>Connections</span>
         <% end %>
       </li>
 

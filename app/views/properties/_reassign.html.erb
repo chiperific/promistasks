@@ -1,6 +1,6 @@
 <tr id="<%= reassign.id %>" class='park-row'>
   <td><%= reassign.name %></td>
-  <td class="park-name"><%= reassign.park.name %></td>
+  <td class="park-name"><%= reassign.park&.name %></td>
   <td class="input-field">
     <%= select_tag 'parks', options_from_collection_for_select(@parks, "id", "name"), include_blank: true %>
   </td>

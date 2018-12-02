@@ -1,32 +1,42 @@
+highlightField = (elem, value) ->
+  if value != "0" && value != "" && value != 0
+    $(elem).addClass('found_match')
+  else
+    $(elem).removeClass('found_match')
+
+findPropertyByName = (elem, targetString) ->
+  name = $(elem).prop('value').replace(' ','+')
+  target = '/properties/find_id_by_name/?name=' + name
+  $.ajax(url: target).done (response) ->
+    $(targetString).val(response)
+    highlightField(elem, response)
+
+findUserByName = (elem, targetString) ->
+  name = $(elem).prop('value').replace(' ','+')
+  target = '/users/find_id_by_name/?name=' + name
+  $.ajax(url: target).done (response) ->
+    $(targetString).val(response)
+    highlightField(elem, response)
+
+checkRelationship = ->
+  if $('#connection_relationship').val() == 'tennant'
+    $('.stage_field').show()
+  else
+    $('.stage_field').hide()
+
+# index page collapsible faker
+toggleTableDiv = (nameStr) ->
+  finder = '.table_div[name=' + nameStr + ']'
+  if $(finder).is(':hidden')
+    $('#collapse_all').attr('name', 'collapse')
+  else
+    $('#collapse_all').attr('name', 'expand')
+  $(finder).toggle(800)
+  true
+
 $(document).on 'turbolinks:load', ->
   return unless controllerMatches(['connections']) &&
     actionMatches(['create', 'edit', 'new', 'update', 'index'])
-
-  highlightField = (elem, value) ->
-    if value != "0" && value != "" && value != 0
-      $(elem).addClass('found_match')
-    else
-      $(elem).removeClass('found_match')
-
-  findPropertyByName = (elem, targetString) ->
-    name = $(elem).prop('value').replace(' ','+')
-    target = '/properties/find_id_by_name/?name=' + name
-    $.ajax(url: target).done (response) ->
-      $(targetString).val(response)
-      highlightField(elem, response)
-
-  findUserByName = (elem, targetString) ->
-    name = $(elem).prop('value').replace(' ','+')
-    target = '/users/find_id_by_name/?name=' + name
-    $.ajax(url: target).done (response) ->
-      $(targetString).val(response)
-      highlightField(elem, response)
-
-  checkRelationship = ->
-    if $('#connection_relationship').val() == 'tennant'
-      $('.stage_field').show()
-    else
-      $('.stage_field').hide()
 
   checkRelationship()
   highlightField('#property_lkup', $('#connection_property_id').val())
@@ -59,7 +69,7 @@ $(document).on 'turbolinks:load', ->
       findUserByName('#user_lkup', '#connection_user_id')
       true
 
-  $('input[name="commit"]').on 'click', (e)->
+  $('input[type="submit"]').on 'click', (e)->
     e.preventDefault()
     findPropertyByName('#property_lkup', '#connection_park_id')
     findUserByName('#user_lkup', '#connection_user_id')
@@ -68,16 +78,6 @@ $(document).on 'turbolinks:load', ->
 
   $('#select_relationship').on 'change', 'select', ->
     checkRelationship()
-
-  # index page collapsible faker
-  toggleTableDiv = (nameStr) ->
-    finder = '.table_div[name=' + nameStr + ']'
-    if $(finder).is(':hidden')
-      $('#collapse_all').attr('name', 'collapse')
-    else
-      $('#collapse_all').attr('name', 'expand')
-    $(finder).toggle(800)
-    true
 
   $('.table_div').hide()
 

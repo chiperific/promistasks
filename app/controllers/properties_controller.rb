@@ -63,8 +63,17 @@ class PropertiesController < ApplicationController
     @connections = @property.connections.except_tennants
     @occupancies = @property.connections.only_tennants
 
+    @creator_name = current_user.staff_or_admin? ? view_context.link_to(@property.creator.name, @property.creator) : @property.creator.name
+
+    if @property.park.present?
+      @park_name = current_user.staff_or_admin? ? view_context.link_to(@property.park.name, @property.park) : @property.park.name
+    else
+      @park_name = 'Not associated'
+    end
+
     @primary_info_hash = {
-      'Creator': @property.creator.name
+      'Creator': @creator_name,
+      'Park': @park_name
     }
 
     unless @property.is_default?
@@ -87,6 +96,8 @@ class PropertiesController < ApplicationController
 
     @tasks = @property.tasks.in_process.visible_to(current_user)
     @show_new = @tasks.created_since(current_user.last_sign_in_at).visible_to(current_user).count.positive?
+
+    @payments = @property.payments
   end
 
   def new

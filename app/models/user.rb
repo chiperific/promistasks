@@ -185,6 +185,10 @@ class User < ActiveRecord::Base
     type.join(', ')
   end
 
+  def staff_or_admin?
+    admin? || staff?
+  end
+
   def token_expired?
     return nil unless oauth_id.present? && oauth_expires_at.present?
 

@@ -78,10 +78,10 @@
   <% if @payments.any? %>
     <table class='striped responsive-table'>
       <thead>
-        <%= render partial: 'payments_table_head' %>
+        <%= render partial: 'payments_table_head', locals: { source: 'Utility' } %>
       </thead>
       <tbody>
-        <%= render partial: 'payments_table', collection: @payments %>
+        <%= render partial: 'payments_table', collection: @payments, locals: { source: 'Utility' } %>
       </tbody>
     </table>
   <% else %>

@@ -10,7 +10,11 @@
   <td><%= payments_table.bill_amt.format %></td>
   <td><%= payments_table.status %></td>
   <td>
-    <%= link_to payments_table.for.name, payments_table.for %>
+    <% if source == payments_table.for.class.name %>
+      <%= link_to payments_table.to.name, payments_table.to %>
+    <% else %>
+      <%= link_to payments_table.for.name, payments_table.for %>
+    <% end %>
   </td>
   <td><%= human_boolean(payments_table.recurring) %></td>
   <td class="slim">

@@ -7,17 +7,18 @@ module Constant
   end
 
   class Params
-    ACTIONS = %w[alerts api_sync
+    BAD_ACTIONS = %w[alerts api_sync
                  clear_completed_jobs complete create current_user_id
                  destroy default
                  edit
-                 find_id_by_name
+                 find_id_by_name find_id_by_title
                  google_oauth2
                  new
                  owner_enum
                  property_enum
                  skills subject_enum
                  tasks_filter
+                 task_enum
                  un_complete users update update_skills update_tasks update_users].freeze
   end
 

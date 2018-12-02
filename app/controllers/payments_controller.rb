@@ -91,8 +91,8 @@ class PaymentsController < ApplicationController
     @utilities   = Utility.kept.order(:name).pluck(:name, :id)
     @parks       = Park.kept.order(:name).pluck(:name, :id)
     @users       = User.kept.order(:name)
-    @contractors = @users.where(contractor: true).map { |u| [u.name, :id] }
-    @clients     = @users.where(client: true).map { |u| [u.name, :id] }
+    @contractors = @users.where(contractor: true).map { |u| [u.name, u.id] }
+    @clients     = @users.where(client: true).map { |u| [u.name, u.id] }
     @properties  = Property.kept.order(:name).pluck(:name, :id)
     @tasks       = Task.kept.pluck(:title, :id)
   end
@@ -110,8 +110,8 @@ class PaymentsController < ApplicationController
       @utilities   = Utility.kept.order(:name).pluck(:name, :id)
       @parks       = Park.kept.order(:name).pluck(:name, :id)
       @users       = User.kept.order(:name)
-      @contractors = @users.where(contractor: true).map { |u| [u.name, :id] }
-      @clients     = @users.where(client: true).map { |u| [u.name, :id] }
+      @contractors = @users.where(contractor: true).map { |u| [u.name, u.id] }
+      @clients     = @users.where(client: true).map { |u| [u.name, u.id] }
       @properties  = Property.kept.order(:name).pluck(:name, :id)
       @tasks       = Task.kept.pluck(:title, :id)
       render 'new'
@@ -131,8 +131,8 @@ class PaymentsController < ApplicationController
     @utilities   = Utility.kept.order(:name).pluck(:name, :id)
     @parks       = Park.kept.order(:name).pluck(:name, :id)
     @users       = User.kept.order(:name)
-    @contractors = @users.where(contractor: true).map { |u| [u.name, :id] }
-    @clients     = @users.where(client: true).map { |u| [u.name, :id] }
+    @contractors = @users.where(contractor: true).map { |u| [u.name, u.id] }
+    @clients     = @users.where(client: true).map { |u| [u.name, u.id] }
     @properties  = Property.kept.order(:name).pluck(:name, :id)
     @tasks       = Task.kept.pluck(:title, :id)
   end
@@ -152,8 +152,8 @@ class PaymentsController < ApplicationController
       @utilities   = Utility.kept.order(:name).pluck(:name, :id)
       @parks       = Park.kept.order(:name).pluck(:name, :id)
       @users       = User.kept.order(:name)
-      @contractors = @users.where(contractor: true).map { |u| [u.name, :id] }
-      @clients     = @users.where(client: true).map { |u| [u.name, :id] }
+      @contractors = @users.where(contractor: true).map { |u| [u.name, u.id] }
+      @clients     = @users.where(client: true).map { |u| [u.name, u.id] }
       @properties  = Property.kept.order(:name).pluck(:name, :id)
       @tasks       = Task.kept.pluck(:title, :id)
       render 'edit'

@@ -182,6 +182,37 @@
     </div>
   </div>
 
+  <div class="row section">
+    <div class="col s12">
+      <div class="row valign-wrapper">
+        <div class="col s12 m10">
+          <h4>Payments</h4>
+        </div>
+        <div class="col s12 m2">
+          <%= link_to new_payment_path(property: @property), class: 'btn waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false' do %>
+            <i class="material-icons">add</i>
+            <i class="material-icons">attach_money</i>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="row center-align">
+        <% if @payments.any? %>
+          <table class='striped responsive-table'>
+            <thead>
+              <%= render partial: 'payments_table_head', locals: { source: 'Property' } %>
+            </thead>
+            <tbody>
+              <%= render partial: 'payments_table', collection: @payments, locals: { source: 'Property' } %>
+            </tbody>
+          </table>
+        <% else %>
+          <p class="center">No payment history</p>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
   <div class="section">
     <div class="row">
       <div class="col s12">
