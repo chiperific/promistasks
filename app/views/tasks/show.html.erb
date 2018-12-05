@@ -36,6 +36,23 @@
   </div>
 <% end %>
 
+<% if @task.visibility == 1 %>
+  <div class="row section">
+    <div class="col s12">
+      <h5>Public Task!</h5>
+    </div>
+    <div class="col s12">
+      <table class="striped">
+        <tbody>
+          <% @vol_info_hash.each do |k,v| %>
+            <%= render partial: 'info_table', locals: { k: k, v: v } %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>
+
 <% if @task.notes.present? %>
   <div class="row section">
     <div class="col s12">

@@ -116,6 +116,62 @@
     </div>
   </div>
 
+  <div class="section">
+    <div class="row">
+      <div class="col s12">
+        <h5>Volunteer Info:</h5>
+      </div>
+    </div>
+    <div class="row center-align">
+      <input type="hidden" value="0" name="task[volunteer_group]">
+      <input type="hidden" value="0" name="task[professional]">
+      <div class="col s6 input-field">
+        <p>
+          <label>
+            <input type="checkbox" value="1" name="task[volunteer_group]" <%= 'checked' if task.volunteer_group? %>>
+            <span>Group opportunity</span>
+          </label>
+        </p>
+      </div>
+
+      <div class="col s6 input-field">
+        <p>
+          <label>
+            <input type="checkbox" value="1" name="task[professional]" <%= 'checked' if task.professional? %>>
+            <span>Professionals only</span>
+          </label>
+        </p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12 m4 input-field">
+        <%= f.number_field :min_volunteers, { min: 0, step: 1 } %>
+        <label for="task_min_volunteers">Min. volunteers</label>
+      </div>
+      <div class="col s12 m4 input-field">
+        <%= f.number_field :max_volunteers, { min: 0, step: 1 } %>
+        <label for="task_max_volunteers">Max volunteers</label>
+      </div>
+      <div class="col s12 m4 input-field">
+        <%= f.number_field :actual_volunteers, { min: 0, step: 1 } %>
+        <label for="task_actual_volunteers">Actual volunteers</label>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s12 m6 input-field">
+        <%= f.number_field :estimated_hours, { min: 0, step: 0.25 } %>
+        <label for="task_estimated_hours">Estimated hours</label>
+      </div>
+
+      <div class="col s12 m6 input-field">
+        <%= f.number_field :actual_hours, { min: 0, step: 0.25 } %>
+        <label for="task_actual_hours">Actual hours</label>
+      </div>
+    </div>
+  </div>
+
   <div class="section row">
     <div class="col s12">
       <h5>Money</h5>

@@ -84,6 +84,17 @@ class TasksController < ApplicationController
 
     @payments = @task.payments
 
+    if @task.visibility = 1
+      @vol_info_hash = {
+        'Group opportunity': human_boolean(@task.volunteer_group),
+        'Professionals only': human_boolean(@task.professional),
+        'Volunteers Needed': @task.min_volunteers.to_s + ' - ' + @task.max_volunteers.to_s,
+        'Estimated Hours': @task.estimated_hours,
+        'Actual Volunteers': @task.actual_volunteers,
+        'Actual Hours': @task.actual_hours
+      }
+    end
+
     @secondary_info_hash['Archived on'] = human_date(@task.discarded_at) if @task.archived?
   end
 
@@ -231,6 +242,8 @@ class TasksController < ApplicationController
   def task_params
     params.require(:task).permit(:title, :notes, :priority, :due, :visibility, :completed_at,
                                  :creator_id, :owner_id, :subject_id, :property_id,
+                                 :volunteer_group, :professional, :min_volunteers, :max_volunteers,
+                                 :actual_volunteers, :estimated_hours, :actual_hours,
                                  :budget, :cost)
   end
 

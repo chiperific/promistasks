@@ -2,8 +2,6 @@
 
 ## To do:
 4. Controllers:
-  - Task#show needs extra fields Schema:266-272
-  - Task#form needs extra fields Schema:266-272
   - Users#show needs payments table
   - Users#show #connections needs Parks table
   - Alerts needs payment reminders
