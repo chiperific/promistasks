@@ -2,11 +2,6 @@
 
 class Task < ApplicationRecord
   include Discard::Model
-  # new:
-  # Volunteer_group vs. professional: indicate on public views
-  # min && max volunteers
-  # actual volunteers
-  # estimated vs. actual hours
 
   belongs_to :creator,  class_name: 'User', inverse_of: :created_tasks
   belongs_to :owner,    class_name: 'User', inverse_of: :owned_tasks

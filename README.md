@@ -2,11 +2,7 @@
 
 ## To do:
 4. Controllers:
-  - Park#show's list needs quick-set for Property#Stage (see Property#list)
-  - Property#show needs payments table (which handles utility accounts)
-  - Park#show needs payments table
-  - Utility#show needs payments table
-  - Task#show needs payments table and extra fields Schema:266-272
+  - Task#show needs extra fields Schema:266-272
   - Task#form needs extra fields Schema:266-272
   - Users#show needs payments table
   - Users#show #connections needs Parks table
