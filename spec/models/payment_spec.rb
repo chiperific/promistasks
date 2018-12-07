@@ -79,6 +79,18 @@ RSpec.describe Payment, type: :model do
     end
   end
 
+  describe 'limits records by scope' do
+    pending '#due_in_future'
+    pending '#due_in_past'
+    pending '#paid'
+    pending '#not_paid'
+    pending '#due_within'
+    pending '#past_due'
+    pending '#related_by_property_to'
+    pending '#related_by_task_to'
+    pending '#related_to'
+  end
+
   describe 'requires booleans to be in a state:' do
     let(:nil_recurring)              { build :payment, recurring: nil }
     let(:nil_send_email_reminders)   { build :payment, send_email_reminders: nil }

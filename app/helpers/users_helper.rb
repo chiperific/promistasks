@@ -16,24 +16,42 @@ module UsersHelper
       request.env['REQUEST_URI'] != '/'
   end
 
-  def pulse_alert(tasks, properties)
-    tasks.past_due.count.positive? || properties.over_budget.length.positive?
+  def show_alert(tasks, properties, payments, user)
+    pulse_alert(tasks, properties, payments) ||
+      amber(tasks, properties, payments) ||
+      orange(tasks, properties, payments) ||
+      green(tasks, properties, payments, user)
   end
 
-  def show_alert(tasks, properties, user)
-    pulse_alert(tasks, properties) ||
-      properties.nearing_budget.length.positive? ||
-      tasks.due_within(7).count.positive? ||
-      tasks.needs_more_info.count.positive? ||
-      tasks.due_within(14).count.positive? ||
-      tasks.created_since(user.last_sign_in_at).count.positive?
-  end
-
-  def alert_color(tasks, properties)
+  def alert_color(tasks, properties, payments)
     color = 'green'
-    color = 'orange' if properties.nearing_budget.length.positive?
-    color = 'amber' if tasks.due_within(7).count.positive?
-    color = 'red' if pulse_alert(tasks, properties)
+    color = 'orange' if orange(tasks, properties, payments)
+    color = 'amber' if amber(tasks, properties, payments)
+    color = 'red' if pulse_alert(tasks, properties, payments)
     color
+  end
+
+  # color determinators:
+
+  def pulse_alert(tasks, properties, payments) # red
+    tasks.past_due.count.positive? ||
+      properties.over_budget.length.positive? ||
+      payments.past_due.length.positive?
+  end
+
+  def amber(tasks, properties, payments)
+    tasks.due_within(7).count.positive? ||
+      payments.due_within(7).count.positive?
+  end
+
+  def orange(tasks, properties, payments)
+    properties.nearing_budget.length.positive? ||
+      tasks.due_within(14).count.positive? ||
+      payments.due_within(14).count.positive?
+  end
+
+  def green(tasks, properties, payments, user)
+    tasks.created_since(user.last_sign_in_at).count.positive? ||
+      tasks.needs_more_info.count.positive?
   end
 end

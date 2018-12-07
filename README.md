@@ -2,11 +2,11 @@
 
 ## To do:
 4. Controllers:
-  - Users#show needs payments table
-  - Users#show #connections needs Parks table
-  - Alerts needs payment reminders
+  - Payment needs specs for scopes
   - System sends email when new non-oauth signs up
   - System sends email when payment is due
+
+  - Payments: do we need a tab-filtering-bar-thingy on #index?
 
   - Reports
     - Date range filtering

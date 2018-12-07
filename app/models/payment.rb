@@ -26,24 +26,33 @@ include Discard::Model
 
   validate :must_have_association
 
-  scope :active,          -> { undiscarded.where(paid: nil) }
-  scope :for_properties,  -> { undiscarded.where.not(property_id: nil) }
-  scope :for_parks,       -> { undiscarded.where.not(park_id: nil) }
-  scope :for_utilities,   -> { undiscarded.where.not(utility_id: nil) }
-  scope :for_tasks,       -> { undiscarded.where.not(task_id: nil) }
-  scope :for_contractors, -> { undiscarded.where.not(contractor_id: nil) }
-  scope :for_clients,     -> { undiscarded.where.not(client_id: nil) }
-  scope :paid,            -> { undiscarded.where.not(paid: nil) }
-  scope :past_due,        -> { undiscarded.where('due < ?', Date.today).where(paid: nil) }
-  scope :active,          -> { undiscarded.past_due.or(where('due > ?', Date.today)) }
-  scope :history,         -> { undiscarded.paid.or(where('due < ?', Date.today).where.not(paid: nil)) }
-
-  after_save :create_next_instance, if: -> { recurrence.present? && recurring && paid.present? && paid_before_last_save.blank? }
-
   class << self
     alias archived discarded
     alias active kept
   end
+
+  # scope :for_properties,  -> { active.where.not(property_id: nil) }
+  # scope :for_parks,       -> { active.where.not(park_id: nil) }
+  # scope :for_utilities,   -> { active.where.not(utility_id: nil) }
+  # scope :for_tasks,       -> { active.where.not(task_id: nil) }
+  # scope :for_contractors, -> { active.where.not(contractor_id: nil) }
+  # scope :for_clients,     -> { active.where.not(client_id: nil) }
+
+  # scope :created_since, ->(time) { active.where("#{table_name}.created_at >= ?", time) }
+
+  scope :due_in_future, -> { active.where('due >= ?', Date.today) }
+  scope :due_in_past,   -> { active.where('due < ?', Date.today) }
+
+  scope :paid,       -> { active.where.not(paid: nil) }
+  scope :not_paid,   -> { active.where(paid: nil) }
+  scope :due_within, ->(day_num) { not_paid.where(due: Date.today..(Date.today + day_num.days)) }
+  scope :past_due,   -> { not_paid.due_in_past }
+
+  scope :related_by_property_to, ->(user) { active.where(property_id: Property.select(:id).related_to(user)) }
+  scope :related_by_task_to,     ->(user) { active.where(task_id: Task.select(:id).related_to(user)) }
+  scope :related_to,             ->(user) { active.related_by_property_to(user).or(related_by_task_to(user)) }
+
+  after_save :create_next_instance, if: -> { recurrence.present? && recurring && paid.present? && paid_before_last_save.blank? }
 
   def for
     return nil unless on_behalf_of.present? && Constant::Payment::ON_BEHALF_OF.include?(on_behalf_of)

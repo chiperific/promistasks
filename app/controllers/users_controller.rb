@@ -227,38 +227,55 @@ class UsersController < ApplicationController
     authorize user = User.find(params[:id])
     tasks = Task.in_process.related_to(user)
     properties = Property.related_to(user)
+    payments = Payment.related_to(user)
 
     @notification_json = {
-      show_alert: show_alert(tasks, properties, user),
-      pulse_alert: pulse_alert(tasks, properties),
-      alert_color: alert_color(tasks, properties),
-      tasks_past_due: {
-        count: tasks.past_due.count,
-        msg: tasks.past_due.count.to_s + ' past due task'.pluralize(tasks.past_due.count)
+      setup: {
+        show_alert: show_alert(tasks, properties, payments, user),
+        pulse_alert: pulse_alert(tasks, properties, payments),
+        alert_color: alert_color(tasks, properties, payments)
       },
-      properties_over_budget: {
-        count: properties.over_budget.length,
-        msg: properties.over_budget.length.to_s + ' property'.pluralize(properties.over_budget.length) + ' over budget'
-      },
-      properties_nearing_budget: {
-        count: properties.nearing_budget.length,
-        msg: properties.nearing_budget.length.to_s + ' property'.pluralize(properties.nearing_budget.length) + ' nearing budget'
-      },
-      tasks_due_7: {
-        count: tasks.due_within(7).count,
-        msg: tasks.due_within(7).count.to_s + ' task'.pluralize(tasks.due_within(7).count) + ' due in next 7 days'
-      },
-      tasks_missing_info: {
-        count: tasks.needs_more_info.count,
-        msg: tasks.needs_more_info.count.to_s + ' task'.pluralize(tasks.needs_more_info.count) + ' missing info'
-      },
-      tasks_due_14: {
-        count: tasks.due_within(14).count,
-        msg: tasks.due_within(14).count.to_s + ' task'.pluralize(tasks.due_within(14).count) + ' due in next 14 days'
-      },
-      tasks_new: {
-        count: tasks.created_since(user.last_sign_in_at).count,
-        msg: tasks.created_since(user.last_sign_in_at).count.to_s + ' newly created task'.pluralize(tasks.created_since(user.last_sign_in_at).count)
+      alerts: {
+        payments_past_due: {
+          count: payments.past_due.count,
+          msg: payments.past_due.count.to_s + ' past due payment'.pluralize(payments.past_due.count)
+        },
+        payments_due_7: {
+          count: payments.due_within(7).count,
+          msg: payments.due_within(7).count.to_s + ' payment'.pluralize(payments.due_within(7).count) + ' due in next 7 days'
+        },
+        payments_due_14: {
+          count: payments.due_within(14).count,
+          msg: payments.due_within(14).count.to_s + ' payment'.pluralize(payments.due_within(14).count) + ' due in next 14 days'
+        },
+        properties_over_budget: {
+          count: properties.over_budget.length,
+          msg: properties.over_budget.length.to_s + ' property'.pluralize(properties.over_budget.length) + ' over budget'
+        },
+        properties_nearing_budget: {
+          count: properties.nearing_budget.length,
+          msg: properties.nearing_budget.length.to_s + ' property'.pluralize(properties.nearing_budget.length) + ' nearing budget'
+        },
+        tasks_past_due: {
+          count: tasks.past_due.count,
+          msg: tasks.past_due.count.to_s + ' past due task'.pluralize(tasks.past_due.count)
+        },
+        tasks_due_7: {
+          count: tasks.due_within(7).count,
+          msg: tasks.due_within(7).count.to_s + ' task'.pluralize(tasks.due_within(7).count) + ' due in next 7 days'
+        },
+        tasks_due_14: {
+          count: tasks.due_within(14).count,
+          msg: tasks.due_within(14).count.to_s + ' task'.pluralize(tasks.due_within(14).count) + ' due in next 14 days'
+        },
+        tasks_missing_info: {
+          count: tasks.needs_more_info.count,
+          msg: tasks.needs_more_info.count.to_s + ' task'.pluralize(tasks.needs_more_info.count) + ' missing info'
+        },
+        tasks_new: {
+          count: tasks.created_since(user.last_sign_in_at).count,
+          msg: tasks.created_since(user.last_sign_in_at).count.to_s + ' newly created task'.pluralize(tasks.created_since(user.last_sign_in_at).count)
+        }
       }
     }
 
