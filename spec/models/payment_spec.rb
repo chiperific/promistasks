@@ -80,15 +80,136 @@ RSpec.describe Payment, type: :model do
   end
 
   describe 'limits records by scope' do
-    pending '#due_in_future'
-    pending '#due_in_past'
-    pending '#paid'
-    pending '#not_paid'
-    pending '#due_within'
-    pending '#past_due'
-    pending '#related_by_property_to'
-    pending '#related_by_task_to'
-    pending '#related_to'
+    let(:future_15) { create :payment } # due: Date.today + 15.days
+    let(:future_9)  { create :payment, due: Date.today + 9.days }
+    let(:future_4)  { create :payment, due: Date.today + 4.days }
+    let(:today)     { create :payment, due: Date.today }
+    let(:past)      { create :payment, due: Date.today - 1.day }
+    let(:paid)      { create :payment, due: Date.today + 1.day, paid: Date.today }
+    let(:past_paid) { create :payment, due: Date.today - 4.days, paid: Date.today - 4.days }
+    let(:inactive)  { create :payment, discarded_at: Date.today }
+
+    context '#due_in_future' do
+      it 'returns payments where due >= Date.today' do
+        expect(Payment.due_in_future).to include future_15
+        expect(Payment.due_in_future).to include future_9
+        expect(Payment.due_in_future).to include future_4
+        expect(Payment.due_in_future).to include today
+        expect(Payment.due_in_future).to include paid
+        expect(Payment.due_in_future).not_to include past
+        expect(Payment.due_in_future).not_to include past_paid
+        expect(Payment.due_in_future).not_to include inactive
+      end
+    end
+
+    context '#due_in_past' do
+      it 'returns active payments where due < Date.today' do
+        expect(Payment.due_in_past).not_to include future_15
+        expect(Payment.due_in_past).not_to include future_9
+        expect(Payment.due_in_past).not_to include future_4
+        expect(Payment.due_in_past).not_to include today
+        expect(Payment.due_in_past).not_to include paid
+        expect(Payment.due_in_past).to include past
+        expect(Payment.due_in_past).to include past_paid
+        expect(Payment.due_in_past).not_to include inactive
+      end
+    end
+
+    context '#paid' do
+      it 'returns active payments where paid != nil' do
+        expect(Payment.paid).not_to include future_15
+        expect(Payment.paid).not_to include future_9
+        expect(Payment.paid).not_to include future_4
+        expect(Payment.paid).not_to include today
+        expect(Payment.paid).to include paid
+        expect(Payment.paid).to include past_paid
+        expect(Payment.paid).not_to include inactive
+      end
+    end
+
+    context '#not_paid' do
+      it 'returns active payments where paid == nil' do
+        expect(Payment.not_paid).to include future_15
+        expect(Payment.not_paid).to include future_9
+        expect(Payment.not_paid).to include future_4
+        expect(Payment.not_paid).to include today
+        expect(Payment.not_paid).to include past
+        expect(Payment.not_paid).not_to include paid
+        expect(Payment.not_paid).not_to include past_paid
+        expect(Payment.not_paid).not_to include inactive
+      end
+    end
+
+    context '#due_within' do
+      it 'returns active payments where paid == nil and the due date is within X days' do
+        expect(Payment.due_within(7)).not_to include future_15
+        expect(Payment.due_within(17)).to include future_15
+        expect(Payment.due_within(7)).not_to include future_9
+        expect(Payment.due_within(17)).to include future_9
+        expect(Payment.due_within(3)).not_to include future_4
+        expect(Payment.due_within(7)).to include future_4
+        expect(Payment.due_within(7)).to include today
+        expect(Payment.due_within(17)).to include today
+        expect(Payment.due_within(7)).not_to include paid
+        expect(Payment.due_within(17)).not_to include paid
+        expect(Payment.due_within(20)).not_to include inactive
+      end
+    end
+
+    context '#past_due' do
+      it 'returns active payments where paid == nil && due < Date.today' do
+        expect(Payment.past_due).not_to include future_15
+        expect(Payment.past_due).not_to include future_9
+        expect(Payment.past_due).not_to include future_4
+        expect(Payment.past_due).not_to include today
+        expect(Payment.past_due).to include past
+        expect(Payment.past_due).not_to include past_paid
+        expect(Payment.past_due).not_to include inactive
+      end
+    end
+
+    describe 'relation scopes' do
+      let(:user)       { create :user }
+      let(:prop1)      { create :property, creator: user }
+      let(:task1)      { create :task, owner: user }
+      let(:paym_task1) { create :payment, task: task1 }
+      let(:prop2)      { create :property }
+      let(:task2)      { create :task, property: prop2, owner: user }
+      let(:paym_prop1) { create :payment, property: prop1 }
+      let(:paym_prop2) { create :payment, property: prop2 }
+
+      context '#related_by_property_to' do
+        it 'returns active payments with an associated property that is related to a given User' do
+          prop2
+          task2
+          paym_prop2
+
+          expect(Payment.related_by_property_to(user)).to include paym_prop1
+          expect(Payment.related_by_property_to(user)).to include paym_prop2
+        end
+      end
+
+      context '#related_by_task_to' do
+        it 'returns active payments with an associated task that is related to a given User' do
+          task1
+
+          expect(Payment.related_by_task_to(user)).to include paym_task1
+        end
+      end
+
+      context '#related_to' do
+        it 'returns active payments with an associated property or task that are related to a given User' do
+          task1
+          task2
+          prop2
+          paym_prop2
+
+          expect(Payment.related_to(user)).to include paym_prop1
+          expect(Payment.related_to(user)).to include paym_prop2
+          expect(Payment.related_to(user)).to include paym_task1
+        end
+      end
+    end
   end
 
   describe 'requires booleans to be in a state:' do

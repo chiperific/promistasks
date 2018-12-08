@@ -42,7 +42,7 @@ class Task < ApplicationRecord
   default_scope { order(:due, :priority, :title) }
 
   scope :complete,        -> { undiscarded.where.not(completed_at: nil) }
-  scope :created_since,   ->(time) { where("#{table_name}.created_at >= ?", time) }
+  scope :created_since,   ->(time) { in_process.where("#{table_name}.created_at >= ?", time) }
   scope :due_within,      ->(day_num) { in_process.where(due: Date.today..(Date.today + day_num.days)) }
   scope :except_primary,  -> { joins(:property).where('properties.is_default = FALSE') }
   scope :has_cost,        -> { undiscarded.where.not(cost_cents: nil) }

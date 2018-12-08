@@ -43,14 +43,15 @@ include Discard::Model
   scope :due_in_future, -> { active.where('due >= ?', Date.today) }
   scope :due_in_past,   -> { active.where('due < ?', Date.today) }
 
-  scope :paid,       -> { active.where.not(paid: nil) }
-  scope :not_paid,   -> { active.where(paid: nil) }
-  scope :due_within, ->(day_num) { not_paid.where(due: Date.today..(Date.today + day_num.days)) }
-  scope :past_due,   -> { not_paid.due_in_past }
+  scope :paid,          -> { active.where.not(paid: nil) }
+  scope :not_paid,      -> { active.where(paid: nil) }
+  scope :due_within,    ->(day_num) { not_paid.where(due: Date.today..(Date.today + day_num.days)) }
+  scope :past_due,      -> { not_paid.due_in_past }
 
   scope :related_by_property_to, ->(user) { active.where(property_id: Property.select(:id).related_to(user)) }
   scope :related_by_task_to,     ->(user) { active.where(task_id: Task.select(:id).related_to(user)) }
   scope :related_to,             ->(user) { active.related_by_property_to(user).or(related_by_task_to(user)) }
+
 
   after_save :create_next_instance, if: -> { recurrence.present? && recurring && paid.present? && paid_before_last_save.blank? }
 

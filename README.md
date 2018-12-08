@@ -2,11 +2,25 @@
 
 ## To do:
 4. Controllers:
-  - Payment needs specs for scopes
+  - test should be green:
+  create_new_property_spec.rb:110
+  users_helper_spec.rb:27
+  users_helper_spec.rb:34
+  users_helper_spec.rb:41
+  users_helper_spec.rb:124
+  users_helper_spec.rb:117
+  users_helper_spec.rb:110
+  users_helper_spec.rb:103
+  users_helper_spec.rb:93
+  users_helper_spec.rb:75
+  users_helper_spec.rb:50
+  users_helper_spec.rb:58
+  users_helper_spec.rb:67
+  users_helper_spec.rb:85
+
+
   - System sends email when new non-oauth signs up
   - System sends email when payment is due
-
-  - Payments: do we need a tab-filtering-bar-thingy on #index?
 
   - Reports
     - Date range filtering
