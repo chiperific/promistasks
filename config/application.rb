@@ -31,7 +31,12 @@ module Promisetasks
 
     config.active_job.queue_adapter = :delayed_job
     config.action_mailer.preview_path = "#{Rails.root}/spec/mailers/previews"
-    config.action_mailer.default_url_options = { host: 'tasks.familypromisegr.org' }
+
+    if Rails.env.production?
+      config.action_mailer.default_url_options = { host: 'tasks.familypromisegr.org' }
+    else
+      config.action_mailer.default_url_options = { host: 'localhost:3000' }
+    end
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers

@@ -1,26 +1,11 @@
 # Task and Resource Manager with Google Tasks API Extension for Family Promise GR
 
 ## To do:
-4. Controllers:
-  - test should be green:
-  users_helper_spec.rb:27
-  users_helper_spec.rb:34
-  users_helper_spec.rb:41
-  users_helper_spec.rb:124
-  users_helper_spec.rb:117
-  users_helper_spec.rb:110
-  users_helper_spec.rb:103
-  users_helper_spec.rb:93
-  users_helper_spec.rb:75
-  users_helper_spec.rb:50
-  users_helper_spec.rb:58
-  users_helper_spec.rb:67
-  users_helper_spec.rb:85
-
-
+3. Mailers
   - System sends email when new non-oauth signs up
   - System sends email when payment is due
 
+4. Controllers:
   - Reports
     - Date range filtering
   - Archiving property in app (when no open tasks) removes from GT.

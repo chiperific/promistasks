@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
 class ApplicationMailer < ActionMailer::Base
-  default from: 'familypromise@familypromisegr.org'
+  default from: 'promise_tasks@familypromisegr.org'
   layout 'mailer'
 end
