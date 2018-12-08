@@ -105,7 +105,6 @@ class PropertiesController < ApplicationController
     authorize @property = Property.new
 
     @property.park_id = params[:park] if params[:park].present?
-
     @parks = Park.kept.order(:name).pluck(:name, :id)
   end
 
@@ -117,6 +116,8 @@ class PropertiesController < ApplicationController
       redirect_to @return_path, notice: 'Property created'
     else
       flash[:warning] = 'Oops, found some errors'
+      @property.park_id = params[:park] if params[:park].present?
+      @parks = Park.kept.order(:name).pluck(:name, :id)
       render 'new'
     end
   end
@@ -124,6 +125,7 @@ class PropertiesController < ApplicationController
   def edit
     authorize @property = Property.find(params[:id])
 
+    @property.park_id = params[:park] if params[:park].present?
     @parks = Park.kept.order(:name).pluck(:name, :id)
   end
 
@@ -136,6 +138,8 @@ class PropertiesController < ApplicationController
       redirect_to @return_path, notice: 'Property updated'
     else
       flash[:warning] = 'Oops, found some errors'
+      @property.park_id = params[:park] if params[:park].present?
+      @parks = Park.kept.order(:name).pluck(:name, :id)
       render 'edit'
     end
   end

@@ -16,21 +16,6 @@ module UsersHelper
       request.env['REQUEST_URI'] != '/'
   end
 
-  def show_alert(tasks, properties, payments, user)
-    pulse_alert(tasks, properties, payments) ||
-      amber(tasks, properties, payments) ||
-      orange(tasks, properties, payments) ||
-      green(tasks, properties, payments, user)
-  end
-
-  def alert_color(tasks, properties, payments)
-    color = 'green'
-    color = 'orange' if orange(tasks, properties, payments)
-    color = 'amber' if amber(tasks, properties, payments)
-    color = 'red' if pulse_alert(tasks, properties, payments)
-    color
-  end
-
   # color determinators:
 
   def pulse_alert(tasks, properties, payments) # red
@@ -54,4 +39,21 @@ module UsersHelper
     tasks.created_since(user.last_sign_in_at).count.positive? ||
       tasks.needs_more_info.count.positive?
   end
+
+  def show_alert(tasks, properties, payments, user)
+    pulse_alert(tasks, properties, payments) ||
+      amber(tasks, properties, payments) ||
+      orange(tasks, properties, payments) ||
+      green(tasks, properties, payments, user)
+  end
+
+  def alert_color(tasks, properties, payments)
+    color = 'green'
+    color = 'orange' if orange(tasks, properties, payments)
+    color = 'amber' if amber(tasks, properties, payments)
+    color = 'red' if pulse_alert(tasks, properties, payments)
+    color
+  end
+
+
 end

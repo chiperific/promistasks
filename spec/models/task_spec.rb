@@ -125,7 +125,7 @@ RSpec.describe Task, type: :model do
 
       expect(Task.created_since(time)).not_to include old
       expect(Task.created_since(time)).to include @task
-      expect(Task.created_since(time)).to include @completed_task
+      expect(Task.created_since(time)).not_to include @completed_task
     end
 
     it '#due_within(day_num)' do

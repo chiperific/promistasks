@@ -3,7 +3,6 @@
 ## To do:
 4. Controllers:
   - test should be green:
-  create_new_property_spec.rb:110
   users_helper_spec.rb:27
   users_helper_spec.rb:34
   users_helper_spec.rb:41
