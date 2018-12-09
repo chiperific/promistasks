@@ -9,6 +9,7 @@ git_source(:github) do |repo_name|
 end
 
 gem 'coffee-rails', '~> 4.2'
+gem 'delayed_cron_job'
 gem 'delayed_job_active_record'
 gem 'delayed_job_progress'
 gem 'devise'

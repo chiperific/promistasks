@@ -99,6 +99,8 @@ GEM
     crass (1.0.4)
     database_cleaner (1.7.0)
     debug_inspector (0.0.3)
+    delayed_cron_job (0.7.2)
+      delayed_job (>= 4.1)
     delayed_job (4.1.5)
       activesupport (>= 3.0, < 5.3)
     delayed_job_active_record (4.1.3)
@@ -372,6 +374,7 @@ DEPENDENCIES
   capybara-slow_finder_errors
   coffee-rails (~> 4.2)
   database_cleaner
+  delayed_cron_job
   delayed_job_active_record
   delayed_job_progress
   devise
@@ -413,7 +416,7 @@ DEPENDENCIES
   webmock!
 
 RUBY VERSION
-   ruby 2.4.4p296
+   ruby 2.4.5p335
 
 BUNDLED WITH
-   1.16.1
+   1.16.6

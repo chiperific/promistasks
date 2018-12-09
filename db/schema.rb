@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_08_11_185130) do
+ActiveRecord::Schema.define(version: 2018_12_09_200254) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -50,6 +50,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.string "message"
     t.string "error_message"
     t.datetime "completed_at"
+    t.string "cron"
     t.index ["completed_at"], name: "index_delayed_jobs_on_completed_at"
     t.index ["handler_class"], name: "index_delayed_jobs_on_handler_class"
     t.index ["identifier"], name: "index_delayed_jobs_on_identifier"

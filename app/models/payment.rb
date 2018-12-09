@@ -26,6 +26,8 @@ include Discard::Model
 
   validate :must_have_association
 
+  default_scope { order(:due) }
+
   class << self
     alias archived discarded
     alias active kept
@@ -119,7 +121,7 @@ include Discard::Model
     elsif past_due?
       'PAST DUE as of ' + due.strftime('%b %-d, %Y')
     elsif received.present?
-      'Received on' + received.strftime('%b %-d, %Y')
+      'Received on ' + received.strftime('%b %-d, %Y')
     else
       'No dates set'
     end
