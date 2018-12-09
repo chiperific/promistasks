@@ -3,6 +3,7 @@
 ## To do:
 3. Mailers
   - System sends email when payment is due
+  -- Needs spec tests, needs to be user tested with Foreman
 
 4. Controllers:
   - Reports
