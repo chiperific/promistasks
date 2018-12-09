@@ -2,7 +2,6 @@
 
 ## To do:
 3. Mailers
-  - System sends email when new non-oauth signs up
   - System sends email when payment is due
 
 4. Controllers:
