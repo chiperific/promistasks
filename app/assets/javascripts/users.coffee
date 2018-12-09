@@ -1,12 +1,21 @@
-# Place all the behaviors and hooks related to the matching controller here.
-# All this logic will automatically be available in application.js.
-# You can use CoffeeScript in this file: http://coffeescript.org/
-
 $(document).on 'turbolinks:load', ->
-  $('#contractor_check').change ->
-    if $(this).children('input')[0].checked
-      $('#rate_div').removeClass('scale-out')
+  return unless controllerMatches(['users'])
+
+  checkForContractor = () ->
+    value = $('li.selected span').html()
+    if value == 'Contractor'
       $('#rate_div').addClass('scale-in')
+      $('#rate_div').removeClass('scale-out')
     else
       $('#rate_div').removeClass('scale-in')
       $('#rate_div').addClass('scale-out')
+
+
+  $('#user_register_as').on
+    'change': -> checkForContractor()
+    'click' : -> checkForContractor()
+    true
+
+  $('.dropdown-content').on
+    'click': -> checkForContractor()
+    true

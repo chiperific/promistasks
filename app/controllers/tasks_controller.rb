@@ -4,7 +4,8 @@ class TasksController < ApplicationController
   include TasksHelper
 
   def index
-    authorize tasks = Task.except_primary.visible_to(current_user)
+    authorize Task
+    tasks = Task.except_primary.visible_to(current_user)
 
     @show_new = tasks.created_since(current_user.last_sign_in_at).count.positive?
 
@@ -44,6 +45,22 @@ class TasksController < ApplicationController
     end
   end
 
+  def public_index
+    authorize @tasks = Task.in_process.public_visible
+    @organization = Organization.first
+
+    if @organization.volunteer_contact.present?
+      contact = @organization.volunteer_contact
+      @org_contact_name = contact.fname
+      @org_contact_email = contact.email
+      @org_contact_phone = contact.phone
+    else
+      @org_contact_name = 'We'
+      @org_contact_email = @organization.default_email
+      @org_contact_phone = @organization.default_phone
+    end
+  end
+
   def show
     authorize @task = Task.find(params[:id])
 
@@ -65,14 +82,47 @@ class TasksController < ApplicationController
       'Source': @task.created_from_api? ? 'Google Tasks' : 'PromiseTasks'
     }
 
+    @payments = @task.payments
+
+    if @task.visibility = 1
+      @vol_info_hash = {
+        'Group opportunity': human_boolean(@task.volunteer_group),
+        'Professionals only': human_boolean(@task.professional),
+        'Volunteers Needed': @task.min_volunteers.to_s + ' - ' + @task.max_volunteers.to_s,
+        'Estimated Hours': @task.estimated_hours,
+        'Actual Volunteers': @task.actual_volunteers,
+        'Actual Hours': @task.actual_hours
+      }
+    end
+
     @secondary_info_hash['Archived on'] = human_date(@task.discarded_at) if @task.archived?
   end
 
   def public
     authorize @task = Task.find(params[:id])
 
-    @contact_phone = Constant::Organization::CONTACT_PHONE
-    @contact_phone = @task.owner.phone1 if @task.owner.staff? && !@task.owner.phone1.blank?
+    @organization = Organization.first
+
+    if @organization.maintenance_contact.present?
+      @task_contact = @organization.maintenance_contact.fname
+      @task_email = @organization.maintenance_contact.email
+      @task_phone = @organization.maintenance_contact.phone
+    else
+      @task_contact = @organization.name
+      @task_email = @organization.default_email
+      @task_phone = @organization.default_phone
+    end
+
+    if @organization.volunteer_contact.present?
+      contact = @organization.volunteer_contact
+      @org_contact_name = contact.fname
+      @org_contact_email = contact.email
+      @org_contact_phone = contact.phone
+    else
+      @org_contact_name = 'We'
+      @org_contact_email = @organization.default_email
+      @org_contact_phone = @organization.default_phone
+    end
   end
 
   def users_finder
@@ -124,6 +174,8 @@ class TasksController < ApplicationController
   def create
     authorize @task = Task.new(parse_completed_at(task_params.reject { |k, v| (k.include?('budget') || k.include?('cost')) && v.blank? }))
 
+    @task.creator_id = current_user.id
+
     if @task.save
       redirect_to @return_path, notice: 'Task created'
     else
@@ -151,10 +203,6 @@ class TasksController < ApplicationController
     end
   end
 
-  def public_index
-    authorize @tasks = Task.in_process.public_visible
-  end
-
   def complete
     authorize @task = Task.find(params[:id])
     @task.update(completed_at: Time.now)
@@ -169,11 +217,33 @@ class TasksController < ApplicationController
     render json: { id: @task.id.to_s, status: status }
   end
 
+  def task_enum
+    authorize tasks = Task.kept.select(:title)
+
+    hsh = {}
+    tasks.each do |task|
+      hsh[task.title] = nil
+    end
+
+    render json: hsh
+  end
+
+  def find_id_by_title
+    authorize current_user
+    tasks = Task.where(title: params[:title])
+
+    task_id = tasks.present? ? tasks.first.id : 0
+
+    render json: task_id
+  end
+
   private
 
   def task_params
     params.require(:task).permit(:title, :notes, :priority, :due, :visibility, :completed_at,
                                  :creator_id, :owner_id, :subject_id, :property_id,
+                                 :volunteer_group, :professional, :min_volunteers, :max_volunteers,
+                                 :actual_volunteers, :estimated_hours, :actual_hours,
                                  :budget, :cost)
   end
 

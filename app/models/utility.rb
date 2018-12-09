@@ -17,6 +17,11 @@ class Utility < ApplicationRecord
   after_save :discard_payments,   if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
   after_save :undiscard_payments, if: -> { discarded_at.nil? && discarded_at_before_last_save.present? }
 
+  class << self
+    alias archived discarded
+    alias active kept
+  end
+
   def address_has_changed?
     return false if address.blank?
     address_changed? ||

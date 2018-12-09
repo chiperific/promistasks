@@ -2,11 +2,6 @@
 
 class Task < ApplicationRecord
   include Discard::Model
-  # new:
-  # Volunteer_group vs. professional: indicate on public views
-  # min && max volunteers
-  # actual volunteers
-  # estimated vs. actual hours
 
   belongs_to :creator,  class_name: 'User', inverse_of: :created_tasks
   belongs_to :owner,    class_name: 'User', inverse_of: :owned_tasks
@@ -24,6 +19,7 @@ class Task < ApplicationRecord
   has_many :users, through: :task_users
   accepts_nested_attributes_for :task_users, allow_destroy: true
 
+  validates :title, presence: true, uniqueness: { scope: :property }
   validates_presence_of :creator_id, :owner_id, :property_id, :min_volunteers, :max_volunteers
   validates_inclusion_of  :needs_more_info, :created_from_api, :professional, :volunteer_group,
                           in: [true, false]
@@ -32,13 +28,12 @@ class Task < ApplicationRecord
 
   monetize :budget_cents, :cost_cents, allow_nil: true, allow_blank: true
 
-  validates :title, presence: true, uniqueness: { scope: :property }
-  validate :due_cant_be_past
+  validate :due_must_be_after_created
   validate :require_cost, if: -> { budget.present? && cost.nil? && completed_at.present? }
 
   before_validation :visibility_must_be_2, if: -> { property&.is_default? && visibility != 2 }
   before_save       :decide_record_completeness
-  after_create      :create_task_users,    unless: -> { discarded_at.present? || created_from_api? }
+  after_save        :create_task_users,    if: -> { discarded_at.blank? && created_locally? && id_before_last_save.nil? }
   after_update      :update_task_users,    if: :saved_changes_to_api_fields?
   after_update      :relocate,             if: -> { saved_change_to_property_id? }
   after_update      :change_task_users,    if: :saved_changes_to_users?
@@ -47,7 +42,7 @@ class Task < ApplicationRecord
   default_scope { order(:due, :priority, :title) }
 
   scope :complete,        -> { undiscarded.where.not(completed_at: nil) }
-  scope :created_since,   ->(time) { where("#{table_name}.created_at >= ?", time) }
+  scope :created_since,   ->(time) { in_process.where("#{table_name}.created_at >= ?", time) }
   scope :due_within,      ->(day_num) { in_process.where(due: Date.today..(Date.today + day_num.days)) }
   scope :except_primary,  -> { joins(:property).where('properties.is_default = FALSE') }
   scope :has_cost,        -> { undiscarded.where.not(cost_cents: nil) }
@@ -124,10 +119,12 @@ class Task < ApplicationRecord
 
   def ensure_task_user_exists_for(user)
     return false if user.oauth_id.nil?
+
     task_user = task_users.where(user: user).first_or_initialize
     return task_user unless task_user.new_record? || task_user.google_id.blank?
+
     tasklist = property.ensure_tasklist_exists_for(user)
-    task_user.tasklist_gid = tasklist.google_id
+    task_user.tasklist_gid = tasklist.google_id if tasklist.present?
 
     if creator == owner
       task_user.scope = 'both'
@@ -139,12 +136,17 @@ class Task < ApplicationRecord
     task_user.reload
   end
 
+  def name
+    title
+  end
+
   def on_default?
     property.is_default?
   end
 
   def past_due?
     return false unless due.present? && completed_at.blank?
+
     due < Date.today
   end
 
@@ -200,6 +202,7 @@ class Task < ApplicationRecord
   def update_task_users
     # if the users change, then new task_users will be created, which triggers the #api_create on after_create callback
     return false if saved_changes_to_users? || discarded_at.present?
+
     [creator, owner].each do |user|
       task_user = ensure_task_user_exists_for(user)
       # changing details about the task won't trigger an api call from task_user
@@ -218,6 +221,10 @@ class Task < ApplicationRecord
 
   private
 
+  def created_locally?
+    created_from_api == false
+  end
+
   def decide_record_completeness
     strikes = 0
     strikes += 3 if due.nil?
@@ -232,10 +239,12 @@ class Task < ApplicationRecord
     true
   end
 
-  def due_cant_be_past
-    return true if due.nil?
-    return true if created_from_api?
-    if due.past?
+  def due_must_be_after_created
+    return true if due.nil? || created_from_api?
+
+    comparison = created_at.present? ? created_at : Date.today
+
+    if due < comparison.to_date
       errors.add(:due, 'must be in the future')
       false
     else

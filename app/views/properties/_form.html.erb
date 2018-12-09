@@ -1,10 +1,15 @@
 <%= form_for property, html: { autocomplete: "nope" } do |f| %>
   <%= render 'form_errors', object: property %>
-  <%= f.hidden_field :creator_id, value: property.creator_id || current_user.id %>
 
-  <div class="input-field">
-    <%= f.text_field :name %>
-    <label for="property_name">Name (leave blank to use address)</label>
+  <div class="row">
+    <div class="input-field col m8 s12">
+      <%= f.text_field :name %>
+      <label for="property_name">Name (leave blank to use address)</label>
+    </div>
+    <div class="input-field col m4 s12">
+      <%= f.select :stage, Constant::Property::STAGES, selected: property.stage %>
+      <label for="property_stage">Stage</label>
+    </div>
   </div>
 
   <div class="input-field">
@@ -81,27 +86,33 @@
   <div class="row">
     <div class="input-field col m8 s12">
       <%= f.text_area :description, class: 'materialize-textarea' %>
+      <i class="material-icons prefix">message</i>
       <label for="property_description">Description & notes</label>
     </div>
 
     <div class="input-field col m4 s12">
-      <%= f.text_field :acquired_on, class: 'datepicker' %>
-      <label for="property_acquired_on">Date acquired</label>
+      <%= f.select :park_id, @parks, selected: property.park&.id, include_blank: true %>
+      <label for='property_park_id'>Park</label>
     </div>
   </div>
 
   <div class="row">
-    <div class="input-field col m4 s12">
+    <div class="input-field col m6 s12">
+      <i class="material-icons prefix">event</i>
+      <%= f.text_field :acquired_on, class: 'datepicker' %>
+      <label for="property_acquired_on">Date acquired</label>
+    </div>
+    <div class="input-field col m6 s12">
       <i class="material-icons prefix">attach_money</i>
       <%= f.number_field :cost, min: 0, step: 0.01 %>
       <label for="property_cost">Cost to acquire</label>
     </div>
-    <div class="input-field col m4 s12">
+    <div class="input-field col m6 s12">
       <i class="material-icons prefix">attach_money</i>
       <%= f.number_field :lot_rent, min: 0, step: 0.01 %>
       <label for="property_cost">Lot rent</label>
     </div>
-    <div class="input-field col m4 s12">
+    <div class="input-field col m6 s12">
       <i class="material-icons prefix">attach_money</i>
       <%= f.number_field :budget, min: 0, step: 0.01 %>
       <label for="property_cost">Repair Budget</label>
@@ -110,18 +121,25 @@
 
   <div class="row">
     <div class="input-field col m2 s12">
-      <%= f.number_field :year_manufacture, min: Time.now.year - 100, max: Time.now.year + 1, step: 1 %>
+      <i class="material-icons prefix">event</i>
+      <%= f.select :year_manufacture, year_ary(60), include_blank: true %>
       <label for="property_year_maufacture">Model Year</label>
     </div>
 
-    <div class="input-field col m5 s12">
+    <div class="input-field col m4 s12">
       <%= f.text_field :manufacturer %>
       <label for="property_manufacturer">Manufacturer</label>
     </div>
 
-    <div class="input-field col m5 s12">
-      <%= f.text_field :bed_bath %>
-      <label for="property_bed_bath">Bed & Bath</label>
+    <div class="input-field col m2 s12">
+      <i class="material-icons prefix">hotel</i>
+      <%= f.select :beds, (0..5).to_a %>
+      <label for="property_beds">Beds</label>
+    </div>
+    <div class="input-field col m2 s12">
+      <i class="material-icons prefix">meeting_room</i>
+      <%= f.select :baths, (0..4).to_a %>
+      <label for="property_beds">Baths</label>
     </div>
   </div>
 

@@ -21,6 +21,13 @@ class Park < ApplicationRecord
   after_save :cascade_discard, if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
   after_save :cascade_undiscard, if: -> { discarded_at.nil? && discarded_at_before_last_save.present? }
 
+  scope :created_since, ->(time) { where('created_at >= ?', time) }
+
+  class << self
+    alias archived discarded
+    alias active kept
+  end
+
   def address_has_changed?
     return false if address.blank?
     address_changed? ||
@@ -61,5 +68,9 @@ class Park < ApplicationRecord
     return false unless good_address?
     base = 'https://www.google.com/maps/?q='
     base + full_address.tr(' ', '+')
+  end
+
+  def staff_contact
+    park_users.where(relationship: 'staff contact').last&.user
   end
 end

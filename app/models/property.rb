@@ -42,15 +42,15 @@ class Property < ApplicationRecord
   after_save :undiscard_connections,                if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
   scope :except_default, ->       { where(is_default: false) }
-  scope :needs_title,    ->       { undiscarded.where(certificate_number: nil) }
-  scope :public_visible, ->       { undiscarded.where(is_private: false) }
-  scope :created_by,     ->(user) { undiscarded.where(creator: user) }
-  scope :with_tasks_for, ->(user) { undiscarded.where(id: Task.select(:property_id).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id)) }
-  scope :related_to,     ->(user) { created_by(user).or(with_tasks_for(user)) }
+  scope :needs_title,    ->       { except_default.undiscarded.where(certificate_number: nil) }
+  scope :public_visible, ->       { except_default.undiscarded.where(is_private: false) }
+  scope :created_by,     ->(user) { except_default.undiscarded.where(creator: user) }
+  scope :with_tasks_for, ->(user) { except_default.undiscarded.where(id: Task.select(:property_id).where('tasks.creator_id = ? OR tasks.owner_id = ?', user.id, user.id)) }
+  scope :related_to,     ->(user) { except_default.created_by(user).or(with_tasks_for(user)) }
   scope :visible_to,     ->(user) { related_to(user).or(public_visible) }
-  scope :over_budget,    ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents') }
-  scope :nearing_budget, ->       { where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
-  scope :created_since,  ->(time) { where('created_at >= ?', time) }
+  scope :over_budget,    ->       { except_default.where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents') }
+  scope :nearing_budget, ->       { except_default.where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
+  scope :created_since,  ->(time) { except_default.where('created_at >= ?', time) }
   # ready to be occupied: stage == 'complete', no connections.where(relationship: 'tennant')
   # ready to be archived: stage == 'complete', one connection.where(relationship: 'tennant', stage: 'title transferred')
   # ^ happens automatically when connection is created with stage 'transferred title'
@@ -66,6 +66,7 @@ class Property < ApplicationRecord
     ary = []
     Property.except_default.each do |property|
       next if property.discarded?
+
       ary << property if property.occupancy_status == 'approved applicant'
     end
     ary
@@ -83,6 +84,7 @@ class Property < ApplicationRecord
     ary = []
     Property.except_default.each do |property|
       next if property.discarded?
+
       ary << property if property.occupancy_status == 'occupied'
     end
     ary
@@ -92,6 +94,7 @@ class Property < ApplicationRecord
     ary = []
     Property.except_default.each do |property|
       next if property.discarded?
+
       ary << property if property.occupancy_status == 'pending application'
     end
     ary
@@ -101,6 +104,7 @@ class Property < ApplicationRecord
     ary = []
     Property.except_default.each do |property|
       next if property.discarded?
+
       ary << property if property.occupancy_status == 'vacant'
     end
     ary
@@ -109,6 +113,7 @@ class Property < ApplicationRecord
 
   def address_has_changed?
     return false if address.blank?
+
     address_changed? ||
       city_changed? ||
       state_changed? ||
@@ -118,14 +123,16 @@ class Property < ApplicationRecord
   def budget_remaining
     self.budget ||= default_budget
     task_ary = tasks.map(&:cost)
-    task_ary.map! { |b| b || 0 }
+    task_ary.map! { |c| c || 0 }
     self.budget - task_ary.sum
   end
 
   def ensure_tasklist_exists_for(user)
     return false if user.oauth_id.nil?
+
     tasklist = tasklists.where(user: user).first_or_initialize
     return tasklist unless tasklist.new_record? || tasklist.google_id.nil?
+
     tasklist.save
     tasklist.reload
   end
@@ -173,7 +180,9 @@ class Property < ApplicationRecord
       status = 'complete'
     when 'applied'
       status = 'pending application'
-    when 'vacated' || 'returned property'
+    when 'vacated'
+      status = 'vacant'
+    when 'returned property'
       status = 'vacant'
     else # 'moved in', 'initial walkthrough', 'final walkthrough'
       status = 'occupied'
@@ -209,7 +218,7 @@ class Property < ApplicationRecord
     else
       User.staff.each do |user|
         tasklist = ensure_tasklist_exists_for(user)
-        tasklist.api_update
+        tasklist.api_update unless tasklist == false
       end
     end
   end

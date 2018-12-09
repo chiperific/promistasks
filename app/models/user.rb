@@ -64,8 +64,6 @@ class User < ActiveRecord::Base
   after_save :discard_connections,   if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
   after_save :undiscard_connections, if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
-  # rubocop:disable Layout/IndentationConsistency
-  # rubocop:disable Layout/IndentationWidth
   scope :staff,                       -> { undiscarded.where.not(oauth_id: nil).or(where(staff: true)).or(where(admin: true)) }
   scope :not_clients,                 -> { undiscarded.where(client: false).or(where(client: true, volunteer: true)) }
   scope :staff_except,                ->(user) { undiscarded.staff.where.not(id: user) }
@@ -81,8 +79,6 @@ class User < ActiveRecord::Base
   scope :volunteers,                  -> { undiscarded.where(volunteer: true) }
   scope :contractors,                 -> { undiscarded.where(contractor: true) }
   scope :admins,                      -> { undiscarded.where(admin: true) }
-  # rubocop:enable Layout/IndentationConsistency
-  # rubocop:enable Layout/IndentationWidth
 
   def self.from_omniauth(auth)
     @user = where(email: auth.info.email).first_or_create.tap do |user|
@@ -95,7 +91,7 @@ class User < ActiveRecord::Base
       user.oauth_refresh_token ||= auth.credentials.refresh_token
       user.oauth_expires_at = Time.at(auth.credentials.expires_at)
       user.staff = true
-      user.phone = Organization.first.default_staff_phone
+      user.phone = Organization.first.default_phone
     end
     @user.save
     @user.reload
@@ -118,11 +114,26 @@ class User < ActiveRecord::Base
     super && !discarded_at
   end
 
+  def all_tasks
+    created_tasks.or(owned_tasks)
+  end
+
+  def can_view_park(park)
+    return true if admin? || staff?
+
+    return true if created_properties.where(park: park).count.positive?
+    return true if all_tasks.joins(:property).where('properties.park_id = ?', park.id).count.positive?
+
+    false
+  end
+
   def fetch_default_tasklist
     return false unless oauth_id.present?
+
     response = HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists/@default', headers: api_headers)
 
     return false if response.nil?
+
     response
   end
 
@@ -132,9 +143,11 @@ class User < ActiveRecord::Base
 
   def list_api_tasklists
     return false unless oauth_id.present?
+
     response = HTTParty.get('https://www.googleapis.com/tasks/v1/users/@me/lists', headers: api_headers)
 
     return false if response.nil?
+
     response
   end
 
@@ -143,12 +156,22 @@ class User < ActiveRecord::Base
       (type.present? || admin? || oauth?)
   end
 
+  def not_staff?
+    admin? == false &&
+      staff? == false
+  end
+
   def oauth?
     oauth_id.present?
   end
 
+  def payments
+    client_payments.active + contractor_payments.active
+  end
+
   def refresh_token!
     return false unless token_expired? && oauth_id.present? && oauth_token.present? && oauth_refresh_token.present?
+
     data = {
       grant_type: 'refresh_token',
       client_id: Rails.application.secrets.google_client_id,
@@ -162,11 +185,17 @@ class User < ActiveRecord::Base
 
   def readable_type
     return 'Staff' if oauth? && type.empty?
+
     type.join(', ')
+  end
+
+  def staff_or_admin?
+    admin? || staff?
   end
 
   def token_expired?
     return nil unless oauth_id.present? && oauth_expires_at.present?
+
     Time.at(oauth_expires_at) < Time.now
   end
 
@@ -177,7 +206,29 @@ class User < ActiveRecord::Base
       ary << i if send(i.downcase)
     end
 
+    ary << 'Admin' if admin?
+
     ary
+  end
+
+  def write_type(registration)
+    self.staff = false
+    self.client = false
+    self.volunteer = false
+    self.contractor = false
+
+    case registration.downcase
+    when 'staff'
+      self.staff = true
+    when 'volunteer'
+      self.volunteer = true
+    when 'client'
+      self.client = true
+    when 'contractor'
+      self.contractor = true
+    else
+      errors.add(:register_as, 'a user type from the list')
+    end
   end
 
   private
@@ -194,6 +245,7 @@ class User < ActiveRecord::Base
   def clients_are_limited
     return true unless client?
     return true if volunteer?
+
     errors.add(:register_as, ': Clients can\'t be staff or contractors') if type.count > 1
     true
   end
@@ -203,7 +255,8 @@ class User < ActiveRecord::Base
   end
 
   def must_have_type
-    return true if oauth_id.present? # skip this if it's an oauth user
+    return true if oauth_id.present?
+
     if type.empty?
       errors.add(:register_as, 'a user type from the list')
       false

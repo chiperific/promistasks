@@ -125,7 +125,7 @@ RSpec.describe Task, type: :model do
 
       expect(Task.created_since(time)).not_to include old
       expect(Task.created_since(time)).to include @task
-      expect(Task.created_since(time)).to include @completed_task
+      expect(Task.created_since(time)).not_to include @completed_task
     end
 
     it '#due_within(day_num)' do
@@ -237,7 +237,7 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#assign_from_api_fields(task_json' do
+  describe '#assign_from_api_fields(task_json)' do
     it 'returns false if task_json is null' do
       task = Task.new
       expect(task.assign_from_api_fields(nil)).to eq false
@@ -302,6 +302,7 @@ RSpec.describe Task, type: :model do
     it 'sets completed_at on all related task_user records' do
       @task.save
       @task.reload
+
       task_user_comps = @task.task_users.map(&:completed_at)
       expect(task_user_comps.include?(nil)).to eq true
 
@@ -736,23 +737,27 @@ RSpec.describe Task, type: :model do
     end
   end
 
-  describe '#due_cant_be_past' do
+  describe '#due_must_be_after_created' do
     let(:past_due)   { build :task, property: @property, creator: @creator, owner: @owner, due: Date.today - 1.day }
     let(:future_due) { build :task, property: @property, creator: @creator, owner: @owner, due: Date.today + 1.day }
+    let(:past_due_hack)   { build :task, property: @property, creator: @creator, owner: @owner, due: Date.today - 1.day, created_at: Time.now - 2.days }
 
     it 'returns true if due is nil' do
       @task.save
       expect(@task.errors[:due].empty?).to eq true
     end
 
-    it 'adds an error if due is in the past' do
+    it 'adds an error if due is older than created_at' do
       past_due.save
       expect(past_due.errors[:due]).to eq ['must be in the future']
     end
 
-    it 'returns true if due is in the future' do
+    it 'returns true if due is newer than created_at' do
       future_due.save
       expect(future_due.errors[:due].empty?).to eq true
+
+      past_due_hack.save
+      expect(past_due_hack.errors[:due].empty?).to eq true
     end
   end
 

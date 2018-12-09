@@ -16,8 +16,8 @@ setActiveTab = (target, scope) ->
   $(targetID).addClass('active')
 
 $(document).on 'turbolinks:load', ->
-  return unless controllerMatches(['tasks', 'properties', 'users', 'connections']) &&
-  actionMatches(['show', 'index', 'tasks'])
+  return unless controllerMatches(['tasks', 'properties', 'users', 'connections', 'parks']) &&
+  actionMatches(['show', 'index', 'tasks', 'list'])
 
   if getParameterByName('filter') != null
     target = document.location.search.replace('?filter=','')
@@ -27,8 +27,8 @@ $(document).on 'turbolinks:load', ->
   # Don't initiate this in global
   # because then the JS indicator (non-CSS bottom border)
   # appears on the initial active element
-  tab = $('.tabs')
-  tabElem = M.Tabs.init(tab)
+  tabs = $('.tabs')
+  tabElem = M.Tabs.init(tabs)
 
   $('#task_table_body').on 'click', 'input.complete_bool', ->
     taskId = $(this).siblings('.task_id').text().trim()

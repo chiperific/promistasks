@@ -3,7 +3,9 @@
     <h1>People</h1>
   </div>
   <div class="col s2">
-    <%= link_to '<i class="material-icons">add</i>'.html_safe, new_user_path, class: 'btn-floating btn-large waves-effect waves-light green darken-2' %>
+    <%= link_to new_user_path, class: 'btn-floating btn-large waves-effect waves-light green darken-2', id: 'new_user_link' do %>
+      <i class="material-icons">add</i>
+    <% end %>
   </div>
 </div>
 
@@ -31,7 +33,7 @@
         <%= link_to 'Contractors', users_path(filter: 'contractors'), id: 'users_contractors', remote: true %>
       </li>
       <li class="tab">
-        <%= link_to 'System Admins', users_path(filter: 'admins'), id: 'users_admins', remote: true %>
+        <%= link_to 'Admins', users_path(filter: 'admins'), id: 'users_admins', remote: true %>
       </li>
       <li class="tab">
         <%= link_to 'Archived', users_path(filter: 'archived'), id: 'users_archived', remote: true %>

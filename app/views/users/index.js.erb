@@ -1,5 +1,5 @@
 <% if @users.count.positive? %>
-  $("#user_table_body").html("<%= escape_javascript(render partial: 'users/user_table', locals: { users: @users }) %>");
+  $("#user_table_body").html("<%= escape_javascript(render partial: 'users/user_table', collection: @users) %>");
 <% else %>
   $("#user_table_body").html("<tr><td colspan='6' class='center-align'><%= @empty_msg %></td></tr>");
 <% end %>

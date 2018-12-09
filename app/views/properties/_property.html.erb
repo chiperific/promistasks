@@ -1,4 +1,4 @@
-<div class="col s12 m6 l4">
+<div class="col s12 m6 l4 property">
   <% if property.over_budget? %>
     <div class="card red darken-3 z-depth-3">
   <% else %>
@@ -6,17 +6,19 @@
   <% end %>
     <div class="card-image">
       <% if property.is_default? %>
-        <%= image_tag "default_tasklist.jpg", alt: "default tasklist" %>
+        <%= image_tag "default_tasklist.jpg", alt: "default tasklist", class: 'default-map' %>
       <% else %>
-        <%= image_tag property.google_map, alt: "property street view" %>
+        <%= image_tag property.google_map, alt: "property map", class: 'street-map' %>
       <% end %>
-      <% if params[:action] == 'index' || params[:controller] == 'tasks' || property.is_default? %>
-        <%= link_to property_path(property), class: 'btn-floating halfway-fab waves-effect waves-light green', 'data-turbolinks'=> 'false'  do  %>
-          <i class="material-icons">arrow_forward</i>
-        <% end %>
-      <% else %>
-        <%= link_to edit_property_path(property), class: 'btn-floating halfway-fab waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false' do  %>
-          <i class="material-icons">edit</i>
+      <% unless property.is_default? %>
+        <% if params[:action] == 'index' || params[:controller] == 'tasks' %>
+          <%= link_to property_path(property), class: 'btn-floating halfway-fab waves-effect waves-light green', 'data-turbolinks'=> 'false', id: 'show_property_link' do  %>
+            <i class="material-icons">arrow_forward</i>
+          <% end %>
+        <% else %>
+          <%= link_to edit_property_path(property), class: 'btn-floating halfway-fab waves-effect waves-light blue darken-2', 'data-turbolinks'=> 'false', id: 'edit_property_link' do  %>
+            <i class="material-icons">edit</i>
+          <% end %>
         <% end %>
       <% end %>
     </div>
@@ -25,7 +27,7 @@
     <% else %>
       <div class="card-content grey-text text-darken-4">
     <% end %>
-      <span class="card-title"><%= property.name %></span>
+      <span class="card-title"><%= property.name %> - <%= property.stage %></span>
       <p class="small-text">
         <%= property.tasks.visible_to(current_user).count %> tasks related to you.<br>
         <% unless property.is_default? %>

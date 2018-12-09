@@ -9,42 +9,42 @@
     <% end %>
   </div>
   <div class="col s2">
-    <%= link_to new_task_path(user: @user.id), class: 'btn-floating btn-large waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false' do %>
+    <%= link_to new_task_path(user: @user.id), class: 'btn-floating btn-large waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false', id: 'new_task_link' do %>
       <i class="material-icons">add</i>
     <% end %>
   </div>
 </div>
 
-<div class="row center-align">
-  <ul class="tabs z-depth-1" name="tasks">
+<div class="row center-align full-row">
+  <ul class="tabs z-depth-1 user-tasks-tabs" name="tasks">
     <% if @show_new %>
-      <li class="tab">
+      <li class='tab'>
         <%= link_to 'New', tasks_user_path(@user, filter: 'new'), id: 'tasks_new', remote: true %>
       </li>
     <% end %>
-    <li class="tab">
+    <li class='tab'>
       <%= link_to 'Active', tasks_user_path(@user, filter: 'active'), id: 'tasks_active', class: 'active', remote: true %>
     </li>
-    <li class="tab">
+    <li class='tab'>
       <%= link_to 'Past Due', tasks_user_path(@user, filter: 'past-due'), id: 'tasks_past-due', remote: true %>
     </li>
-    <li class="tab">
+    <li class='tab'>
       <%= link_to 'Due in 7', tasks_user_path(@user, filter: 'due-7'), id: 'tasks_due-7', remote: true %>
     </li>
-    <li class="tab">
+    <li class='tab'>
       <%= link_to 'Due in 14', tasks_user_path(@user, filter: 'due-14'), id: 'tasks_due-14', remote: true %>
     </li>
-    <li class="tab">
+    <li class='tab'>
       <%= link_to 'Completed', tasks_user_path(@user, filter: 'completed'), id: 'tasks_completed', remote: true %>
     </li>
-    <li class="tab">
+    <li class='tab'>
       <%= link_to 'Missing Info', tasks_user_path(@user, filter: 'missing-info'), id: 'tasks_missing-info', remote: true %>
     </li>
-    <% if current_user.system_admin? %>
-      <li class="tab">
+    <% if current_user.admin? %>
+      <li class='tab'>
         <%= link_to 'All', tasks_user_path(@user, filter: 'all'), id: 'tasks_all', remote: true %>
       </li>
-      <li class="tab">
+      <li class='tab'>
         <%= link_to 'Archived', tasks_user_path(@user, filter: 'archived'), id: 'tasks_archived', remote: true %>
       </li>
     <% end %>
@@ -73,5 +73,5 @@
 </div>
 
 <% if @tasks.empty? %>
-  <%= render partial: 'sys_admin_contact' %>
+  <%= render partial: 'admin_contact' %>
 <% end %>

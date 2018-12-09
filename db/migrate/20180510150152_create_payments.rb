@@ -3,12 +3,14 @@
 class CreatePayments < ActiveRecord::Migration[5.2]
   def change
     create_table :payments do |t|
-      t.references :property,   foreign_key: true
-      t.references :park,       foreign_key: true
-      t.references :utility,    foreign_key: true
-      t.references :task,       foreign_key: true
-      t.references :contractor, references: :users
-      t.references :client,     references: :users
+      t.references :contractor, references: :users # paid_to
+      t.references :park,       foreign_key: true # paid_to
+      t.references :utility,    foreign_key: true # paid_to
+      t.references :client,     references: :users # paid_to || on_behalf_of
+      t.references :property,   foreign_key: true # on_behalf_of
+      t.references :task,       foreign_key: true # related_to
+      t.string :paid_to,        null: false # use Constant::Payment::PAID_TO
+      t.string :on_behalf_of,   null: false # use Constant::Payment::ON_BEHALF_OF
       t.string :utility_type # use Constant::Utility::TYPES
       t.string :utility_account
       t.date :utility_service_started
@@ -19,7 +21,7 @@ class CreatePayments < ActiveRecord::Migration[5.2]
       t.date :received
       t.date :due
       t.date :paid
-      t.text :recurrence # YAML from IceCube::Schedule
+      t.text :recurrence # use Constant::Payment::RECURRENCE = ['month', '3 months', '6 months', 'year']
       t.boolean :recurring,              null: false, default: false
       t.boolean :send_email_reminders,   null: false, default: false
       t.boolean :suppress_system_alerts, null: false, default: false

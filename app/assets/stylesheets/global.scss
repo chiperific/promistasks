@@ -27,6 +27,13 @@ main {
     font-size: .75em;
   }
 
+  @media (min-width: 993px) {
+    div.full-row {
+      width: 140%;
+      margin-left: -20%;
+    }
+  }
+
   // Task#public, Task#show card styling to mimic sticky notes
   .card {
     border-bottom-right-radius: 24px;

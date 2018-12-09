@@ -1,5 +1,5 @@
 $(document).on 'turbolinks:load', ->
-  return unless controllerMatches(['properties']) && actionMatches(['list'])
+  return unless controllerMatches(['properties', 'parks']) && actionMatches(['list', 'show'])
 
   tabRowVisibility = ->
     chooser = $('#tab_switch').prop('checked')
@@ -27,3 +27,13 @@ $(document).on 'turbolinks:load', ->
   $('#tab_switch').on 'change', ->
     tabRowVisibility()
     true
+
+  # properties#list && parks#show AJAX property stage updates
+  # have to bubble up from document after AJAXing tabs
+  $(document).on 'change', 'select.stage-select', ->
+    id = $(this).attr('data-finder')
+    stage = $(this).val()
+    uri = '/properties/' + id + '/update_stage?stage=' + stage
+    $.ajax(url: uri).done (response) ->
+      M.toast({html: response})
+  true

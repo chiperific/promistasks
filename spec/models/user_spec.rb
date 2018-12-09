@@ -259,6 +259,60 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#all_tasks' do
+    before :each do
+      @user.save
+      @no = create(:task)
+    end
+
+    it 'returns tasks the user created' do
+      yes = FactoryBot.create(:task, creator: @user)
+
+      expect(@user.all_tasks).to include yes
+      expect(@user.all_tasks).not_to include @no
+    end
+
+    it 'returns tasks the user owns' do
+      yes = create(:task, owner: @user)
+
+      expect(@user.all_tasks).to include yes
+      expect(@user.all_tasks).not_to include @no
+    end
+  end
+
+  describe '#can_view_park' do
+    before :each do
+      @park = create(:park)
+    end
+
+    it 'returns true if user is admin' do
+      @admin = create(:admin)
+      expect(@admin.can_view_park(@park)).to eq true
+    end
+
+    it 'returns true if user is staff' do
+      @user.save
+      expect(@user.can_view_park(@park)).to eq true
+    end
+
+    it 'returns true if user created an associated property' do
+      @user = create(:volunteer_user)
+      create(:property, creator: @user, park: @park)
+
+      expect(@user.can_view_park(@park)).to eq true
+    end
+
+    it 'returns true if user has tasks for an associated property' do
+      @volunteer = create(:volunteer_user)
+      @contractor = create(:contractor_user)
+      @property = create(:property, park: @park)
+      create(:task, property: @property, creator: @volunteer, owner: @contractor)
+
+      expect(@volunteer.can_view_park(@park)).to eq true
+      expect(@contractor.can_view_park(@park)).to eq true
+    end
+  end
+
   describe '#fetch_default_tasklist' do
     it 'returns false if oauth_id is missing' do
       @user.save
@@ -329,6 +383,21 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#not_staff?' do
+    let(:client)  { create :client_user }
+    let(:staff)   { create :user }
+    let(:admin)   { create :admin }
+
+    it 'returns true if user is not staff and not admin' do
+      expect(client.not_staff?).to eq true
+    end
+
+    it 'returns false if user is staff or admin' do
+      expect(staff.not_staff?).to eq false
+      expect(admin.not_staff?).to eq false
+    end
+  end
+
   describe '#oauth?' do
     it 'returns true if user has oauth_id' do
       expect(@user.oauth?).to eq false
@@ -336,6 +405,23 @@ RSpec.describe User, type: :model do
 
     it 'returns false if user doesn\'t have oauth_id' do
       expect(@oauth_user.oauth?).to eq true
+    end
+  end
+
+  describe '#payments' do
+    let(:client) { create :client_user }
+    let(:contractor) { create :contractor_user }
+    let(:pmt1) { create :payment_contractor, client: client, contractor: contractor }
+    let(:pmt2) { create :payment_client, client: client }
+
+    it 'combines client_payments and contractor_payments' do
+      pmt1
+      pmt2
+
+      expect(client.payments).to include pmt1
+      expect(client.payments).to include pmt2
+      expect(contractor.payments).to include pmt1
+      expect(contractor.payments).not_to include pmt2
     end
   end
 
@@ -402,6 +488,28 @@ RSpec.describe User, type: :model do
       expect(@user.type).to eq ['Staff']
       expect(several_types.type).to eq ['Staff', 'Volunteer', 'Contractor']
       expect(volunteer.type).to eq ['Volunteer']
+    end
+  end
+
+  describe '#write_type' do
+    it 'sets booleans based upon a text field' do
+      expect(@user.staff?).to eq true
+      expect(@user.volunteer?).to eq false
+
+      @user.write_type('Volunteer')
+
+      expect(@user.staff?).to eq false
+      expect(@user.volunteer?).to eq true
+    end
+
+    it 'adds an error when the text is invalid' do
+      expect(@user.staff?).to eq true
+      expect(@user.valid?).to eq true
+
+      @user.write_type('badbad')
+
+      expect(@user.staff?).to eq false
+      expect(@user.valid?).to eq false
     end
   end
 

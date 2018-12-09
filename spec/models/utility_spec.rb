@@ -70,11 +70,11 @@ RSpec.describe Utility, type: :model do
 
   describe '#full_address' do
     let(:big_addr) { create :utility, address: 'addr1', city: 'city', postal_code: '12345' }
-    let(:mid_addr) { create :utility, address: 'addr2', postal_code: '12345' }
-    let(:lil_addr) { create :utility, address: 'addr3' }
+    let(:mid_addr) { create :utility, address: 'addr2', postal_code: '12345', city: nil, state: nil }
+    let(:lil_addr) { create :utility, address: 'addr3', city: nil, state: nil, postal_code: nil }
 
     it 'concatentates the address' do
-      expect(big_addr.full_address).to eq 'addr1, city, MI, 12345'
+      expect(big_addr.full_address).to eq 'addr1, city, WA, 12345'
       expect(mid_addr.full_address).to eq 'addr2, 12345'
       expect(lil_addr.full_address).to eq 'addr3'
     end

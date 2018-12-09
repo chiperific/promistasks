@@ -1,0 +1,25 @@
+<tr class='park-row'>
+  <td>
+    <%= parks.name %>
+  </td>
+  <% Constant::Property::STAGES.each do |stage| %>
+    <td class="center"><%= parks.properties.where(stage: stage).count.positive? ? parks.properties.where(stage: stage).count : '-' %></td>
+  <% end %>
+  <td class="slim center">
+    <% unless parks.google_map_link.blank? %>
+      <%= link_to parks.google_map_link, class: 'btn-floating btn-small amber darken-2', target: '_blank' do %>
+        <i class="material-icons">map</i>
+      <% end %>
+    <% end %>
+  </td>
+  <td class="slim">
+    <%= link_to park_path(parks), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false' do  %>
+      <i class="material-icons">arrow_forward</i>
+    <% end %>
+  </td>
+  <td class="slim">
+    <%= link_to edit_park_path(parks), class: 'btn-floating btn-small blue darken-2', 'data-turbolinks'=> 'false' do  %>
+      <i class="material-icons">edit</i>
+    <% end %>
+  </td>
+</tr>

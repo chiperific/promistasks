@@ -3,7 +3,7 @@
     <div class="user-view">
       <div class="background">
       </div>
-      <% if current_user.oauth? %>
+      <% if current_user.oauth_image_link.present? %>
         <%= image_tag current_user.oauth_image_link, class: "circle"  %>
       <% else %>
         <i class="material-icons white-text no-pic">account_circle</i>
@@ -19,7 +19,7 @@
   <li class="no-padding">
     <ul class="collapsible collapsible-accordion">
       <li>
-        <%= link_to user_path(current_user) do %>
+        <%= link_to user_path(current_user), id: 'sidebar_link_profile' do %>
           <i class="material-icons">account_box</i>
           <span>Profile</span>
         <% end %>
@@ -28,69 +28,101 @@
   </li>
 
   <li>
-    <%= link_to tasks_user_path(current_user) do %>
+    <%= link_to tasks_user_path(current_user), id: 'sidebar_link_my_tasks' do %>
       <i class="material-icons">ballot</i>
       <span>My Tasks</span>
     <% end %>
   </li>
 
   <% if current_user.staff? %>
-    <li>
-      <%= link_to tasks_path, 'data-turbolinks'=> 'false' do %>
-        <i class="material-icons">format_list_bulleted</i>
-        <span>All Tasks</span>
-      <% end %>
-    </li>
-  <% end %>
-
-  <li>
-    <%= link_to properties_path, 'data-turbolinks'=> 'false' do %>
-      <i class="material-icons">home</i>
-      <span>Properties</span>
-    <% end %>
-  </li>
-
-  <% if current_user.staff? %>
     <% if Property.where(is_default: true, creator: current_user).any? %>
       <li>
-        <%= link_to default_properties_path, 'data-turbolinks'=> 'false' do %>
+        <%= link_to default_properties_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_default' do %>
           <i class="material-icons">menu</i>
           <span>Default Tasklist</span>
         <% end %>
       </li>
     <% end %>
 
-    <% if current_user.system_admin? %>
+    <li class="divider"></li>
+
+    <li>
+      <%= link_to tasks_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_tasks' do %>
+        <i class="material-icons">format_list_bulleted</i>
+        <span>All Tasks</span>
+      <% end %>
+    </li>
+
+    <li>
+      <%= link_to properties_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_properties' do %>
+        <i class="material-icons">home</i>
+        <span>Properties</span>
+      <% end %>
+    </li>
+
+    <li>
+      <%= link_to connections_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_connections' do %>
+        <i class="material-icons">swap_horiz</i>
+        <span>Connections</span>
+      <% end %>
+    </li>
+
+    <li>
+      <%= link_to parks_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_parks' do %>
+        <i class="material-icons">store_mall_directory</i>
+        <span>Parks</span>
+      <% end %>
+    </li>
+
+    <li>
+      <%= link_to payments_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_payments' do %>
+        <i class="material-icons">attach_money</i>
+        <span>Payments</span>
+      <% end %>
+    </li>
+
+    <li>
+      <%= link_to utilities_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_utilities' do %>
+        <i class="material-icons">offline_bolt</i>
+        <span>Utilities</span>
+      <% end %>
+    </li>
+
+    <% if current_user.admin? %>
+      <li class="divider"></li>
+
       <li>
-        <%= link_to users_path, 'data-turbolinks'=> 'false' do %>
+        <%= link_to users_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_users' do %>
           <i class="material-icons">people</i>
           <span>People</span>
         <% end %>
       </li>
 
       <li>
-        <%= link_to connections_path, 'data-turbolinks'=> 'false' do %>
-          <i class="material-icons">swap_horiz</i>
-          <span>Connections</span>
-        <% end %>
-      </li>
-
-      <li>
-        <%= link_to skills_path, 'data-turbolinks'=> 'false' do %>
+        <%= link_to skills_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_skills' do %>
           <i class="material-icons">build</i>
           <span>Skills</span>
         <% end %>
       </li>
+
+      <li>
+        <%= link_to organization_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_org' do %>
+          <i class="material-icons">work</i>
+          <span>Organization</span>
+        <% end %>
+      </li>
+
+      <li class="divider"></li>
     <% end %>
 
     <li>
-      <%= link_to reports_properties_path, 'data-turbolinks'=> 'false' do %>
+      <%= link_to reports_properties_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_reports' do %>
         <i class="material-icons">table_chart</i>
         <span>Reports</span>
       <% end %>
     </li>
     <li>
-      <%= link_to root_path, 'data-turbolinks'=> 'false' do %>
+      <%= link_to root_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_root' do %>
         <i class="material-icons">apps</i>
         <span>Public Tasks</span>
       <% end %>

@@ -6,29 +6,39 @@
   <div class="form-inputs">
     <div class="input-field">
       <i class="material-icons prefix">face</i>
-      <%= f.text_field :name, placeholder: 'Name' %>
+      <%= f.text_field :name %>
+      <label for="user_name">Name</label>
     </div>
     <div class="input-field">
       <i class="material-icons prefix">alternate_email</i>
-      <%= f.text_field :email, placeholder: 'email@example.com' %>
+      <%= f.text_field :email %>
+      <label for="user_email">Email</label>
+    </div>
+    <div class="input-field">
+      <i class="material-icons prefix">phone</i>
+      <%= f.text_field :phone %>
+      <label for="user_phone">Phone</label>
     </div>
     <div class="input-field">
       <i class="material-icons prefix">vpn_key</i>
-      <%= f.password_field :password, placeholder: "#{@minimum_password_length} characters minimum" %>
+      <%= f.password_field :password %>
+      <label for="user_password">Password <i>6 characters minimum</i></label>
     </div>
     <div class="input-field">
       <i class="material-icons prefix">vpn_key</i>
-      <%= f.password_field :password_confirmation, placeholder: 'password again' %>
+      <%= f.password_field :password_confirmation %>
+      <label for="user_password_confirmation">Password confirmation</label>
     </div>
 
     <div class="input-field <%= 'field_with_errors' if resource.errors[:register_as].present? %>">
       <i class="material-icons prefix">account_box</i>
       <select name="user[register_as]" id="user_register_as" class="required" required="required" aria-required="true">
-        <option value="0" disabled selected>I am a..</option>
+        <option value="0" disabled selected>I am a...</option>
         <option value="Volunteer">Volunteer</option>
         <option value="Contractor">Contractor</option>
         <option value="Client">Client</option>
       </select>
+      <label for="user_register_as">Account type</label>
     </div>
   </div>
 

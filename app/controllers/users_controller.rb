@@ -5,7 +5,8 @@ class UsersController < ApplicationController
   # https://github.com/plataformatec/devise/wiki/How-To:-Manage-users-through-a-CRUD-interface
 
   def index
-    authorize users = User.all.order(:name)
+    authorize User
+    users = User.all.order(:name)
     @show_new = users.created_since(current_user.last_sign_in_at).count.positive?
 
     case params[:filter]
@@ -25,8 +26,8 @@ class UsersController < ApplicationController
       @users = users.contractors
       @empty_msg = 'No contractors'
     when 'admins'
-      @users = users.system_admins
-      @empty_msg = 'No System Admins'
+      @users = users.admins
+      @empty_msg = 'No Administrators'
     when 'archived'
       @users = users.discarded
       @empty_msg = 'No archived people'
@@ -54,16 +55,15 @@ class UsersController < ApplicationController
       'Email': @user.email,
       'Title': @user.title.blank? ? '-' : @user.title,
       'Type': @user.readable_type,
-      'Phone 1': @user.phone1.blank? ? '-' : @user.phone1,
-      'Phone 2': @user.phone2.blank? ? '-' : @user.phone2,
-      'Address': @user.first_address.blank? ? '-' : @user.first_address,
-      'Location': @user.location_address.blank? ? '-' : @user.location_address
+      'Phone': @user.phone
     }
 
     @skills = @user.skills.order(:name)
     @tasks_finder_count = Task.visible_to(@user).joins(:skills).where(skills: { id: @skills.pluck(:id) }).uniq.count
     @connections = @user.connections.except_tennants
     @occupancies = @user.connections.only_tennants
+
+    @payments = @user.payments
   end
 
   def tasks
@@ -148,15 +148,20 @@ class UsersController < ApplicationController
   def new
     authorize @user = User.new
     @hide_rate = 'scale-out'
+    @org = Organization.first
   end
 
   def create
     authorize @user = User.new(user_params)
 
+    @user.write_type(user_params[:register_as])
+
     if @user.save
-      redirect_to @return_path, notice: 'User created'
+      redirect_to @return_path, notice: 'Person created'
     else
       flash[:warning] = 'Oops, found some errors'
+      @hide_rate = 'scale-out'
+      @org = Organization.first
       render 'new'
     end
   end
@@ -171,12 +176,14 @@ class UsersController < ApplicationController
     @user.discard if params[:user][:archive] == '1' && !@user.discarded?
     @user.undiscard if params[:user][:archive] == '0' && @user.discarded?
 
+    @user.write_type(user_params[:register_as]) if user_params[:register_as].present?
+
     # .reject removes password and password_confirmation if they are blank
     if @user.update(user_params.reject { |k, v| k.include?('password') && v.blank? })
       redirect_to @return_path, notice: 'Update successful'
     else
       flash[:warning] = 'Oops, found some errors'
-      @hide_rate = 'scale-out' unless @user.contractor? || user_params[:contractor] != '0'
+      @hide_rate = 'scale-out' unless @user.contractor?
       render 'edit'
     end
   end
@@ -184,13 +191,18 @@ class UsersController < ApplicationController
   def oauth_check
     authorize @user = User.find(params[:id])
 
+    if @user.not_staff?
+      flash[:error] = "#{@user.name} has no credentials to check."
+      redirect_to @return_path
+    end
+
     @show_error_view = params[:err] == 'true'
 
     @primary_info_hash = {
       'Google ID?': @user.oauth_id.present? ? 'OK' : 'MISSING',
       'Google Token?': @user.oauth_token.present? ? 'OK' : 'MISSING',
       'Google Refresh Token?': @user.oauth_refresh_token.present? ? 'OK' : 'MISSING',
-      'Google Token Expires at:': human_datetime(@user.oauth_expires_at.localtime)
+      'Google Token Expires at:': @user.oauth_expires_at.present? ? human_datetime(@user.oauth_expires_at.localtime) : 'MISSING'
     }
   end
 
@@ -215,38 +227,55 @@ class UsersController < ApplicationController
     authorize user = User.find(params[:id])
     tasks = Task.in_process.related_to(user)
     properties = Property.related_to(user)
+    payments = Payment.related_to(user)
 
     @notification_json = {
-      show_alert: show_alert(tasks, properties, user),
-      pulse_alert: pulse_alert(tasks, properties),
-      alert_color: alert_color(tasks, properties),
-      tasks_past_due: {
-        count: tasks.past_due.count,
-        msg: tasks.past_due.count.to_s + ' past due task'.pluralize(tasks.past_due.count)
+      setup: {
+        show_alert: show_alert(tasks, properties, payments, user),
+        pulse_alert: pulse_alert(tasks, properties, payments),
+        alert_color: alert_color(tasks, properties, payments)
       },
-      properties_over_budget: {
-        count: properties.over_budget.length,
-        msg: properties.over_budget.length.to_s + ' property'.pluralize(properties.over_budget.length) + ' over budget'
-      },
-      properties_nearing_budget: {
-        count: properties.nearing_budget.length,
-        msg: properties.nearing_budget.length.to_s + ' property'.pluralize(properties.nearing_budget.length) + ' nearing budget'
-      },
-      tasks_due_7: {
-        count: tasks.due_within(7).count,
-        msg: tasks.due_within(7).count.to_s + ' task'.pluralize(tasks.due_within(7).count) + ' due in next 7 days'
-      },
-      tasks_missing_info: {
-        count: tasks.needs_more_info.count,
-        msg: tasks.needs_more_info.count.to_s + ' task'.pluralize(tasks.needs_more_info.count) + ' missing info'
-      },
-      tasks_due_14: {
-        count: tasks.due_within(14).count,
-        msg: tasks.due_within(14).count.to_s + ' task'.pluralize(tasks.due_within(14).count) + ' due in next 14 days'
-      },
-      tasks_new: {
-        count: tasks.created_since(user.last_sign_in_at).count,
-        msg: tasks.created_since(user.last_sign_in_at).count.to_s + ' newly created task'.pluralize(tasks.created_since(user.last_sign_in_at).count)
+      alerts: {
+        payments_past_due: {
+          count: payments.past_due.count,
+          msg: payments.past_due.count.to_s + ' past due payment'.pluralize(payments.past_due.count)
+        },
+        payments_due_7: {
+          count: payments.due_within(7).count,
+          msg: payments.due_within(7).count.to_s + ' payment'.pluralize(payments.due_within(7).count) + ' due in next 7 days'
+        },
+        payments_due_14: {
+          count: payments.due_within(14).count,
+          msg: payments.due_within(14).count.to_s + ' payment'.pluralize(payments.due_within(14).count) + ' due in next 14 days'
+        },
+        properties_over_budget: {
+          count: properties.over_budget.length,
+          msg: properties.over_budget.length.to_s + ' property'.pluralize(properties.over_budget.length) + ' over budget'
+        },
+        properties_nearing_budget: {
+          count: properties.nearing_budget.length,
+          msg: properties.nearing_budget.length.to_s + ' property'.pluralize(properties.nearing_budget.length) + ' nearing budget'
+        },
+        tasks_past_due: {
+          count: tasks.past_due.count,
+          msg: tasks.past_due.count.to_s + ' past due task'.pluralize(tasks.past_due.count)
+        },
+        tasks_due_7: {
+          count: tasks.due_within(7).count,
+          msg: tasks.due_within(7).count.to_s + ' task'.pluralize(tasks.due_within(7).count) + ' due in next 7 days'
+        },
+        tasks_due_14: {
+          count: tasks.due_within(14).count,
+          msg: tasks.due_within(14).count.to_s + ' task'.pluralize(tasks.due_within(14).count) + ' due in next 14 days'
+        },
+        tasks_missing_info: {
+          count: tasks.needs_more_info.count,
+          msg: tasks.needs_more_info.count.to_s + ' task'.pluralize(tasks.needs_more_info.count) + ' missing info'
+        },
+        tasks_new: {
+          count: tasks.created_since(user.last_sign_in_at).count,
+          msg: tasks.created_since(user.last_sign_in_at).count.to_s + ' newly created task'.pluralize(tasks.created_since(user.last_sign_in_at).count)
+        }
       }
     }
 
@@ -280,7 +309,7 @@ class UsersController < ApplicationController
 
   def user_params
     params.require(:user).permit(:name, :title,
-                                 :staff, :client, :volunteer, :contractor, :admin,
+                                 :register_as, :admin,
                                  :rate, :rate_cents, :rate_currency,
                                  :phone, :email,
                                  :password, :password_confirmation)

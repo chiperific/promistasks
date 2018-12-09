@@ -60,7 +60,8 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
   create_table "organizations", force: :cascade do |t|
     t.string "name", default: "Family Promise GR", null: false
     t.string "domain", default: "familypromisegr.org", null: false
-    t.string "default_staff_phone", default: "(616) 475-5220", null: false
+    t.string "default_email", default: "info@familypromisegr.org", null: false
+    t.string "default_phone", default: "(616) 475-5220", null: false
     t.bigint "billing_contact_id"
     t.bigint "maintenance_contact_id"
     t.bigint "volunteer_contact_id"
@@ -101,12 +102,14 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
   end
 
   create_table "payments", force: :cascade do |t|
-    t.bigint "property_id"
+    t.bigint "contractor_id"
     t.bigint "park_id"
     t.bigint "utility_id"
-    t.bigint "task_id"
-    t.bigint "contractor_id"
     t.bigint "client_id"
+    t.bigint "property_id"
+    t.bigint "task_id"
+    t.string "paid_to", null: false
+    t.string "on_behalf_of", null: false
     t.string "utility_type"
     t.string "utility_account"
     t.date "utility_service_started"
@@ -152,7 +155,7 @@ ActiveRecord::Schema.define(version: 2018_08_11_185130) do
     t.string "lot_rent_currency", default: "USD", null: false
     t.integer "budget_cents"
     t.string "budget_currency", default: "USD", null: false
-    t.string "stage", default: "acquired"
+    t.string "stage", default: "acquired", null: false
     t.date "expected_completion_date"
     t.date "actual_completion_date"
     t.string "certificate_number"

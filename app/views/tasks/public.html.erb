@@ -28,19 +28,19 @@
         <tr>
           <td><strong>Point of contact:</strong></td>
           <td>
-            <%= @task.owner.staff? ? @task.owner.fname : Constant::Organization::CONTACT_NAME %>
+            <%= @task.owner.staff? ? @task.owner.fname : @task_contact %>
           </td>
         </tr>
         <tr>
           <td><strong>Email:</strong></td>
           <td>
-            <%= mail_to @task.owner.staff? ? @task.owner.email : Constant::Organization::CONTACT_EMAIL %>
+            <%= mail_to @task.owner.staff? ? @task.owner.email : @task_email %>
           </td>
         </tr>
         <tr>
           <td><strong>Phone:</strong></td>
           <td>
-            <%= link_to @contact_phone, "tel:#{@contact_phone}" %>
+            <%= link_to @task_phone, "tel:#{@task_phone}" %>
           </td>
         </tr>
       </tbody>
@@ -61,9 +61,9 @@
   </div>
 </div>
 
-<div class="row section center-align z-depth-1 deep-purple darken-4 grey-text text-lighten-3 white-links">
+<div class="row section center-align z-depth-1 deep-purple darken-4 grey-text text-lighten-3 white-links" id='contact_div'>
   <div class="col s12">
     <p class="big-p">Want to find group opportunities? Have a question?</p>
-    <p><%= Constant::Organization::CONTACT_NAME %> can help! Just email <%= mail_to Constant::Organization::CONTACT_EMAIL %> or call <%= link_to Constant::Organization::CONTACT_PHONE, "tel:#{Constant::Organization::CONTACT_PHONE}" %>.</p>
+    <p><%= @org_contact_name %> can help! Just email <%= mail_to @org_contact_email %> or call <%= link_to @org_contact_phone, "tel:#{@org_contact_phone}" %>.</p>
   </div>
 </div>

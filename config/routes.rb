@@ -12,6 +12,8 @@ Rails.application.routes.draw do
     get 'users_finder', on: :member
     get 'complete', on: :member
     get 'un_complete', on: :member
+    get 'task_enum', on: :collection
+    get 'find_id_by_title', on: :collection
   end
 
   resources :properties do
@@ -21,6 +23,9 @@ Rails.application.routes.draw do
     get 'property_enum', on: :collection
     get 'find_id_by_name', on: :collection
     get 'tasks_filter', on: :member
+    get 'reassign', on: :collection
+    get 'reassign_to', on: :member
+    get 'update_stage', on: :member
   end
 
   resources :skills do
@@ -32,8 +37,26 @@ Rails.application.routes.draw do
 
   resources :connections
 
-  devise_for :users, controllers: {
-    omniauth_callbacks: 'users/omniauth_callbacks',
+  resources :park_users
+
+  resources :parks do
+    get 'list', on: :collection
+    get 'properties_filter', on: :member
+    get 'connections', on: :member
+    get 'connection', on: :member
+    get 'delete_user', on: :member
+    get 'park_enum', on: :collection
+    get 'find_id_by_name', on: :collection
+  end
+
+  resources :payments do
+    get 'history', on: :collection
+  end
+
+  resources :utilities
+
+  devise_for :users, path: '', controllers: {
+    omniauth_callbacks: 'omniauth_callbacks',
     registrations: 'registrations',
     sessions: 'sessions'
   }
@@ -52,5 +75,11 @@ Rails.application.routes.draw do
     get 'alerts', on: :member
   end
 
-  mount DelayedJobProgress::Engine => '/delayed'
+  resource :organization, only: %i[show edit update]
+  resolve('Organization') { [:organization] }
+
+
+  mount DelayedJobProgress::Engine => '/delayed' if Rails.env.development?
+
+  mount LetterOpenerWeb::Engine, at: '/letter_opener' if Rails.env.development?
 end

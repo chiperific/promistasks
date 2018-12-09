@@ -2,11 +2,13 @@
 
 class PropertiesController < ApplicationController
   def index
-    authorize @properties = Property.where(is_default: false).visible_to(current_user)
+    authorize Property
+    @properties = Property.except_default.visible_to(current_user)
   end
 
   def list
-    authorize properties = Property.where(is_default: false).related_to(current_user)
+    authorize Property
+    properties = Property.except_default.related_to(current_user)
 
     @show_new = properties.created_since(current_user.last_sign_in_at).count.positive?
 
@@ -27,7 +29,7 @@ class PropertiesController < ApplicationController
       @properties = Property.occupied
       @empty_msg = 'No occupied properties'
     when 'tasks'
-      @properties = Property.where(is_default: false).with_tasks_for(current_user)
+      @properties = Property.except_default.with_tasks_for(current_user)
       @empty_msg = 'No properties with tasks for you'
     when 'over'
       @properties = properties.over_budget
@@ -39,10 +41,10 @@ class PropertiesController < ApplicationController
       @properties = properties.needs_title
       @empty_msg = 'No properties missing titles'
     when 'admin'
-      @properties = Property.where(is_default: false)
+      @properties = Property.except_default
       @empty_msg = 'No properties in system'
     when 'all'
-      @properties = Property.where(is_default: false).visible_to(current_user)
+      @properties = Property.except_default.visible_to(current_user)
       @empty_msg = 'No properties visible to you'
     else # 'yours' || nil
       @properties = properties
@@ -61,15 +63,26 @@ class PropertiesController < ApplicationController
     @connections = @property.connections.except_tennants
     @occupancies = @property.connections.only_tennants
 
+    @creator_name = current_user.staff_or_admin? ? view_context.link_to(@property.creator.name, @property.creator) : @property.creator.name
+
+    if @property.park.present?
+      @park_name = current_user.staff_or_admin? ? view_context.link_to(@property.park.name, @property.park) : @property.park.name
+    else
+      @park_name = 'Not associated'
+    end
+
     @primary_info_hash = {
-      'Creator': @property.creator.name
+      'Creator': @creator_name,
+      'Park': @park_name,
+      'Stage': @property.stage
     }
 
-    if !@property.is_default?
+    unless @property.is_default?
       @primary_info_hash['Occupancy status'] = @property.occupancy_details
       @primary_info_hash['Lot rent'] = @property.lot_rent || 'Not recorded'
       @primary_info_hash['Acquired on'] = human_date(@property.acquired_on) || 'Not recorded'
-      @primary_info_hash['Beds & Baths'] = @property.bed_bath.present? ? @property.bed_bath : 'Not recorded'
+      @primary_info_hash['Beds'] = @property.beds.present? ? @property.beds : 'Not recorded'
+      @primary_info_hash['Baths'] = @property.baths.present? ? @property.baths : 'Not recorded'
     end
 
     @secondary_info_hash = {
@@ -84,25 +97,36 @@ class PropertiesController < ApplicationController
 
     @tasks = @property.tasks.in_process.visible_to(current_user)
     @show_new = @tasks.created_since(current_user.last_sign_in_at).visible_to(current_user).count.positive?
+
+    @payments = @property.payments
   end
 
   def new
     authorize @property = Property.new
+
+    @property.park_id = params[:park] if params[:park].present?
+    @parks = Park.kept.order(:name).pluck(:name, :id)
   end
 
   def create
     authorize @property = Property.new(property_params)
+    @property.creator_id = current_user.id
 
     if @property.save
       redirect_to @return_path, notice: 'Property created'
     else
       flash[:warning] = 'Oops, found some errors'
+      @property.park_id = params[:park] if params[:park].present?
+      @parks = Park.kept.order(:name).pluck(:name, :id)
       render 'new'
     end
   end
 
   def edit
     authorize @property = Property.find(params[:id])
+
+    @property.park_id = params[:park] if params[:park].present?
+    @parks = Park.kept.order(:name).pluck(:name, :id)
   end
 
   def update
@@ -114,14 +138,21 @@ class PropertiesController < ApplicationController
       redirect_to @return_path, notice: 'Property updated'
     else
       flash[:warning] = 'Oops, found some errors'
+      @property.park_id = params[:park] if params[:park].present?
+      @parks = Park.kept.order(:name).pluck(:name, :id)
       render 'edit'
     end
   end
 
   def default
-    authorize @property = Property.where(is_default: true, creator: current_user).first
+    authorize Property
+    @property = Property.where(is_default: true, creator: current_user).first
 
-    redirect_to property_path(@property)
+    if @property.present?
+      redirect_to property_path(@property)
+    else
+      redirect_to @return_path, notice: 'No default tasklist found'
+    end
   end
 
   def reports
@@ -177,6 +208,35 @@ class PropertiesController < ApplicationController
     property_id = properties.present? ? properties.first.id : 0
 
     render json: property_id
+  end
+
+  def reassign
+    authorize @properties = Property.active.order(:name)
+
+    @parks = Park.all.active.order(:name)
+  end
+
+  def reassign_to
+    authorize @property = Property.find(params[:id])
+    @park = Park.find(params[:park_id])
+
+    if @property.update(park: @park)
+      status = 'success'
+    else
+      status = 'failed'
+    end
+
+    render json: { property_id: @property.id.to_s, property_name: @property.name, park_name: @park.name, status: status }
+  end
+
+  def update_stage
+    authorize @property = Property.find(params[:id])
+
+    if @property.update(stage: params[:stage])
+      render json: (@property.name + '\'s stage updated to ' + @property.stage).to_json
+    else
+      render json: @property.errors[:stage]
+    end
   end
 
   private

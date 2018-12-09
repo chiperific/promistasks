@@ -1,9 +1,10 @@
-# Google Tasks API Extension for Family Promise GR
+# Task and Resource Manager with Google Tasks API Extension for Family Promise GR
 
 ## To do:
+3. Mailers
+  - System sends email when payment is due
+
 4. Controllers:
-  - Process changes from models
-  - System sends email when new [Volunteer, Contractor, ] signs up
   - Reports
     - Date range filtering
   - Archiving property in app (when no open tasks) removes from GT.
@@ -11,10 +12,10 @@
   - Creating a user tries to create a session?
   - When a new Property is created, default tasks are also generated:
     -- From a fake seeds file?
-    -- What tasks?
-    -- Get the title
-    -- Inspect the property
-    -- Setup utilities
+    -- What tasks:
+      + Get the title
+      + Inspect the property
+      + Setup utilities
     -- Assign based upon Organization#{apropriate}_contact
   - When a user discards a Property in this app:
     -- Provide the option to re-assign each task's creator && owner? || actually 'discard' for all (delete through API for all users)
@@ -31,8 +32,10 @@
   - How to ignore duplicate tasks (same tasklist) from API?
 
 6. Views:
-  - Organization#show and "#edit if user.admin?
   - Client reporting: public form with limited options for types of errors
+    -- Looks up property by client
+    -- creates a task for property.connections.where(relationship: 'staff contact').last || Organization.maintenance_contact
+    -- Sends an email alert to the owner.
   - Task#public mailto: link needs subject and body text
   - Task#user_finder user_table needs skills tabs in view
   - Vol / Contractor can't get past the homepage / task view
@@ -40,15 +43,23 @@
   - Suppress auto-fill: Connections#new / #edit
   - Rely upon later update val?
 
-7. System tests:
-  - Every view
-    -- As sys_admin, staff, not_staff, client, not_logged_in
-  - Every AJAX (use controllers to find)
-
 8. Jobs
   - Get data from Google: On a cron job every hour
 
+9. Mailers (need tests)
+  - System sends email when new && non-oauth signs up
+  - System sends email with list of payments due between 14 and 0 days && past due
+  - Client Reports send an email when created
+
+## Decisions
+- Footer: Anyone logged in can create a task
+
 ## Keep in mind
+- System Spec Naming convention:
+  * create = #new
+  * edit = #edit
+  * show = #show
+  * view = #index
 - Could do a progress bar on property show, related to Property#occupancy_status: *--*--*--*
 - PRIVATE properties must take self.tasks.map(&:owners &:creators) into account before removing
 
@@ -72,3 +83,24 @@
   - open an additional terminal session (i.e. a new shell)
   - enter pry-remote and the state is loaded
 10. IceCube date recurrences: https://github.com/seejohnrun/ice_cube
+11. Mailer previews: http://localhost:3000/rails/mailers
+
+## Slowest examples (33.66 seconds, 8.6% of total time):
+* Property limits records by scope #over_budget
+  - 3.96 seconds ./spec/models/property_spec.rb:127
+* Property limits records by scope #nearing_budget
+  - 3.79 seconds ./spec/models/property_spec.rb:135
+* Property limits record by class method scopes: self.pending returns active properties where occupancy_status == pending application
+  - 3.63 seconds ./spec/models/property_spec.rb:191
+* Connection#relationship_must_match_user_type ensures the user type and relationship are in sync
+  - 3.15 seconds ./spec/models/connection_spec.rb:172
+* TaskUser must be valid against the schema in order to save
+  - 2.97 seconds ./spec/models/task_user_spec.rb:24
+* TaskUser must be valid against the model in order to save
+  - 2.95 seconds ./spec/models/task_user_spec.rb:38
+* Property limits records by scope #needs_title returns only records without a certificate_number
+  - 2.77 seconds ./spec/models/property_spec.rb:83
+* Property limits records by scope #active is alias of #kept
+  - 2.67 seconds ./spec/models/property_spec.rb:147
+* Property limits records by scope #visible_to returns a combo of #created_by, #with_tasks_for, and #public_visible
+  - 2.62 seconds ./spec/models/property_spec.rb:118

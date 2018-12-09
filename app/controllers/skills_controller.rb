@@ -8,8 +8,8 @@ class SkillsController < ApplicationController
   def show
     authorize @skill = Skill.find(params[:id])
 
-    @skill_users = @skill.skill_users.kept
-    @skill_tasks = @skill.skill_tasks.kept
+    @skill_users = @skill.skill_users
+    @skill_tasks = @skill.skill_tasks
   end
 
   def new
@@ -97,9 +97,7 @@ class SkillsController < ApplicationController
   def update_tasks
     authorize @skill = Skill.find(params[:id])
 
-    badbad
-
-    current = @skill.tasks.map(&:id)
+    current = @skill.tasks.map(:id)
 
     if skill_tasks_params[:add_tasks].present?
       add = JSON.parse(skill_tasks_params[:add_tasks]).map(&:to_i)

@@ -27,6 +27,7 @@ class SessionsController < Devise::SessionsController
   end
 
   def destroy
+    current_user.update(current_sign_in_at: nil, current_sign_in_ip: nil)
     super
     session[:previous] = nil
     session[:pre_previous] = nil

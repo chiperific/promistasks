@@ -1,0 +1,82 @@
+<%= form_for park, html: { autocomplete: 'nope' } do |f| %>
+  <%= render 'form_errors', object: park %>
+
+  <div class="input-field">
+    <%= f.text_field :name %>
+    <label for="park_name">Name</label>
+  </div>
+
+  <div class="input-field">
+    <i class="material-icons prefix">place</i>
+    <%= f.text_field :address %>
+    <label for="park_address">Address (required)</label>
+  </div>
+
+  <div class="row">
+    <div class="input-field col m6 s12">
+      <i class="material-icons prefix">domain</i>
+      <%= f.text_field :city %>
+      <label for="park_city">City (required to show map)</label>
+    </div>
+
+    <div class="input-field col m2 s12">
+      <%= f.text_field :state %>
+      <label for="park_state">State</label>
+    </div>
+
+    <div class="input-field col m4 s12">
+      <%= f.text_field :postal_code %>
+      <label for="park_postal_code">Postal Code</label>
+    </div>
+  </div>
+
+  <div class="input-field">
+    <i class="material-icons prefix">message</i>
+    <%= f.text_area :notes, class: 'materialize-textarea' %>
+    <label for='park_notes'>Notes</label>
+  </div>
+
+  <div class="row center-align">
+    <div class="input-field col m4 s12">
+      <i class="material-icons prefix">face</i>
+      <%= f.text_field :poc_name %>
+      <label for='park_poc_name'>Point of Contact Name</label>
+    </div>
+
+    <div class="input-field col m4 s12">
+      <i class="material-icons prefix">alternate_email</i>
+      <%= f.text_field :poc_email %>
+      <label for='park_poc_email'>Point of Contact Email</label>
+    </div>
+
+    <div class="input-field col m4 s12">
+      <i class="material-icons prefix">phone</i>
+      <%= f.text_field :poc_phone %>
+      <label for='park_poc_phone'>Point of Contact Phone</label>
+    </div>
+  </div>
+
+  <% unless park.new_record? %>
+    <div class="row">
+      <input type="hidden" value="0" name="park[archive]">
+
+      <div class="col s12 center-align">
+        <p>
+          <label>
+            <input type="checkbox" value="1" name="park[archive]" <%= 'checked' if park.discarded_at.present? %>>
+            <span>Archive</span>
+          </label>
+        </p>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row center-align">
+    <div class="col m6">
+      <%= f.submit class: 'btn green' %>
+    </div>
+    <div class="col m6">
+      <%= link_to 'Cancel', @return_path, class: 'btn red lighten-1', 'data-turbolinks'=> 'false' %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,16 @@
+==A new person signed up in the PromiseTasks system==
+
+Here are the details:
+* Name: <%= @new_user.name %>
+* Email: <%= @new_user.email %>
+* Phone: <%= @new_user.phone %>
+* User type: <%= @new_user.type.to_sentence %>
+
+--
+
+View this person in the system by visiting: <%= user_url(@new_user) %>
+
+Thanks,
+- The robots that run PromiseTasks
+
+P.S.: Don't reply to this email. The robots have better things to do.

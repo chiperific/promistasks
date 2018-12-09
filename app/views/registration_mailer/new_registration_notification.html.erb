@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+  </head>
+  <body>
+    <h4>A new person signed up in the PromiseTasks system.</h4>
+    <hr>
+    <p>Here are the details:</p>
+    <table>
+      <tbody>
+        <tr>
+          <td>Name:</td>
+          <td>
+            <%= @new_user.name %>
+          </td>
+        </tr>
+        <tr>
+          <td>Email:</td>
+          <td><%= @new_user.email %></td>
+        </tr>
+        <tr>
+          <td>Phone:</td>
+          <td><%= @new_user.phone %></td>
+        </tr>
+        <tr>
+          <td>User type:</td>
+          <td><%= @new_user.type.to_sentence %></td>
+        </tr>
+      </tbody>
+    </table>
+    <hr>
+    <p>
+      <%= link_to 'View this person in the system', user_url(@new_user) %>
+    </p>
+    <p>
+      Thanks,<br>
+      - The robots that run PromiseTasks
+    </p>
+    <p>
+      P.S.: Don't reply to this email. The robots have better things to do.
+    </p>
+  </body>
+</html>

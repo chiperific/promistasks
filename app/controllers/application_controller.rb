@@ -5,7 +5,7 @@ class ApplicationController < ActionController::Base
   include ErrorHandler
   include ApplicationHelper
 
-  protect_from_forgery with: :exception
+  # protect_from_forgery with: :exception
 
   # REMOVE BEFORE PRODUCTION
   after_action :verify_authorized, unless: :devise_controller?
@@ -65,7 +65,7 @@ class ApplicationController < ActionController::Base
 
   def bad_param?(param)
     return true if param.blank?
-    (Constant::Params::ACTIONS.include? param['action']) ||
+    (Constant::Params::BAD_ACTIONS.include? param['action']) ||
       param['commit'].present? ||
       param['controller'] == 'sessions'
   end
@@ -84,6 +84,6 @@ class ApplicationController < ActionController::Base
       filter: param['filter']
     )
   rescue ActionController::UrlGenerationError
-    '/properties'
+    '/'
   end
 end

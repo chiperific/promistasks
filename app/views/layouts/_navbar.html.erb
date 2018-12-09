@@ -33,9 +33,13 @@
 
       <li>
         <% if current_user %>
-          <%= link_to '<i class="material-icons">exit_to_app</i>'.html_safe, destroy_user_session_path, method: :delete, class: 'tooltipped', 'data-position' => 'bottom', 'data-tooltip' => 'Sign out' %>
+          <%= link_to destroy_user_session_path, method: :delete, class: 'tooltipped', 'data-position' => 'bottom', 'data-tooltip' => 'Sign out', id: 'logout' do %>
+            <i class="material-icons">exit_to_app</i>
+          <% end %>
         <% else %>
-          <%= link_to '<i class="material-icons">lock_open</i>'.html_safe, new_user_session_path, class: 'tooltipped', 'data-position' => 'bottom', 'data-tooltip' => 'Sign in' %>
+          <%= link_to new_user_session_path, class: 'tooltipped', 'data-position' => 'bottom', 'data-tooltip' => 'Sign in', id: 'login' do %>
+            <i class="material-icons">lock_open</i>
+          <% end %>
         <% end %>
       </li>
     </ul>
