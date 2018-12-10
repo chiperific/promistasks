@@ -7,41 +7,48 @@
     <p>Hey <%= @user.name %>,</p>
     <h4>Reminder of upcoming payments:</h4>
 
-    <p>Payments due in next 7 days:</p>
-    <table style="border: 1px solid gray; border-collapse: collapse;">
-      <thead>
-        <tr>
-          <th style="border: 1px solid gray;">Due</th>
-          <th style="border: 1px solid gray;">Pay To</th>
-          <th style="border: 1px solid gray;">For</th>
-          <th style="border: 1px solid gray;">Utility</th>
-          <th style="border: 1px solid gray;">$ Due</th>
-          <th style="border: 1px solid gray;">Recurring</th>
-          <th style="border: 1px solid gray;"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <%= render partial: 'user_mailer/payment', collection: @pmt7 %>
-      </tbody>
-    </table>
-    <br />
-    <p>Payments due in next 14 days:</p>
-    <table style="border: 1px solid gray; border-collapse: collapse;">
-      <thead>
-        <tr>
-          <th style="border: 1px solid gray;">Due</th>
-          <th style="border: 1px solid gray;">Pay To</th>
-          <th style="border: 1px solid gray;">For</th>
-          <th style="border: 1px solid gray;">Utility</th>
-          <th style="border: 1px solid gray;">$ Due</th>
-          <th style="border: 1px solid gray;">Recurring</th>
-          <th style="border: 1px solid gray;"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <%= render partial: 'user_mailer/payment', collection: @pmt14 %>
-      </tbody>
-    </table>
+    <% if @pmt7.any? %>
+      <p>Due in next 7 days:</p>
+      <table style="border: 1px solid gray; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="border: 1px solid gray;">Due</th>
+            <th style="border: 1px solid gray;">Pay To</th>
+            <th style="border: 1px solid gray;">For</th>
+            <th style="border: 1px solid gray;">Utility</th>
+            <th style="border: 1px solid gray;">$ Due</th>
+            <th style="border: 1px solid gray;">Recurring</th>
+            <th style="border: 1px solid gray;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= render partial: 'user_mailer/payment', collection: @pmt7 %>
+        </tbody>
+      </table>
+    <% end %>
+    <% if @pmt7.any? && @pmt14.any? %>
+      <br />
+    <% end %>
+    <% if @pmt14.any? %>
+      <p>Due in next 14 days:</p>
+      <table style="border: 1px solid gray; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="border: 1px solid gray;">Due</th>
+            <th style="border: 1px solid gray;">Pay To</th>
+            <th style="border: 1px solid gray;">For</th>
+            <th style="border: 1px solid gray;">Utility</th>
+            <th style="border: 1px solid gray;">$ Due</th>
+            <th style="border: 1px solid gray;">Recurring</th>
+            <th style="border: 1px solid gray;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= render partial: 'user_mailer/payment', collection: @pmt14 %>
+        </tbody>
+      </table>
+    <% end %>
+
     <%= render 'email_signature' %>
   </body>
 </html>

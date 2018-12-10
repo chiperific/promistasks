@@ -7,7 +7,7 @@
     <% end %>
   </td>
   <td><%= payments_table.reason.capitalize %></td>
-  <td><%= payments_table.bill_amt.format %></td>
+  <td><%= humanized_money_with_symbol payments_table.bill_amt %></td>
   <td><%= payments_table.status %></td>
   <td>
     <% if source == payments_table.for.class.name %>

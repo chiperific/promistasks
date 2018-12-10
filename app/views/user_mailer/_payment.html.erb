@@ -12,7 +12,7 @@
     <%= payment.utility_type&.capitalize %>
   </td>
   <td style="border: 1px solid gray; padding: 0 8px;">
-    <%= payment.bill_amt.format %>
+    <%= humanized_money_with_symbol payment.bill_amt %>
   </td>
   <td style="border: 1px solid gray; padding: 0 8px;">
     <%= human_boolean(payment.recurring) %>

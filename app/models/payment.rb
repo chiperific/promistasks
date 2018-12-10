@@ -52,7 +52,7 @@ include Discard::Model
 
   scope :related_by_property_to, ->(user) { active.where(property_id: Property.select(:id).related_to(user)) }
   scope :related_by_task_to,     ->(user) { active.where(task_id: Task.select(:id).related_to(user)) }
-  scope :related_to,             ->(user) { active.related_by_property_to(user).or(related_by_task_to(user)) }
+  scope :related_to,             ->(user) { active.related_by_property_to(user).or(related_by_task_to(user)).or(where(creator_id: user.id)) }
 
 
   after_save :create_next_instance, if: -> { recurrence.present? && recurring && paid.present? && paid_before_last_save.blank? }

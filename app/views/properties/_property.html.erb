@@ -31,7 +31,7 @@
       <p class="small-text">
         <%= property.tasks.visible_to(current_user).count %> tasks related to you.<br>
         <% unless property.is_default? %>
-          Budget remaining: <%= property.budget_remaining.format %>
+          Budget remaining: <%= humanized_money_with_symbol property.budget_remaining %>
         <% end %>
       </p>
     </div>

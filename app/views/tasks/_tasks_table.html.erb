@@ -58,10 +58,10 @@
     </td>
     <% if controller_name == 'properties' %>
       <td class="center-align">
-        <%= task.budget&.format || '<span class="small-text">not set</span>'.html_safe %>
+        <%= task.budget.present? ? humanized_money_with_symbol(task.budget) : '<span class="small-text">not set</span>'.html_safe %>
       </td>
       <td class="center-align">
-        <%= task.cost&.format || '<span class="small-text">not set</span>'.html_safe %>
+        <%= task.cost.present? ? humanized_money_with_symbol(task.cost) : '<span class="small-text">not set</span>'.html_safe %>
       </td>
     <% end %>
     <% unless controller.action_name == 'tasks_finder' %>

@@ -18,7 +18,7 @@
     <%= link_to payment.for.name, payment.for %>
   </td>
   <td><%= payment.utility_type&.capitalize %></td>
-  <td><%= payment.bill_amt.format %></td>
+  <td><%= humanized_money_with_symbol payment.bill_amt %></td>
   <td><%= human_boolean(payment.recurring) %></td>
   <td class="slim">
     <%= link_to payment_path(payment), class: 'btn-floating btn-small green', 'data-turbolinks'=> 'false' do  %>
