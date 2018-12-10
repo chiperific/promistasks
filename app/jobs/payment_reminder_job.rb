@@ -26,7 +26,7 @@ class PaymentReminderJob < ApplicationJob
   def perform(*args)
     @users_ary.uniq.each do |user|
       is_billing_contact = user.id == Organization.first.billing_contact&.id
-      should_send = is_billing_contact ||
+      should_send = (is_billing_contact && Payment.due_within(14).any?) ||
         Payment.due_within(14).related_to(user).any?
 
       UserMailer.payments_reminder(user, is_billing_contact).deliver_now if should_send
