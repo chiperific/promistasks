@@ -19,6 +19,7 @@ class CreateDelayedJobs < ActiveRecord::Migration[5.1]
       t.integer   :progress_max,      null: false, default: 100
       t.string    :message
       t.string    :error_message
+      t.string    :cron
       t.datetime  :completed_at
     end
 

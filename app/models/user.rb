@@ -64,6 +64,7 @@ class User < ActiveRecord::Base
   after_save :discard_connections,   if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
   after_save :undiscard_connections, if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
 
+  scope :oauth,                       -> { undiscarded.where.not(oauth_id: nil) }
   scope :staff,                       -> { undiscarded.where.not(oauth_id: nil).or(where(staff: true)).or(where(admin: true)) }
   scope :not_clients,                 -> { undiscarded.where(client: false).or(where(client: true, volunteer: true)) }
   scope :staff_except,                ->(user) { undiscarded.staff.where.not(id: user) }

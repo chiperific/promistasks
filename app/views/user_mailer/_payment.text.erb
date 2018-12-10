@@ -1,0 +1,8 @@
+[----------------------------------------
+[ Due:       <%= human_date(payment.due) %>
+[ Pay To:    <%= payment.to.name %>
+[ For:       <%= payment.for.name %>
+[ Utility:   <%= payment.utility_type&.capitalize %>
+[ $ Due:     <%= humanized_money_with_symbol payment.bill_amt %>
+[ Recurring: <%= human_boolean(payment.recurring) %>
+[ View:      <%= payment_url(payment) %>

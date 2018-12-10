@@ -13,10 +13,10 @@
   <td><%= properties.occupancy_status %></td>
   <% if properties.budget_remaining.negative? %>
     <td class='red-text text-darken-3'>
-      <%= properties.budget_remaining.format %>
+      <%= humanized_money_with_symbol properties.budget_remaining %>
     </td>
   <% else %>
-    <td><%= properties.budget_remaining.format %></td>
+    <td><%= humanized_money_with_symbol properties.budget_remaining %></td>
   <% end %>
   <td><%= properties.tasks.in_process.count %></td>
   <td><%= properties.tasks.in_process.related_to(current_user).count %></td>

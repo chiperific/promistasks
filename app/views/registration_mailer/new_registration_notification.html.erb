@@ -5,7 +5,7 @@
   </head>
   <body>
     <h4>A new person signed up in the PromiseTasks system.</h4>
-    <hr>
+    <br />
     <p>Here are the details:</p>
     <table>
       <tbody>
@@ -29,16 +29,9 @@
         </tr>
       </tbody>
     </table>
-    <hr>
     <p>
       <%= link_to 'View this person in the system', user_url(@new_user) %>
     </p>
-    <p>
-      Thanks,<br>
-      - The robots that run PromiseTasks
-    </p>
-    <p>
-      P.S.: Don't reply to this email. The robots have better things to do.
-    </p>
+    <%= render 'email_signature' %>
   </body>
 </html>

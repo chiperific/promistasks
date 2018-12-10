@@ -1,0 +1,17 @@
+Hey <%= @user.name %>,
+Here's a reminder of upcoming payments:
+
+<% if @pmt7.any? %>
+===== Due in next 7 days: =====
+<%= render partial: 'user_mailer/payment', collection: @pmt7 %>
+========================================
+<% end %>
+<% if @pmt7.any? && @pmt14.any? %>
+
+<% end %>
+<% if @pmt14.any? %>
+===== Due in next 14 days: ====
+<%= render partial: 'user_mailer/payment', collection: @pmt14 %>
+========================================
+<% end %>
+<%= render 'email_signature' %>

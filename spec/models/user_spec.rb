@@ -128,6 +128,20 @@ RSpec.describe User, type: :model do
     let(:oauth_user2)      { create :oauth_user }
     let(:property)         { create :property, creator: oauth_user2 }
 
+    fit '#oauth returns only Users with an oauth_id' do
+      @user.save
+      @oauth_user.save
+
+      expect(User.oauth).to include @oauth_user
+      expect(User.oauth).to include oauth_user2
+      expect(User.oauth).to include admin
+      expect(User.oauth).not_to include @user
+      expect(User.oauth).not_to include client
+      expect(User.oauth).not_to include volunteer
+      expect(User.oauth).not_to include client_volunteer
+      expect(User.oauth).not_to include contractor
+    end
+
     it '#staff returns only Users with an oauth_id, where staff is true or admin is true' do
       @user.save
       @oauth_user.save

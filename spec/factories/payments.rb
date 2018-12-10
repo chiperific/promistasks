@@ -54,6 +54,7 @@ FactoryBot.define do
     utility
     paid_to { 'organization' }
     on_behalf_of { 'property' }
+    association :creator, factory: :user
   end
 
   factory :old_payment, class: Payment do
