@@ -1,10 +1,6 @@
 # Task and Resource Manager with Google Tasks API Extension for Family Promise GR
 
 ## To do:
-3. Mailers
-  - System sends email when payment is due
-  -- Needs spec tests
-
 4. Controllers:
   - Reports
     - Date range filtering
