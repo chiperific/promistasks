@@ -13,6 +13,7 @@
 //= require jquery
 //= require rails-ujs
 //= require turbolinks
+//= require datatables
 //= require_tree .
 
 function getParameterByName(name, url) {

@@ -45,3 +45,5 @@ $(document).on 'turbolinks:load', ->
   $('body').on 'click', 'a.prevent_default', ->
     event.preventDefault
     false
+
+  $(".data-table").dataTable()

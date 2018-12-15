@@ -18,6 +18,7 @@ gem 'geocoder'
 # gem 'google-api-client' # use instead of HTTParty when I can figure it out
 gem 'httparty'
 gem 'jbuilder', '~> 2.5'
+gem 'jquery-datatables'
 gem 'jquery-rails'
 gem 'money-rails'
 gem 'omniauth-google-oauth2'
