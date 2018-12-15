@@ -128,7 +128,7 @@ RSpec.describe User, type: :model do
     let(:oauth_user2)      { create :oauth_user }
     let(:property)         { create :property, creator: oauth_user2 }
 
-    fit '#oauth returns only Users with an oauth_id' do
+    it '#oauth returns only Users with an oauth_id' do
       @user.save
       @oauth_user.save
 

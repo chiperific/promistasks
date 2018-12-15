@@ -52,11 +52,6 @@
 - Footer: Anyone logged in can create a task
 
 ## Keep in mind
-- System Spec Naming convention:
-  * create = #new
-  * edit = #edit
-  * show = #show
-  * view = #index
 - Could do a progress bar on property show, related to Property#occupancy_status: *--*--*--*
 - PRIVATE properties must take self.tasks.map(&:owners &:creators) into account before removing
 
