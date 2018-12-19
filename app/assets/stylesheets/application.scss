@@ -14,6 +14,9 @@
  *= require_self
  */
 @import "https://fonts.googleapis.com/icon?family=Material+Icons";
+@import "materialize";
 
-@import 'datatables/dataTables.material';
-// @import "datatables";
+@import 'datatables/jquery.dataTables';
+@import 'datatables/extensions/Responsive/responsive.dataTables';
+@import 'datatables/extensions/Buttons/buttons.dataTables';
+@import "datatables";

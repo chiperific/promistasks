@@ -3,7 +3,7 @@
 ## To do:
 4. Controllers:
   - Reports
-    - Date range filtering
+    - Needs a partial
   - Archiving property in app (when no open tasks) removes from GT.
   - Contractors can't pick jobs (must be assigned as owner by a staff user)
   - Creating a user tries to create a session?

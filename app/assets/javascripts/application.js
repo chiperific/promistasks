@@ -13,6 +13,7 @@
 //= require jquery
 //= require rails-ujs
 //= require turbolinks
+//= require materialize
 //= require datatables
 //= require_tree .
 
@@ -36,3 +37,17 @@ function actionMatches(actions_ary) {
   return actions_ary.indexOf(action) !== -1;
 }
 
+// changeElementType plugin:
+(function($) {
+    $.fn.changeElementType = function(newType, stripData = false) {
+        var attrs = {};
+
+        $.each(this[0].attributes, function(idx, attr) {
+            attrs[attr.nodeName] = attr.nodeValue;
+        });
+
+        this.replaceWith(function() {
+            return $("<" + newType + "/>", attrs).append($(this).contents());
+        });
+    };
+})(jQuery);

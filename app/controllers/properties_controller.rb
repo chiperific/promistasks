@@ -156,12 +156,13 @@ class PropertiesController < ApplicationController
   end
 
   def reports
-    authorize @properties = Property.undiscarded
-    @discarded_properties = Property.discarded
-
-    # reports include:
-    # budget status per property
-    # properties by connection.stage
+    if params[:include_archived] == 'true'
+      authorize @properties = Property.with_discarded
+      @include_archived = true
+    else
+      authorize @properties = Property.undiscarded
+      @include_archived = false
+    end
   end
 
   def tasks_filter

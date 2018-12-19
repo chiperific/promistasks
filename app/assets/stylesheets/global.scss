@@ -150,22 +150,24 @@ a.modal-trigger {
   }
 }
 
-th {
-  padding: 5px 5px !important;
-  height: 46px;
-}
-
-td {
-  padding-top: 5px !important;
-  padding-bottom: 5px !important;
-  height: 46px;
-
-  &.truncate {
-    width: 200px;
-    margin-top: 15px;
+table:not(.dataTable) {
+  th {
+    padding: 5px 5px !important;
+    height: 46px;
   }
-  &.slim {
-    width: 43px;
+
+  td {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    height: 46px;
+
+    &.truncate {
+      width: 200px;
+      margin-top: 15px;
+    }
+    &.slim {
+      width: 43px;
+    }
   }
 }
 

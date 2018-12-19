@@ -13,6 +13,7 @@ class Property < ApplicationRecord
 
   has_many :tasks, inverse_of: :property, dependent: :destroy
   has_many :payments, inverse_of: :property, dependent: :destroy
+  has_many :utilities, through: :payments
 
   belongs_to :creator, class_name: 'User', inverse_of: :created_properties
   belongs_to :park, inverse_of: :properties, required: false
