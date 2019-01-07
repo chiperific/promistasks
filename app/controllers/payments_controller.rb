@@ -67,7 +67,7 @@ class PaymentsController < ApplicationController
 
     if params[:park].present?
       @to_park = true
-      @payment.park = Park.find(params[:park])
+      @payment.park = Park.find(params[:park]) unless params[:park].to_i == 0
     end
 
     if params[:contractor].present?
@@ -90,7 +90,20 @@ class PaymentsController < ApplicationController
       @payment.property = Property.find(params[:property])
     end
 
-    @to_organization = true if params[:organization].present?
+    if params[:payment].present?
+      @payment.payment_amt = params[:payment]
+      @payment.bill_amt = params[:payment]
+    end
+
+    if params[:type].present? && Constant::Utility::TYPES.include?(params[:type])
+      @payment.utility_type = params[:type]
+      if params[:type] == 'rent' && params[:property].present?
+        property = Property.find(params[:property])
+        @payment.utility_service_started = property.acquired_on
+      end
+    end
+
+    @to_organization = params[:organization].present?
 
     @utilities   = Utility.kept.order(:name).pluck(:name, :id)
     @parks       = Park.kept.order(:name).pluck(:name, :id)
@@ -107,10 +120,25 @@ class PaymentsController < ApplicationController
 
     @payment.manage_relationships(payment_params)
 
+    if @payment.property_id.present? && @payment.park_id.present? && @payment.property.park_id.blank?
+      @payment.property.update(park_id: @payment.park_id)
+    end
+
     if @payment.save
       redirect_to @return_path, notice: 'Payment created'
     else
       flash[:warning] = 'Oops, found some errors'
+
+      @to_client       = @payment.client_id.present? && @payment.paid_to == 'client'
+      @to_contractor   = @payment.contractor_id.present? || @payment.paid_to == 'contractor'
+      @to_organization = @payment.paid_to == 'organization'
+      @to_park         = @payment.park_id.present? || @payment.paid_to == 'park'
+      @to_utility      = @payment.utility_id.present? || @payment.paid_to == 'utility'
+      @for_client      = @payment.client_id.present? || @payment.on_behalf_of == 'client'
+      @for_property    = @payment.property_id.present? || @payment.on_behalf_of = 'property'
+
+      @payment.utility_service_started = @payment.property&.acquired_on if @payment.utility_type == 'rent' && @payment.property.present?
+
       @utilities   = Utility.kept.order(:name).pluck(:name, :id)
       @parks       = Park.kept.order(:name).pluck(:name, :id)
       @users       = User.kept.order(:name)
@@ -124,6 +152,8 @@ class PaymentsController < ApplicationController
 
   def edit
     authorize @payment
+
+    @to_organization = @payment.paid_to == 'organization'
 
     @to_utility    = @payment.utility_id.present?
     @to_park       = @payment.park_id.present?
@@ -147,12 +177,38 @@ class PaymentsController < ApplicationController
     @payment.discard if params[:payment][:archive] == '1' && !@payment.discarded?
     @payment.undiscard if params[:payment][:archive] == '0' && @payment.discarded?
 
+    if params[:payment][:property].present? && params[:payment][:park].to_i != 0
+      property = Property.find(params[:property])
+      property.update(park: params[:park])
+    end
+
     @payment.manage_relationships(payment_params)
+
+    if @payment.property_id.present? && @payment.park_id.present? && @payment.property.park_id.blank?
+      @payment.property.update(park_id: @payment.park_id)
+    end
 
     if @payment.update(payment_params_wo_relations)
       redirect_to @return_path, notice: 'Payment updated'
     else
       flash[:warning] = 'Oops, found some errors'
+
+      @to_client       = @payment.client_id.present? && @payment.paid_to == 'client'
+      @to_contractor   = @payment.contractor_id.present? || @payment.paid_to == 'contractor'
+      @to_organization = @payment.paid_to == 'organization'
+      @to_park         = @payment.park_id.present? || @payment.paid_to == 'park'
+      @to_utility      = @payment.utility_id.present? || @payment.paid_to == 'utility'
+      @for_client      = @payment.client_id.present? || @payment.on_behalf_of == 'client'
+      @for_property    = @payment.property_id.present? || @payment.on_behalf_of = 'property'
+
+      @payment.utility_service_started = @payment.property&.acquired_on if @payment.utility_type == 'rent' && @payment.property.present?
+      @to_utility    = @payment.utility_id.present?
+      @to_park       = @payment.park_id.present?
+      @to_contractor = @payment.contractor_id.present?
+      @to_client     = @payment.client_id.present? && @payment.paid_to == 'client'
+      @for_client    = @payment.client_id.present? && @payment.on_behalf_of == 'client'
+      @for_property  = @payment.property_id.present?
+
       @utilities   = Utility.kept.order(:name).pluck(:name, :id)
       @parks       = Park.kept.order(:name).pluck(:name, :id)
       @users       = User.kept.order(:name)

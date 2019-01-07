@@ -1,35 +1,14 @@
 <%= form_for payment, html: { autocomplete: 'nope' } do |f| %>
   <%= render 'form_errors', object: payment %>
 
-  <div class="row center-align form-inputs">
-    <input type="hidden" value="0" name="payment[send_email_reminders]">
-    <div class="col s12 m6 input-field">
-      <p>
-        <label for='payment_send_email_reminders'>
-          <input type="checkbox" value="1" name="payment[send_email_reminders]" id="payment_send_email_reminders" <%= 'checked' if payment.send_email_reminders %>>
-          <span>Send email reminders?</span>
-        </label>
-      </p>
-    </div>
-
-    <div class="col s12 m6 input-field">
-      <p>
-        <label for='payment_suppress_system_alerts'>
-          <input type="checkbox" value="1" name="payment[suppress_system_alerts]" id="payment_suppress_system_alerts" <%= 'checked' if payment.suppress_system_alerts %>>
-          <span>Suppress system alerts?</span>
-        </label>
-      </p>
-    </div>
-  </div>
-
   <div id="to_checkboxes" class="row center-align form-inputs">
     <div class="col s12">
       <% if @to_organization %>
-        <%= f.hidden_field :paid_to, { value: 'organization', disabled: true } %>
-        <h4>Payment from:</h4>
+        <%= f.text_field :paid_to, { value: 'organization', disabled: true } %>
+        <h4 id="paid_to_label">Payment from:</h4>
       <% else %>
-        <%= f.hidden_field :paid_to %>
-        <h4>Pay to:</h4>
+        <%= f.text_field :paid_to %>
+        <h4 id="paid_to_label">Pay to:</h4>
       <% end %>
     </div>
 
@@ -177,7 +156,7 @@
   </div>
 
   <div class="row center-align form-inputs" id="utility_div">
-    <h4>Utility info:</h4>
+    <h4>Purpose:</h4>
 
     <div class="col s12 m4 input-field">
       <%= f.select :utility_type, Constant::Utility::TYPES, include_blank: true %>
@@ -210,6 +189,27 @@
       </p>
     </div>
 
+  </div>
+
+  <div class="row center-align form-inputs">
+    <input type="hidden" value="0" name="payment[send_email_reminders]">
+    <div class="col s12 m6 input-field">
+      <p>
+        <label for='payment_send_email_reminders'>
+          <input type="checkbox" value="1" name="payment[send_email_reminders]" id="payment_send_email_reminders" <%= 'checked' if payment.send_email_reminders %>>
+          <span>Send email reminders?</span>
+        </label>
+      </p>
+    </div>
+
+    <div class="col s12 m6 input-field">
+      <p>
+        <label for='payment_suppress_system_alerts'>
+          <input type="checkbox" value="1" name="payment[suppress_system_alerts]" id="payment_suppress_system_alerts" <%= 'checked' if payment.suppress_system_alerts %>>
+          <span>Suppress system alerts?</span>
+        </label>
+      </p>
+    </div>
   </div>
 
   <div class="row" id="recurrence_div">

@@ -3,8 +3,6 @@
 Rails.application.routes.draw do
   root to: 'tasks#public_index'
 
-  # get 'current_user_id', to: 'users#current_user_id'
-
   resources :tasks do
     get 'public', on: :member
     get 'skills', on: :member

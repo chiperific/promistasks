@@ -64,6 +64,6 @@ module Constant
   end
 
   class Utility
-    TYPES = %w[gas electric water garbage sewer cable internet phone].freeze
+    TYPES = %w[rent gas electric water garbage sewer cable internet phone].freeze
   end
 end

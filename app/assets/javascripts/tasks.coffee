@@ -5,18 +5,20 @@ highlightField = (elem, value) ->
     $(elem).removeClass('found_match')
 
 findUserByName = (elem, targetString) ->
-  name = $(elem).prop('value').replace(' ','+')
-  target = '/users/find_id_by_name/?name=' + name
-  $.ajax(url: target).done (response) ->
-    $(targetString).val(response)
-    highlightField(elem, response)
+  if $(elem).length
+    name = $(elem).prop('value').replace(' ','+')
+    target = '/users/find_id_by_name/?name=' + name
+    $.ajax(url: target).done (response) ->
+      $(targetString).val(response)
+      highlightField(elem, response)
 
 findPropertyByName = (elem, targetString) ->
-  name = $(elem).prop('value').replace(' ','+')
-  target = '/properties/find_id_by_name/?name=' + name
-  $.ajax(url: target).done (response) ->
-    $(targetString).val(response)
-    highlightField(elem, response)
+  if $(elem).length
+    name = $(elem).prop('value').replace(' ','+')
+    target = '/properties/find_id_by_name/?name=' + name
+    $.ajax(url: target).done (response) ->
+      $(targetString).val(response)
+      highlightField(elem, response)
 
 $(document).on 'turbolinks:load', ->
   return unless controllerMatches(['tasks']) &&

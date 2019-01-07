@@ -63,49 +63,45 @@
         <% end %>
       </div>
     </div>
-    <div class="row">
-      <div class="col s12 center">
-        <ul class="tabs z-depth-1" name="tasks">
-          <% if @show_new %>
+    <% if @tasks.count.positive? %>
+      <div class="row">
+        <div class="col s12 center">
+          <ul class="tabs z-depth-1" name="tasks">
+            <% if @show_new %>
+              <li class="tab">
+                <%= link_to 'New', tasks_filter_property_path(@property, tasks: 'new'), id: 'tasks_your', remote: true %>
+              </li>
+            <% end %>
             <li class="tab">
-              <%= link_to 'New', tasks_filter_property_path(@property, tasks: 'new'), id: 'tasks_your', remote: true %>
-            </li>
-          <% end %>
-          <li class="tab">
-            <%= link_to 'Active', tasks_filter_property_path(@property, tasks: 'active'), id: 'tasks_your', class: 'active', remote: true %>
-          </li>
-          <li class="tab">
-            <%= link_to 'Completed', tasks_filter_property_path(@property, tasks: 'completed'), id: 'tasks_completed', remote: true %>
-          </li>
-          <% if current_user.admin? %>
-            <li class="tab">
-              <%= link_to 'All', tasks_filter_property_path(@property, tasks: 'all'), id: 'tasks_all', remote: true %>
+              <%= link_to 'Active', tasks_filter_property_path(@property, tasks: 'active'), id: 'tasks_your', class: 'active', remote: true %>
             </li>
             <li class="tab">
-              <%= link_to 'Archived', tasks_filter_property_path(@property, tasks: 'archived'), id: 'tasks_archived', remote: true %>
+              <%= link_to 'Completed', tasks_filter_property_path(@property, tasks: 'completed'), id: 'tasks_completed', remote: true %>
             </li>
-          <% end %>
-        </ul>
+            <% if current_user.admin? %>
+              <li class="tab">
+                <%= link_to 'All', tasks_filter_property_path(@property, tasks: 'all'), id: 'tasks_all', remote: true %>
+              </li>
+              <li class="tab">
+                <%= link_to 'Archived', tasks_filter_property_path(@property, tasks: 'archived'), id: 'tasks_archived', remote: true %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <table class='highlight responsive-table' id='task_table'>
-        <thead>
-          <%= render partial: 'tasks/tasks_table_header' %>
-        </thead>
-        <tbody id='task_table_body'>
-          <% if @tasks.count.positive? %>
-            <%= render partial: 'tasks/tasks_table', locals: { tasks: @tasks } %>
-          <% else %>
-            <tr>
-              <td colspan="8" class="center-align">
-                No tasks
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
+      <div class="row">
+        <table class='highlight responsive-table' id='dttb1-task_table'>
+          <thead>
+            <%= render partial: 'tasks/tasks_table_header' %>
+          </thead>
+          <tbody id='task_table_body'>
+          <%= render partial: 'tasks/tasks_table', locals: { tasks: @tasks } %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="center-align">No tasks</p>
+    <% end %>
   </div>
 </div>
 
@@ -126,7 +122,7 @@
 
       <div class="row center-align">
         <% if @occupancies.any? %>
-          <table class='striped responsive-table'>
+          <table class='highlight responsive-table' id="dttb_simple-occupancy_table">
             <thead>
               <tr>
                 <th>Person</th>
@@ -162,7 +158,7 @@
 
       <div class="row center-align">
         <% if @connections.any? %>
-          <table class='striped responsive-table'>
+          <table class='highlight responsive-table' id="dttb_simple-connections_table">
             <thead>
               <tr>
                 <th>Person</th>
@@ -185,8 +181,13 @@
   <div class="row section">
     <div class="col s12">
       <div class="row valign-wrapper">
-        <div class="col s12 m10">
+        <div class="col s12 m8">
           <h4>Payments</h4>
+        </div>
+        <div class="col s12 m2">
+          <%= link_to new_payment_path(property: @property, park: @property.park || 'yes', payment: @property.lot_rent, type: 'rent'), class: 'btn waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false' do %>
+            <span>pay rent</span>
+          <% end %>
         </div>
         <div class="col s12 m2">
           <%= link_to new_payment_path(property: @property), class: 'btn waves-effect waves-light green darken-2', 'data-turbolinks'=> 'false' do %>
@@ -198,7 +199,7 @@
 
       <div class="row center-align">
         <% if @payments.any? %>
-          <table class='striped responsive-table'>
+          <table class='highlight responsive-table' id="dttb1-payments_table">
             <thead>
               <%= render partial: 'payments_table_head', locals: { source: 'Property' } %>
             </thead>

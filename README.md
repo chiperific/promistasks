@@ -3,7 +3,13 @@
 ## To do:
 4. Controllers:
   - Reports
-    - Needs a partial
+    - Differentiate various costs:
+    -- Total spent
+    -- Lot rent (sum payments of type 'rent')
+    -- Rehab (sum tasks for property)
+    -- Family status: check latest occupancy
+    -- Purchase (Property#cost)
+    --
   - Archiving property in app (when no open tasks) removes from GT.
   - Contractors can't pick jobs (must be assigned as owner by a staff user)
   - Creating a user tries to create a session?

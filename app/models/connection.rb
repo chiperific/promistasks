@@ -10,7 +10,6 @@ class Connection < ApplicationRecord
   validates :relationship, inclusion: { in: Constant::Connection::RELATIONSHIPS, message: "must be one of these: #{Constant::Connection::RELATIONSHIPS.to_sentence}" }
   validates :stage, inclusion: { in: Constant::Connection::STAGES, allow_blank: true, message: "must be one of these: #{Constant::Connection::STAGES.to_sentence}" }
 
-  before_validation :property_ready_for_tennant,         if: -> { relationship == 'tennant' && property.stage != 'complete' }
   before_validation :relationship_appropriate_for_stage, if: -> { stage.present? && relationship != 'tennant' }
   before_validation :relationship_must_match_user_type,  if: -> { relationship.present? }
   before_validation :stage_date_and_stage,               if: -> { stage.present? || stage_date.present? }

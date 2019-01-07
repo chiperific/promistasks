@@ -41,22 +41,22 @@ class Task < ApplicationRecord
 
   default_scope { order(:due, :priority, :title) }
 
-  scope :complete,        -> { undiscarded.where.not(completed_at: nil) }
-  scope :created_since,   ->(time) { in_process.where("#{table_name}.created_at >= ?", time) }
-  scope :due_within,      ->(day_num) { in_process.where(due: Date.today..(Date.today + day_num.days)) }
-  scope :except_primary,  -> { joins(:property).where('properties.is_default = FALSE') }
-  scope :has_cost,        -> { undiscarded.where.not(cost_cents: nil) }
-  scope :in_process,      -> { undiscarded.where(completed_at: nil) }
-  scope :needs_more_info, -> { in_process.where(needs_more_info: true) }
-  scope :past_due,        -> { in_process.where("#{table_name}.due < ?", Date.today) }
-  scope :public_visible,  -> { undiscarded.where(visibility: 1) }
-  scope :related_to,      ->(user) { where("#{table_name}.creator_id = ? OR #{table_name}.owner_id = ?", user.id, user.id) }
-  scope :visible_to,      ->(user) { related_to(user).or(public_visible) }
-
   class << self
     alias archived discarded
     alias active kept
   end
+
+  scope :complete,        -> { active.where.not(completed_at: nil) }
+  scope :created_since,   ->(time) { in_process.where("#{table_name}.created_at >= ?", time) }
+  scope :due_within,      ->(day_num) { in_process.where(due: Date.today..(Date.today + day_num.days)) }
+  scope :except_primary,  -> { joins(:property).where('properties.is_default = FALSE') }
+  scope :has_cost,        -> { active.where.not(cost_cents: nil) }
+  scope :in_process,      -> { active.where(completed_at: nil) }
+  scope :needs_more_info, -> { in_process.where(needs_more_info: true) }
+  scope :past_due,        -> { in_process.where("#{table_name}.due < ?", Date.today) }
+  scope :public_visible,  -> { active.where(visibility: 1) }
+  scope :related_to,      ->(user) { where("#{table_name}.creator_id = ? OR #{table_name}.owner_id = ?", user.id, user.id) }
+  scope :visible_to,      ->(user) { related_to(user).or(public_visible) }
 
   def active?
     completed_at.blank?

@@ -56,6 +56,24 @@ $(document).on('preInit.dt', function(e, settings) {
 // init on turbolinks load
 $(document).on('turbolinks:load', function() {
   $("table[id^=dttb-]").DataTable();
+  $("table[id^=dttb1-]").DataTable( {
+    order: [1, 'desc'],
+    columnDefs: [ {
+      "searchable": false,
+      "orderable": false,
+      "targets": [0, -1, -2]
+    }],
+    dom: "<'#dttbl.row'tr>"
+  } );
+  $("table[id^=dttb_simple-]").DataTable( {
+    order: [0, 'desc'],
+    columnDefs: [ {
+      "searchable": false,
+      "orderable": false,
+      "targets": [-1]
+    }],
+    dom: "<'#dttbl.row'tr>"
+  } );
 });
 
 // turbolinks cache fix

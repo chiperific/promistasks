@@ -1,0 +1,46 @@
+<tr>
+  <td>
+    <%= link_to property_row.name, property_row %>
+  </td>
+  <td>
+    <%= property_row.acquired_on || 'not set' %>
+  </td>
+  <td>
+    <%= property_row.completion_date %>
+  </td>
+  <td>
+    <%= property_row.stage %>
+  </td>
+  <td>
+    <%= property_row.occupancy_details %>
+  </td>
+  <td>
+    <%= humanized_money_with_symbol property_row.cost %>
+  </td>
+  <td>
+    <%= humanized_money_with_symbol property_row.rent_to_date %>
+  </td>
+  <td>
+    <%= humanized_money_with_symbol property_row.utilities_to_date %>
+  </td>
+  <td>
+    <%= humanized_money_with_symbol property_row.cost_to_date %>
+  </td>
+  <td>
+    <%= humanized_money_with_symbol property_row.budget_remaining %>
+  </td>
+
+
+  <td>
+    <%= utilities_links property_row %>
+  </td>
+  <td>
+    <%= property_row.cost_to_date %>
+  </td>
+  <td>
+    Ttl lot rent
+  </td>
+  <td>
+    <%= property_row.description %>
+  </td>
+</tr>

@@ -12,6 +12,19 @@
     </div>
   </div>
 
+  <div class="row">
+    <div class="input-field col m6 s12">
+      <i class="material-icons prefix">event</i>
+      <%= f.text_field :expected_completion_date, class: 'datepicker' %>
+      <label for="property_expected_completion_date">Expected Completion Date</label>
+    </div>
+    <div class="input-field col m6 s12">
+      <i class="material-icons prefix">event</i>
+      <%= f.text_field :actual_completion_date, class: 'datepicker' %>
+      <label for="property_actual_completion_date">Actual Completion Date</label>
+    </div>
+  </div>
+
   <div class="input-field">
     <i class="material-icons prefix">place</i>
     <%= f.text_field :address %>
@@ -104,18 +117,28 @@
     </div>
     <div class="input-field col m6 s12">
       <i class="material-icons prefix">attach_money</i>
+      <%= f.number_field :budget, min: 0, step: 0.01 %>
+      <label for="property_budget">Repair Budget</label>
+    </div>
+    <div class="input-field col m4 s12">
+      <i class="material-icons prefix">attach_money</i>
       <%= f.number_field :cost, min: 0, step: 0.01 %>
       <label for="property_cost">Cost to acquire</label>
     </div>
-    <div class="input-field col m6 s12">
+    <div class="input-field col m4 s12">
+      <i class="material-icons prefix">attach_money</i>
+      <%= f.number_field :additional_cost, min: 0, step: 0.01 %>
+      <label for="property_additional_cost">
+        Additional cost
+        <a href="#additional_cost_explanation" class="modal-trigger">
+          <i class="material-icons">live_help</i>
+        </a>
+      </label>
+    </div>
+    <div class="input-field col m4 s12">
       <i class="material-icons prefix">attach_money</i>
       <%= f.number_field :lot_rent, min: 0, step: 0.01 %>
-      <label for="property_cost">Lot rent</label>
-    </div>
-    <div class="input-field col m6 s12">
-      <i class="material-icons prefix">attach_money</i>
-      <%= f.number_field :budget, min: 0, step: 0.01 %>
-      <label for="property_cost">Repair Budget</label>
+      <label for="property_lot_rent">Lot rent</label>
     </div>
   </div>
 

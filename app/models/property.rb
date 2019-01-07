@@ -19,13 +19,12 @@ class Property < ApplicationRecord
   belongs_to :park, inverse_of: :properties, required: false
 
   validates :name, uniqueness: true, presence: true
-  # validates :address, uniqueness: { scope: :park }
   validates_presence_of :creator_id
   validates_uniqueness_of :address, :certificate_number, :serial_number, allow_nil: true, allow_blank: true
   validates_inclusion_of :is_private, :is_default, :ignore_budget_warning, :created_from_api, in: [true, false]
   validates :stage, presence: true, inclusion: { in: Constant::Property::STAGES, message: "must be one of these: #{Constant::Property::STAGES.to_sentence}" }
 
-  monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
+  monetize :cost_cents, :lot_rent_cents, :budget_cents, :additional_cost_cents, allow_nil: true
 
   geocoded_by :full_address
 
@@ -123,9 +122,21 @@ class Property < ApplicationRecord
 
   def budget_remaining
     self.budget ||= default_budget
-    task_ary = tasks.map(&:cost)
-    task_ary.map! { |c| c || 0 }
-    self.budget - task_ary.sum
+    self.budget - cost_to_date
+  end
+
+  def completion_date
+    return actual_completion_date if actual_completion_date.present?
+    return expected_completion_date if expected_completion_date.present? && expected_completion_date.future?
+    'not set'
+  end
+
+  def cost_to_date
+    sum = cost_cents.to_i + additional_cost_cents.to_i
+    sum += tasks.has_cost.map { |t| t.cost_cents || 0 }.sum
+    sum += payments.paid.map { |p| p.payment_amt_cents || 0 }.sum
+
+    Money.new(sum)
   end
 
   def ensure_tasklist_exists_for(user)
@@ -210,6 +221,14 @@ class Property < ApplicationRecord
     budget_remaining.negative? && !ignore_budget_warning
   end
 
+  def rent_to_date
+    Money.new payments.paid.only_rent.map { |p| p.payment_amt_cents || 0 }.sum
+  end
+
+  def utilities_to_date
+    Money.new payments.paid.only_utilities.map { |p| p.payment_amt_cents || 0 }.sum
+  end
+
   def update_tasklists
     # since tasklist is only { property, user, google_id }, changing other details about the property won't trigger an api call from tasklist
     # however, if the user changes, then a new tasklist will be created, which triggers the #api_create on after_create callback
@@ -222,6 +241,11 @@ class Property < ApplicationRecord
         tasklist.api_update unless tasklist == false
       end
     end
+  end
+
+  def utilities_list
+    return 'none' unless utilities.any?
+    utilities.select(&:name).uniq
   end
 
   def visible_to?(user)

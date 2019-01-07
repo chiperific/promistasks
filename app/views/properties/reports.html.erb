@@ -21,26 +21,18 @@
     <tr>
       <th>Property</th>
       <th>Acquired Date</th>
-      <th>Completion Date (expected vs. actual)</th>
-      <th>Status</th>
+      <th>Completion Date</th>
       <th>Stage</th>
-      <th>Utilities</th>
-      <th>Cost to date</th>
+      <th>Status</th>
+      <th>Purchase cost</th>
+      <th>Rent payments</th>
+      <th>Utility payments</th>
+      <th>Total cost</th>
+      <th>Budget remaining</th>
       <th>Description</th>
-      <th>Tasks</th>
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td>THIS SHOULD BE A PARTIAL</td>
-      <td><%= Date.today %></td>
-      <td><%= Date.today + 1.day %></td>
-      <td>Status</td>
-      <td>Stage</td>
-      <td>Property.utilities</td>
-      <td><%= Money.new(5) %></td>
-      <td>Description</td>
-      <td>Link to tasks</td>
-    </tr>
+    <%= render partial: 'property_row', collection: @properties %>
   </tbody>
 </table>

@@ -18,4 +18,8 @@ module ApplicationHelper
   def human_datetime(datetime)
     datetime&.strftime('%-m/%-d @ %l:%M:%S %p %Z')
   end
+
+  def human_money(money)
+    view_context.humanized_money_with_symbol(money)
+  end
 end

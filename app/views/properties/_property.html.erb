@@ -27,8 +27,9 @@
     <% else %>
       <div class="card-content grey-text text-darken-4">
     <% end %>
-      <span class="card-title"><%= property.name %> - <%= property.stage %></span>
+      <span class="card-title"><%= property.name %></span>
       <p class="small-text">
+        Status: <%= property.stage %><br>
         <%= property.tasks.visible_to(current_user).count %> tasks related to you.<br>
         <% unless property.is_default? %>
           Budget remaining: <%= humanized_money_with_symbol property.budget_remaining %>
