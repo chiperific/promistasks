@@ -6,13 +6,15 @@ table.dataTable thead {
   }
 }
 
-#dttb-report_wrapper {
-  width: 130%;
-  margin-left: -15%;
-}
-
 table.dataTable thead > tr > .sorting_asc,
 table.dataTable thead > tr > .sorting_desc,
 table.dataTable thead > tr > .sorting {
   padding-right: 35px !important;
+}
+
+@media (min-width: 993px) {
+  #dttb-report_wrapper {
+    width: 130%;
+    margin-left: -15%;
+  }
 }
