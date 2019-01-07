@@ -34,10 +34,6 @@ class Connection < ApplicationRecord
     property.discard if property.stage == 'complete' && property.tasks.in_process.count.zero?
   end
 
-  def property_ready_for_tennant
-    errors.add(:relationship, ': Property is not ready for tennant')
-  end
-
   def relationship_appropriate_for_stage
     errors.add(:relationship, 'must be "Tennant" to use a stage')
   end
