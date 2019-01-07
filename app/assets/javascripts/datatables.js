@@ -24,6 +24,7 @@
 //Global setting and initializer
 
 $.extend( $.fn.dataTable.defaults, {
+  responsive: true,
   buttons: [
     'csv', 'print'
   ],
@@ -52,11 +53,13 @@ $(document).on('preInit.dt', function(e, settings) {
   }
 });
 
-
 // init on turbolinks load
 $(document).on('turbolinks:load', function() {
-  $("table[id^=dttb-]").DataTable();
+  $("table[id^=dttb-]").DataTable( {
+    responsive: true
+  } );
   $("table[id^=dttb1-]").DataTable( {
+    responsive: true,
     order: [1, 'desc'],
     columnDefs: [ {
       "searchable": false,
@@ -66,6 +69,7 @@ $(document).on('turbolinks:load', function() {
     dom: "<'#dttbl.row'tr>"
   } );
   $("table[id^=dttb_simple-]").DataTable( {
+    responsive: true,
     order: [0, 'desc'],
     columnDefs: [ {
       "searchable": false,

@@ -1,12 +1,12 @@
 <tr>
-  <td>
+  <td data-priority="1">
     <%= link_to property_row.name, property_row %>
   </td>
-  <td>
-    <%= property_row.acquired_on || 'not set' %>
+  <td data-priority="2">
+    <%= human_date(property_row.acquired_on || 'not set') %>
   </td>
-  <td>
-    <%= property_row.completion_date %>
+  <td data-priority="2">
+    <%= human_date property_row.completion_date %>
   </td>
   <td>
     <%= property_row.stage %>
@@ -14,33 +14,22 @@
   <td>
     <%= property_row.occupancy_details %>
   </td>
-  <td>
+  <td data-priority="2">
     <%= humanized_money_with_symbol property_row.cost %>
   </td>
-  <td>
+  <td data-priority="2">
     <%= humanized_money_with_symbol property_row.rent_to_date %>
   </td>
-  <td>
+  <td data-priority="2">
     <%= humanized_money_with_symbol property_row.utilities_to_date %>
   </td>
-  <td>
+  <td data-priority="1">
     <%= humanized_money_with_symbol property_row.cost_to_date %>
   </td>
-  <td>
+  <td data-priority="1">
     <%= humanized_money_with_symbol property_row.budget_remaining %>
   </td>
-
-
-  <td>
-    <%= utilities_links property_row %>
-  </td>
-  <td>
-    <%= property_row.cost_to_date %>
-  </td>
-  <td>
-    Ttl lot rent
-  </td>
-  <td>
+  <td data-priority="2">
     <%= property_row.description %>
   </td>
 </tr>

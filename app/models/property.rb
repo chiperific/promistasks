@@ -21,7 +21,7 @@ class Property < ApplicationRecord
   validates :name, uniqueness: true, presence: true
   validates_presence_of :creator_id
   validates_uniqueness_of :address, :certificate_number, :serial_number, allow_nil: true, allow_blank: true
-  validates_inclusion_of :is_private, :is_default, :ignore_budget_warning, :created_from_api, in: [true, false]
+  validates_inclusion_of :is_private, :is_default, :ignore_budget_warning, :created_from_api, :show_on_reports, in: [true, false]
   validates :stage, presence: true, inclusion: { in: Constant::Property::STAGES, message: "must be one of these: #{Constant::Property::STAGES.to_sentence}" }
 
   monetize :cost_cents, :lot_rent_cents, :budget_cents, :additional_cost_cents, allow_nil: true
@@ -51,6 +51,7 @@ class Property < ApplicationRecord
   scope :over_budget,    ->       { except_default.where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents') }
   scope :nearing_budget, ->       { except_default.where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
   scope :created_since,  ->(time) { except_default.where('created_at >= ?', time) }
+  scope :reportable,     ->       { except_default.where(show_on_reports: true) }
   # ready to be occupied: stage == 'complete', no connections.where(relationship: 'tennant')
   # ready to be archived: stage == 'complete', one connection.where(relationship: 'tennant', stage: 'title transferred')
   # ^ happens automatically when connection is created with stage 'transferred title'
@@ -295,6 +296,7 @@ class Property < ApplicationRecord
 
   def default_must_be_private
     self.is_private = true
+    self.show_on_reports = false
   end
 
   def discard_connections

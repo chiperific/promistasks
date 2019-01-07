@@ -159,10 +159,10 @@ class PropertiesController < ApplicationController
 
   def reports
     if params[:include_archived] == 'true'
-      authorize @properties = Property.with_discarded
+      authorize @properties = Property.with_discarded.reportable
       @include_archived = true
     else
-      authorize @properties = Property.undiscarded
+      authorize @properties = Property.undiscarded.reportable
       @include_archived = false
     end
   end
@@ -249,7 +249,7 @@ class PropertiesController < ApplicationController
                                      :description, :acquired_on, :cost, :lot_rent, :budget, :additional_cost,
                                      :certificate_number, :serial_number, :year_manufacture,
                                      :manufacturer, :beds, :baths, :certification_label1, :certification_label2,
-                                     :park_id, :creator_id, :is_private, :ignore_budget_warning,
+                                     :park_id, :creator_id, :is_private, :ignore_budget_warning, :show_on_reports,
                                      :expected_completion_date, :actual_completion_date)
   end
 end

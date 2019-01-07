@@ -64,7 +64,8 @@
     <input type="hidden" value="0" name="property[is_private]">
     <input type="hidden" value="0" name="property[ignore_budget_warning]">
     <input type="hidden" value="0" name="property[archive]">
-    <div class="col s6 m4 center-align">
+    <input type="hidden" value="0" name="property[show_on_reports]">
+    <div class="col s6 m3 center-align">
       <p>
         <label>
           <input type="checkbox" value="1" name="property[is_private]" <%= 'checked' if property.is_private? %>>
@@ -86,11 +87,22 @@
         </label>
       </p>
     </div>
-    <div class="col s6 m4 center-align">
+    <div class="col s6 m2 center-align">
       <p>
         <label>
           <input type="checkbox" value="1" name="property[archive]" <%= 'checked' if property.discarded_at.present? %>>
           <span>Archive</span>
+        </label>
+      </p>
+    </div>
+    <div class="col s6 m3 center-align">
+      <p>
+        <label>
+          <input type="checkbox" value="1" name="property[show_on_reports]" <%= 'checked' if property.show_on_reports? %>>
+          <span>Show on reports?</span>
+          <a href="#reports_explanation" class="modal-trigger">
+            <i class="material-icons">live_help</i>
+          </a>
         </label>
       </p>
     </div>

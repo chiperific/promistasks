@@ -3,6 +3,7 @@
 ## To do:
 4. Controllers:
   - Reports
+    - Property needs #ignore_report for things like supply_closet
     - Differentiate various costs:
     -- Total spent
     -- Lot rent (sum payments of type 'rent')
