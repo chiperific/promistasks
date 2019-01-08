@@ -22,6 +22,7 @@ class TaskUser < ApplicationRecord
 
   def api_delete
     return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
+
     user.refresh_token!
     response = HTTParty.delete(BASE_URI + tasklist_gid + '/tasks/' + google_id, headers: api_headers.as_json)
     return false unless response.present?
@@ -29,18 +30,22 @@ class TaskUser < ApplicationRecord
 
   def api_get
     return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
+
     user.refresh_token!
     response = HTTParty.get(BASE_URI + tasklist_gid + '/tasks/' + google_id, headers: api_headers.as_json)
     return false unless response.present?
+
     response
   end
 
   def api_insert
     # --->                                                        this keeps api_insert from duplicating the tasklist for the creator
     return false if user.oauth_id.blank? || tasklist_gid.blank? || (task.created_from_api? && user == task.creator && ((Time.now - 5.minutes)..Time.now).cover?(task.created_at))
+
     user.refresh_token!
     response = HTTParty.post(BASE_URI + tasklist_gid + '/tasks/', { headers: api_headers.as_json, body: api_body.to_json })
     return false unless response.present?
+
     response['id'] = sequence_google_id(response['id']) if Rails.env.test?
 
     update_columns(google_id: response['id'], updated_at: response['updated'])
@@ -49,9 +54,11 @@ class TaskUser < ApplicationRecord
 
   def api_update
     return false unless user.oauth_id.present? && google_id.present? && tasklist_gid.present?
+
     user.refresh_token!
     response = HTTParty.patch(BASE_URI + tasklist_gid + '/tasks/' + google_id, { headers: api_headers.as_json, body: api_body.to_json })
     return false unless response.present?
+
     updated = response['updated'] || Time.now
     update_columns(updated_at: updated)
     response
@@ -79,12 +86,12 @@ class TaskUser < ApplicationRecord
     notes += '[budget remaining: ' + task.budget_remaining.format + ']' unless task.budget_remaining.nil?
 
     body = {
-      title:     task.title,
-      notes:     notes,
-      status:    task.completed_at.present? ? 'completed' : 'needsAction',
-      deleted:   self.deleted,
+      title: task.title,
+      notes: notes,
+      status: task.completed_at.present? ? 'completed' : 'needsAction',
+      deleted: self.deleted,
       completed: task.completed_at.present? ? task.completed_at.utc.rfc3339(3) : nil,
-      due:       task.due.present? ? task.due.rfc3339 : nil
+      due: task.due.present? ? task.due.rfc3339 : nil
     }
 
     body
@@ -105,6 +112,7 @@ class TaskUser < ApplicationRecord
 
   def relocate
     return false if tasklist_gid_before_last_save == tasklist_gid
+
     mem_dup = self.dup
     mem_dup.tasklist_gid = tasklist_gid_before_last_save
     mem_dup.api_delete
@@ -113,8 +121,10 @@ class TaskUser < ApplicationRecord
 
   def set_tasklist_gid
     return false if user.nil? || task.nil?
+
     tasklist = task.property.ensure_tasklist_exists_for(user)
     return false unless tasklist.present?
+
     self.tasklist_gid = tasklist.google_id
   end
 

@@ -32,11 +32,12 @@ class Property < ApplicationRecord
   before_validation :use_address_for_name,          if: -> { name.blank? }
   before_validation :default_must_be_private,       if: -> { discarded_at.nil? && is_default? && !is_private? }
   before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
+  before_validation :refuse_to_discard_hastily,     if: -> { discarded_at.present? }
   after_validation :geocode,                        if: -> { address_has_changed? && !is_default? }
   before_save  :default_budget,                     if: -> { budget.blank? }
   after_create :create_tasklists,                   unless: -> { discarded_at.present? || created_from_api? }
   after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }
-  after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? }
+  after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? && errors.empty? }
   after_update :update_tasklists,                   if: -> { discarded_at.nil? && saved_change_to_name? }
   after_save :discard_connections,                  if: -> { discarded_at.present? }
   after_save :undiscard_connections,                if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
@@ -52,10 +53,6 @@ class Property < ApplicationRecord
   scope :nearing_budget, ->       { except_default.where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
   scope :created_since,  ->(time) { except_default.where('created_at >= ?', time) }
   scope :reportable,     ->       { except_default.where(show_on_reports: true) }
-  # ready to be occupied: stage == 'complete', no connections.where(relationship: 'tennant')
-  # ready to be archived: stage == 'complete', one connection.where(relationship: 'tennant', stage: 'title transferred')
-  # ^ happens automatically when connection is created with stage 'transferred title'
-  # scopes to match stages?
 
   class << self
     alias archived discarded
@@ -129,6 +126,7 @@ class Property < ApplicationRecord
   def completion_date
     return actual_completion_date if actual_completion_date.present?
     return expected_completion_date if expected_completion_date.present? && expected_completion_date.future?
+
     'not set'
   end
 
@@ -164,6 +162,7 @@ class Property < ApplicationRecord
 
   def google_map
     return 'no_property.jpg' unless good_address?
+
     center = [latitude, longitude].join(',')
     key = Rails.application.secrets.google_maps_api_key
     "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&size=355x266&zoom=17&markers=color:red%7C#{center}"
@@ -171,6 +170,7 @@ class Property < ApplicationRecord
 
   def google_map_link
     return false unless good_address?
+
     base = 'https://www.google.com/maps/?q='
     base + full_address.tr(' ', '+')
   end
@@ -246,6 +246,7 @@ class Property < ApplicationRecord
 
   def utilities_list
     return 'none' unless utilities.any?
+
     utilities.select(&:name).uniq
   end
 
@@ -259,6 +260,7 @@ class Property < ApplicationRecord
 
   def address_required
     return true unless address.blank?
+
     errors.add(:address, 'can\'t be blank')
   end
 
@@ -268,6 +270,7 @@ class Property < ApplicationRecord
       User.without_tasks_for(self).each do |user|
         tasklist = tasklists.where(user: user).first_or_initialize
         next if tasklist.new_record?
+
         tasklist.destroy
       end
 
@@ -275,6 +278,7 @@ class Property < ApplicationRecord
       User.staff_except(creator).each do |user|
         tasklist = ensure_tasklist_exists_for(user)
         next unless tasklist.new_record? || tasklist.google_id.nil?
+
         tasklist.api_insert
       end
     end
@@ -310,6 +314,10 @@ class Property < ApplicationRecord
 
   def refuse_to_discard_default
     self.discarded_at = nil
+  end
+
+  def refuse_to_discard_hastily
+    errors.add(:archive, 'Can\'t discard because active tasks exist') if tasks.in_process.any?
   end
 
   def undiscard_connections

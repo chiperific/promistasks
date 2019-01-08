@@ -192,8 +192,17 @@ class TasksController < ApplicationController
   def update
     authorize @task = Task.find(params[:id])
 
-    @task.discard if params[:task][:archive] == '1' && !@task.discarded?
-    @task.undiscard if params[:task][:archive] == '0' && @task.discarded?
+    if params[:task][:archive] == '1' && !@task.discarded?
+      # remove it from Google Tasks for just this user by destroying the associated TaskUsers:
+      @task.task_users.where(user: current_user).destroy_all if current_user.oauth?
+      @task.discard
+    end
+
+    if params[:task][:archive] == '0' && @task.discarded?
+      # add it to Google Tasks for just this user:
+      @task.ensure_task_user_exists_for(current_user) if current_user.oauth?
+      @task.undiscard
+    end
 
     if @task.update(parse_completed_at(task_params.reject { |k, v| (k.include?('budget') || k.include?('cost')) && v.blank? }))
       redirect_to @return_path, notice: 'Task updated'

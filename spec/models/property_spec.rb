@@ -812,6 +812,10 @@ RSpec.describe Property, type: :model do
     end
   end
 
+  describe '#refuse_to_discard_hastily' do
+    pending 'keeps you from fucking up'
+  end
+
   describe '#refuse_to_discard_default' do
     let(:active_prop)      { build :property, discarded_at: nil, is_default: true }
     let(:not_default_prop) { build :property, discarded_at: nil, is_default: false }

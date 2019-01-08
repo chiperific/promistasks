@@ -64,17 +64,20 @@ class TasklistsClient
   def push
     pushable = not_in_api
     return false unless pushable.present?
+
     pushable.each(&:api_insert)
   end
 
   def sync
     tasklists_json = fetch
     return tasklists_json if tasklists_json.nil? || tasklists_json['errors'].present?
+
     default_id = fetch_default['id']
     tasklist_ids = []
 
     tasklists_json['items'].each do |tasklist_json|
       next if tasklist_json['id'] == default_id
+
       tasklist_ids << handle_tasklist(tasklist_json)
     end
 
