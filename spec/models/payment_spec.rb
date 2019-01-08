@@ -79,6 +79,30 @@ RSpec.describe Payment, type: :model do
     end
   end
 
+  describe 'requires booleans to be in a state:' do
+    let(:nil_recurring)              { build :payment, recurring: nil }
+    let(:nil_send_email_reminders)   { build :payment, send_email_reminders: nil }
+    let(:nil_suppress_system_alerts) { build :payment, suppress_system_alerts: nil }
+
+    it '#recurring' do
+      expect { nil_recurring.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect(nil_recurring.valid?).to eq false
+      expect(nil_recurring.errors[:recurring].present?).to eq true
+    end
+
+    it '#send_email_reminders' do
+      expect { nil_send_email_reminders.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect(nil_send_email_reminders.valid?).to eq false
+      expect(nil_send_email_reminders.errors[:send_email_reminders].present?).to eq true
+    end
+
+    it '#suppress_system_alerts' do
+      expect { nil_suppress_system_alerts.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
+      expect(nil_suppress_system_alerts.valid?).to eq false
+      expect(nil_suppress_system_alerts.errors[:suppress_system_alerts].present?).to eq true
+    end
+  end
+
   describe 'limits records by scope' do
     let(:future_15) { create :payment } # due: Date.today + 15.days
     let(:future_9)  { create :payment, due: Date.today + 9.days }
@@ -212,30 +236,6 @@ RSpec.describe Payment, type: :model do
     end
   end
 
-  describe 'requires booleans to be in a state:' do
-    let(:nil_recurring)              { build :payment, recurring: nil }
-    let(:nil_send_email_reminders)   { build :payment, send_email_reminders: nil }
-    let(:nil_suppress_system_alerts) { build :payment, suppress_system_alerts: nil }
-
-    it '#recurring' do
-      expect { nil_recurring.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect(nil_recurring.valid?).to eq false
-      expect(nil_recurring.errors[:recurring].present?).to eq true
-    end
-
-    it '#send_email_reminders' do
-      expect { nil_send_email_reminders.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect(nil_send_email_reminders.valid?).to eq false
-      expect(nil_send_email_reminders.errors[:send_email_reminders].present?).to eq true
-    end
-
-    it '#suppress_system_alerts' do
-      expect { nil_suppress_system_alerts.save!(validate: false) }.to raise_error ActiveRecord::NotNullViolation
-      expect(nil_suppress_system_alerts.valid?).to eq false
-      expect(nil_suppress_system_alerts.errors[:suppress_system_alerts].present?).to eq true
-    end
-  end
-
   describe '#for' do
     let(:good_for)  { build :payment }
     let(:bad_for)   { build :payment, on_behalf_of: 'beer money' }
@@ -320,6 +320,29 @@ RSpec.describe Payment, type: :model do
       @payment.manage_relationships(@payment_params)
 
       expect(@payment.task_id).to eq @task.id
+    end
+  end
+
+  describe '#paid?' do
+    let(:pay_date) { build :payment, paid: Date.today }
+    let(:pay_amt) { build :payment, payment_amt: 5 }
+    let(:pay_date_and_amt) { build :payment, paid: Date.today, payment_amt: 5 }
+    let(:unpaid) { build :payment }
+
+    it 'returns false if paid date is not present' do
+      expect(pay_amt.paid?).to eq false
+    end
+
+    it 'returns false if paid amount is not present' do
+      expect(pay_date.paid?).to eq false
+    end
+
+    it 'returns false if paid amount and paid date are not present' do
+      expect(unpaid.paid?).to eq false
+    end
+
+    it 'returns true if paid amount and paid date are present' do
+      expect(pay_date_and_amt.paid?).to eq true
     end
   end
 
@@ -464,8 +487,124 @@ RSpec.describe Payment, type: :model do
       end
 
       it 'creates another payment object' do
-        expect { recurring_payment.save }.to change { Payment.count }.by(2)
+        expect { recurring_payment.save! }.to change { Payment.count }.by(2)
       end
+    end
+  end
+
+  describe '#date_if_money' do
+    context 'when bill_amt is present' do
+      context 'but received is blank' do
+        let(:received_blank_bill_present) { build :payment, received: nil }
+
+        it 'adds an error to :received' do
+          expect(received_blank_bill_present.errors.any?).to eq false
+          received_blank_bill_present.send(:date_if_money)
+          expect(received_blank_bill_present.errors[:received].present?).to eq true
+        end
+      end
+
+      context 'and received is not blank' do
+        let(:received_present_bill_present) { build :payment }
+
+        it 'does nothing' do
+          expect(received_present_bill_present.errors.any?).to eq false
+          received_present_bill_present.send(:date_if_money)
+          expect(received_present_bill_present.errors.any?).to eq false
+        end
+      end
+    end
+
+    context 'when payment_amt is present' do
+      context 'but paid is blank' do
+        let(:paid_blank_payment_present) { build :payment, payment_amt: 400 }
+
+        it 'adds an error to :paid' do
+          expect(paid_blank_payment_present.errors.any?).to eq false
+          paid_blank_payment_present.send(:date_if_money)
+          expect(paid_blank_payment_present.errors[:paid].present?).to eq true
+        end
+      end
+
+      context 'and paid is not blank' do
+        let(:paid_present_payment_present) { build :payment, paid: Date.today, payment_amt: 400 }
+
+        it 'does nothing' do
+          expect(paid_present_payment_present.errors.any?).to eq false
+          paid_present_payment_present.send(:date_if_money)
+          expect(paid_present_payment_present.errors.any?).to eq false
+        end
+      end
+    end
+
+    context 'when bill_amt is not present' do
+      let(:received_blank_bill_blank)   { build :payment, received: nil, bill_amt_cents: nil }
+      let(:received_present_bill_blank) { build :payment, bill_amt_cents: nil }
+
+      it 'does nothing' do
+        received_blank_bill_blank.send(:date_if_money)
+        expect(received_blank_bill_blank.errors.any?).to eq false
+
+        received_present_bill_blank.send(:date_if_money)
+        expect(received_present_bill_blank.errors.any?).to eq false
+      end
+    end
+
+    context 'when payment_amt is not present' do
+      let(:paid_blank_payment_blank)   { build :payment }
+      let(:paid_present_payment_blank) { build :payment, paid: Date.today }
+
+      it 'does nothing' do
+        paid_blank_payment_blank.send(:date_if_money)
+        expect(paid_blank_payment_blank.errors.any?).to eq false
+
+        paid_present_payment_blank.send(:date_if_money)
+        expect(paid_present_payment_blank.errors.any?).to eq false
+      end
+    end
+  end
+
+  describe '#make_non_org_payments_positive' do
+    let(:non_org_positive) { build :payment, bill_amt: 9, received: Date.today }
+    let(:non_org_negative) { build :payment, bill_amt: -6, received: Date.today }
+
+    it 'only fires if paid_to != "organization" && one of the amounts is negative' do
+      expect(non_org_positive).not_to receive(:make_non_org_payments_positive)
+      non_org_positive.save!
+
+      expect(non_org_negative).to receive(:make_non_org_payments_positive)
+      non_org_negative.save!
+    end
+
+    it 'makes both amounts positive before saving' do
+      expect(non_org_negative.bill_amt.positive?).to eq false
+
+      non_org_negative.send(:make_non_org_payments_positive)
+
+      expect(non_org_negative.bill_amt.positive?).to eq true
+    end
+  end
+
+  describe '#make_org_payments_negative' do
+    let(:org_negative)     { build :payment_org, bill_amt: -5, payment_amt: -2, received: Date.today, paid: Date.today }
+    let(:org_positive)     { build :payment_org, bill_amt: 8, payment_amt: 4, received: Date.today, paid: Date.today }
+
+    it 'only fires if paid_to == "organization" && one of the amounts is positive' do
+      expect(org_negative).not_to receive(:make_org_payments_negative)
+      org_negative.save!
+
+      expect(org_positive).to receive(:make_org_payments_negative)
+      org_positive.save!
+    end
+
+    it 'makes both amounts negative before saving' do
+      expect(org_positive.bill_amt.negative?).to eq false
+      expect(org_positive.payment_amt.negative?).to eq false
+
+      org_positive.send(:make_org_payments_negative)
+
+      expect(org_positive.bill_amt.negative?).to eq true
+      expect(org_positive.payment_amt.negative?).to eq true
     end
   end
 
@@ -475,7 +614,7 @@ RSpec.describe Payment, type: :model do
     let(:utility_association) { build :payment }
     let(:contractor_association) { build :payment_contractor }
     let(:client_association) { build :payment_client }
-    let(:no_associations) { build :payment, utility_id: nil, property_id: nil }
+    let(:no_associations) { build :payment, utility_id: nil, property_id: nil, paid_to: nil, on_behalf_of: nil }
 
     context 'when property is associated' do
       it 'returns true' do
@@ -507,15 +646,53 @@ RSpec.describe Payment, type: :model do
       end
     end
 
-    context 'when nothing is associated' do
-      it 'returns false' do
-        expect(no_associations.send(:must_have_association)).to eq false
+    context 'when failing because' do
+      context 'utility is blank' do
+        it 'returns false and adds an error' do
+          no_associations.paid_to = 'utility'
+          expect(no_associations.send(:must_have_association)).to eq false
+          expect(no_associations.errors[:utility_id].present?).to eq true
+        end
       end
 
-      it 'adds an error to #paid_to and #on_behalf_of' do
-        expect(no_associations.valid?).to eq false
-        expect(no_associations.errors[:paid_to].present?).to eq true
-        expect(no_associations.errors[:on_behalf_of].present?).to eq true
+      context 'park is blank' do
+        it 'returns false and adds an error' do
+          no_associations.paid_to = 'park'
+          expect(no_associations.send(:must_have_association)).to eq false
+          expect(no_associations.errors[:park_id].present?).to eq true
+        end
+      end
+
+      context 'contractor is blank' do
+        it 'returns false and adds an error' do
+          no_associations.paid_to = 'contractor'
+          expect(no_associations.send(:must_have_association)).to eq false
+          expect(no_associations.errors[:contractor_id].present?).to eq true
+        end
+      end
+
+      context 'client is blank' do
+        it 'returns false and adds an error' do
+          no_associations.paid_to = 'client'
+          expect(no_associations.send(:must_have_association)).to eq false
+          expect(no_associations.errors[:client_id].present?).to eq true
+        end
+      end
+
+      context 'client is blank for on_behalf_of' do
+        it 'returns false and adds an error' do
+          no_associations.on_behalf_of = 'client'
+          expect(no_associations.send(:must_have_association)).to eq false
+          expect(no_associations.errors[:client_id_obo].present?).to eq true
+        end
+      end
+
+      context 'property is blank' do
+        it 'returns false and adds an error' do
+          no_associations.on_behalf_of = 'property'
+          expect(no_associations.send(:must_have_association)).to eq false
+          expect(no_associations.errors[:property_id].present?).to eq true
+        end
       end
     end
   end

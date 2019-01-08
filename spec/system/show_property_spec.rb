@@ -94,6 +94,7 @@ RSpec.describe 'Show property', type: :system do
       user = create(:admin)
       login_as(user, scope: :user)
       3.times { create(:property) }
+      create(:task, property: @property, creator: user)
       visit property_path(@property)
     end
 
@@ -120,7 +121,7 @@ RSpec.describe 'Show property', type: :system do
     before :each do
       user = create(:admin)
       login_as(user, scope: :user)
-      visit property_path(9999999)
+      visit property_path(9_999_999)
     end
     it 'redirects away' do
       expect(current_path).to eq root_path

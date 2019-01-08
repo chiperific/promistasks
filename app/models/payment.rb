@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Payment < ApplicationRecord
-include Discard::Model
+  include Discard::Model
 
   belongs_to :property, inverse_of: :payments, optional: true
   belongs_to :park,     inverse_of: :payments, optional: true
@@ -27,9 +27,8 @@ include Discard::Model
   validate :must_have_association
   validate :date_if_money
 
-  before_save :make_non_org_payments_positive, if: -> { paid_to != 'organization' && (bill_amt.negative? || payment_amt.negative?) }
-  before_save :make_org_payments_negative, if: -> { paid_to == 'organization' && (bill_amt.positive? || payment_amt.positive?) }
-
+  before_save :make_non_org_payments_positive, if: -> { paid_to != 'organization' && (bill_amt&.negative? || payment_amt&.negative?) }
+  before_save :make_org_payments_negative, if: -> { paid_to == 'organization' && (bill_amt&.positive? || payment_amt&.positive?) }
 
   default_scope { order(:due) }
 
@@ -61,7 +60,6 @@ include Discard::Model
   scope :related_by_property_to, ->(user) { active.where(property_id: Property.select(:id).related_to(user)) }
   scope :related_by_task_to,     ->(user) { active.where(task_id: Task.select(:id).related_to(user)) }
   scope :related_to,             ->(user) { active.related_by_property_to(user).or(related_by_task_to(user)).or(where(creator_id: user.id)) }
-
 
   after_save :create_next_instance, if: -> { recurrence.present? && recurring && paid.present? && paid_before_last_save.blank? }
 
@@ -156,10 +154,10 @@ include Discard::Model
   def create_next_instance
     child = dup
     child.tap do |c|
-      c.received = nil
+      c.received = Date.today
       c.paid = nil
-      c.discarded_at = nil
       c.payment_amt_cents = nil
+      c.discarded_at = nil
       c.suppress_system_alerts = false
       c.created_at = Time.now
       c.due = next_recurrence
@@ -169,18 +167,18 @@ include Discard::Model
   end
 
   def date_if_money
-    errors.add(:received, 'date needs to be set') if received.blank? && bill_amt.present?
-    errors.add(:paid, 'date needs to be set') if paid.blank? && payment_amt.present?
-  end
-
-  def make_org_payments_negative
-    bill_amt = -(bill_amt.abs)
-    payment_amt = -(bill_amt.abs)
+    errors.add(:received, 'date needs to be set') if received.blank? && (!!bill_amt&.positive? || !!bill_amt&.negative?)
+    errors.add(:paid, 'date needs to be set') if paid.blank? && (!!payment_amt&.positive? || !!payment_amt&.negative?)
   end
 
   def make_non_org_payments_positive
-    bill_amt = bill_amt.abs
-    payment_amt = payment_amt.abs
+    self.bill_amt = bill_amt.abs unless bill_amt.nil?
+    self.payment_amt = payment_amt.abs unless payment_amt.nil?
+  end
+
+  def make_org_payments_negative
+    self.bill_amt = -(bill_amt.abs) unless bill_amt.nil?
+    self.payment_amt = -(payment_amt.abs) unless payment_amt.nil?
   end
 
   def must_have_association
@@ -193,8 +191,6 @@ include Discard::Model
       errors.add(:contractor_id, ': Please select a Contractor from the list') if contractor_id.blank?
     when 'client'
       errors.add(:client_id, ': Please select a Client from the list') if client_id.blank?
-    when ''
-      errors.add(:paid_to, ': Please select a Utility, Park, Contractor or Client')
     end
 
     case on_behalf_of
@@ -202,11 +198,8 @@ include Discard::Model
       errors.add(:client_id_obo, ': Please select a Client from the list') if client_id.blank?
     when 'property'
       errors.add(:property_id, ': Please select a Property from the list') if property_id.blank?
-    when ''
-      errors.add(:on_behalf_of, ': Please select a Property or Client')
     end
-
-    return false if errors.any?
+    return false if errors.any? || paid_to.blank? || on_behalf_of.blank?
 
     true
   end
