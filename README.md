@@ -2,8 +2,6 @@
 
 ## To do:
 4. Controllers:
-  - Reports
-    - Date range filtering
   - Archiving property in app (when no open tasks) removes from GT.
   - Contractors can't pick jobs (must be assigned as owner by a staff user)
   - Creating a user tries to create a session?
@@ -52,11 +50,6 @@
 - Footer: Anyone logged in can create a task
 
 ## Keep in mind
-- System Spec Naming convention:
-  * create = #new
-  * edit = #edit
-  * show = #show
-  * view = #index
 - Could do a progress bar on property show, related to Property#occupancy_status: *--*--*--*
 - PRIVATE properties must take self.tasks.map(&:owners &:creators) into account before removing
 

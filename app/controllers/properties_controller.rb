@@ -72,22 +72,24 @@ class PropertiesController < ApplicationController
     end
 
     @primary_info_hash = {
-      'Creator': @creator_name,
-      'Park': @park_name,
-      'Stage': @property.stage
+      'Creator': @creator_name
     }
 
     unless @property.is_default?
+      @primary_info_hash['Park'] = @park_name
+      @primary_info_hash['Stage'] = @property.stage.capitalize
       @primary_info_hash['Occupancy status'] = @property.occupancy_details
-      @primary_info_hash['Lot rent'] = @property.lot_rent || 'Not recorded'
+      @primary_info_hash['Lot rent'] = human_money(@property.lot_rent) || 'Not recorded'
       @primary_info_hash['Acquired on'] = human_date(@property.acquired_on) || 'Not recorded'
-      @primary_info_hash['Beds'] = @property.beds.present? ? @property.beds : 'Not recorded'
-      @primary_info_hash['Baths'] = @property.baths.present? ? @property.baths : 'Not recorded'
+      @primary_info_hash['Beds / Baths'] = @property.beds.to_s + ' / ' + @property.baths.to_s
     end
 
     @secondary_info_hash = {
+      'Expected Completion Date': @property.expected_completion_date.present? ? human_date(@property.expected_completion_date) : 'Not recorded',
+      'Actual Completion Date': @property.actual_completion_date.present? ? human_date(@property.actual_completion_date) : 'Not recorded',
       'Certificate #': @property.certificate_number.present? ? @property.certificate_number : 'Not recorded',
       'Cost': @property.cost.present? ? @property.cost.format : 'Not recorded',
+      'Additional Cost': @property.additional_cost.present? ? @property.additional_cost.format : 'Not recorded',
       'Created on': human_date(@property.created_at),
       'Created in': @property.created_from_api? ? 'Google Tasks' : 'PromiseTasks',
       'Year manufactured': @property.year_manufacture || 'Not recorded',
@@ -156,12 +158,13 @@ class PropertiesController < ApplicationController
   end
 
   def reports
-    authorize @properties = Property.undiscarded
-    @discarded_properties = Property.discarded
-
-    # reports include:
-    # budget status per property
-    # properties by connection.stage
+    if params[:include_archived] == 'true'
+      authorize @properties = Property.with_discarded.reportable
+      @include_archived = true
+    else
+      authorize @properties = Property.undiscarded.reportable
+      @include_archived = false
+    end
   end
 
   def tasks_filter
@@ -242,10 +245,11 @@ class PropertiesController < ApplicationController
   private
 
   def property_params
-    params.require(:property).permit(:name, :address, :city, :state, :postal_code,
-                                     :description, :acquired_on, :cost, :lot_rent, :budget,
+    params.require(:property).permit(:name, :stage, :address, :city, :state, :postal_code,
+                                     :description, :acquired_on, :cost, :lot_rent, :budget, :additional_cost,
                                      :certificate_number, :serial_number, :year_manufacture,
-                                     :manufacturer, :bed_bath, :certification_label1, :certification_label2,
-                                     :creator_id, :is_private, :ignore_budget_warning)
+                                     :manufacturer, :beds, :baths, :certification_label1, :certification_label2,
+                                     :park_id, :creator_id, :is_private, :ignore_budget_warning, :show_on_reports,
+                                     :expected_completion_date, :actual_completion_date)
   end
 end

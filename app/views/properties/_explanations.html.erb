@@ -4,7 +4,7 @@
       <i class="material-icons">close</i>
     </a>
     <h4>Private Properties:</h4>
-    <p>Private properties are not visible to others by default.</p>
+    <p>Private properties are not visible to other people by default.</p>
     <p>The property will still be visible to:</p>
     <ul>
       <li>
@@ -13,8 +13,10 @@
       <li>
         Any people who are assigned tasks associated with the property
       </li>
+      <li>
+        Reports (controlled by the "show on reports" checkbox)
+      </li>
     </ul>
-    <p>The visibilty of tasks will override the privacy of the property.</p>
     <p>Properties created in Google Tasks are private by default.</p>
   </div>
 </div>
@@ -36,5 +38,28 @@
       </li>
     </ul>
     <p>Ignoring budget warnings dismisses budget-related alerts, but it will not prevent the budget status from appearing on reports.</p>
+  </div>
+</div>
+
+<div id="additional_cost_explanation" class="modal">
+  <div class="modal-content">
+    <a href='#!' class='modal-close btn-floating btn-small right waves-effect waves-light light-blue lighten-1 prevent_default'>
+      <i class="material-icons">close</i>
+    </a>
+    <h4>Additional Cost:</h4>
+    <p>The amount spent on this property is summed from the Cost, Tasks, Payments, and this field.<br>
+    Use this field to adjust the total spent to account for other costs so it matches bookeeping records.</p>
+  </div>
+</div>
+
+<div id="reports_explanation" class="modal">
+  <div class="modal-content">
+    <a href='#!' class='modal-close btn-floating btn-small right waves-effect waves-light light-blue lighten-1 prevent_default'>
+      <i class="material-icons">close</i>
+    </a>
+    <h4>Show on reports:</h4>
+    <p>All properties are visible on reports by default. If this record doesn't represent a property that should appear on the report, make sure "Show on reports?" is unchecked.</p>
+    <p>For example, if a property is added only to create volunteer tasks.</p>
+    <p>Default tasklists are not properties and should not be shown on reports. Their checkboxes will be un-checked when the record is saved.</p>
   </div>
 </div>

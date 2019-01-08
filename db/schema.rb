@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_12_09_200254) do
+ActiveRecord::Schema.define(version: 2019_01_06_155531) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -175,6 +175,9 @@ ActiveRecord::Schema.define(version: 2018_12_09_200254) do
     t.float "longitude"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "additional_cost_cents"
+    t.string "additional_cost_currency", default: "USD", null: false
+    t.boolean "show_on_reports", default: true, null: false
     t.index ["acquired_on"], name: "index_properties_on_acquired_on"
     t.index ["address"], name: "index_properties_on_address", unique: true
     t.index ["creator_id"], name: "index_properties_on_creator_id"

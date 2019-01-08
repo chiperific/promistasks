@@ -1,3 +1,16 @@
-<h1>Edit Payment</h1>
-
+<div class="row valign-wrapper">
+  <div class="col s12 m9">
+    <h2>Edit Payment</h2>
+  </div>
+  <div class="col s12 m3">
+    Switch to:
+    <% if @to_organization %>
+      <%= link_to "send $", '#', class: 'btn waves-effect waves-light green darken-2 prevent_default', id: 'edit_payment_switch', 'data-scope': 'send' %>
+    <% else %>
+      <%= link_to "receive $", '#', class: 'btn waves-effect waves-light green darken-2 prevent_default', id: 'edit_payment_switch', 'data-scope': 'receive' %>
+    <% end %>
+  </div>
+</div>
+<span id="edit_payment_from" class="hidden"><%= @payment.from.class.name.downcase %></span>
+<span id="edit_payment_to" class="hidden"><%= @payment.to.class.name.downcase %></span>
 <%= render 'form', payment: @payment %>

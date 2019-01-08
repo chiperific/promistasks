@@ -13,18 +13,18 @@ class Property < ApplicationRecord
 
   has_many :tasks, inverse_of: :property, dependent: :destroy
   has_many :payments, inverse_of: :property, dependent: :destroy
+  has_many :utilities, through: :payments
 
   belongs_to :creator, class_name: 'User', inverse_of: :created_properties
   belongs_to :park, inverse_of: :properties, required: false
 
   validates :name, uniqueness: true, presence: true
-  # validates :address, uniqueness: { scope: :park }
   validates_presence_of :creator_id
   validates_uniqueness_of :address, :certificate_number, :serial_number, allow_nil: true, allow_blank: true
-  validates_inclusion_of :is_private, :is_default, :ignore_budget_warning, :created_from_api, in: [true, false]
+  validates_inclusion_of :is_private, :is_default, :ignore_budget_warning, :created_from_api, :show_on_reports, in: [true, false]
   validates :stage, presence: true, inclusion: { in: Constant::Property::STAGES, message: "must be one of these: #{Constant::Property::STAGES.to_sentence}" }
 
-  monetize :cost_cents, :lot_rent_cents, :budget_cents, allow_nil: true
+  monetize :cost_cents, :lot_rent_cents, :budget_cents, :additional_cost_cents, allow_nil: true
 
   geocoded_by :full_address
 
@@ -51,6 +51,7 @@ class Property < ApplicationRecord
   scope :over_budget,    ->       { except_default.where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents') }
   scope :nearing_budget, ->       { except_default.where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
   scope :created_since,  ->(time) { except_default.where('created_at >= ?', time) }
+  scope :reportable,     ->       { except_default.where(show_on_reports: true) }
   # ready to be occupied: stage == 'complete', no connections.where(relationship: 'tennant')
   # ready to be archived: stage == 'complete', one connection.where(relationship: 'tennant', stage: 'title transferred')
   # ^ happens automatically when connection is created with stage 'transferred title'
@@ -122,9 +123,21 @@ class Property < ApplicationRecord
 
   def budget_remaining
     self.budget ||= default_budget
-    task_ary = tasks.map(&:cost)
-    task_ary.map! { |c| c || 0 }
-    self.budget - task_ary.sum
+    self.budget - cost_to_date
+  end
+
+  def completion_date
+    return actual_completion_date if actual_completion_date.present?
+    return expected_completion_date if expected_completion_date.present? && expected_completion_date.future?
+    'not set'
+  end
+
+  def cost_to_date
+    sum = cost_cents.to_i + additional_cost_cents.to_i
+    sum += tasks.has_cost.map { |t| t.cost_cents || 0 }.sum
+    sum += payments.paid.map { |p| p.payment_amt_cents || 0 }.sum
+
+    Money.new(sum)
   end
 
   def ensure_tasklist_exists_for(user)
@@ -209,6 +222,14 @@ class Property < ApplicationRecord
     budget_remaining.negative? && !ignore_budget_warning
   end
 
+  def rent_to_date
+    Money.new payments.paid.only_rent.map { |p| p.payment_amt_cents || 0 }.sum
+  end
+
+  def utilities_to_date
+    Money.new payments.paid.only_utilities.map { |p| p.payment_amt_cents || 0 }.sum
+  end
+
   def update_tasklists
     # since tasklist is only { property, user, google_id }, changing other details about the property won't trigger an api call from tasklist
     # however, if the user changes, then a new tasklist will be created, which triggers the #api_create on after_create callback
@@ -221,6 +242,11 @@ class Property < ApplicationRecord
         tasklist.api_update unless tasklist == false
       end
     end
+  end
+
+  def utilities_list
+    return 'none' unless utilities.any?
+    utilities.select(&:name).uniq
   end
 
   def visible_to?(user)
@@ -270,6 +296,7 @@ class Property < ApplicationRecord
 
   def default_must_be_private
     self.is_private = true
+    self.show_on_reports = false
   end
 
   def discard_connections

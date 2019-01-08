@@ -1,9 +1,7 @@
 <tr>
   <td>
     <% if current_user.staff? %>
-      <%= link_to occupancy.user, class: 'btn-small btn-slim blue lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
-        <%= occupancy.user.name %>
-      <% end %>
+      <%= link_to occupancy.user.name, occupancy.user %>
     <% else %>
       <%= occupancy.user.name %>
     <% end %>

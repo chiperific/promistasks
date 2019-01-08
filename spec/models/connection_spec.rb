@@ -102,41 +102,6 @@ RSpec.describe Connection, type: :model do
     end
   end
 
-  describe '#property_ready_for_tennant' do
-    let(:wrong_relationship) { build :connection }
-    let(:property_stage_complete) { build :connection_stage }
-    let(:property_stage_not_complete) { build :connection_stage }
-
-    it 'doesn\'t fire if relationship != tennant' do
-      expect(wrong_relationship).not_to receive(:property_ready_for_tennant)
-
-      wrong_relationship.save
-    end
-
-    it 'doesn\'t fire if property.stage == complete' do
-      expect(property_stage_complete).not_to receive(:property_ready_for_tennant)
-
-      property_stage_complete.save
-    end
-
-    context 'when relationship == tennant and property.stage != complete' do
-      before :each do
-        property_stage_not_complete.property.update(stage: 'construction')
-      end
-
-      it 'fires' do
-        expect(property_stage_not_complete).to receive(:property_ready_for_tennant)
-
-        property_stage_not_complete.save
-      end
-
-      it 'adds an error to relationship' do
-        expect(property_stage_not_complete.valid?).to eq false
-        expect(property_stage_not_complete.errors[:relationship].present?).to eq true
-      end
-    end
-  end
-
   describe '#relationship_appropriate_for_stage' do
     let(:good_stage) { build :connection_stage }
     let(:bad_stage) { build :connection_stage, relationship: 'volunteer' }

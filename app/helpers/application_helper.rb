@@ -8,14 +8,26 @@ module ApplicationHelper
   end
 
   def human_boolean(boolean)
+    return boolean unless boolean.is_a?(TrueClass) || boolean.is_a?(FalseClass)
+
     boolean ? 'Yes' : 'No'
   end
 
   def human_date(date)
+    return date unless date.is_a?(Date) || date.is_a?(Time)
+
     date&.strftime('%b %-d, %Y')
   end
 
   def human_datetime(datetime)
+    return datetime unless date.is_a? Time
+
     datetime&.strftime('%-m/%-d @ %l:%M:%S %p %Z')
+  end
+
+  def human_money(money)
+    return money unless money.is_a? Money
+
+    view_context.humanized_money_with_symbol(money)
   end
 end

@@ -1,9 +1,42 @@
 <div class="row">
-  <div class="col">
-    <p>Some cool reports will go here. Once I know what they should look like.</p>
+  <div class="col s12">
+    <h2>Report</h2>
   </div>
 </div>
 
-<% if true%>
+<% if @properties.empty? %>
   <%= render partial: 'admin_contact' %>
+<% else %>
+  <div class="row center-align">
+    Show:
+    <div class="switch">
+      <label>
+        Active only
+        <input type="checkbox" id="scope_switch" <%= 'checked="checked"' if @include_archived %>>
+        <span class="lever"></span>
+        Include archived
+      </label>
+    </div>
+  </div>
+
+  <table id='dttb-report' class="highlight">
+    <thead>
+      <tr>
+        <th data-priority="1">Property</th>
+        <th data-priority="3">Acquired Date</th>
+        <th data-priority="3">Completion Date</th>
+        <th data-priority="2">Stage</th>
+        <th data-priority="1">Status</th>
+        <th data-priority="2">Purchase cost</th>
+        <th data-priority="3">Rent payments</th>
+        <th data-priority="3">Utility payments</th>
+        <th data-priority="1">Total cost</th>
+        <th data-priority="1">Budget remaining</th>
+        <th data-priority="3">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= render partial: 'property_row', collection: @properties %>
+    </tbody>
+  </table>
 <% end %>

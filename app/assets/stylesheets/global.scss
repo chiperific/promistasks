@@ -27,6 +27,10 @@ main {
     font-size: .75em;
   }
 
+  .hidden {
+    display: none;
+  }
+
   @media (min-width: 993px) {
     div.full-row {
       width: 140%;
@@ -150,22 +154,25 @@ a.modal-trigger {
   }
 }
 
-th {
-  padding: 5px 5px !important;
-  height: 46px;
-}
-
-td {
-  padding-top: 5px !important;
-  padding-bottom: 5px !important;
-  height: 46px;
-
-  &.truncate {
-    width: 200px;
-    margin-top: 15px;
+table {
+  th {
+    padding: 5px 5px !important;
+    height: 46px;
   }
-  &.slim {
-    width: 43px;
+
+  td {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+    height: 46px;
+
+    &.truncate {
+      width: 200px;
+      margin-top: 15px;
+      max-width: 147px;
+    }
+    &.slim {
+      width: 43px;
+    }
   }
 }
 

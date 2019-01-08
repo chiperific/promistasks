@@ -129,3 +129,22 @@ $(document).on 'turbolinks:load', ->
     $('form').submit()
     true
 
+  return unless actionMatches(['edit'])
+
+  $('#edit_payment_switch').on 'click', (e)->
+    scope = $(this).attr('data-scope')
+    checkedTo = $('#to_checkboxes').find('input[type=checkbox]:checked').attr('id')
+    to = checkedTo || ''
+    to = to.replace('to_', '').replace('_opt','')
+    if scope == 'send'
+      $('#payment_paid_to').val(to)
+      $('#paid_to_label').text('Pay to:')
+      $(this).attr('data-scope', 'receive')
+      $(this).text('receive $')
+    else # scope == 'receive'
+      $('#payment_paid_to').val('organization')
+      $('#paid_to_label').text('Payment from:')
+      $(this).attr('data-scope', 'send')
+      $(this).text('send $')
+
+

@@ -23,9 +23,7 @@
     </td>
     <td>
       <% if current_user.staff? %>
-        <%= link_to user_path(task.owner), class: 'btn-small btn-slim blue lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
-          <%= task.owner.name %>
-        <% end %>
+        <%= link_to task.owner.name, user_path(task.owner) %>
       <% else %>
         <%= task.owner.name %>
       <% end %>

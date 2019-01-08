@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Payment < ApplicationRecord
-include Discard::Model
+  include Discard::Model
 
   belongs_to :property, inverse_of: :payments, optional: true
   belongs_to :park,     inverse_of: :payments, optional: true
@@ -25,6 +25,10 @@ include Discard::Model
                          in: [true, false]
 
   validate :must_have_association
+  validate :date_if_money
+
+  before_save :make_non_org_payments_positive, if: -> { paid_to != 'organization' && (bill_amt&.negative? || payment_amt&.negative?) }
+  before_save :make_org_payments_negative, if: -> { paid_to == 'organization' && (bill_amt&.positive? || payment_amt&.positive?) }
 
   default_scope { order(:due) }
 
@@ -50,10 +54,12 @@ include Discard::Model
   scope :due_within,    ->(day_num) { not_paid.where(due: Date.today..(Date.today + day_num.days)) }
   scope :past_due,      -> { not_paid.due_in_past }
 
+  scope :only_rent,      -> { where(utility_type: 'rent') }
+  scope :only_utilities, -> { where.not(utility_type: 'rent') }
+
   scope :related_by_property_to, ->(user) { active.where(property_id: Property.select(:id).related_to(user)) }
   scope :related_by_task_to,     ->(user) { active.where(task_id: Task.select(:id).related_to(user)) }
   scope :related_to,             ->(user) { active.related_by_property_to(user).or(related_by_task_to(user)).or(where(creator_id: user.id)) }
-
 
   after_save :create_next_instance, if: -> { recurrence.present? && recurring && paid.present? && paid_before_last_save.blank? }
 
@@ -94,13 +100,17 @@ include Discard::Model
       self.client_id = payment_params[:client_id_obo]
     end
 
-    self.task_id = payment_params[:task_id] unless payment_params[:task_id] == '0' || payment_params[:task_id] == 0 || payment_params[:task_id].blank?
+    self.task_id = payment_params[:task_id] unless payment_params[:task_id].to_i.zero?
+  end
+
+  def paid?
+    paid.present? && payment_amt.present?
   end
 
   def past_due?
     return false unless due.present?
 
-    due.past?
+    due.past? && paid.blank?
   end
 
   def reason
@@ -144,10 +154,10 @@ include Discard::Model
   def create_next_instance
     child = dup
     child.tap do |c|
-      c.received = nil
+      c.received = Date.today
       c.paid = nil
-      c.discarded_at = nil
       c.payment_amt_cents = nil
+      c.discarded_at = nil
       c.suppress_system_alerts = false
       c.created_at = Time.now
       c.due = next_recurrence
@@ -156,29 +166,40 @@ include Discard::Model
     child.save!
   end
 
+  def date_if_money
+    errors.add(:received, 'date needs to be set') if received.blank? && (!!bill_amt&.positive? || !!bill_amt&.negative?)
+    errors.add(:paid, 'date needs to be set') if paid.blank? && (!!payment_amt&.positive? || !!payment_amt&.negative?)
+  end
+
+  def make_non_org_payments_positive
+    self.bill_amt = bill_amt.abs unless bill_amt.nil?
+    self.payment_amt = payment_amt.abs unless payment_amt.nil?
+  end
+
+  def make_org_payments_negative
+    self.bill_amt = -(bill_amt.abs) unless bill_amt.nil?
+    self.payment_amt = -(payment_amt.abs) unless payment_amt.nil?
+  end
+
   def must_have_association
-    case to.class.to_s
-    when 'Utility'
-      errors.add(:utility, 'Please select a Utility from the list') if :utility_id.blank?
-    when 'Park'
-      errors.add(:park, 'Please select a Park from the list') if :park_id.blank?
-    when 'User'
-      errors.add(:contractor, 'Please select a Contractor from the list') if :contractor_id.blank?
-      errors.add(:client, 'Please select a Client from the list') if :client_id.blank?
-    when 'NilClass'
-      errors.add(:paid_to, 'Please select a Utility, Park, Contractor or Client')
+    case paid_to
+    when 'utility'
+      errors.add(:utility_id, ': Please select a Utility from the list') if utility_id.blank?
+    when 'park'
+      errors.add(:park_id, ': Please select a Park from the list') if park_id.blank?
+    when 'contractor'
+      errors.add(:contractor_id, ': Please select a Contractor from the list') if contractor_id.blank?
+    when 'client'
+      errors.add(:client_id, ': Please select a Client from the list') if client_id.blank?
     end
 
-    case self.for.class.to_s
-    when 'User'
-      errors.add(:client_id_obo, 'Please select a Client from the list') if :client_id.blank? && on_behalf_of == 'client'
-    when 'Property'
-      errors.add(:property, 'Please select a Property from the list') if :property_id.blank?
-    when 'NilClass'
-      errors.add(:on_behalf_of, 'Please select a Property or Client')
+    case on_behalf_of
+    when 'client'
+      errors.add(:client_id_obo, ': Please select a Client from the list') if client_id.blank?
+    when 'property'
+      errors.add(:property_id, ': Please select a Property from the list') if property_id.blank?
     end
-
-    return false if errors.any?
+    return false if errors.any? || paid_to.blank? || on_behalf_of.blank?
 
     true
   end

@@ -21,6 +21,10 @@ class ConnectionsController < ApplicationController
   def create
     authorize @connection = Connection.new(connection_params)
 
+    if params[:property_stage].present? && Constant::Property::STAGES.include?(params[:property_stage])
+      @connection.property.update(stage: params[:property_stage])
+    end
+
     if @connection.save
       redirect_to @return_path, notice: 'Connection created'
     else
@@ -38,6 +42,10 @@ class ConnectionsController < ApplicationController
 
     @connection.discard unless params[:connection][:archive] == '0' || @connection.discarded?
     @connection.undiscard if params[:connection][:archive] == '0' && @connection.discarded?
+
+    if params[:property_stage].present? && Constant::Property::STAGES.include?(params[:property_stage])
+      @connection.property.update(stage: params[:property_stage])
+    end
 
     if @connection.update(connection_params)
       redirect_to @return_path, notice: 'Update successful'
