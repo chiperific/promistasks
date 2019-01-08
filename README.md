@@ -3,30 +3,30 @@
 ## To do:
 4. Controllers:
   - Archiving property in app (when no open tasks) removes from GT.
+    -- right now, for everybody
+    -- Tasks only archive for the user that clicks it (through controller)
+    -- Seth should choose
+
   - Contractors can't pick jobs (must be assigned as owner by a staff user)
-  - Creating a user tries to create a session?
   - When a new Property is created, default tasks are also generated:
     -- From a fake seeds file?
-    -- What tasks:
       + Get the title
       + Inspect the property
       + Setup utilities
     -- Assign based upon Organization#{apropriate}_contact
-  - When a user discards a Property in this app:
-    -- Provide the option to re-assign each task's creator && owner? || actually 'discard' for all (delete through API for all users)
-  - When a user discards at Task in this app:
-    -- delete in Google
   - Show an alert when a Property.stage != 'complete' && Property.expected_completion_date within 7 days?
   - Task now has lots of volunteer/contractor fields. Integrate these into #public views
     -- Professional boolean indicates a specific skill is needed. Should this affect visibility or just have some flag on public view?
   - Task#public gets a slider for individual, group, both filtering
   - Task#public gets a filter-by-skill function
-  - Task: delegate cost to payment?
 
 5. Services:
   - How to ignore duplicate tasks (same tasklist) from API?
 
 6. Views:
+  - Datatables doesn't play well with AJAXED tables.
+    -- Probably need to destroy and re-create everytime we AJAX: https://datatables.net/manual/tech-notes/3#destroy
+    -- Or use Datatable's AJAX instead of Rails
   - Client reporting: public form with limited options for types of errors
     -- Looks up property by client
     -- creates a task for property.connections.where(relationship: 'staff contact').last || Organization.maintenance_contact

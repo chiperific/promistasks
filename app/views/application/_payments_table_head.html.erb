@@ -1,14 +1,14 @@
 <tr>
-  <th class="hide-on-small-only"></th>
-  <th>Reason</th>
-  <th>Amt</th>
-  <th>Status</th>
+  <th data-priority="1"></th>
+  <th data-priority="1">Reason</th>
+  <th data-priority="1">Amt</th>
+  <th data-priority="1">Status</th>
   <% if source == 'Property' %>
-    <th>To</th>
+    <th data-priority="2">To</th>
   <% else %>
-    <th>For</th>
+    <th data-priority="2">For</th>
   <% end %>
-  <th>Recurring?</th>
-  <th></th>
-  <th></th>
+  <th data-priority="2">Recurring?</th>
+  <th data-priority="1"></th>
+  <th data-priority="1"></th>
 </tr>

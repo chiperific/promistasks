@@ -39,8 +39,8 @@ class Property < ApplicationRecord
   after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }
   after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? && errors.empty? }
   after_update :update_tasklists,                   if: -> { discarded_at.nil? && saved_change_to_name? }
-  after_save :discard_connections,                  if: -> { discarded_at.present? }
-  after_save :undiscard_connections,                if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
+  after_save :discard_relations,                    if: -> { discarded_at.present? && discarded_at_before_last_save.blank? }
+  after_save :undiscard_relations,                  if: -> { discarded_at_before_last_save.present? && discarded_at.blank? }
 
   scope :except_default, ->       { where(is_default: false) }
   scope :needs_title,    ->       { except_default.undiscarded.where(certificate_number: nil) }
@@ -303,13 +303,14 @@ class Property < ApplicationRecord
     self.show_on_reports = false
   end
 
-  def discard_connections
-    connections.each(&:discard)
+  def discard_relations
+    connections.discard_all
+    payments.discard_all
   end
 
   def discard_tasks_and_delete_tasklists
-    Tasklist.where(property: self).each(&:destroy)
-    Task.where(property: self).each(&:discard)
+    Tasklist.where(property: self).destroy_all
+    Task.where(property: self).discard_all
   end
 
   def refuse_to_discard_default
@@ -317,12 +318,19 @@ class Property < ApplicationRecord
   end
 
   def refuse_to_discard_hastily
-    errors.add(:archive, 'Can\'t discard because active tasks exist') if tasks.in_process.any?
+    errors.add(:archive, "failed because #{tasks.in_process.count} active tasks exist") if tasks.in_process.any?
+    errors.add(:archive, "failed because #{payments.not_paid.count} active payments exist") if payments.not_paid.any?
+
+    return false if tasks.in_process.any? || payments.not_paid.any?
+
+    true
   end
 
-  def undiscard_connections
+  def undiscard_relations
     self.reload
-    connections.each(&:undiscard)
+    connections.undiscard_all
+    tasks.undiscard_all
+    payments.undiscard_all
   end
 
   def use_address_for_name

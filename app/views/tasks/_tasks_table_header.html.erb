@@ -1,19 +1,19 @@
 <tr>
-  <th class="hide-on-small-only"></th>
-  <th>Priority</th>
-  <th>Title</th>
-  <th>Assigned to</th>
+  <th data-priority="1"></th>
+  <th data-priority="1">Priority</th>
+  <th data-priority="1">Title</th>
+  <th data-priority="1">Assigned to</th>
   <% unless controller_name == 'properties' %>
-    <th>Property</th>
+    <th data-priority="2">Property</th>
   <% end %>
-  <th class="center-align">Due</th>
+  <th class="center-align" data-priority="1">Due</th>
   <% if controller_name == 'properties' %>
-    <th class="center-align">Budget</th>
-    <th class="center-align">Cost</th>
+    <th class="center-align" data-priority="2">Budget</th>
+    <th class="center-align" data-priority="2">Cost</th>
   <% end %>
   <% unless controller.action_name == 'tasks_finder' %>
-    <th></th>
+    <th data-priority="2"></th>
   <% end %>
-  <th></th>
-  <th></th>
+  <th data-priority="1"></th>
+  <th data-priority="1"></th>
 </tr>

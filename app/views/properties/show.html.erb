@@ -89,8 +89,8 @@
           </ul>
         </div>
       </div>
-      <div class="row">
-        <table class='highlight responsive-table' id='dttb1-task_table'>
+      <div class="row fat">
+        <table class='highlight' id='dttb2-task_table'>
           <thead>
             <%= render partial: 'tasks/tasks_table_header' %>
           </thead>
@@ -122,7 +122,7 @@
 
       <div class="row center-align">
         <% if @occupancies.any? %>
-          <table class='highlight responsive-table' id="dttb_simple-occupancy_table">
+          <table class='highlight' id="dttb_simple-occupancy_table">
             <thead>
               <tr>
                 <th>Person</th>
@@ -158,7 +158,7 @@
 
       <div class="row center-align">
         <% if @connections.any? %>
-          <table class='highlight responsive-table' id="dttb_simple-connections_table">
+          <table class='highlight' id="dttb_simple-connections_table">
             <thead>
               <tr>
                 <th>Person</th>
@@ -197,7 +197,7 @@
         </div>
       </div>
 
-      <div class="row center-align">
+      <div class="row center-align fat">
         <% if @payments.any? %>
           <table class='highlight responsive-table' id="dttb1-payments_table">
             <thead>

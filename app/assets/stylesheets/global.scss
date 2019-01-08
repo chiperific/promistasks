@@ -91,6 +91,15 @@ main {
   }
 }
 
+@media (min-width: 993px) {
+  .container {
+    .row.fat {
+      width: 130%;
+      margin-left: -15%;
+    }
+  }
+}
+
 // materialize doesn't play well with Rail adding divs around errored fields.
 // So I adjusted application.rb to add the field_with_errors directly to the form field.
 form {
