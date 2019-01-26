@@ -84,7 +84,7 @@ class TasksController < ApplicationController
 
     @payments = @task.payments
 
-    if @task.visibility = 1
+    if @task.visibility == 1
       @vol_info_hash = {
         'Group opportunity': human_boolean(@task.volunteer_group),
         'Professionals only': human_boolean(@task.professional),

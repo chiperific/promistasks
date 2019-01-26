@@ -219,6 +219,10 @@ class Task < ApplicationRecord
       (visibility == 3 && !user.client?)
   end
 
+  def visible_to
+    Constant::Task::VISIBILITY[visibility]
+  end
+
   private
 
   def created_locally?

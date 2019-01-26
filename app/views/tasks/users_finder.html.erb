@@ -1,5 +1,10 @@
 <div class="row">
-  <h4>People with skills that match task: <%= @task.title %></h4>
+  <div class="col s12">
+    <h4>People with skills that match task: <%= @task.title %></h4>
+  </div>
+  <div class="col s4 offset-s8">
+    <%= link_to 'Back to task', task_path(@task), class: 'btn btn-small green darken-2' %>
+  </div>
 </div>
 
 <div class="row section z-depth-1">
@@ -30,7 +35,7 @@
   </thead>
   <tbody id='user_table_body'>
     <% if @users.count.positive? %>
-      <%= render partial: 'users/user_table', locals: { tasks: @users } %>
+      <%= render partial: 'users/user_table', collection: @users %>
     <% else %>
       <tr>
         <td colspan="6" class="center-align">

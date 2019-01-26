@@ -5,7 +5,6 @@
   - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX instead of Rails
     -- Done for Tasks#index
     -- Where are the rest?
-  - Task#public mailto: link needs subject and body text
   - Task#user_finder user_table needs skills tabs in view
   - Vol / Contractor can't get past the homepage / task view
   - Lookup fields are still buggy (on tabbing?)
@@ -31,8 +30,6 @@
   - System sends email with list of payments due between 14 and 0 days && past due
   - Client Reports send an email when created
 
-## FUTURE
-
 
 ## Decisions
 - Footer: Anyone logged in can create a task
@@ -49,7 +46,7 @@
 - Pay for SSL endpoints
 
 
-## Someday
+## FUTURE
 1. Use the Google Ruby API instead of HTTParty
 2. Application model: client && property
 3. Maintenance request model: client && property public form with limited options for types of errors
