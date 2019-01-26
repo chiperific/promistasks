@@ -7,10 +7,6 @@
 # Ignore bundler config.
 /.bundle
 
-# Ignore the default SQLite database.
-/db/*.sqlite3
-/db/*.sqlite3-journal
-
 # Ignore all logfiles and tempfiles.
 /log/*
 /tmp/*
@@ -35,11 +31,8 @@ capybara-*.html
 rerun.txt
 pickle-email-*.html
 
-# TODO Comment out this rule if you are OK with secrets being uploaded to the repo
-config/initializers/secret_token.rb
-
-# Only include if you have production secrets in this file, which is no longer a Rails default
-# config/secrets.yml
+# Rails master key
+config/master.key
 
 # dotenv
 # TODO Comment out this rule if environment variables can be committed
@@ -65,6 +58,3 @@ bower.json
 
 # Ignore Byebug command history file.
 .byebug_history
-
-# Ignore encrypted secrets key file.
-config/secrets.yml.key

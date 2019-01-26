@@ -8,7 +8,7 @@ Devise.setup do |config|
   # confirmation, reset password and unlock tokens in the database.
   # Devise will use the `secret_key_base` as its `secret_key`
   # by default. You can change it below and use your own secret key.
-  # config.secret_key = Rails.application.secrets.devise_secret_key
+  # config.secret_key = Rails.application.credentials.devise_secret_key
   # config.secret_key = 'b6a09548605fdca38a69fa7181d698fef5e717614304a536fbb1a1f1639bbd405fa3040086117b89ea5c9ca640662c76b16dfb6a3f8f2b44dd02c539283d495e'
 
   # ==> Controller configuration
@@ -258,10 +258,10 @@ Devise.setup do |config|
   # Add a new OmniAuth provider. Check the wiki for more information on setting
   # up on your models and hooks.
   # config.omniauth :github, 'APP_ID', 'APP_SECRET', scope: 'user,public_repo'
-  config.omniauth :google_oauth2, Rails.application.secrets.google_client_id, Rails.application.secrets.google_client_secret,
+  config.omniauth :google_oauth2, Rails.application.credentials.google_client_id, Rails.application.credentials.google_client_secret,
                   scope: 'email, profile, tasks',
                   # Restrict logins just to a specific org domain:
-                  # hd: Rails.application.secrets.org_domain,
+                  # hd: Rails.application.credentials.org_domain,
                   # The rest of this seems to be useless:
                   # image_aspect_ratio: 'square',
                   # image_size: 50

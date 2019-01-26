@@ -164,7 +164,7 @@ class Property < ApplicationRecord
     return 'no_property.jpg' unless good_address?
 
     center = [latitude, longitude].join(',')
-    key = Rails.application.secrets.google_maps_api_key
+    key = Rails.application.credentials.google_maps_api_key
     "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&size=355x266&zoom=17&markers=color:red%7C#{center}"
   end
 

@@ -60,5 +60,6 @@ Rails.application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
-  config.read_encrypted_secrets = true
+  # config.read_encrypted_secrets = true
+  config.require_master_key = true
 end
