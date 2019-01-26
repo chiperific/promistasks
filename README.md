@@ -7,8 +7,6 @@ property_spec.rb:852
 property_spec.rb:859
 property_spec.rb:798
 
-tasks#skills form shows hidden fields
-
 ## To do:
 6. Views:
   - Datatables doesn't play well with AJAXED tables.
