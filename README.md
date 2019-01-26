@@ -5,10 +5,7 @@
   - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX instead of Rails
     -- Done for Tasks#index
     -- Where are the rest?
-  - Client reporting: public form with limited options for types of errors
-    -- Looks up property by client
-    -- creates a task for property.connections.where(relationship: 'staff contact').last || Organization.maintenance_contact
-    -- Sends an email alert to the owner.
+
   - Task#public mailto: link needs subject and body text
   - Task#user_finder user_table needs skills tabs in view
   - Vol / Contractor can't get past the homepage / task view
@@ -46,6 +43,12 @@
   - System sends email when new && non-oauth signs up
   - System sends email with list of payments due between 14 and 0 days && past due
   - Client Reports send an email when created
+
+## FUTURE
+1. Client reporting: public form with limited options for types of errors
+  - Looks up property by client
+  - creates a task for property.connections.where(relationship: 'staff contact').last || Organization.maintenance_contact
+  - Sends an email alert to the owner.
 
 ## Decisions
 - Footer: Anyone logged in can create a task
