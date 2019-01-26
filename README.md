@@ -5,7 +5,6 @@
   - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX instead of Rails
     -- Done for Tasks#index
     -- Where are the rest?
-
   - Task#public mailto: link needs subject and body text
   - Task#user_finder user_table needs skills tabs in view
   - Vol / Contractor can't get past the homepage / task view
@@ -34,10 +33,6 @@
 
 5. Services:
   - How to ignore duplicate tasks (same tasklist) from API?
-
-
-8. Jobs
-  - Get data from Google: On a cron job every hour
 
 9. Mailers (need tests)
   - System sends email when new && non-oauth signs up
