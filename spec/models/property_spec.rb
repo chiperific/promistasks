@@ -751,12 +751,12 @@ RSpec.describe Property, type: :model do
     end
   end
 
-  describe '#discard_connections' do
+  describe '#discard_relations' do
     context 'when discarded_at is not present' do
       let(:active_prop) { build :property, discarded_at: nil }
 
       it 'doesn\'t fire' do
-        expect(active_prop).not_to receive(:discard_connections)
+        expect(active_prop).not_to receive(:discard_relations)
         active_prop.save
       end
     end
@@ -764,27 +764,43 @@ RSpec.describe Property, type: :model do
     context 'when discarded_at is present' do
       before :each do
         @discarded_prop = create(:property)
+      end
 
-        3.times do
-          create(:connection, property: @discarded_prop)
-        end
+      it 'fires' do
+        expect(@discarded_prop).to receive(:discard_relations)
+
+        @discarded_prop.discard
       end
 
       it 'discards any associated connections' do
+        3.times do
+          create(:connection, property: @discarded_prop)
+        end
         expect(@discarded_prop.connections.active.count).to eq 3
 
         @discarded_prop.discard
 
         expect(@discarded_prop.connections.active.count).to eq 0
       end
+
+      it 'discards any associated payments (that are paid)' do
+        3.times do
+          create(:payment, property: @discarded_prop, paid: Date.today)
+        end
+        expect(@discarded_prop.payments.active.count).to eq 3
+
+        @discarded_prop.discard
+
+        expect(@discarded_prop.payments.active.count).to eq 0
+      end
     end
   end
 
   describe '#discard_tasks_and_delete_tasklists' do
     let(:discarded_property) { create :property, name: 'about to be discarded' }
-    let(:task1) { create :task, property: discarded_property }
-    let(:task2) { create :task, property: discarded_property }
-    let(:task3) { create :task, property: discarded_property }
+    let(:task1) { create :task, property: discarded_property, completed_at: Time.now }
+    let(:task2) { create :task, property: discarded_property, completed_at: Time.now }
+    let(:task3) { create :task, property: discarded_property, completed_at: Time.now }
 
     it 'only fires after a property is discarded' do
       expect(@property).not_to receive(:discard_tasks_and_delete_tasklists)
@@ -813,7 +829,54 @@ RSpec.describe Property, type: :model do
   end
 
   describe '#refuse_to_discard_hastily' do
-    pending 'keeps you from fucking up'
+    let(:hasty) { create :property, name: 'don\'t be so hasty little hobbit' }
+
+    it 'fires on save' do
+      expect(hasty).to receive(:refuse_to_discard_hastily)
+
+      hasty.discard
+    end
+
+    context 'when self.tasks.in_process.size > 0' do
+      before :each do
+        2.times do
+          create(:task, property: hasty)
+        end
+      end
+
+      it 'adds an error to :archive' do
+        hasty.discard
+        expect(hasty.errors[:archive].first).to eq 'failed because 2 active tasks exist'
+      end
+    end
+
+    context 'when self.payments.not_paid.size > 0' do
+      before :each do
+        2.times do
+          create(:payment, property: hasty)
+        end
+      end
+
+      it 'adds an error to :archive' do
+        hasty.discard
+        expect(hasty.errors[:archive].first).to eq 'failed because 2 active payments exist'
+      end
+    end
+
+    context 'when self.tasks.in_process.size == 0 && self.payments.not_paid.size == 0' do
+      before :each do
+        2.times do
+          create(:task, property: hasty, completed_at: Time.now)
+          create(:payment, property: hasty, paid: Date.today)
+        end
+      end
+
+      it 'does nothing' do
+        hasty.discard
+
+        expect(hasty.errors.any?).to eq false
+      end
+    end
   end
 
   describe '#refuse_to_discard_default' do
@@ -844,20 +907,20 @@ RSpec.describe Property, type: :model do
     end
   end
 
-  describe '#undiscard_connections' do
+  describe '#undiscard_relations' do
     let(:never_discarded) { create :property, discarded_at: nil }
     let(:still_discarded) { create :property, discarded_at: Time.now }
 
     context 'when discarded_at was not present before the last save' do
       it 'doesn\'t fire' do
-        expect(never_discarded).not_to receive(:undiscard_connections)
+        expect(never_discarded).not_to receive(:undiscard_relations)
         never_discarded.update(name: 'never been discarded')
       end
     end
 
     context 'when discarded_at is not nil' do
       it 'doesn\'t fire' do
-        expect(still_discarded).not_to receive(:undiscard_connections)
+        expect(still_discarded).not_to receive(:undiscard_relations)
         still_discarded.update(name: 'still discarded')
       end
     end
@@ -865,13 +928,13 @@ RSpec.describe Property, type: :model do
     context 'when discarded_at is no longer nil' do
       before :each do
         @undiscarded = create(:property, discarded_at: Time.now - 10.minutes)
-
-        3.times do
-          create(:connection, property: @undiscarded, discarded_at: Time.now - 9.minutes)
-        end
       end
 
       it 'undiscards any associated connections' do
+        3.times do
+          create(:connection, property: @undiscarded, discarded_at: Time.now - 9.minutes)
+        end
+
         expect(@undiscarded.connections.count).to eq 3
         expect(@undiscarded.connections.active.count).to eq 0
 
@@ -879,6 +942,20 @@ RSpec.describe Property, type: :model do
         @undiscarded.reload
 
         expect(@undiscarded.connections.active.count).to eq 3
+      end
+
+      it 'undiscards any associated payments' do
+        3.times do
+          create(:payment, property: @undiscarded, discarded_at: Time.now - 9.minutes)
+        end
+
+        expect(@undiscarded.payments.count).to eq 3
+        expect(@undiscarded.payments.active.count).to eq 0
+
+        @undiscarded.undiscard
+        @undiscarded.reload
+
+        expect(@undiscarded.payments.active.count).to eq 3
       end
     end
   end

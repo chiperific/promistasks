@@ -318,8 +318,8 @@ class Property < ApplicationRecord
   end
 
   def refuse_to_discard_hastily
-    errors.add(:archive, "failed because #{tasks.in_process.count} active tasks exist") if tasks.in_process.any?
-    errors.add(:archive, "failed because #{payments.not_paid.count} active payments exist") if payments.not_paid.any?
+    errors.add(:archive, "failed because #{tasks.in_process.size} active tasks exist") if tasks.in_process.any?
+    errors.add(:archive, "failed because #{payments.not_paid.size} active payments exist") if payments.not_paid.any?
 
     return false if tasks.in_process.any? || payments.not_paid.any?
 

@@ -1,17 +1,10 @@
 # Task and Resource Manager with Google Tasks API Extension for Family Promise GR
 
-
-## ERRORS:
-property_spec.rb:758
-property_spec.rb:852
-property_spec.rb:859
-property_spec.rb:798
-
 ## To do:
 6. Views:
-  - Datatables doesn't play well with AJAXED tables.
-    -- Probably need to destroy and re-create everytime we AJAX: https://datatables.net/manual/tech-notes/3#destroy
-    -- Or use Datatable's AJAX instead of Rails
+  - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX instead of Rails
+    -- Done for Tasks#index
+    -- Where are the rest?
   - Client reporting: public form with limited options for types of errors
     -- Looks up property by client
     -- creates a task for property.connections.where(relationship: 'staff contact').last || Organization.maintenance_contact
