@@ -1,0 +1,19 @@
+<tr>
+  <td>notice</td>
+  <td class="center-align">priority</td>
+  <td class="truncate">title</td>
+  <td>assigned to</td>
+  <% unless controller_name == 'properties' %>
+    <td>property</td>
+  <% end %>
+  <td class="center-align">due</td>
+  <% if controller_name == 'properties' %>
+    <td class="center-align">budget</td>
+    <td class="center-align">cost</td>
+  <% end %>
+  <% unless controller.action_name == 'tasks_finder' %>
+    <td class="slim">completion</td>
+  <% end %>
+  <td class="slim">show</td>
+  <td class="slim">edit</td>
+</tr>

@@ -1,9 +1,33 @@
 # Task and Resource Manager with Google Tasks API Extension for Family Promise GR
 
+
+## ERRORS:
+property_spec.rb:758
+property_spec.rb:852
+property_spec.rb:859
+property_spec.rb:798
+
+tasks#skills form shows hidden fields
+
 ## To do:
+6. Views:
+  - Datatables doesn't play well with AJAXED tables.
+    -- Probably need to destroy and re-create everytime we AJAX: https://datatables.net/manual/tech-notes/3#destroy
+    -- Or use Datatable's AJAX instead of Rails
+  - Client reporting: public form with limited options for types of errors
+    -- Looks up property by client
+    -- creates a task for property.connections.where(relationship: 'staff contact').last || Organization.maintenance_contact
+    -- Sends an email alert to the owner.
+  - Task#public mailto: link needs subject and body text
+  - Task#user_finder user_table needs skills tabs in view
+  - Vol / Contractor can't get past the homepage / task view
+  - Lookup fields are still buggy (on tabbing?)
+  - Suppress auto-fill: Connections#new / #edit
+  - Rely upon later update val?
+
 4. Controllers:
   - Archiving property in app (when no open tasks) removes from GT.
-    -- right now, for everybody
+    -- right now, for everybody (through the model)
     -- Tasks only archive for the user that clicks it (through controller)
     -- Seth should choose
 
@@ -23,20 +47,6 @@
 5. Services:
   - How to ignore duplicate tasks (same tasklist) from API?
 
-6. Views:
-  - Datatables doesn't play well with AJAXED tables.
-    -- Probably need to destroy and re-create everytime we AJAX: https://datatables.net/manual/tech-notes/3#destroy
-    -- Or use Datatable's AJAX instead of Rails
-  - Client reporting: public form with limited options for types of errors
-    -- Looks up property by client
-    -- creates a task for property.connections.where(relationship: 'staff contact').last || Organization.maintenance_contact
-    -- Sends an email alert to the owner.
-  - Task#public mailto: link needs subject and body text
-  - Task#user_finder user_table needs skills tabs in view
-  - Vol / Contractor can't get past the homepage / task view
-  - Lookup fields are still buggy (on tabbing?)
-  - Suppress auto-fill: Connections#new / #edit
-  - Rely upon later update val?
 
 8. Jobs
   - Get data from Google: On a cron job every hour

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Things that changed
 
 table 'connections' do

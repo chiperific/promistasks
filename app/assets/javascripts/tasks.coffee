@@ -20,9 +20,21 @@ findPropertyByName = (elem, targetString) ->
       $(targetString).val(response)
       highlightField(elem, response)
 
+reInitTooltips = ->
+  tooltips = $('.tooltipped')
+  M.Tooltip.init(tooltips, {
+  'enterDelay': 800
+  })
+
+dttbAjaxTrigger = (filter, table) ->
+  uri = '/tasks.json?filter=' + filter
+  table.ajax.url(uri).load( (json) ->
+    reInitTooltips()
+  )
+
 $(document).on 'turbolinks:load', ->
   return unless controllerMatches(['tasks']) &&
-  actionMatches(['create', 'edit', 'new'])
+  actionMatches(['create', 'edit', 'new', 'index'])
 
   highlightField('#property_lkup', $('#task_property_id').val())
   highlightField('#owner_lkup', $('#task_owner_id').val())
@@ -74,5 +86,46 @@ $(document).on 'turbolinks:load', ->
     findPropertyByName('#property_lkup', '#task_property_id')
     $('form').submit()
     true
+
+  # dataTables ajax links
+  $("table#task_table").DataTable( {
+    ajax: {
+      url: '/tasks.json',
+      dataSrc: ''
+    },
+    columns: [
+      { data: 'notice' },
+      { data: 'priority' },
+      { data: 'title' },
+      { data: 'assigned_to' },
+      { data: 'property' },
+      { data: 'due' },
+      { data: 'completion' },
+      { data: 'show' },
+      { data: 'edit' }
+    ],
+    responsive: true,
+    order: [1, 'desc'],
+    columnDefs: [ {
+      "searchable": false,
+      "orderable": false,
+      "targets": [0, -1, -2, -3],
+    },
+    {
+      className: "center-align",
+      targets: [1, 5, 6, 7, 8]
+    }
+    ],
+    dom: "<'#dttbl.row'tr>",
+    initComplete: (settings, json) ->
+      reInitTooltips()
+  } )
+
+  $('a.dttb-ajax-link').on 'click', ->
+    filter = $(this).attr('data-filter')
+    table = $('#task_table').DataTable()
+    dttbAjaxTrigger(filter, table)
+    event.preventDefault
+    false
 
 

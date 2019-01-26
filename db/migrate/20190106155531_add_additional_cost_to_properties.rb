@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddAdditionalCostToProperties < ActiveRecord::Migration[5.2]
   def change
     change_table :properties do |t|
