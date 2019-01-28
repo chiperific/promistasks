@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Property, type: :model do
   before :each do
+    Organization.create
     @property = create(:property, certificate_number: 'string', serial_number: 'string', is_private: false)
     WebMock.reset_executed_requests!
   end
@@ -693,6 +694,38 @@ RSpec.describe Property, type: :model do
         user_count = User.count
         expect(@public_property).to receive(:ensure_tasklist_exists_for).exactly(user_count).times
         @public_property.save!
+      end
+    end
+  end
+
+  fdescribe '#create_default_tasks' do
+    it 'fires after_create' do
+      expect(@property).not_to receive(:create_default_tasks)
+
+      @property.save
+
+      new_property = build(:property)
+
+      expect(new_property).to receive(:create_default_tasks)
+
+      new_property.save!
+    end
+
+    context 'when is_default == true' do
+      it 'does nothing' do
+        default_property = build(:property, is_default: true)
+
+        expect(default_property).not_to receive(:create_default_tasks)
+
+        default_property.save!
+      end
+    end
+
+    context 'when is_default != true' do
+      it 'creates three new tasks' do
+        new_property = build(:property)
+
+        expect { new_property.save! }.to change { new_property.tasks.size }.from(0).to(3)
       end
     end
   end

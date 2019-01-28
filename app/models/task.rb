@@ -223,6 +223,18 @@ class Task < ApplicationRecord
     Constant::Task::VISIBILITY[visibility]
   end
 
+  def volunteer_sentence
+    return nil if !min_volunteers.positive? && !max_volunteers.positive?
+
+    if min_volunteers.positive? && max_volunteers.positive?
+      min_volunteers.to_s + ' to ' + max_volunteers.to_s
+    elsif min_volunteers.positive?
+      'at least ' + min_volunteers.to_s
+    else
+      'no more than ' + max_volunteers.to_s
+    end
+  end
+
   private
 
   def created_locally?

@@ -1,0 +1,16 @@
+.card {
+  i.activator {
+    cursor: pointer;
+  }
+
+  .card-title {
+    margin-left: -12px;
+    margin-right: -12px;
+
+    p {
+      max-width: 85%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}

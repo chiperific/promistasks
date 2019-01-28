@@ -5,25 +5,12 @@
   - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX instead of Rails
     -- Done for Tasks#index
     -- Where are the rest?
-  - Task#user_finder user_table needs skills tabs in view
   - Vol / Contractor can't get past the homepage / task view
   - Lookup fields are still buggy (on tabbing?)
   - Suppress auto-fill: Connections#new / #edit
-  - Rely upon later update val?
 
 4. Controllers:
   - Contractors can't pick jobs (must be assigned as owner by a staff user)
-  - When a new Property is created, default tasks are also generated:
-    -- From a fake seeds file?
-      + Get the title
-      + Inspect the property
-      + Setup utilities
-    -- Assign based upon Organization#{apropriate}_contact
-  - Show an alert when a Property.stage != 'complete' && Property.expected_completion_date within 7 days?
-  - Task now has lots of volunteer/contractor fields. Integrate these into #public views
-    -- Professional boolean indicates a specific skill is needed. Should this affect visibility or just have some flag on public view?
-  - Task#public gets a slider for individual, group, both filtering
-  - Task#public gets a filter-by-skill function
 
 9. Mailers (need tests)
   - System sends email when new && non-oauth signs up
@@ -45,6 +32,10 @@
 - From FPGR GSuite: https://console.developers.google.com/apis/dashboard
 - Pay for SSL endpoints
 
+## TESTING
+- Task#user_finder && User#tasks_finder don't have system tests
+  -- show_task_user_finder && show_user_tasks_finder
+
 
 ## FUTURE
 1. Use the Google Ruby API instead of HTTParty
@@ -59,6 +50,9 @@
   - Could do a progress bar on property show, related to Property#occupancy_status: *--*--*--*
 7. Private Properties
   - must take self.tasks.map(&:owners &:creators) into account before removing
+8. Public features:
+  - Task#public_index gets a slider for individual, group, both filtering
+  - Task#public_index gets a filter-by-skill function
 
 ## Remind myself
 1. rails credentials:edit

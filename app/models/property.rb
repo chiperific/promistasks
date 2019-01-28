@@ -36,6 +36,7 @@ class Property < ApplicationRecord
   after_validation :geocode,                        if: -> { address_has_changed? && !is_default? }
   before_save  :default_budget,                     if: -> { budget.blank? }
   after_create :create_tasklists,                   unless: -> { discarded_at.present? || created_from_api? }
+  after_create :create_default_tasks,               unless: -> { discarded_at.present? || is_default? }
   after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }
   after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? && errors.empty? }
   after_update :update_tasklists,                   if: -> { discarded_at.nil? && saved_change_to_name? }
@@ -291,6 +292,31 @@ class Property < ApplicationRecord
       User.staff.each do |user|
         ensure_tasklist_exists_for(user)
       end
+    end
+  end
+
+  def create_default_tasks
+    tasks.new.tap do |task|
+      task.title = 'Get the title for ' + name
+      task.creator = creator
+      task.owner = creator
+      task.save
+    end
+
+    tasks.new.tap do |task|
+      task.title = 'Set up utilities for ' + name
+      task.creator = creator
+      task.owner = creator
+      task.save
+    end
+
+    inspection_owner = Organization.first.maintenance_contact.present? ? Organization.first.maintenance_contact : creator
+
+    tasks.new.tap do |task|
+      task.title = 'Perform an inspection at ' + name
+      task.creator = creator
+      task.owner = inspection_owner
+      task.save
     end
   end
 
