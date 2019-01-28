@@ -698,7 +698,7 @@ RSpec.describe Property, type: :model do
     end
   end
 
-  fdescribe '#create_default_tasks' do
+  describe '#create_default_tasks' do
     it 'fires after_create' do
       expect(@property).not_to receive(:create_default_tasks)
 
