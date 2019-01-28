@@ -26,7 +26,7 @@
   -- Seth should choose
 
 ## DEPLOY NOTES
-- Deploy to heroku as a free app to start, then upgrade with a FPGR team aCC
+- Deploy to heroku as a free app to start, then upgrade with a FPGR team CC
   -- put my secrets in heroku: $ heroku config:set RAILS_MASTER_KEY=`cat config/master.key`https://medium.com/craft-academy/encrypted-credentials-in-ruby-on-rails-9db1f36d8570
 - Mailgun, right? taskmanager@familypromisegr.org
 - From FPGR GSuite: https://console.developers.google.com/apis/dashboard

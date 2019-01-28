@@ -11,7 +11,7 @@ class Tasklist < ApplicationRecord
   validates_uniqueness_of :google_id, allow_nil: true, allow_blank: true
 
   before_destroy :api_delete
-  after_create   :api_insert, unless: -> { google_id.present? }
+  before_create  :api_insert, unless: -> { google_id.present? }
 
   def api_delete
     return false unless user.oauth_id.present? && google_id.present?
@@ -46,7 +46,8 @@ class Tasklist < ApplicationRecord
 
     response['id'] = sequence_google_id(response['id']) if Rails.env.test?
 
-    update_columns(google_id: response['id'])
+    # update_columns(google_id: response['id'])
+    self.google_id = response['id']
     response
   end
 

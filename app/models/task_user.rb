@@ -14,7 +14,7 @@ class TaskUser < ApplicationRecord
 
   before_validation :set_tasklist_gid, if: -> { tasklist_gid.nil? }
   before_destroy    :api_delete
-  after_create      :api_insert,              unless: -> { task.created_from_api? && google_id.present? }
+  before_create     :api_insert,              if: -> { user.present? && task.present? && task.created_locally? && google_id.blank? }
   after_update      :relocate,                if: -> { saved_change_to_tasklist_gid? }
   after_save        :elevate_completeness,    if: -> { completed_at.present? && task.completed_at.nil? }
 
@@ -48,7 +48,9 @@ class TaskUser < ApplicationRecord
 
     response['id'] = sequence_google_id(response['id']) if Rails.env.test?
 
-    update_columns(google_id: response['id'], updated_at: response['updated'])
+    # update_columns(google_id: response['id'], updated_at: response['updated'])
+    self.google_id = response['id']
+    self.updated_at = response['updated']
     response
   end
 

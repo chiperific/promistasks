@@ -324,7 +324,7 @@ RSpec.describe TaskUser, type: :model do
     let(:no_user) { build :task_user, user_id: nil }
     let(:no_task) { build :task_user, task_id: nil }
     let(:has_tasklist_gid) { build :task_user, tasklist_gid: 'FAKEMDQ5NTUwMTk3NjU1MjE3MTU6MDo1001' }
-    let(:fresh) { build :task_user }
+    let(:fresh) { build :task_user, tasklist_gid: nil }
 
     it 'returns false if user is nil' do
       expect(no_user.send(:set_tasklist_gid)).to eq false

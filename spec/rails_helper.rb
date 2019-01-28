@@ -66,7 +66,6 @@ RSpec.configure do |config|
 
   config.before(:each, type: :system) do
     driven_by :rack_test
-    Rails.application.load_seed
   end
 
   config.before(:each, type: :system, js: true) do
@@ -76,6 +75,7 @@ RSpec.configure do |config|
 
   config.around(:each) do |example|
     DatabaseCleaner.cleaning do
+      Organization.create
       example.run
     end
   end

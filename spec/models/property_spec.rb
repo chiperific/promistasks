@@ -4,7 +4,6 @@ require 'rails_helper'
 
 RSpec.describe Property, type: :model do
   before :each do
-    Organization.create
     @property = create(:property, certificate_number: 'string', serial_number: 'string', is_private: false)
     WebMock.reset_executed_requests!
   end
@@ -77,11 +76,14 @@ RSpec.describe Property, type: :model do
       @this_user         = create(:property, creator: @user)
       @this_user_also    = create(:property, creator: @user)
       @not_this_user     = create(:property)
-      @task_creator      = create(:task, creator: @user, property: @not_this_user)
-      @task_owner        = create(:task, owner: @user, property: @not_this_user)
       @past              = create(:property, created_at: Time.now - 2.days)
       @present           = create(:property, created_at: Time.now)
       @future            = create(:property, created_at: Time.now + 2.days)
+      Property.all.each do |prop|
+        prop.tasks.destroy_all
+      end
+      @task_creator      = create(:task, creator: @user, property: @not_this_user)
+      @task_owner        = create(:task, owner: @user, property: @not_this_user)
     end
 
     it '#needs_title returns only records without a certificate_number' do
@@ -275,7 +277,7 @@ RSpec.describe Property, type: :model do
     end
 
     it 'makes an API call' do
-      new_property = build(:property, is_private: true)
+      new_property = build(:property, is_private: true, creator: user)
       WebMock.reset_executed_requests!
       new_property.ensure_tasklist_exists_for(new_property.creator)
       expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).once
@@ -516,6 +518,7 @@ RSpec.describe Property, type: :model do
 
   describe '#update_tasklists' do
     before :each do
+      User.all.destroy_all
       @user  = create(:oauth_user)
       @user2 = create(:oauth_user)
       @user3 = create(:oauth_user)
@@ -524,12 +527,18 @@ RSpec.describe Property, type: :model do
       WebMock.reset_executed_requests!
     end
 
-    it 'should only fire if name is changed' do
-      @private_property.update(creator: @user2)
-      expect(WebMock).not_to have_requested(:any, Constant::Regex::TASKLIST)
+    context 'when anything other than name is changed' do
+      it 'doesn\'t fire' do
+        expect(@private_property).not_to receive(:update_tasklists)
+        @private_property.update(creator: @user2, description: 'a very good place', serial_number: '7')
+      end
+    end
 
-      @private_property.update(name: 'Now it\'s called something else!')
-      expect(WebMock).to have_requested(:post, Constant::Regex::TASKLIST).once
+    context 'when name is changed' do
+      it 'fires' do
+        expect(@private_property).to receive(:update_tasklists)
+        @private_property.update(name: 'Now it\'s called something else!')
+      end
     end
 
     context 'when private' do
@@ -541,7 +550,7 @@ RSpec.describe Property, type: :model do
 
     context 'when public' do
       it 'updates a Tasklist for all users' do
-        user_count = User.count
+        user_count = User.staff.count
         @public_property.update(name: 'not discarded public property')
         expect(WebMock).to have_requested(:patch, Constant::Regex::TASKLIST).times(user_count)
       end
@@ -641,6 +650,10 @@ RSpec.describe Property, type: :model do
 
     context 'when true to false (was private, now public)' do
       it 'adds the tasklist to other users' do
+        User.destroy_all # WTF? An Oauth user is being Factoried and I don't know from where.
+        user
+        user2
+        user3
         private_property.save
         WebMock.reset_executed_requests!
         count = User.staff_except(private_property.creator).count
@@ -797,6 +810,7 @@ RSpec.describe Property, type: :model do
     context 'when discarded_at is present' do
       before :each do
         @discarded_prop = create(:property)
+        @discarded_prop.tasks.destroy_all
       end
 
       it 'fires' do
@@ -831,33 +845,23 @@ RSpec.describe Property, type: :model do
 
   describe '#discard_tasks_and_delete_tasklists' do
     let(:discarded_property) { create :property, name: 'about to be discarded' }
-    let(:task1) { create :task, property: discarded_property, completed_at: Time.now }
-    let(:task2) { create :task, property: discarded_property, completed_at: Time.now }
-    let(:task3) { create :task, property: discarded_property, completed_at: Time.now }
 
     it 'only fires after a property is discarded' do
       expect(@property).not_to receive(:discard_tasks_and_delete_tasklists)
       @property.save!
 
-      discarded_property.discarded_at = Time.now
+      discarded_property.tasks.update_all(completed_at: Time.now)
       expect(discarded_property).to receive(:discard_tasks_and_delete_tasklists)
-      discarded_property.save!
+      discarded_property.discard
     end
 
     it 'marks all associated tasks as discarded' do
-      expect(task1.discarded_at).to eq nil
-      expect(task2.discarded_at).to eq nil
-      expect(task3.discarded_at).to eq nil
+      expect(discarded_property.tasks.where(discarded_at: nil).size).to eq 3
 
-      discarded_property.update(discarded_at: Time.now)
+      discarded_property.tasks.update_all(completed_at: Time.now)
+      discarded_property.discard
 
-      task1.reload
-      task2.reload
-      task3.reload
-
-      expect(task1.discarded_at).not_to eq nil
-      expect(task2.discarded_at).not_to eq nil
-      expect(task3.discarded_at).not_to eq nil
+      expect(discarded_property.tasks.where(discarded_at: nil).size).to eq 0
     end
   end
 
@@ -871,15 +875,9 @@ RSpec.describe Property, type: :model do
     end
 
     context 'when self.tasks.in_process.size > 0' do
-      before :each do
-        2.times do
-          create(:task, property: hasty)
-        end
-      end
-
       it 'adds an error to :archive' do
         hasty.discard
-        expect(hasty.errors[:archive].first).to eq 'failed because 2 active tasks exist'
+        expect(hasty.errors[:archive].first).to eq 'failed because 3 active tasks exist'
       end
     end
 
@@ -891,6 +889,7 @@ RSpec.describe Property, type: :model do
       end
 
       it 'adds an error to :archive' do
+        hasty.tasks.destroy_all
         hasty.discard
         expect(hasty.errors[:archive].first).to eq 'failed because 2 active payments exist'
       end
@@ -899,12 +898,12 @@ RSpec.describe Property, type: :model do
     context 'when self.tasks.in_process.size == 0 && self.payments.not_paid.size == 0' do
       before :each do
         2.times do
-          create(:task, property: hasty, completed_at: Time.now)
           create(:payment, property: hasty, paid: Date.today)
         end
       end
 
       it 'does nothing' do
+        hasty.tasks.update_all(completed_at: Time.now)
         hasty.discard
 
         expect(hasty.errors.any?).to eq false

@@ -143,9 +143,9 @@ class Property < ApplicationRecord
     return false if user.oauth_id.nil?
 
     tasklist = tasklists.where(user: user).first_or_initialize
-    return tasklist unless tasklist.new_record? || tasklist.google_id.nil?
+    return tasklist if tasklist.persisted? && tasklist.google_id.present?
 
-    tasklist.save
+    tasklist.save!
     tasklist.reload
   end
 
@@ -236,7 +236,7 @@ class Property < ApplicationRecord
     # however, if the user changes, then a new tasklist will be created, which triggers the #api_create on after_create callback
     if is_private?
       tasklist = ensure_tasklist_exists_for(creator)
-      tasklist.api_update
+      tasklist.api_update unless tasklist == false
     else
       User.staff.each do |user|
         tasklist = ensure_tasklist_exists_for(user)
@@ -269,15 +269,18 @@ class Property < ApplicationRecord
     if is_private? # became private
       # Only remove the tasklist from users without related tasks
       User.without_tasks_for(self).each do |user|
-        tasklist = tasklists.where(user: user).first_or_initialize
-        next if tasklist.new_record?
+        tasklists.where(user: user).destroy_all
+        # tasklist = tasklists.where(user: user).first_or_initialize
+        # next if tasklist.new_record?
 
-        tasklist.destroy
+        # tasklist.destroy
       end
 
     else # became public
       User.staff_except(creator).each do |user|
         tasklist = ensure_tasklist_exists_for(user)
+        next if tasklist == false
+
         next unless tasklist.new_record? || tasklist.google_id.nil?
 
         tasklist.api_insert

@@ -2,11 +2,11 @@
 
 FactoryBot.define do
   sequence :oauth_id do |n|
-    "10024006334546302578#{n}"
+    "FAKE4006334546302578#{n}"
   end
 
   sequence :oauth_token do |n|
-    "ya29.FAKEBQqzG5Q8sp3C5T-u1zaedo-jks4rRuPt6oIwqYWONG876pC1MQwOn_rVGUnLFWFpbmcOYmAJMgRC3xzyea2RvQR2W2l-KYQup4A_JvWQsCpmW5RIMFeZ9WO#{n}"
+    "FAKE.FAKEBQqzG5Q8sp3C5T-u1zaedo-jks4rRuPt6oIwqYWONG876pC1MQwOn_rVGUnLFWFpbmcOYmAJMgRC3xzyea2RvQR2W2l-KYQup4A_JvWQsCpmW5RIMFeZ9WO#{n}"
   end
 
   factory :user do
