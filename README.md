@@ -12,12 +12,6 @@
 4. Controllers:
   - Contractors can't pick jobs (must be assigned as owner by a staff user)
 
-9. Mailers (need tests)
-  - System sends email when new && non-oauth signs up
-  - System sends email with list of payments due between 14 and 0 days && past due
-  - Client Reports send an email when created
-
-
 ## Decisions
 - Footer: Anyone logged in can create a task
 - Archiving property in app (when no open tasks) removes from GT.
@@ -31,11 +25,6 @@
 - Mailgun, right? taskmanager@familypromisegr.org
 - From FPGR GSuite: https://console.developers.google.com/apis/dashboard
 - Pay for SSL endpoints
-
-## TESTING
-- Task#user_finder && User#tasks_finder don't have system tests
-  -- show_task_user_finder && show_user_tasks_finder
-
 
 ## FUTURE
 1. Use the Google Ruby API instead of HTTParty

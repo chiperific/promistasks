@@ -14,15 +14,19 @@ class RegistrationsController < Devise::RegistrationsController
     end
 
     if @user.save
-      sign_in @user if current_user.nil?
       # send an email to vol coordinator
-      if Rails.env.production?
-        RegistrationMailer.with(user: @user).new_registration_notification.deliver_later
-      else
+      if Rails.env.development?
         RegistrationMailer.with(user: @user).new_registration_notification.deliver_now
+      else
+        RegistrationMailer.with(user: @user).new_registration_notification.deliver_later
       end
 
-      flash[:success] = "Welcome, #{@user.fname}"
+      if current_user.nil?
+        sign_in @user
+        flash[:success] = "Welcome, #{@user.fname}"
+      else
+        flash[:success] = "#{@user.fname} successfully created"
+      end
 
       redirect_to root_path
     else
