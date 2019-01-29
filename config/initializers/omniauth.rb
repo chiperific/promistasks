@@ -2,7 +2,7 @@
 
 OmniAuth.config.logger = Rails.logger
 
-OmniAuth.config.full_host = Rails.env.production? ? Rails.environment.credentials.full_host : 'http://localhost:3000'
+OmniAuth.config.full_host = Rails.env.production? ? Rails.application.credentials.full_host : 'http://localhost:3000'
 
 # ==> Now handled in config/initializers/devise.rb
 # Rails.application.config.middleware.use OmniAuth::Builder do
