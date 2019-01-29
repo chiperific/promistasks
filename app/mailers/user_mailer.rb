@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class UserMailer < ApplicationMailer
-  require 'pry-remote'
 
   def payments_reminder(user, is_billing_contact)
     @user = user

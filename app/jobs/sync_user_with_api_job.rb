@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class SyncUserWithApiJob < ApplicationJob
-  require 'pry-remote'
-
   def initialize(user_id)
     @user = User.find(user_id)
     @tlc = TasklistsClient.new(@user)
