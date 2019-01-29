@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class PaymentReminderJob < ApplicationJob
-  require 'pry-remote'
-
   def initialize(*_args)
     @staff = User.staff
   end
