@@ -63,12 +63,13 @@ RSpec.describe 'Register new user', type: :system do
       expect(current_path).not_to eq new_user_registration_path
     end
 
-    it 'sends an email to the organization' do
-      first = ActionMailer::Base.deliveries.count
+    fit 'sends an email to the organization' do
+      ActiveJob::Base.queue_adapter = :test
 
       click_submit
 
-      expect(ActionMailer::Base.deliveries.count).to eq first + 1
+      expect { RegistrationMailer.new_registration_notification.deliver_later }
+        .to have_enqueued_job.on_queue('mailers')
     end
   end
 end
