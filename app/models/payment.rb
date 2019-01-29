@@ -37,15 +37,6 @@ class Payment < ApplicationRecord
     alias active kept
   end
 
-  # scope :for_properties,  -> { active.where.not(property_id: nil) }
-  # scope :for_parks,       -> { active.where.not(park_id: nil) }
-  # scope :for_utilities,   -> { active.where.not(utility_id: nil) }
-  # scope :for_tasks,       -> { active.where.not(task_id: nil) }
-  # scope :for_contractors, -> { active.where.not(contractor_id: nil) }
-  # scope :for_clients,     -> { active.where.not(client_id: nil) }
-
-  # scope :created_since, ->(time) { active.where("#{table_name}.created_at >= ?", time) }
-
   scope :due_in_future, -> { active.where('due >= ?', Date.today) }
   scope :due_in_past,   -> { active.where('due < ?', Date.today) }
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class PaymentOccurence < ActiveRecord::Base
   belongs_to :schedulable, polymorphic: true
   default_scope :order => 'date ASC'

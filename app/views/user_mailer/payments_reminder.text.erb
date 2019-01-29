@@ -1,5 +1,18 @@
 Hey <%= @user.name %>,
+<% if @pmt_late %>
+*!*! There are some late payments: !*!*
+======== Due already: ========
+<%= render partial: 'user_mailer/payment', collection: @pmt7 %>
+========================================
+<% end %>
+<% if @pmt_late.any? && (@pmt7.any? || @pmt14) %>
+
+<% end %>
+<% if @pmt7.any? && @pmt14.any? %>
 Here's a reminder of upcoming payments:
+<% else %>
+(no upcoming payments in the next 14 days)
+<% end %>
 
 <% if @pmt7.any? %>
 ===== Due in next 7 days: =====

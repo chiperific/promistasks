@@ -32,14 +32,16 @@ class Property < ApplicationRecord
   before_validation :use_address_for_name,          if: -> { name.blank? }
   before_validation :default_must_be_private,       if: -> { discarded_at.nil? && is_default? && !is_private? }
   before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
+  before_validation :refuse_to_discard_hastily,     if: -> { discarded_at.present? }
   after_validation :geocode,                        if: -> { address_has_changed? && !is_default? }
   before_save  :default_budget,                     if: -> { budget.blank? }
   after_create :create_tasklists,                   unless: -> { discarded_at.present? || created_from_api? }
+  after_create :create_default_tasks,               unless: -> { discarded_at.present? || is_default? }
   after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }
-  after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? }
+  after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? && errors.empty? }
   after_update :update_tasklists,                   if: -> { discarded_at.nil? && saved_change_to_name? }
-  after_save :discard_connections,                  if: -> { discarded_at.present? }
-  after_save :undiscard_connections,                if: -> { discarded_at_before_last_save.present? && discarded_at.nil? }
+  after_save :discard_relations,                    if: -> { discarded_at.present? && discarded_at_before_last_save.blank? }
+  after_save :undiscard_relations,                  if: -> { discarded_at_before_last_save.present? && discarded_at.blank? }
 
   scope :except_default, ->       { where(is_default: false) }
   scope :needs_title,    ->       { except_default.undiscarded.where(certificate_number: nil) }
@@ -52,10 +54,6 @@ class Property < ApplicationRecord
   scope :nearing_budget, ->       { except_default.where(ignore_budget_warning: false).joins(:tasks).group(:id).having('sum(tasks.cost_cents) > properties.budget_cents - 50000 AND sum(tasks.cost_cents) < properties.budget_cents') }
   scope :created_since,  ->(time) { except_default.where('created_at >= ?', time) }
   scope :reportable,     ->       { except_default.where(show_on_reports: true) }
-  # ready to be occupied: stage == 'complete', no connections.where(relationship: 'tennant')
-  # ready to be archived: stage == 'complete', one connection.where(relationship: 'tennant', stage: 'title transferred')
-  # ^ happens automatically when connection is created with stage 'transferred title'
-  # scopes to match stages?
 
   class << self
     alias archived discarded
@@ -129,6 +127,7 @@ class Property < ApplicationRecord
   def completion_date
     return actual_completion_date if actual_completion_date.present?
     return expected_completion_date if expected_completion_date.present? && expected_completion_date.future?
+
     'not set'
   end
 
@@ -144,9 +143,9 @@ class Property < ApplicationRecord
     return false if user.oauth_id.nil?
 
     tasklist = tasklists.where(user: user).first_or_initialize
-    return tasklist unless tasklist.new_record? || tasklist.google_id.nil?
+    return tasklist if tasklist.persisted? && tasklist.google_id.present?
 
-    tasklist.save
+    tasklist.save!
     tasklist.reload
   end
 
@@ -164,13 +163,15 @@ class Property < ApplicationRecord
 
   def google_map
     return 'no_property.jpg' unless good_address?
+
     center = [latitude, longitude].join(',')
-    key = Rails.application.secrets.google_maps_api_key
+    key = Rails.application.credentials.google_maps_api_key
     "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&size=355x266&zoom=17&markers=color:red%7C#{center}"
   end
 
   def google_map_link
     return false unless good_address?
+
     base = 'https://www.google.com/maps/?q='
     base + full_address.tr(' ', '+')
   end
@@ -235,7 +236,7 @@ class Property < ApplicationRecord
     # however, if the user changes, then a new tasklist will be created, which triggers the #api_create on after_create callback
     if is_private?
       tasklist = ensure_tasklist_exists_for(creator)
-      tasklist.api_update
+      tasklist.api_update unless tasklist == false
     else
       User.staff.each do |user|
         tasklist = ensure_tasklist_exists_for(user)
@@ -246,6 +247,7 @@ class Property < ApplicationRecord
 
   def utilities_list
     return 'none' unless utilities.any?
+
     utilities.select(&:name).uniq
   end
 
@@ -259,6 +261,7 @@ class Property < ApplicationRecord
 
   def address_required
     return true unless address.blank?
+
     errors.add(:address, 'can\'t be blank')
   end
 
@@ -266,15 +269,20 @@ class Property < ApplicationRecord
     if is_private? # became private
       # Only remove the tasklist from users without related tasks
       User.without_tasks_for(self).each do |user|
-        tasklist = tasklists.where(user: user).first_or_initialize
-        next if tasklist.new_record?
-        tasklist.destroy
+        tasklists.where(user: user).destroy_all
+        # tasklist = tasklists.where(user: user).first_or_initialize
+        # next if tasklist.new_record?
+
+        # tasklist.destroy
       end
 
     else # became public
       User.staff_except(creator).each do |user|
         tasklist = ensure_tasklist_exists_for(user)
+        next if tasklist == false
+
         next unless tasklist.new_record? || tasklist.google_id.nil?
+
         tasklist.api_insert
       end
     end
@@ -290,6 +298,31 @@ class Property < ApplicationRecord
     end
   end
 
+  def create_default_tasks
+    tasks.new.tap do |task|
+      task.title = 'Get the title for ' + name
+      task.creator = creator
+      task.owner = creator
+      task.save
+    end
+
+    tasks.new.tap do |task|
+      task.title = 'Set up utilities for ' + name
+      task.creator = creator
+      task.owner = creator
+      task.save
+    end
+
+    inspection_owner = Organization.first.maintenance_contact.present? ? Organization.first.maintenance_contact : creator
+
+    tasks.new.tap do |task|
+      task.title = 'Perform an inspection at ' + name
+      task.creator = creator
+      task.owner = inspection_owner
+      task.save
+    end
+  end
+
   def default_budget
     self.budget = Money.new(7_500_00)
   end
@@ -299,22 +332,34 @@ class Property < ApplicationRecord
     self.show_on_reports = false
   end
 
-  def discard_connections
-    connections.each(&:discard)
+  def discard_relations
+    connections.discard_all
+    payments.discard_all
   end
 
   def discard_tasks_and_delete_tasklists
-    Tasklist.where(property: self).each(&:destroy)
-    Task.where(property: self).each(&:discard)
+    Tasklist.where(property: self).destroy_all
+    Task.where(property: self).discard_all
   end
 
   def refuse_to_discard_default
     self.discarded_at = nil
   end
 
-  def undiscard_connections
+  def refuse_to_discard_hastily
+    errors.add(:archive, "failed because #{tasks.in_process.size} active tasks exist") if tasks.in_process.any?
+    errors.add(:archive, "failed because #{payments.not_paid.size} active payments exist") if payments.not_paid.any?
+
+    return false if tasks.in_process.any? || payments.not_paid.any?
+
+    true
+  end
+
+  def undiscard_relations
     self.reload
-    connections.each(&:undiscard)
+    connections.undiscard_all
+    tasks.undiscard_all
+    payments.undiscard_all
   end
 
   def use_address_for_name

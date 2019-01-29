@@ -4,6 +4,27 @@
   </div>
 </div>
 
+<% if @task.volunteer_group? %>
+  <div class="row">
+    <div class="col s12 center-align">
+      <h4>This is a good project for a volunteer group!</h4>
+    </div>
+    <div class="col s12 center-align">
+      <h5>
+        <%= 'A group of ' + @task.volunteer_sentence + ' volunteers.' %>
+      </h5>
+    </div>
+  </div>
+<% end %>
+
+<% if @task.professional? %>
+  <div class="row">
+    <div class="col s12 center-align">
+      <h4>This task requires professional skills</h4>
+    </div>
+  </div>
+<% end %>
+
 <div class="row">
   <div class="col s12 m6 offset-m3 z-depth-1 center-align green lighten-2">
     <% if @task.skills.any? %>

@@ -4,5 +4,5 @@
 Geocoder.configure(
   lookup: :google,
   use_https: true,
-  api_key: Rails.application.secrets.google_geocode_api_key
+  api_key: Rails.application.credentials.google_geocode_api_key
 )

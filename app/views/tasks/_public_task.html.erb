@@ -1,21 +1,42 @@
-<% @determined_path = current_user&.not_client? ? task_path(public_task) : public_task_path(public_task) %>
+<% @determined_path = (current_user && public_task.visible_to?(current_user)) ? task_path(public_task) : public_task_path(public_task) %>
+<% @activator = (public_task.volunteer_group? || public_task.professional? || public_task.skills.any? || public_task.min_volunteers.positive? || public_task.max_volunteers.positive?) %>
+<% @vol_size_sentence =  %>
 
 <div class="col s12 m6 l4">
-  <%= link_to @determined_path do %>
-    <div class="card amber z-depth-3">
-      <div class="card-content public">
-        <span class="card-title grey-text text-darken-4">
-          <%= public_task.title %>
-        </span>
-        <% public_task.skills&.each do |skill| %>
-          <div class="chip">
-            <%= skill.name %>
-          </div>
+  <div class="card amber z-depth-3">
+    <div class="card-content public grey-text text-darken-3">
+      <span class="card-title grey-text text-darken-4">
+        <p class="left"><%= public_task.title %></p>
+        <% if @activator %>
+          <i class="material-icons activator right">more_vert</i>
+        <% end %>
+      </span>
+      <p>Need by: <%= public_task.due.present? ? human_date(public_task.due) : 'Flexible' %></p>
+    </div>
+    <div class="card-action center-align">
+      <%= link_to 'see details', @determined_path, class: 'blue-text text-darken-4' %>
+    </div>
+    <% if @activator %>
+      <div class="card-reveal amber lighten-4">
+        <span class="card-title grey-text text-darken-4">Quick look:<i class="material-icons right">close</i></span>
+        <% if public_task.volunteer_group? %>
+          <p>Group opportunity!</p>
+        <% end %>
+        <% if public_task.professional? %>
+          <p>Requires skilled professional(s)</p>
+        <% end %>
+        <% if public_task.skills.any? %>
+          <p>Skills needed:</p>
+          <% public_task.skills&.each do |skill| %>
+            <div class="chip">
+              <%= skill.name %>
+            </div>
+          <% end %>
+        <% end %>
+        <% if public_task.min_volunteers.positive? || public_task.max_volunteers.positive? %>
+
         <% end %>
       </div>
-      <div class="card-action center-align blue-text text-darken-4">
-        Need by: <%= public_task.due.present? ? human_date(public_task.due) : 'Flexible' %>
-      </div>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
 </div>

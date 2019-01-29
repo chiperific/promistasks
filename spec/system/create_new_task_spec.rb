@@ -87,6 +87,7 @@ RSpec.describe 'Create new task', type: :system do
     context 'have no errors' do
       before :each do
         @property = create(:property)
+        @property.tasks.destroy_all
       end
 
       it 'creates a task' do

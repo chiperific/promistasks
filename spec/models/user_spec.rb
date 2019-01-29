@@ -218,7 +218,7 @@ RSpec.describe User, type: :model do
         expect(User.owned_tasks_for(property)).to include volunteer
         expect(User.owned_tasks_for(property)).to include contractor
         expect(User.owned_tasks_for(property)).to include @user
-        expect(User.owned_tasks_for(property)).not_to include oauth_user2
+        expect(User.owned_tasks_for(property)).to include oauth_user2
         expect(User.owned_tasks_for(property)).not_to include client_volunteer
         expect(User.owned_tasks_for(property)).not_to include client
       end
@@ -500,7 +500,7 @@ RSpec.describe User, type: :model do
 
     it 'returns an array of types that describe the user' do
       expect(@user.type).to eq ['Staff']
-      expect(several_types.type).to eq ['Staff', 'Volunteer', 'Contractor']
+      expect(several_types.type).to eq %w[Staff Volunteer Contractor]
       expect(volunteer.type).to eq ['Volunteer']
     end
   end
@@ -652,7 +652,6 @@ RSpec.describe User, type: :model do
     end
 
     it 'creates tasklists for the new user' do
-      # expect(Tasklist.where(user: @oauth_user).count).to eq first_count + prop_count
       expect { @oauth_user.save }.to change { Tasklist.where(user: @oauth_user).count }.by(3)
     end
   end

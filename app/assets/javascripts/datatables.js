@@ -9,14 +9,14 @@
 //= require datatables/extensions/Buttons/buttons.colVis
 // require datatables/extensions/Buttons/buttons.flash
 // require datatables/extensions/ColReorder/dataTables.colReorder
-// require datatables/extensions/FixedColumns/dataTables.fixedColumns
-// require datatables/extensions/FixedHeader/dataTables.fixedHeader
-// require datatables/extensions/KeyTable/dataTables.keyTable
+//= require datatables/extensions/FixedColumns/dataTables.fixedColumns
+//= require datatables/extensions/FixedHeader/dataTables.fixedHeader
+//= require datatables/extensions/KeyTable/dataTables.keyTable
 //= require datatables/extensions/Responsive/dataTables.responsive
-// require datatables/extensions/RowGroup/dataTables.rowGroup
+//= require datatables/extensions/RowGroup/dataTables.rowGroup
 // require datatables/extensions/RowReorder/dataTables.rowReorder
-// require datatables/extensions/Scroller/dataTables.scroller
-// require datatables/extensions/Select/dataTables.select
+//= require datatables/extensions/Scroller/dataTables.scroller
+//= require datatables/extensions/Select/dataTables.select
 
 //= require datatables/dataTables.material
 
@@ -55,9 +55,7 @@ $(document).on('preInit.dt', function(e, settings) {
 
 // init on turbolinks load
 $(document).on('turbolinks:load', function() {
-  $("table[id^=dttb-]").DataTable( {
-    responsive: true
-  } );
+  $("table[id^=dttb-]").DataTable();
   $("table[id^=dttb1-]").DataTable( {
     responsive: true,
     order: [1, 'desc'],
@@ -68,8 +66,18 @@ $(document).on('turbolinks:load', function() {
     }],
     dom: "<'#dttbl.row'tr>"
   } );
-  $("table[id^=dttb_simple-]").DataTable( {
+  $("table[id^=dttb2-]").DataTable( {
     responsive: true,
+    order: [1, 'desc'],
+    columnDefs: [ {
+      "searchable": false,
+      "orderable": false,
+      "targets": [0, -1, -2, -3]
+    }],
+    dom: "<'#dttbl.row'tr>"
+  } );
+  $("table[id^=dttb_simple-]").DataTable( {
+    responsive: false,
     order: [0, 'desc'],
     columnDefs: [ {
       "searchable": false,

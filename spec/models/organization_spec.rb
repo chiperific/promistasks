@@ -3,6 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe Organization, type: :model do
+  before :each do
+    Organization.first.destroy
+  end
+
   describe 'must be valid' do
     let(:organization)     { build :organization }
     let(:no_name)          { build :organization, name: nil }

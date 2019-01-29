@@ -66,7 +66,6 @@ RSpec.configure do |config|
 
   config.before(:each, type: :system) do
     driven_by :rack_test
-    Rails.application.load_seed
   end
 
   config.before(:each, type: :system, js: true) do
@@ -74,8 +73,13 @@ RSpec.configure do |config|
     Capybara.page.driver.browser.manage.window.resize_to(1920, 2024)
   end
 
+  config.before(:each, type: :mailer) do
+    ActiveJob::Base.queue_adapter = :test
+  end
+
   config.around(:each) do |example|
     DatabaseCleaner.cleaning do
+      Organization.create
       example.run
     end
   end

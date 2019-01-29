@@ -1,8 +1,8 @@
 <% tasks.each do |task| %>
   <tr>
-    <td class="hide-on-small-only">
+    <td>
       <% if task.needs_more_info? %>
-        <span class="btn-floating red lighten-2">
+        <span class="btn-floating btn-small red lighten-2">
           <i class="material-icons tooltipped" data-position="bottom" data-tooltip="Needs more info!">error_outline</i>
         </span>
       <% else %>
@@ -31,9 +31,7 @@
     <% unless controller_name == 'properties' %>
       <td>
         <% if task.property.visible_to?(current_user) %>
-          <%= link_to property_path(task.property), class: 'btn-small btn-slim blue lighten-5 grey-text text-darken-3 waves-effect z-depth-1' do %>
-            <%= task.property.name %>
-          <% end %>
+          <%= link_to task.property.name, property_path(task.property) %>
         <% else %>
           <%= task.property.name %>
         <% end %>

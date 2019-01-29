@@ -65,6 +65,7 @@ RSpec.describe Connection, type: :model do
 
       context 'when property.stage == complete and property has no tasks in_process' do
         it 'discards the parent property' do
+          archivable.property.tasks.update_all(completed_at: Time.now)
           expect(archivable.property.discarded?).to eq false
 
           archivable.save
@@ -85,13 +86,8 @@ RSpec.describe Connection, type: :model do
       end
 
       context 'when property has tasks in_process' do
-        before :each do
-          @property = not_archivable_tasks.property
-          @task = create(:task, property: @property)
-        end
-
         it 'does not discard the parent property' do
-          expect(not_archivable_tasks.property.tasks.count).to eq 1
+          expect(not_archivable_tasks.property.tasks.count).to eq 3
           expect(not_archivable_tasks.property.discarded?).to eq false
 
           not_archivable_tasks.send(:archive_property)

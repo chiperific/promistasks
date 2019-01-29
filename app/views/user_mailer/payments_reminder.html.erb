@@ -5,8 +5,31 @@
   </head>
   <body>
     <p>Hey <%= @user.name %>,</p>
-    <h4>Reminder of upcoming payments:</h4>
-
+    <% if @pmt_late.any? %>
+      <h4>There are some late payments:</h4>
+      <table style="border: 1px solid gray; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th style="border: 1px solid gray;">Due</th>
+            <th style="border: 1px solid gray;">Pay To</th>
+            <th style="border: 1px solid gray;">For</th>
+            <th style="border: 1px solid gray;">Utility</th>
+            <th style="border: 1px solid gray;">$ Due</th>
+            <th style="border: 1px solid gray;">Recurring</th>
+            <th style="border: 1px solid gray;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= render partial: 'user_mailer/payment', collection: @pmt_late %>
+        </tbody>
+      </table>
+      <br />
+    <% end %>
+    <% if @pmt7.any? && @pmt14.any? %>
+      <h4>Reminder of upcoming payments:</h4>
+    <% else %>
+      <h5>No upcoming payments in the next 14 days.</h5>
+    <% end %>
     <% if @pmt7.any? %>
       <p>Due in next 7 days:</p>
       <table style="border: 1px solid gray; border-collapse: collapse;">
@@ -26,6 +49,7 @@
         </tbody>
       </table>
     <% end %>
+
     <% if @pmt7.any? && @pmt14.any? %>
       <br />
     <% end %>

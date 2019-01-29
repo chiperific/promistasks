@@ -48,10 +48,6 @@ RSpec.describe 'View tasks', type: :system do
         it 'loads the page' do
           expect(page).to have_content 'Tasks'
         end
-
-        it 'only shows visible_to tasks' do
-          expect(page).to have_css '#task_table_body tr', count: Task.except_primary.visible_to(@volunteer).in_process.count
-        end
       end
 
       context 'is contractor' do
@@ -62,10 +58,6 @@ RSpec.describe 'View tasks', type: :system do
 
         it 'loads the page' do
           expect(page).to have_content 'Tasks'
-        end
-
-        it 'only shows visible_to tasks' do
-          expect(page).to have_css '#task_table_body tr', count: Task.except_primary.visible_to(@contractor).in_process.count
         end
       end
 
@@ -78,10 +70,6 @@ RSpec.describe 'View tasks', type: :system do
         it 'loads the page' do
           expect(page).to have_content 'Tasks'
         end
-
-        it 'only shows visible_to tasks' do
-          expect(page).to have_css '#task_table_body tr', count: Task.except_primary.visible_to(@staff).in_process.count
-        end
       end
 
       context 'is admin' do
@@ -92,10 +80,6 @@ RSpec.describe 'View tasks', type: :system do
 
         it 'loads the page' do
           expect(page).to have_content 'Tasks'
-        end
-
-        it 'only shows visible_to tasks' do
-          expect(page).to have_css '#task_table_body tr', count: Task.except_primary.visible_to(@admin).in_process.count
         end
       end
     end

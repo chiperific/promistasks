@@ -117,14 +117,24 @@ class Task < ApplicationRecord
     end
   end
 
+  def created_locally?
+    created_from_api == false
+  end
+
   def ensure_task_user_exists_for(user)
     return false if user.oauth_id.nil?
 
     task_user = task_users.where(user: user).first_or_initialize
     return task_user unless task_user.new_record? || task_user.google_id.blank?
 
-    tasklist = property.ensure_tasklist_exists_for(user)
-    task_user.tasklist_gid = tasklist.google_id if tasklist.present?
+    # tasklist = property.ensure_tasklist_exists_for(user)
+    tasklist = property.tasklists.where(user: user).first_or_initialize
+    tasklist.save!
+    tasklist.reload
+
+    return false if tasklist.google_id.blank?
+
+    task_user.tasklist_gid = tasklist.google_id
 
     if creator == owner
       task_user.scope = 'both'
@@ -219,11 +229,23 @@ class Task < ApplicationRecord
       (visibility == 3 && !user.client?)
   end
 
-  private
-
-  def created_locally?
-    created_from_api == false
+  def visible_to
+    Constant::Task::VISIBILITY[visibility]
   end
+
+  def volunteer_sentence
+    return nil if !min_volunteers.positive? && !max_volunteers.positive?
+
+    if min_volunteers.positive? && max_volunteers.positive?
+      min_volunteers.to_s + ' to ' + max_volunteers.to_s
+    elsif min_volunteers.positive?
+      'at least ' + min_volunteers.to_s
+    else
+      'no more than ' + max_volunteers.to_s
+    end
+  end
+
+  private
 
   def decide_record_completeness
     strikes = 0

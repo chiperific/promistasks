@@ -2,6 +2,6 @@
 
 class ApplicationMailer < ActionMailer::Base
   helper MailerHelper
-  default from: 'promise_tasks@familypromisegr.org'
+  default from: 'taskmanager@familypromisegr.org'
   layout 'mailer'
 end

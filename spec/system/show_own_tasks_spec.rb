@@ -112,28 +112,28 @@ RSpec.describe 'Show own tasks', type: :system do
     end
 
     it 'can show filtered task records' do
-      expect(page).to have_css('tbody#task_table_body tr', count: Task.in_process.count)
+      expect(page).to have_css('tbody#task_table_body tr', count: Task.related_to(@user).in_process.count)
 
       click_link 'Past Due'
-      expect(page).to have_css('tbody#task_table_body tr', count: Task.past_due.count)
+      expect(page).to have_css('tbody#task_table_body tr', count: Task.related_to(@user).past_due.count)
 
       click_link 'Due in 7'
-      expect(page).to have_css('tbody#task_table_body tr', count: Task.due_within(7).count)
+      expect(page).to have_css('tbody#task_table_body tr', count: Task.related_to(@user).due_within(7).count)
 
       click_link 'Due in 14'
-      expect(page).to have_css('tbody#task_table_body tr', count: Task.due_within(14).count)
+      expect(page).to have_css('tbody#task_table_body tr', count: Task.related_to(@user).due_within(14).count)
 
       click_link 'Completed'
-      expect(page).to have_css('tbody#task_table_body tr', count: Task.complete.count)
+      expect(page).to have_css('tbody#task_table_body tr', count: Task.related_to(@user).complete.count)
 
       click_link 'Missing Info'
-      expect(page).to have_css('tbody#task_table_body tr', count: Task.needs_more_info.count)
+      expect(page).to have_css('tbody#task_table_body tr', count: Task.related_to(@user).needs_more_info.count)
 
       click_link 'All'
-      expect(page).to have_css('tbody#task_table_body tr', count: Task.all.count)
+      expect(page).to have_css('tbody#task_table_body tr', count: Task.related_to(@user).count)
 
       click_link 'Archived'
-      expect(page).to have_css('tbody#task_table_body tr', count: Task.discarded.count)
+      expect(page).to have_css('tbody#task_table_body tr', count: Task.related_to(@user).discarded.count)
     end
   end
 

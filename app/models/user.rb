@@ -175,8 +175,8 @@ class User < ActiveRecord::Base
 
     data = {
       grant_type: 'refresh_token',
-      client_id: Rails.application.secrets.google_client_id,
-      client_secret: Rails.application.secrets.google_client_secret,
+      client_id: Rails.application.credentials.google_client_id,
+      client_secret: Rails.application.credentials.google_client_secret,
       refresh_token: oauth_refresh_token
     }
     response = HTTParty.post('https://accounts.google.com/o/oauth2/token', { body: data.as_json })

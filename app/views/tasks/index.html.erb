@@ -14,54 +14,46 @@
     <ul class="tabs z-depth-1" name="tasks">
       <% if @show_new %>
         <li class="tab">
-          <%= link_to 'New', tasks_path(filter: 'new'), id: 'tasks_new', remote: true %>
+          <%= link_to 'New', '#', id: 'tasks_new', class: 'dttb-ajax-link', data: { filter: 'new'} %>
         </li>
       <% end %>
       <li class="tab">
-        <%= link_to 'Active', tasks_path(filter: 'active'), id: 'tasks_active', class: 'active', remote: true %>
+        <%= link_to 'Active', '#', id: 'tasks_active', class: 'active dttb-ajax-link', data: { filter: 'active' } %>
       </li>
       <li class="tab">
-        <%= link_to 'Past Due', tasks_path(filter: 'past-due'), id: 'tasks_past-due', remote: true %>
+        <%= link_to 'Past Due', '#', id: 'tasks_past-due', class: 'dttb-ajax-link', data: { filter: 'past-due' } %>
       </li>
       <li class="tab">
-        <%= link_to 'Due in 7', tasks_path(filter: 'due-7'), id: 'tasks_due-7', remote: true %>
+        <%= link_to 'Due in 7', '#', id: 'tasks_due-7', class: 'dttb-ajax-link', data: { filter: 'due-7' } %>
       </li>
       <li class="tab">
-        <%= link_to 'Due in 14', tasks_path(filter: 'due-14'), id: 'tasks_due-14', remote: true %>
+        <%= link_to 'Due in 14', tasks_path(filter: 'due-14'), id: 'tasks_due-14', class: 'dttb-ajax-link', data: { filter: 'due-14' } %>
       </li>
       <li class="tab">
-        <%= link_to 'Completed', tasks_path(filter: 'completed'), id: 'tasks_completed', remote: true %>
+        <%= link_to 'Completed', tasks_path(filter: 'completed'), id: 'tasks_completed', class: 'dttb-ajax-link', data: { filter: 'completed' } %>
       </li>
       <li class="tab">
-        <%= link_to 'Missing Info', tasks_path(filter: 'missing-info'), id: 'tasks_missing-info', remote: true %>
+        <%= link_to 'Missing Info', tasks_path(filter: 'missing-info'), id: 'tasks_missing-info', class: 'dttb-ajax-link', data: { filter: 'missing-info' } %>
       </li>
       <% if current_user.admin? %>
         <li class="tab">
-          <%= link_to 'Archived', tasks_path(filter: 'archived'), id: 'tasks_archived', remote: true %>
+          <%= link_to 'Archived', tasks_path(filter: 'archived'), id: 'tasks_archived', class: 'dttb-ajax-link', data: { filter: 'archived' } %>
         </li>
         <li class="tab">
-          <%= link_to 'All', tasks_path(filter: 'all'), id: 'tasks_all', remote: true %>
+          <%= link_to 'All', tasks_path(filter: 'all'), id: 'tasks_all', class: 'dttb-ajax-link', data: { filter: 'all'} %>
         </li>
       <% end %>
     </ul>
   </div>
 </div>
 
-<div class="row">
-  <table class='highlight responsive-table' id='task_table'>
+<div class="row fat">
+  <table class='highlight' id='task_table'>
     <thead>
       <%= render partial: 'tasks_table_header' %>
     </thead>
     <tbody id='task_table_body'>
-      <% if @tasks.count.positive? %>
-        <%= render partial: 'tasks_table', locals: { tasks: @tasks } %>
-      <% else %>
-        <tr>
-          <td colspan="8" class="center-align">
-            No tasks
-          </td>
-        </tr>
-      <% end %>
+      <%= render partial: 'tasks_table_body' %>
     </tbody>
   </table>
 </div>

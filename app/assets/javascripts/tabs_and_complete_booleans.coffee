@@ -28,7 +28,7 @@ $(document).on 'turbolinks:load', ->
   # because then the JS indicator (non-CSS bottom border)
   # appears on the initial active element
   tabs = $('.tabs')
-  tabElem = M.Tabs.init(tabs)
+  M.Tabs.init(tabs)
 
   $('#task_table_body').on 'click', 'input.complete_bool', ->
     taskId = $(this).siblings('.task_id').text().trim()
