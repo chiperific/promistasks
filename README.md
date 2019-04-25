@@ -21,13 +21,12 @@
   -- Seth should choose
 
 ## DEPLOY NOTES
-- Deploy to heroku as a free app to start, then upgrade with a FPGR team CC
+- WAITING for GoDaddy access:
+  - mg.familypromisegr.org
+  - pihtasks.familypromisegr.org: CNAME:
 - Mailgun, right? taskmanager@familypromisegr.org
 - From FPGR GSuite: https://console.developers.google.com/apis/dashboard
-  - match redirect URI: https://tasks.familypromisegr.org/auth/google_oauth2/callback
-  - if FPGR chooses something other than 'tasks.@', Rails.application.credentials.full_host will need to be updated
-- Pay for SSL endpoints
-  - Domains and certificates: https://dashboard.heroku.com/apps/promistasks/settings
+  - match redirect URI: https://pihtasks.familypromisegr.org/auth/google_oauth2/callback
 - RESTRICT the oauth stuff in Devise
 
 ## FUTURE

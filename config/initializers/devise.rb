@@ -261,6 +261,7 @@ Devise.setup do |config|
   config.omniauth :google_oauth2, Rails.application.credentials.google_client_id, Rails.application.credentials.google_client_secret,
                   scope: 'email, profile, tasks',
                   # Restrict logins just to a specific org domain:
+                  # I believe this is being handled by Google OAuth
                   # hd: Rails.application.credentials.org_domain,
                   # The rest of this seems to be useless:
                   # image_aspect_ratio: 'square',
