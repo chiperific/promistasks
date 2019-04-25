@@ -1,6 +1,7 @@
 # Task and Resource Manager with Google Tasks API Extension for Family Promise GR
 
 ## To do:
+5. Make sure tasks are archiving, not deleting
 6. Views:
   - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX instead of Rails
     -- Done for Tasks#index
@@ -53,7 +54,7 @@
 4. git remote prune origin --dry-run
 5. Tasks API: https://developers.google.com/tasks/v1/reference/
 6. OAuth2 Developer Playground: https://developers.google.com/oauthplayground
-7. API auth: https://console.developers.google.com/apis/dashboard?project=tasks-api-202522
+7. API auth:
 8. Pry: !!! exits pry unconditionally (alias of: exit-program)
 9. Pry-remote:
   - Drop binding.remote_pry where desired;

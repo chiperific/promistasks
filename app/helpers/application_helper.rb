@@ -20,7 +20,7 @@ module ApplicationHelper
   end
 
   def human_datetime(datetime)
-    return datetime unless date.is_a? Time
+    return datetime unless datetime.is_a? Time
 
     datetime&.strftime('%-m/%-d @ %l:%M:%S %p %Z')
   end
