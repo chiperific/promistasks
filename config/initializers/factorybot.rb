@@ -1,3 +1,4 @@
 # frozen_string_literal: true
-
-FactoryBot.use_parent_strategy = false
+unless Rails.env.production?
+  FactoryBot.use_parent_strategy = false
+end
