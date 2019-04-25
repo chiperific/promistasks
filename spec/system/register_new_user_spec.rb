@@ -63,7 +63,7 @@ RSpec.describe 'Register new user', type: :system do
       expect(current_path).not_to eq new_user_registration_path
     end
 
-    fit 'sends an email to the organization' do
+    it 'sends an email to the organization' do
       ActiveJob::Base.queue_adapter = :test
 
       click_submit
