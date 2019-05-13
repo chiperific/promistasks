@@ -65,7 +65,17 @@ Rails.application.configure do
   # config.active_job.queue_name_prefix = "promisetasks_#{Rails.env}"
   config.action_mailer.perform_caching = false
 
-  config.action_mailer.default_url_options = { host: 'tasks.familypromise.org', port: 3000 }
+  config.action_mailer.default_url_options = { host: 'pihtasks.familypromise.org', port: 3000 }
+
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    authentication: :plain,
+    address: 'smtp.mailgun.org',
+    port: 587,
+    domain: 'mg-pihtasks.familypromise.org',
+    user_name: Rails.application.credentials.smpt_user,
+    password: Rails.application.credentials.smpt_pass
+  }
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
