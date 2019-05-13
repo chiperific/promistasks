@@ -15,11 +15,7 @@ class RegistrationsController < Devise::RegistrationsController
 
     if @user.save
       # send an email to vol coordinator
-      if Rails.env.development?
-        RegistrationMailer.with(user: @user).new_registration_notification.deliver_now
-      else
-        RegistrationMailer.with(user: @user).new_registration_notification.deliver_later
-      end
+      RegistrationMailer.with(user: @user).new_registration_notification.deliver_now
 
       if current_user.nil?
         sign_in @user
