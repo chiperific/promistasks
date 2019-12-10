@@ -1,6 +1,9 @@
 # Task and Resource Manager with Google Tasks API Extension for Family Promise GR
 
 ## To do:
+0. Delayed::Jobs aren't deleting? Ever?
+1. Tasks and properties aren't syncing?
+2. Issues with maps & geocoding
 5. Make sure tasks are archiving, not deleting
 6. Views:
   - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX instead of Rails
@@ -19,15 +22,6 @@
   -- right now, for everybody (through the model)
   -- Tasks only archive for the user that clicks it (through controller)
   -- Seth should choose
-
-## DEPLOY NOTES
-- WAITING for GoDaddy access:
-  - mg.familypromisegr.org
-  - pihtasks.familypromisegr.org: CNAME:
-- Mailgun, right? taskmanager@familypromisegr.org
-- From FPGR GSuite: https://console.developers.google.com/apis/dashboard
-  - match redirect URI: https://pihtasks.familypromisegr.org/auth/google_oauth2/callback
-- RESTRICT the oauth stuff in Devise
 
 ## FUTURE
 1. Use the Google Ruby API instead of HTTParty

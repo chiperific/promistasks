@@ -33,7 +33,7 @@ class Property < ApplicationRecord
   before_validation :default_must_be_private,       if: -> { discarded_at.nil? && is_default? && !is_private? }
   before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
   before_validation :refuse_to_discard_hastily,     if: -> { discarded_at.present? }
-  after_validation :geocode,                        if: -> { address_has_changed? && !is_default? }
+  after_validation :geocode,                        if: -> { (address_has_changed? || latitude.blank? || longitude.blank?) && !is_default? }
   before_save  :default_budget,                     if: -> { budget.blank? }
   after_create :create_tasklists,                   unless: -> { discarded_at.present? || created_from_api? }
   after_create :create_default_tasks,               unless: -> { discarded_at.present? || is_default? }
@@ -162,11 +162,15 @@ class Property < ApplicationRecord
   end
 
   def google_map
-    return 'no_property.jpg' unless good_address?
+    return 'no_property.jpg' if !good_address? || latitude.blank? || longitude.blank?
 
     center = [latitude, longitude].join(',')
-    key = Rails.application.credentials.google_maps_api_key
-    "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&size=355x266&zoom=17&markers=color:red%7C#{center}"
+    key = Rails.application.credentials.google_api_key
+
+    secret = Rails.application.credentials.google_maps_secret
+    url = "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&size=355x266&zoom=17&markers=color:red%7C#{center}"
+
+    GoogleUrlSigner.sign(url, secret)
   end
 
   def google_map_link
@@ -187,35 +191,35 @@ class Property < ApplicationRecord
   def occupancy_status
     return 'vacant' if occupancies.empty?
 
-    case occupancies.last.stage
-    when 'approved'
-      status = 'approved applicant'
-    when 'transferred title'
-      status = 'complete'
-    when 'applied'
-      status = 'pending application'
-    when 'vacated'
-      status = 'vacant'
-    when 'returned property'
-      status = 'vacant'
-    else # 'moved in', 'initial walkthrough', 'final walkthrough'
-      status = 'occupied'
-    end
+    sts = case occupancies.last.stage
+          when 'approved'
+            'approved applicant'
+          when 'transferred title'
+            'complete'
+          when 'applied'
+            'pending application'
+          when 'vacated'
+            'vacant'
+          when 'returned property'
+            'vacant'
+          else # 'moved in', 'initial walkthrough', 'final walkthrough'
+            'occupied'
+          end
 
-    status
+    sts
   end
 
   def occupancy_details
     occupancies = connections.where(relationship: 'tennant').order(:stage_date)
     return 'Vacant' if occupancies.empty?
 
-    if ['vacated', 'returned property'].include? occupancies.last.stage
-      details = 'Vacant'
-    else
-      details = occupancies.last.user.name + ' ' +
-                occupancies.last.stage + ' on ' +
-                occupancies.last.stage_date.strftime('%b %-d, %Y')
-    end
+    details = if ['vacated', 'returned property'].include? occupancies.last.stage
+                'Vacant'
+              else
+                occupancies.last.user.name + ' ' +
+                  occupancies.last.stage + ' on ' +
+                  occupancies.last.stage_date.strftime('%b %-d, %Y')
+              end
     details
   end
 
