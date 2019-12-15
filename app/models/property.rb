@@ -32,9 +32,9 @@ class Property < ApplicationRecord
   before_validation :use_address_for_name,          if: -> { name.blank? }
   before_validation :default_must_be_private,       if: -> { discarded_at.nil? && is_default? && !is_private? }
   before_validation :refuse_to_discard_default,     if: -> { discarded_at.present? && is_default? }
-  before_validation :refuse_to_discard_hastily,     if: -> { discarded_at.present? }
   after_validation :geocode,                        if: -> { (address_has_changed? || latitude.blank? || longitude.blank?) && !is_default? }
   before_save  :default_budget,                     if: -> { budget.blank? }
+  before_save  :refuse_to_discard_hastily,          if: -> { discarded_at.present? }
   after_create :create_tasklists,                   unless: -> { discarded_at.present? || created_from_api? }
   after_create :create_default_tasks,               unless: -> { discarded_at.present? || is_default? }
   after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }

@@ -8,7 +8,7 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'coffee-rails', '~> 4.2'
+gem 'coffee-rails', '~> 5'
 gem 'delayed_cron_job'
 gem 'delayed_job_active_record'
 gem 'delayed_job_progress'
