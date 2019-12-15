@@ -3,7 +3,6 @@
 ## To do:
 0. Delayed::Jobs aren't deleting? Ever?
 1. Tasks and properties aren't syncing?
-2. Issues with maps & geocoding
 5. Make sure tasks are archiving, not deleting
 6. Views:
   - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX instead of Rails
