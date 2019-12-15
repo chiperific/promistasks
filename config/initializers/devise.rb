@@ -262,7 +262,7 @@ Devise.setup do |config|
                   scope: 'email, profile, tasks',
                   # Restrict logins just to a specific org domain:
                   # I believe this is being handled by Google OAuth
-                  # hd: Rails.application.credentials.org_domain,
+                  hd: %w(familypromisegr.org google.com),
                   # The rest of this seems to be useless:
                   # image_aspect_ratio: 'square',
                   # image_size: 50

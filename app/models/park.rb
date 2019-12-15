@@ -17,7 +17,7 @@ class Park < ApplicationRecord
 
   geocoded_by :full_address
 
-  after_validation :geocode, if: -> { address_has_changed? }
+  after_validation :geocode, if: -> { address_has_changed? || latitude.blank? || longitude.blank? }
   after_save :cascade_discard, if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
   after_save :cascade_undiscard, if: -> { discarded_at.nil? && discarded_at_before_last_save.present? }
 
@@ -30,6 +30,7 @@ class Park < ApplicationRecord
 
   def address_has_changed?
     return false if address.blank?
+
     address_changed? ||
       city_changed? ||
       state_changed? ||
@@ -58,14 +59,20 @@ class Park < ApplicationRecord
   end
 
   def google_map
-    return 'no_property.jpg' unless good_address?
+    return 'no_property.jpg' if !good_address? || latitude.blank? || longitude.blank?
+
     center = [latitude, longitude].join(',')
-    key = Rails.application.credentials.google_maps_api_key
-    "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&size=355x266&zoom=17&markers=color:red%7C#{center}"
+    key = Rails.application.credentials.google_api_key
+
+    secret = Rails.application.credentials.google_maps_secret
+    url = "https://maps.googleapis.com/maps/api/staticmap?key=#{key}&size=355x266&zoom=17&markers=color:red%7C#{center}"
+
+    GoogleUrlSigner.sign(url, secret)
   end
 
   def google_map_link
     return false unless good_address?
+
     base = 'https://www.google.com/maps/?q='
     base + full_address.tr(' ', '+')
   end

@@ -17,7 +17,7 @@ class ApplicationController < ActionController::Base
   before_action :set_return_path
 
   def set_job_id_for_progress_bar_div
-    return false unless current_user
+    return false unless current_user&.jobs&.any?
     job = current_user.jobs.where(completed_at: nil).last
     @job_id = job&.id || 0
   end
