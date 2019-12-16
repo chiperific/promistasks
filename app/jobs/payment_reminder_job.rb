@@ -6,7 +6,7 @@ class PaymentReminderJob < ApplicationJob
   end
 
   def enqueue(job)
-    job.record     = Organization.first
+    job.record     = Organization.first_or_create
     job.identifier = 'payments_reminder_' + Time.now.utc.rfc3339(3)
   end
 

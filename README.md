@@ -1,7 +1,8 @@
 # Task and Resource Manager with Google Tasks API Extension for Family Promise GR
 
 ## To do:
-0. Delayed::Jobs aren't deleting? Ever?
+0. Delayed::Jobs aren't deleting?
+-- `rails jobs:clear`
 1. Tasks and properties aren't syncing?
 5. Make sure tasks are archiving, not deleting
 6. Views:
@@ -18,7 +19,7 @@
 ## Decisions
 - Footer: Anyone logged in can create a task
 - Archiving property in app (when no open tasks) removes from GT.
-  -- right now, for everybody (through the model)
+  -- right now, for everybody (through the mode.l)
   -- Tasks only archive for the user that clicks it (through controller)
   -- Seth should choose
 

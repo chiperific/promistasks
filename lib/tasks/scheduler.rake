@@ -1,24 +1,24 @@
 # frozen_string_literal: true
 
-desc 'Email Scheduling Daemon'
+desc 'Scheduling Daemon'
 task send_reminders: :environment do
+  puts 'Cleaning up old Send Reminder syncs'
+  Delayed::Job.where(record_type: 'Organization').delete_all
+  puts 'Done'
+
   puts 'Scheduling the reminders to occur at 8am on weekdays'
   Delayed::Job.enqueue(PaymentReminderJob.new, cron: '0 8 * * 1-5')
-
-  # puts 'Scheduling the reminders to occur immediately for testing'
-  # Delayed::Job.enqueue(PaymentReminderJob.new)
   puts 'Done'
 end
 
 task sync_w_api: :environment do
-  puts 'Scheduling the sync to occur hourly'
+  puts 'Cleaning up old User API syncs'
+  Delayed::Job.where(record_type: 'User').delete_all
+  puts 'Done'
+
+  puts 'Scheduling the sync to occur hourly per user'
   User.oauth.pluck(:id).each do |user_id|
     Delayed::Job.enqueue(SyncUserWithApiJob.new(user_id), cron: @hourly)
   end
-
-  # puts 'Scheduling the sync to occur immediately for testing'
-  # User.oauth.select(:id).each do |user|
-  #   Delayed::Job.enqueue(SyncUserWithApiJob.new(user.id))
-  # end
   puts 'Done'
 end

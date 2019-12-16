@@ -16,9 +16,9 @@ test: &test
   <<: *default
   database: promisetasks_test
 
-production:
-  <<: *default
-  database: promisetasks_prod
+# production:
+#   <<: *default
+#   database: promisetasks_prod
 
 cucumber:
   <<: *test
