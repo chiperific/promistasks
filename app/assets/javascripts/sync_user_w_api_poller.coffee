@@ -3,10 +3,9 @@ pollDelayedJobs = (jobId) ->
     url: "/delayed/jobs/" + jobId,
     statusCode:
       404: ->
+        # Either jobID was bad to begin with, or job has since completed and deleted
         uri = window.location.origin + window.location.pathname
         window.location.replace(uri)
-        toastMsg = 'The job was not found.'
-        M.toast(html: toastMsg)
         $('#refresh_button').removeClass('prevent_default')
   ).done (response) ->
     $('#sync_bar_indeterminate').hide()
