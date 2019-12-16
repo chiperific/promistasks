@@ -213,8 +213,9 @@ class UsersController < ApplicationController
   end
 
   def clear_completed_jobs
-    authorize User.first
-    Delayed::Job.where.not(completed_at: nil).delete_all
+    authorize current_user
+
+    Delayed::Job.where(record_type: 'User', record_id: current_user.id).delete_all
 
     if params[:cred_err] == 'true'
       redirect_to oauth_check_user_path(current_user, err: true)

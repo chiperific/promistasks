@@ -1,32 +1,28 @@
+reset = (msg, cred_err) ->
+  clear_jobs_uri = window.location.origin + "/users/clear_completed_jobs"
+  clear_jobs_uri += '?cred_err=true' if cred_err == true
+  M.toast(html: msg) if msg
+  window.location.replace(clear_jobs_uri)
+  $('#refresh_button').removeClass('prevent_default')
+
 pollDelayedJobs = (jobId) ->
   $.ajax(
     url: "/delayed/jobs/" + jobId,
     statusCode:
       404: ->
-        # Either jobID was bad to begin with, or job has since completed and deleted
-        uri = window.location.origin + window.location.pathname
-        window.location.replace(uri)
-        $('#refresh_button').removeClass('prevent_default')
+        reset()
   ).done (response) ->
     $('#sync_bar_indeterminate').hide()
     if response.length == 0
-      uri = window.location.origin + window.location.pathname
-      window.location.replace(uri)
-      $('#refresh_button').removeClass('prevent_default')
+      reset()
     else if response.error_message != null
-      toastMsg = 'Uh oh, an error occured: <br /> ' + response.error_message
-      M.toast(html: toastMsg)
-      $('#refresh_button').removeClass('prevent_default')
-    else if response.status == 'completed'
-      clear_jobs_uri = window.location.origin + "/users/clear_completed_jobs"
-      msg = 'Done!'
-      if response.message == 'Credential error!'
-        clear_jobs_uri += '?cred_err=true'
-        msg = response.message
-      window.location.replace(clear_jobs_uri)
-      M.toast(html: msg)
-      $('#refresh_button').removeClass('prevent_default')
-    else
+      msg = 'Uh oh, an error occured: <br /> ' + response.error_message
+      reset(msg)
+    else if response.message == 'Credential error!'
+      reset(response.message, true)
+    else if response.status == 'completed' || response.message == 'Done!'
+      reset('Done!')
+    else # job is ongoing, repeat
       $('#sync_bar_determinate').show()
       $('#status').html(response.message)
       progress = parseInt(

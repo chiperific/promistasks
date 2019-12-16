@@ -20,7 +20,7 @@ class SyncUserWithApiJob < ApplicationJob
   end
 
   def max_attempts
-    2
+    1
   end
 
   def pause
@@ -38,6 +38,9 @@ class SyncUserWithApiJob < ApplicationJob
 
     if oauth_creds_exist == true
       determine_progress_max
+
+      return if @job.error_message = 'cred_error'
+
       pause
 
       default_tasklist = process_tasklists(default: true)
@@ -94,6 +97,14 @@ class SyncUserWithApiJob < ApplicationJob
 
     @job.update_columns(message: 'Fetching your tasklists from Google')
 
+    tlc_list = @tlc.fetch
+
+    if tlc_list['error']
+      @job.update_columns(message: 'Credential error!')
+      @job.update_columns(error_message: 'cred_error')
+      return
+    end
+
     tls_count = @tlc.count
     message = 'Found ' + tls_count.to_s + ' tasklist'.pluralize(tls_count)
     @job.update_columns(message: message)
@@ -102,7 +113,7 @@ class SyncUserWithApiJob < ApplicationJob
     message = 'Found ' + tls_count_missing.to_s + ' missing tasklist'.pluralize(tls_count_missing)
     @job.update_columns(message: message)
 
-    tls_ids = @tlc.fetch['items'].map { |i| i['id'] }
+    tls_ids = tlc_list['items'].map { |i| i['id'] }
 
     t_count_ary = []
     t_count_missing_ary = []
@@ -189,8 +200,5 @@ class SyncUserWithApiJob < ApplicationJob
     @job.update_columns(message: 'Wrapping up...', progress_current: @progress)
     pause
     @job.update_columns(message: 'Done!')
-
-    sleep 600 unless Rails.env.test?
-    @job.delete
   end
 end
