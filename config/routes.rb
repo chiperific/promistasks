@@ -77,7 +77,7 @@ Rails.application.routes.draw do
   resolve('Organization') { [:organization] }
 
 
-  mount DelayedJobProgress::Engine => '/delayed' if Rails.env.development?
+  mount DelayedJobProgress::Engine => '/delayed'
 
   mount LetterOpenerWeb::Engine, at: '/letter_opener' if Rails.env.development?
 end
