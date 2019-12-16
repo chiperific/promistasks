@@ -190,7 +190,7 @@ class SyncUserWithApiJob < ApplicationJob
     pause
     @job.update_columns(message: 'Done!')
 
-    sleep 30 unless Rails.env.test?
+    sleep 600 unless Rails.env.test?
     @job.delete
   end
 end
