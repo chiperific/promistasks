@@ -24,7 +24,7 @@
       <%= f.submit "Log in", class: 'btn green' %>
     </div>
     <div class="col s4">
-      <%= link_to "Staff Sign In", user_google_oauth2_omniauth_authorize_path, class: 'btn green' %>
+      <%= link_to "Staff Sign In", user_google_oauth2_omniauth_authorize_path, class: 'btn green', method: :post %>
     </div>
     <div class="col s4">
       <%= render "devise/shared/links" %>

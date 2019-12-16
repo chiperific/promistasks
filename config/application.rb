@@ -30,6 +30,11 @@ module Promisetasks
     end
 
     config.active_job.queue_adapter = :delayed_job
+    Delayed::Worker.max_attempts = 3
+    Delayed::Worker.destroy_failed_jobs = true
+    Delayed::Worker.max_run_time = 10.minutes
+    Delayed::Worker.delay_jobs = !Rails.env.test?
+
     config.action_mailer.preview_path = "#{Rails.root}/spec/mailers/previews"
 
     if Rails.env.production?

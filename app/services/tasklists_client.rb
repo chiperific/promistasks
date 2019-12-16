@@ -17,13 +17,8 @@ class TasklistsClient
   end
 
   def create_property(title, default)
-    Property.create(
-      name: title,
-      creator: @user,
-      is_default: default,
-      is_private: true,
-      created_from_api: true
-    )
+    Property.where(name: title, creator: @user, is_default: default, is_private: true, created_from_api: true)
+    .first_or_create
   end
 
   def fetch
@@ -38,9 +33,20 @@ class TasklistsClient
 
   def handle_tasklist(tasklist_json, default = false)
     tasklist = Tasklist.where(user: @user, google_id: tasklist_json['id']).first_or_initialize
+
     if tasklist.new_record?
       tasklist.property = create_property(tasklist_json['title'], default)
-      tasklist.save!
+
+      tasklist.valid?
+      if tasklist.errors[:property].include? "has already been taken"
+        # Error: @messages={:property=>["has already been taken"]}
+        # Situation: Tasklist exists that matches user and property, but :google_id is blank
+        tl = Tasklist.where(user: @user, property: tasklist.property).first
+        tl.google_id = tasklist_json['id']
+        tl.save!
+      else
+        tasklist.save!
+      end
     else
       case tasklist.updated_at.utc < Time.parse(tasklist_json['updated'])
       when true
@@ -52,7 +58,7 @@ class TasklistsClient
         tasklist.api_update unless default
       end
     end
-    tasklist.reload.id
+    Tasklist.where(user: @user, google_id: tasklist_json['id']).first.id
   end
 
   def not_in_api

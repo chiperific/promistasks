@@ -20,7 +20,7 @@ class SyncUserWithApiJob < ApplicationJob
   end
 
   def max_attempts
-    3
+    2
   end
 
   def pause
@@ -92,10 +92,17 @@ class SyncUserWithApiJob < ApplicationJob
     @job.update_columns(message: 'Assessing the situation...')
     pause
 
-    tls_fetch         = @tlc.fetch
-    tls_count         = @tlc.count
+    @job.update_columns(message: 'Fetching your tasklists from Google')
+
+    tls_count = @tlc.count
+    message = 'Found' + tls_count.to_s + ' tasklist'.pluralize(tls_count)
+    @job.update_columns(message: message)
+
     tls_count_missing = @tlc.not_in_api.count
-    tls_ids           = tls_fetch['items'].map { |i| i['id'] }
+    message = 'Found' + tls_count_missing.to_s + ' missing tasklist'.pluralize(tls_count_missing)
+    @job.update_columns(message: message)
+
+    tls_ids = @tlc.fetch['items'].map { |i| i['id'] }
 
     t_count_ary = []
     t_count_missing_ary = []
@@ -182,5 +189,8 @@ class SyncUserWithApiJob < ApplicationJob
     @job.update_columns(message: 'Wrapping up...', progress_current: @progress)
     pause
     @job.update_columns(message: 'Done!')
+
+    sleep 30 unless Rails.env.test?
+    @job.delete
   end
 end
