@@ -39,6 +39,7 @@ RSpec.describe TasklistsClient, type: :service do
 
   describe '#create_property' do
     it 'creates a property' do
+      allow(@user).to receive(:to_i).and_return(@user.id)
       allow(Property).to receive(:create).and_return(@property)
 
       expect(Property).to receive(:create).and_return(@property)
@@ -80,16 +81,18 @@ RSpec.describe TasklistsClient, type: :service do
 
     it 'finds or initializes a Tasklist' do
       allow(Tasklist).to receive_message_chain('where.first_or_initialize').and_return(@new_tasklist)
+      allow(Tasklist).to receive_message_chain('where.first').and_return(@tasklist)
       allow(@new_tasklist).to receive(:save!).and_return(true)
       allow(@new_tasklist).to receive(:reload).and_return(@new_tasklist)
 
-      expect(Tasklist).to receive(:where).once
+      expect(Tasklist).to receive(:where).twice
       @tc.handle_tasklist(@tasklist_json)
     end
 
     context 'when tasklist is a new record' do
       before :each do
         allow(Tasklist).to receive_message_chain('where.first_or_initialize').and_return(@new_tasklist)
+        allow(Tasklist).to receive_message_chain('where.first').and_return(@tasklist)
         allow(@new_tasklist).to receive(:save!).and_return(true)
         allow(@new_tasklist).to receive(:reload).and_return(@new_tasklist)
       end
@@ -108,6 +111,7 @@ RSpec.describe TasklistsClient, type: :service do
     context 'when tasklist exists' do
       before :each do
         allow(Tasklist).to receive_message_chain('where.first_or_initialize').and_return(@tasklist)
+        allow(Tasklist).to receive_message_chain('where.first').and_return(@tasklist)
         allow(@tasklist).to receive(:reload).and_return(@tasklist)
       end
 
