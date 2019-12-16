@@ -1,6 +1,14 @@
 pollDelayedJobs = (jobId) ->
-  $.ajax(url: "/delayed/jobs/" + jobId).done (response) ->
-
+  $.ajax(
+    url: "/delayed/jobs/" + jobId,
+    statusCode:
+      404: ->
+        uri = window.location.origin + window.location.pathname
+        window.location.replace(uri)
+        toastMsg = 'The job was not found.'
+        M.toast(html: toastMsg)
+        $('#refresh_button').removeClass('prevent_default')
+  ).done (response) ->
     $('#sync_bar_indeterminate').hide()
     if response.length == 0
       uri = window.location.origin + window.location.pathname
@@ -8,7 +16,7 @@ pollDelayedJobs = (jobId) ->
       $('#refresh_button').removeClass('prevent_default')
     else if response.error_message != null
       toastMsg = 'Uh oh, an error occured: <br /> ' + response.error_message
-      M.toast({html: toastMsg})
+      M.toast(html: toastMsg)
       $('#refresh_button').removeClass('prevent_default')
     else if response.status == 'completed'
       clear_jobs_uri = window.location.origin + "/users/clear_completed_jobs"
@@ -17,7 +25,7 @@ pollDelayedJobs = (jobId) ->
         clear_jobs_uri += '?cred_err=true'
         msg = response.message
       window.location.replace(clear_jobs_uri)
-      M.toast({html: msg})
+      M.toast(html: msg)
       $('#refresh_button').removeClass('prevent_default')
     else
       $('#sync_bar_determinate').show()
