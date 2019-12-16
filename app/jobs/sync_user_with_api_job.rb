@@ -95,10 +95,12 @@ class SyncUserWithApiJob < ApplicationJob
     @job.update_columns(message: 'Fetching your tasklists from Google')
 
     tls_count = @tlc.count
-    @job.update_columns(message: 'Found' + tls_count + ' tasklist'.pluralize(tls_count))
+    message = 'Found' + tls_count.to_s + ' tasklist'.pluralize(tls_count)
+    @job.update_columns(message: message)
 
     tls_count_missing = @tlc.not_in_api.count
-    @job.update_columns(message: 'Found' + tls_count_missing + ' missing tasklist'.pluralize(tls_count_missing))
+    message = 'Found' + tls_count_missing.to_s + ' missing tasklist'.pluralize(tls_count_missing)
+    @job.update_columns(message: message)
 
     tls_ids = @tlc.fetch['items'].map { |i| i['id'] }
 
