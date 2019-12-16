@@ -39,7 +39,7 @@ class SyncUserWithApiJob < ApplicationJob
     if oauth_creds_exist == true
       determine_progress_max
 
-      return if @job.error_message = 'cred_error'
+      return if @job.error_message == 'cred_error'
 
       pause
 
