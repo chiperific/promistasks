@@ -48,8 +48,6 @@ class TasklistsClient
     # ERROR:  null value in column "property_id" violates not-null constraint
     # DETAIL:  Failing row contains (22, 2, null, eHFkTG9UUkl3d1ZQcTdCOA, 2019-12-16 06:01:05.327147, 2019-12-16 06:01:05.327147).
 
-    binding.remote_pry
-
     if tasklist.new_record?
       tasklist.property = create_property(tasklist_json['title'], default)
 
