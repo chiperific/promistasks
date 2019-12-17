@@ -1,9 +1,6 @@
 # Task and Resource Manager with Google Tasks API Extension for Family Promise GR
 
 ## To do:
-0. Delayed::Jobs aren't deleting?
--- `rails jobs:clear`
-1. Tasks and properties aren't syncing?
 5. Make sure tasks are archiving, not deleting
 6. Views:
   - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX instead of Rails
@@ -43,6 +40,11 @@
 ## Remind myself
 1. rails credentials:edit
 2. production backup / development restore-from production
+- if the above fails:
+-- `rails db:reset`
+-- `heroku pg:backups:capture -r production`
+-- `heroku pg:backups:download -r production`
+--`pg_restore --verbose --clean --no-acl --no-owner -h localhost -d promisetasks_dev latest.dump`
 3. "Your branch is n commits behind master" - git fetch origin
 4. git remote prune origin --dry-run
 5. Tasks API: https://developers.google.com/tasks/v1/reference/

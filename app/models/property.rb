@@ -38,7 +38,7 @@ class Property < ApplicationRecord
   after_create :create_tasklists,                   unless: -> { discarded_at.present? || created_from_api? }
   after_create :create_default_tasks,               unless: -> { discarded_at.present? || is_default? }
   after_update :cascade_by_privacy,                 if: -> { saved_change_to_is_private? }
-  after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? && errors.empty? }
+  after_update :discard_tasks_and_delete_tasklists, if: -> { discarded_at.present? && errors.empty? && !is_default? }
   after_update :update_tasklists,                   if: -> { discarded_at.nil? && saved_change_to_name? }
   after_save :discard_relations,                    if: -> { discarded_at.present? && discarded_at_before_last_save.blank? }
   after_save :undiscard_relations,                  if: -> { discarded_at_before_last_save.present? && discarded_at.blank? }

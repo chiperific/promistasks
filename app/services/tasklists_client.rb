@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'pry-remote'
 
 class TasklistsClient
   attr_reader :user
@@ -17,8 +18,17 @@ class TasklistsClient
   end
 
   def create_property(title, default)
-    Property.where(name: title, creator: @user, is_default: default, is_private: true, created_from_api: true)
-    .first_or_create
+    property = Property.where(name: title, is_default: default)
+    .first_or_initialize
+
+    if property.new_record?
+      property.creator = @user
+      property.is_private = true
+      property.created_from_api = true
+      property.save
+    end
+
+    property.reload
   end
 
   def fetch
@@ -33,6 +43,12 @@ class TasklistsClient
 
   def handle_tasklist(tasklist_json, default = false)
     tasklist = Tasklist.where(user: @user, google_id: tasklist_json['id']).first_or_initialize
+    # TODO: Somehow, somewhere in here, an error is happening
+    # Job SyncUserWithApiJob (id=5425) FAILED (0 prior attempts) with ActiveRecord::NotNullViolation: PG::NotNullViolation:
+    # ERROR:  null value in column "property_id" violates not-null constraint
+    # DETAIL:  Failing row contains (22, 2, null, eHFkTG9UUkl3d1ZQcTdCOA, 2019-12-16 06:01:05.327147, 2019-12-16 06:01:05.327147).
+
+    binding.remote_pry
 
     if tasklist.new_record?
       tasklist.property = create_property(tasklist_json['title'], default)
@@ -43,9 +59,9 @@ class TasklistsClient
         # Situation: Tasklist exists that matches user and property, but :google_id is blank
         tl = Tasklist.where(user: @user, property: tasklist.property).first
         tl.google_id = tasklist_json['id']
-        tl.save!
+        tl.save
       else
-        tasklist.save!
+        tasklist.save
       end
     else
       case tasklist.updated_at.utc < Time.parse(tasklist_json['updated'])

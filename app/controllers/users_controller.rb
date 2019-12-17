@@ -208,6 +208,9 @@ class UsersController < ApplicationController
 
   def api_sync
     authorize @user = User.find(params[:id])
+
+    Delayed::Job.where(record_type: 'User', record_id: @user.id).delete_all
+
     Delayed::Job.enqueue SyncUserWithApiJob.new(@user.id)
     redirect_to url_for_sync
   end
