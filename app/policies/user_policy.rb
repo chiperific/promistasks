@@ -53,7 +53,7 @@ class UserPolicy < ApplicationPolicy
   end
 
   def clear_completed_jobs?
-    user&.staff? || user&.admin?
+    user&.oauth?
   end
 
   def alerts?

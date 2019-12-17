@@ -15,6 +15,7 @@ RSpec.describe SyncUserWithApiJob, type: :job do
     @tlc = double(:tasklists_client)
 
     allow(@job).to receive(:delete).and_return(true)
+    allow(@job).to receive(:error_message).and_return(nil)
 
     @tasklist = double(:tasklist, user: @user)
     @tasklist_collection = [@tasklist, @tasklist, @tasklist]

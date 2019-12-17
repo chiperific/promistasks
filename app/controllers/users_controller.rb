@@ -208,13 +208,17 @@ class UsersController < ApplicationController
 
   def api_sync
     authorize @user = User.find(params[:id])
+
+    Delayed::Job.where(record_type: 'User', record_id: @user.id).delete_all
+
     Delayed::Job.enqueue SyncUserWithApiJob.new(@user.id)
     redirect_to url_for_sync
   end
 
   def clear_completed_jobs
-    authorize User.first
-    Delayed::Job.where.not(completed_at: nil).delete_all
+    authorize current_user
+
+    Delayed::Job.where(record_type: 'User', record_id: current_user.id).delete_all
 
     if params[:cred_err] == 'true'
       redirect_to oauth_check_user_path(current_user, err: true)
