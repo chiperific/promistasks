@@ -131,11 +131,21 @@ class Property < ApplicationRecord
     'not set'
   end
 
-  def cost_to_date
-    sum = cost_cents.to_i + additional_cost_cents.to_i
-    sum += tasks.has_cost.map { |t| t.cost_cents || 0 }.sum
-    sum += payments.paid.map { |p| p.payment_amt_cents || 0 }.sum
+  def cost_of_tasks
+    money = tasks.has_cost.map { |t| t.cost_cents || 0 }.sum
+    Money.new(money)
+  end
 
+  def cost_of_payments
+    money = payments.paid.map { |p| p.payment_amt_cents || 0 }.sum
+    Money.new(money)
+  end
+
+  def cost_to_date
+    sum = cost_cents.to_i +
+          additional_cost_cents.to_i +
+          tasks.has_cost.map { |t| t.cost_cents || 0 }.sum +
+          payments.paid.map { |p| p.payment_amt_cents || 0 }.sum
     Money.new(sum)
   end
 
