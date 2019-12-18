@@ -2,12 +2,19 @@
 
 ## To do:
 0. Javascript:
-- syncing only visible when on `/properties`?
+- syncing not visible when on `/properties/:id`?
+-- And links are not replaced?
 - M_Tabs issue
 
 1. Property#tasks with $$
 -- Report: show cost of associated tasks
-2. Not syncing: make new Task in GT on existing list, click sync in app
+
+2. Not syncing:
+- make new Task in GT on existing list, click sync in app
+- reassign a task from one user to another in PT, should show up on save in GT
+- TasklistClient#handle_tasklist
+- TasksClient#handle_task
+- TasksClient#create_task
 
 5. Make sure tasks are archiving, not deleting
 6. Views:

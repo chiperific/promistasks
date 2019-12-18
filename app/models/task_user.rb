@@ -14,7 +14,7 @@ class TaskUser < ApplicationRecord
 
   before_validation :set_tasklist_gid, if: -> { tasklist_gid.nil? }
   before_destroy    :api_delete
-  before_create     :api_insert,              if: -> { user.present? && task.present? && task.created_locally? && google_id.blank? }
+  before_create     :api_insert,              if: -> { user.present? && task.present? && google_id.blank? }
   after_update      :relocate,                if: -> { saved_change_to_tasklist_gid? }
   after_save        :elevate_completeness,    if: -> { completed_at.present? && task.completed_at.nil? }
 
@@ -79,19 +79,24 @@ class TaskUser < ApplicationRecord
     self
   end
 
+  def tasklist
+    Tasklist.where(google_id: tasklist_gid, user_id: user_id).first
+  end
+
   private
 
   def api_body
-    notes = task.notes.blank? ? '' : task.notes.tr('[', '(').tr(']', ')') # don't allow brackets in notes, see Task#assign_from_api_fieds
-    notes += '[' + Constant::Task::PRIORITY[task.priority] + ']' if task.priority.present?
-    notes += '[assigned to: ' + task.owner.name + ']' unless task.creator == task.owner
-    notes += '[budget remaining: ' + task.budget_remaining.format + ']' unless task.budget_remaining.nil?
+    # don't allow brackets in notes, see Task#assign_from_api_fieds
+    notes = task.notes.blank? ? '' : task.notes.tr('[', '(').tr(']', ')')
+    notes += "[#{Constant::Task::PRIORITY[task.priority]}" if task.priority.present?
+    notes += "[owner: #{task.owner.name} | creator: #{task.creator.name}]" unless task.creator == task.owner
+    notes += "[budget remaining: #{task.budget_remaining.format}]" unless task.budget_remaining.nil?
 
     body = {
       title: task.title,
       notes: notes,
       status: task.completed_at.present? ? 'completed' : 'needsAction',
-      deleted: self.deleted,
+      deleted: deleted,
       completed: task.completed_at.present? ? task.completed_at.utc.rfc3339(3) : nil,
       due: task.due.present? ? task.due.rfc3339 : nil
     }
@@ -115,10 +120,10 @@ class TaskUser < ApplicationRecord
   def relocate
     return false if tasklist_gid_before_last_save == tasklist_gid
 
-    mem_dup = self.dup
+    mem_dup = dup
     mem_dup.tasklist_gid = tasklist_gid_before_last_save
     mem_dup.api_delete
-    self.api_insert
+    api_insert
   end
 
   def set_tasklist_gid

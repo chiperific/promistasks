@@ -35,15 +35,17 @@
       </tbody>
     </table>
   </div>
-  <div class="col s12 m6 l8 left-align">
-    <p>In Google Tasks, there is always a default tasklist. This system imports your default tasklists and associated tasks as a convenience.
-    <br>
-    Due to privacy concerns, tasks on your default tasklists cannot be made visible to anyone beyond the task's creator and owner.
-    <br>
-    Visiblity settings for default tasklist tasks will be ignored.
-    <br>
-    Move tasks to a property to make them visible to others.</p>
-  </div>
+  <% if @property.is_default? %>
+    <div class="col s12 m6 l8 left-align">
+      <p>In Google Tasks, there is always a default tasklist. This system imports your default tasklists and associated tasks as a convenience.
+      <br>
+      Due to privacy concerns, tasks on your default tasklists cannot be made visible to anyone beyond the task's creator and owner.
+      <br>
+      Visiblity settings for default tasklist tasks will be ignored.
+      <br>
+      Move tasks to a property to make them visible to others.</p>
+    </div>
+  <% end %>
 </div>
 
 <div class="row section">

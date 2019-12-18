@@ -82,6 +82,7 @@ class Task < ApplicationRecord
 
   def budget_remaining
     return nil if budget.blank? && cost.blank?
+
     temp_budget = budget || Money.new(0)
     temp_cost = cost || Money.new(0)
     temp_budget - temp_cost
@@ -136,11 +137,11 @@ class Task < ApplicationRecord
 
     task_user.tasklist_gid = tasklist.google_id
 
-    if creator == owner
-      task_user.scope = 'both'
-    else
-      task_user.scope = creator == user ? 'creator' : 'owner'
-    end
+    task_user.scope = if creator == owner
+                        'both'
+                      else
+                        creator == user ? 'creator' : 'owner'
+                      end
 
     task_user.save
     task_user.reload
@@ -182,8 +183,7 @@ class Task < ApplicationRecord
   end
 
   def related_to?(user)
-    creator == user ||
-      owner == user
+    [creator, owner].include? user
   end
 
   def relocate
