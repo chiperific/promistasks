@@ -132,18 +132,20 @@ class Property < ApplicationRecord
   end
 
   def cost_of_tasks
-    tasks.has_cost.map { |t| t.cost_cents || 0 }.sum
+    money = tasks.has_cost.map { |t| t.cost_cents || 0 }.sum
+    Money.new(money)
   end
 
   def cost_of_payments
-    payments.paid.map { |p| p.payment_amt_cents || 0 }.sum
+    money = payments.paid.map { |p| p.payment_amt_cents || 0 }.sum
+    Money.new(money)
   end
 
   def cost_to_date
     sum = cost_cents.to_i +
           additional_cost_cents.to_i +
-          cost_of_tasks +
-          cost_of_payments
+          tasks.has_cost.map { |t| t.cost_cents || 0 }.sum +
+          payments.paid.map { |p| p.payment_amt_cents || 0 }.sum
     Money.new(sum)
   end
 

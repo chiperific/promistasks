@@ -76,24 +76,26 @@ class PropertiesController < ApplicationController
       'Park': @park_name,
       'Stage': @property.stage.capitalize,
       'Occupancy status': @property.occupancy_details,
-      'Budget': human_money(@property.budget) || 'Not recorded',
-      'All costs to date': human_money(@property.cost_to_date) || 'Not recorded',
-      'Cost of tasks': human_money(@property.cost_of_tasks) || 'Not recorded',
-      'Cost of payments': human_money(@property.cost_of_payments) || 'Not recorded',
       'Lot rent': human_money(@property.lot_rent) || 'Not recorded',
       'Acquired on': human_date(@property.acquired_on) || 'Not recorded',
       'Beds / Baths': @property.beds.to_s + ' / ' + @property.baths.to_s
     }
 
-    binding.pry
+    @primary_info_hash = { 'Default tasklist for:': @primary_info_hash.first[1] } if @property.is_default
 
-    @primary_info_hash = @primary_info_hash.first if @property.is_default
+    @money_hash = {
+      'Budget': human_money(@property.budget) || 'Not recorded',
+      'ALL COSTS TO DATE:': human_money(@property.cost_to_date) || 'Not recorded',
+      '- Purchase Cost': @property.cost.present? ? @property.cost.format : 'Not recorded',
+      '- Cost of tasks': @property.cost_of_tasks.format,
+      '- Cost of payments': @property.cost_of_payments.format,
+      '- Lot rent': @property.lot_rent.present? ? @property.lot_rent.format : 'Not recorded'
+    }
 
     @secondary_info_hash = {
       'Expected Completion Date': @property.expected_completion_date.present? ? human_date(@property.expected_completion_date) : 'Not recorded',
       'Actual Completion Date': @property.actual_completion_date.present? ? human_date(@property.actual_completion_date) : 'Not recorded',
       'Certificate #': @property.certificate_number.present? ? @property.certificate_number : 'Not recorded',
-      'Cost': @property.cost.present? ? @property.cost.format : 'Not recorded',
       'Additional Cost': @property.additional_cost.present? ? @property.additional_cost.format : 'Not recorded',
       'Created on': human_date(@property.created_at),
       'Created in': @property.created_from_api? ? 'Google Tasks' : 'PromiseTasks',

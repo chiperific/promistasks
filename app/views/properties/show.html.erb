@@ -9,27 +9,40 @@
         <tr>
           <td>
             <strong>Visibility:</strong>
-            <a href="#private_explanation" class="modal-trigger">
-              <i class="material-icons">live_help</i>
-            </a>
+            <% unless @property.is_default? %>
+              <a href="#private_explanation" class="modal-trigger">
+                <i class="material-icons">live_help</i>
+              </a>
+            <% end %>
           </td>
           <td>
             <%= @property.is_private? ? 'Private' : 'Public' %>
           </td>
         </tr>
-        <tr>
-          <td>
-            <strong>Ignore budget</strong>
-            <a href="#budget_warning_explanation" class="modal-trigger">
-              <i class="material-icons">live_help</i>
-            </a>
-          </td>
-          <td>
-            <%= human_boolean(@property.ignore_budget_warning) %>
-          </td>
-        </tr>
+        <% unless @property.is_default? %>
+          <tr>
+            <td>
+              <strong>Ignore budget</strong>
+              <a href="#budget_warning_explanation" class="modal-trigger">
+                <i class="material-icons">live_help</i>
+              </a>
+            </td>
+            <td>
+              <%= human_boolean(@property.ignore_budget_warning) %>
+            </td>
+          </tr>
+        <% end %>
       </tbody>
     </table>
+  </div>
+  <div class="col s12 m6 l8 left-align">
+    <p>In Google Tasks, there is always a default tasklist. This system imports your default tasklists and associated tasks as a convenience.
+    <br>
+    Due to privacy concerns, tasks on your default tasklists cannot be made visible to anyone beyond the task's creator and owner.
+    <br>
+    Visiblity settings for default tasklist tasks will be ignored.
+    <br>
+    Move tasks to a property to make them visible to others.</p>
   </div>
 </div>
 
@@ -207,6 +220,21 @@
           <p class="center">No payment history</p>
         <% end %>
       </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="row">
+      <div class="col s12">
+        <h4>Money:</h4>
+      </div>
+    </div>
+    <div class="row">
+      <table class="striped">
+        <% @money_hash.each do |k,v| %>
+          <%= render partial: 'info_table', locals: { k: k, v: v } %>
+        <% end %>
+      </table>
     </div>
   </div>
 

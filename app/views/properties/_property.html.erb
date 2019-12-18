@@ -29,8 +29,15 @@
     <% end %>
       <span class="card-title"><%= property.name %></span>
       <p class="small-text">
-        Status: <%= property.stage %><br>
-        <%= property.tasks.visible_to(current_user).count %> tasks related to you.<br>
+        <% if property.is_default? %>
+          <%= property.tasks.in_process.count %> tasks in process.
+          <br>
+          <%= property.tasks.complete.count %> tasks complete.
+          <br>
+        <% else %>
+          Status: <%= property.stage %><br>
+          <%= property.tasks.in_process.visible_to(current_user).count %> tasks related to you.<br>
+        <% end %>
         <% unless property.is_default? %>
           Budget remaining: <%= humanized_money_with_symbol property.budget_remaining %>
         <% end %>

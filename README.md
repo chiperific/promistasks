@@ -7,8 +7,6 @@
 
 1. Property#tasks with $$
 -- Report: show cost of associated tasks
--- Property: need to be able to see completed tasks
-
 2. Not syncing: make new Task in GT on existing list, click sync in app
 
 5. Make sure tasks are archiving, not deleting
