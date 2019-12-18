@@ -17,11 +17,10 @@ class TasklistsClient
   end
 
   def create_property(title, default)
-    property = Property.where(name: title, is_default: default)
-    .first_or_initialize
+    property = Property.where(name: title, is_default: default).first_or_initialize
 
     if property.new_record?
-      property.creator = @user
+      property.creator_id = @user.id
       property.is_private = true
       property.created_from_api = true
       property.save
