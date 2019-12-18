@@ -4,7 +4,7 @@
   <div id="to_checkboxes" class="row center-align form-inputs">
     <div class="col s12">
       <% if @to_organization %>
-        <%= f.text_field :paid_to, { value: 'organization', disabled: true } %>
+        <%= f.hidden_field :paid_to, { value: 'organization', disabled: true } %>
         <h4 id="paid_to_label">Payment from:</h4>
       <% else %>
         <%= f.text_field :paid_to %>
