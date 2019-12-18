@@ -4,11 +4,12 @@
 0. Javascript:
 - syncing only visible when on `/properties`?
 - M_Tabs issue
-- Property#tasks with $$
+
+1. Property#tasks with $$
 -- Report: show cost of associated tasks
 -- Property: need to be able to see completed tasks
 
-1. Not syncing: make new Task in GT on existing list, click sync in app
+2. Not syncing: make new Task in GT on existing list, click sync in app
 
 5. Make sure tasks are archiving, not deleting
 6. Views:
