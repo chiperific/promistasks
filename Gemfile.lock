@@ -398,7 +398,7 @@ DEPENDENCIES
   letter_opener_web
   libv8 (= 6.7.288.46.1)
   listen (>= 3.0.5, < 3.2)
-  materialize-sass (~> 1.0.0)
+  materialize-sass
   mini_racer
   money-rails
   omniauth-google-oauth2

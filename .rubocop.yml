@@ -25,7 +25,7 @@ Style/DoubleNegation:
 Style/MixinUsage:
   Exclude:
     - spec/*
-Layout/IndentHash:
+Layout/FirstHashElementIndentation:
   Enabled: false
 Lint/AmbiguousBlockAssociation:
   Enabled: false

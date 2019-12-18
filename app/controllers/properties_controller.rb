@@ -65,24 +65,29 @@ class PropertiesController < ApplicationController
 
     @creator_name = current_user.staff_or_admin? ? view_context.link_to(@property.creator.name, @property.creator) : @property.creator.name
 
-    if @property.park.present?
-      @park_name = current_user.staff_or_admin? ? view_context.link_to(@property.park.name, @property.park) : @property.park.name
-    else
-      @park_name = 'Not associated'
-    end
+    @park_name = if @property.park.present?
+                   current_user.staff_or_admin? ? view_context.link_to(@property.park.name, @property.park) : @property.park.name
+                 else
+                   'Not associated'
+                 end
 
     @primary_info_hash = {
-      'Creator': @creator_name
+      'Creator': @creator_name,
+      'Park': @park_name,
+      'Stage': @property.stage.capitalize,
+      'Occupancy status': @property.occupancy_details,
+      'Budget': human_money(@property.budget) || 'Not recorded',
+      'All costs to date': human_money(@property.cost_to_date) || 'Not recorded',
+      'Cost of tasks': human_money(@property.cost_of_tasks) || 'Not recorded',
+      'Cost of payments': human_money(@property.cost_of_payments) || 'Not recorded',
+      'Lot rent': human_money(@property.lot_rent) || 'Not recorded',
+      'Acquired on': human_date(@property.acquired_on) || 'Not recorded',
+      'Beds / Baths': @property.beds.to_s + ' / ' + @property.baths.to_s
     }
 
-    unless @property.is_default?
-      @primary_info_hash['Park'] = @park_name
-      @primary_info_hash['Stage'] = @property.stage.capitalize
-      @primary_info_hash['Occupancy status'] = @property.occupancy_details
-      @primary_info_hash['Lot rent'] = human_money(@property.lot_rent) || 'Not recorded'
-      @primary_info_hash['Acquired on'] = human_date(@property.acquired_on) || 'Not recorded'
-      @primary_info_hash['Beds / Baths'] = @property.beds.to_s + ' / ' + @property.baths.to_s
-    end
+    binding.pry
+
+    @primary_info_hash = @primary_info_hash.first if @property.is_default
 
     @secondary_info_hash = {
       'Expected Completion Date': @property.expected_completion_date.present? ? human_date(@property.expected_completion_date) : 'Not recorded',

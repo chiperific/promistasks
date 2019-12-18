@@ -63,45 +63,41 @@
         <% end %>
       </div>
     </div>
-    <% if @tasks.count.positive? %>
-      <div class="row">
-        <div class="col s12 center">
-          <ul class="tabs z-depth-1" name="tasks">
-            <% if @show_new %>
-              <li class="tab">
-                <%= link_to 'New', tasks_filter_property_path(@property, tasks: 'new'), id: 'tasks_your', remote: true %>
-              </li>
-            <% end %>
+    <div class="row">
+      <div class="col s12 center">
+        <ul class="tabs z-depth-1" name="tasks">
+          <% if @show_new %>
             <li class="tab">
-              <%= link_to 'Active', tasks_filter_property_path(@property, tasks: 'active'), id: 'tasks_your', class: 'active', remote: true %>
+              <%= link_to 'New', tasks_filter_property_path(@property, tasks: 'new'), id: 'tasks_your', remote: true %>
+            </li>
+          <% end %>
+          <li class="tab">
+            <%= link_to 'Active', tasks_filter_property_path(@property, tasks: 'active'), id: 'tasks_your', class: 'active', remote: true %>
+          </li>
+          <li class="tab">
+            <%= link_to 'Completed', tasks_filter_property_path(@property, tasks: 'completed'), id: 'tasks_completed', remote: true %>
+          </li>
+          <% if current_user.admin? %>
+            <li class="tab">
+              <%= link_to 'All', tasks_filter_property_path(@property, tasks: 'all'), id: 'tasks_all', remote: true %>
             </li>
             <li class="tab">
-              <%= link_to 'Completed', tasks_filter_property_path(@property, tasks: 'completed'), id: 'tasks_completed', remote: true %>
+              <%= link_to 'Archived', tasks_filter_property_path(@property, tasks: 'archived'), id: 'tasks_archived', remote: true %>
             </li>
-            <% if current_user.admin? %>
-              <li class="tab">
-                <%= link_to 'All', tasks_filter_property_path(@property, tasks: 'all'), id: 'tasks_all', remote: true %>
-              </li>
-              <li class="tab">
-                <%= link_to 'Archived', tasks_filter_property_path(@property, tasks: 'archived'), id: 'tasks_archived', remote: true %>
-              </li>
-            <% end %>
-          </ul>
-        </div>
+          <% end %>
+        </ul>
       </div>
-      <div class="row fat">
-        <table class='highlight' id='dttb2-task_table'>
-          <thead>
-            <%= render partial: 'tasks/tasks_table_header' %>
-          </thead>
-          <tbody id='task_table_body'>
+    </div>
+    <div class="row fat">
+      <table class='highlight' id='dttb2-task_table'>
+        <thead>
+          <%= render partial: 'tasks/tasks_table_header' %>
+        </thead>
+        <tbody id='task_table_body'>
           <%= render partial: 'tasks/tasks_table', locals: { tasks: @tasks } %>
-          </tbody>
-        </table>
-      </div>
-    <% else %>
-      <p class="center-align">No tasks</p>
-    <% end %>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 
