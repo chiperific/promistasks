@@ -482,8 +482,8 @@ RSpec.describe User, type: :model do
     let(:token_expired) { create :oauth_user, oauth_expires_at: Time.now - 1.hour }
     let(:token_fresh)   { create :oauth_user, oauth_expires_at: Time.now + 6.hours }
 
-    it 'returns nil if the user isn\'t an oauth' do
-      expect(@user.token_expired?).to eq nil
+    it 'returns true if the user isn\'t an oauth' do
+      expect(@user.token_expired?).to eq true
     end
     it 'returns true if oauth_expires_at is in the past' do
       expect(token_expired.token_expired?).to eq true
