@@ -1,6 +1,15 @@
 # Task and Resource Manager with Google Tasks API Extension for Family Promise GR
 
 ## To do:
+0. Javascript:
+- syncing only visible when on `/properties`?
+- M_Tabs issue
+- Property#tasks with $$
+-- Report: show cost of associated tasks
+-- Property: need to be able to see completed tasks
+
+1. Not syncing: make new Task in GT on existing list, click sync in app
+
 5. Make sure tasks are archiving, not deleting
 6. Views:
   - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX instead of Rails

@@ -158,7 +158,6 @@ class Payment < ApplicationRecord
   end
 
   def date_if_money
-    errors.add(:received, 'date needs to be set') if received.blank? && (!!bill_amt&.positive? || !!bill_amt&.negative?)
     errors.add(:paid, 'date needs to be set') if paid.blank? && (!!payment_amt&.positive? || !!payment_amt&.negative?)
   end
 

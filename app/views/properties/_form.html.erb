@@ -110,6 +110,7 @@
 
   <div class="row">
     <div class="input-field col m8 s12">
+      <!-- TODO -->
       <%= f.text_area :description, class: 'materialize-textarea' %>
       <i class="material-icons prefix">message</i>
       <label for="property_description">Description & notes</label>
@@ -130,7 +131,7 @@
     <div class="input-field col m6 s12">
       <i class="material-icons prefix">attach_money</i>
       <%= f.number_field :budget, min: 0, step: 0.01 %>
-      <label for="property_budget">Repair Budget</label>
+      <label for="property_budget">Total Budget</label>
     </div>
     <div class="input-field col m4 s12">
       <i class="material-icons prefix">attach_money</i>

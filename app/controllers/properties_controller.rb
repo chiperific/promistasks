@@ -214,7 +214,7 @@ class PropertiesController < ApplicationController
   end
 
   def reassign
-    authorize @properties = Property.active.order(:name)
+    authorize @properties = Property.active.except_default.order(:name)
 
     @parks = Park.all.active.order(:name)
   end

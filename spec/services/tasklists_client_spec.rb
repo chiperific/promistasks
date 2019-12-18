@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe TasklistsClient, type: :service do
   before :each do
-    @user = double(:user, id: 1, refresh_token!: true, list_api_tasklists: '', fetch_default_tasklist: '')
+    @user = FactoryBot.create(:oauth_user)
     @tc = TasklistsClient.new(@user)
     @good_response = JSON.parse(file_fixture('list_tasklists_json_spec.json').read)
     @default_response = FactoryBot.create(:default_tasklist_json)
@@ -38,12 +38,22 @@ RSpec.describe TasklistsClient, type: :service do
   end
 
   describe '#create_property' do
-    it 'creates a property' do
-      allow(@user).to receive(:to_i).and_return(@user.id)
-      allow(Property).to receive(:create).and_return(@property)
+    context 'when the property exists' do
+      it 'returns the existing property' do
+        prop = FactoryBot.create(:property, name: 'title')
 
-      expect(Property).to receive(:create).and_return(@property)
-      @tc.create_property('title', false)
+        expect(@tc.create_property('title', false)).to eq prop
+      end
+    end
+
+    context 'when the property doesn\'t exist' do
+      it 'creates the property' do
+        expect { @tc.create_property('title', false) }.to change { Property.all.size }.by(1)
+      end
+    end
+
+    it 'returns a property' do
+      expect(@tc.create_property('title', false).class).to eq Property
     end
   end
 
@@ -103,7 +113,7 @@ RSpec.describe TasklistsClient, type: :service do
       end
 
       it 'calls tasklist.save!' do
-        expect(@new_tasklist).to receive(:save!)
+        expect(@new_tasklist).to receive(:save)
         @tc.handle_tasklist(@tasklist_json)
       end
     end

@@ -171,7 +171,7 @@ class User < ActiveRecord::Base
   end
 
   def refresh_token!
-    return false unless token_expired? && oauth_id.present? && oauth_token.present? && oauth_refresh_token.present?
+    return false unless token_expired? && oauth_id.present? && oauth_refresh_token.present?
 
     data = {
       grant_type: 'refresh_token',
@@ -182,7 +182,7 @@ class User < ActiveRecord::Base
     response = HTTParty.post('https://accounts.google.com/o/oauth2/token', { body: data.as_json })
 
     if response['error']
-      update(oauth_refresh_token: nil, oauth_expires_at: nil)
+      update(oauth_token: nil, oauth_expires_at: nil)
     else
       update(oauth_token: response['access_token'], oauth_expires_at: Time.now.utc + response['expires_in'].to_i.seconds) if response['access_token'].present?
     end

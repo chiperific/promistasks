@@ -493,28 +493,6 @@ RSpec.describe Payment, type: :model do
   end
 
   describe '#date_if_money' do
-    context 'when bill_amt is present' do
-      context 'but received is blank' do
-        let(:received_blank_bill_present) { build :payment, received: nil }
-
-        it 'adds an error to :received' do
-          expect(received_blank_bill_present.errors.any?).to eq false
-          received_blank_bill_present.send(:date_if_money)
-          expect(received_blank_bill_present.errors[:received].present?).to eq true
-        end
-      end
-
-      context 'and received is not blank' do
-        let(:received_present_bill_present) { build :payment }
-
-        it 'does nothing' do
-          expect(received_present_bill_present.errors.any?).to eq false
-          received_present_bill_present.send(:date_if_money)
-          expect(received_present_bill_present.errors.any?).to eq false
-        end
-      end
-    end
-
     context 'when payment_amt is present' do
       context 'but paid is blank' do
         let(:paid_blank_payment_present) { build :payment, payment_amt: 400 }
