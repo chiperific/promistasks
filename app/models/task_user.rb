@@ -48,9 +48,8 @@ class TaskUser < ApplicationRecord
 
     response['id'] = sequence_google_id(response['id']) if Rails.env.test?
 
-    # update_columns(google_id: response['id'], updated_at: response['updated'])
     self.google_id = response['id']
-    self.updated_at = response['updated']
+    self.updated_at = response['updated'] || Time.now
     response
   end
 
