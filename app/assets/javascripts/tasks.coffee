@@ -114,5 +114,8 @@ $(document).on 'turbolinks:load', ->
   $('a.dttb-ajax-link').on 'click', ->
     filter = $(this).attr('data-filter')
     table = $('#task_table').DataTable()
-    dttbAjaxTrigger(filter, table)
+    uri = '/tasks.json?filter=' + filter
+    table.ajax.url(uri).load( (json) ->
+      reInitTooltips()
+    )
 

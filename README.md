@@ -2,8 +2,9 @@
 
 ## To do:
 0. Javascript:
-- syncing not visible when on `/properties/:id`?
--- And links are not replaced?
+- Check if links are replaced when `?syncing=true`
+- `/tasks?filter=all` not working because Datatable is AJAXING itself
+-- I believe `/properties?filter=all` is also a thing
 
 1. Property#tasks with $$
 -- Report: show cost of associated tasks
@@ -11,24 +12,34 @@
 2. Not syncing:
 - make new Task in GT on existing list, click sync in app
 - reassign a task from one user to another in PT, should show up on save in GT
+
+3. Are a hot mess:
 - TasklistClient#handle_tasklist
 - TasksClient#handle_task
 - TasksClient#create_task
 
 4. User#refresh_token! should return a custom error when OAuth fails.
 
-5. Make sure tasks are archiving, not deleting
+5. Make sure tasks are archiving, not deleting. Deleting a task deletes:
+- Payments
+- SkillTasks - good!
+- TaskUsers - triggers task_user.api_delete
 
 6. Views:
   - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX && Rails `.json.jbuilder` files
-    -- Done for Tasks#index
-    -- Where are the rest? (search for `$.ajax` calls)
+    -- `_admin_contact` partial is based on initial page load, doesn't disappear when Datatables ajaxes in actual records.
+    --- Could use JS to detect 'No data available in table' and show partial then? Or just remove it entirely.
+    -- Done for Tasks#index (NOT REALLY!!)
+    -- Where are the rest? (search for `$.ajax` calls in coffee files)
+    -- This change is deep. Requires a lot of overhaul
   - Vol / Contractor can't get past the homepage / task view
   - Lookup fields are still buggy (on tabbing?)
   - Suppress auto-fill: Connections#new / #edit
 
-4. Controllers:
+7. Controllers:
   - Contractors can't pick jobs (must be assigned as owner by a staff user)
+
+8. Task#professional && Skill#license_required does nothing
 
 ## Decisions
 - Footer: Anyone logged in can create a task

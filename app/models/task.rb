@@ -38,6 +38,7 @@ class Task < ApplicationRecord
   after_update      :relocate,             if: -> { saved_change_to_property_id? }
   after_update      :change_task_users,    if: :saved_changes_to_users?
   after_update      :cascade_completed,    if: -> { completed_at.present? && completed_at_before_last_save.nil? }
+  # TODO: after_update :cascade_incomplete, if: -> opposite of above?
 
   default_scope { order(:due, :priority, :title) }
 
@@ -126,22 +127,25 @@ class Task < ApplicationRecord
     return false if user.oauth_id.nil?
 
     task_user = task_users.where(user: user).first_or_initialize
-    return task_user unless task_user.new_record? || task_user.google_id.blank?
+    # return task_user unless task_user.new_record? || task_user.google_id.blank?
 
-    # tasklist = property.ensure_tasklist_exists_for(user)
-    tasklist = property.tasklists.where(user: user).first_or_initialize
-    tasklist.save!
-    tasklist.reload
+    if task_user.new_record? || task_user.google_id.blank?
+      tasklist = property.tasklists.where(user: user).first_or_initialize
+      tasklist.save!
+      tasklist.reload
+      return false if tasklist.google_id.blank?
 
-    return false if tasklist.google_id.blank?
+    end
 
+    # need to set overlapping fields that might have changed on the task:
     task_user.tasklist_gid = tasklist.google_id
-
     task_user.scope = if creator == owner
                         'both'
                       else
                         creator == user ? 'creator' : 'owner'
                       end
+    task_user.completed_at = completed_at
+    task_user.deleted = discarded_at.present?
 
     task_user.save
     task_user.reload
@@ -203,6 +207,12 @@ class Task < ApplicationRecord
 
   def saved_changes_to_users?
     saved_change_to_creator_id? || saved_change_to_owner_id?
+  end
+
+  def snipped_title(len = 0)
+    return title unless len.is_a?(Numeric) && len.positive? && title.length > len
+
+    title[len] == ' ' ? "#{title[0..29]}..." : "#{title[0..len]}..."
   end
 
   def status

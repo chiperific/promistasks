@@ -1,15 +1,3 @@
-dttbAjaxTrigger = (filter, table) ->
-  uri = '/tasks.json?filter=' + filter
-  table.ajax.url(uri).load( (json) ->
-    reInitTooltips()
-  )
-
-reInitTooltips = ->
-  tooltips = $('.tooltipped')
-  M.Tooltip.init(tooltips, {
-  'enterDelay': 800
-  })
-
 $(document).on 'turbolinks:load', ->
   return unless controllerMatches(
     ['tasks', 'properties', 'users', 'connections', 'parks']
@@ -23,7 +11,16 @@ $(document).on 'turbolinks:load', ->
   tabs = $('.tabs')
   M.Tabs.init(tabs)
 
-  # This allows for `/tasks?filter=all` redirects, e.g. from notifications
+  # This should allow for `/tasks?filter=all` redirects, e.g. from notifications
+  # Including others tabs-filtered tables (like properties)
+  # TODO: not working as expected. Should:
+  # 1. Set the tabs bar (see try below)
+  # 2. Ajax the Datatable: table.ajax.url(uri).load( (json) -> ...)
+  # (1) TRY:
+  # tabEl = document.getElementByID()
+  # tabs = M.Tabs.getInstance(tabsEl)
+  # tabs.select(targetID)
+
   if getParameterByName('filter') != null
     target = document.location.search.replace('?filter=','')
     scope = $('ul.tabs').attr('name')
@@ -38,20 +35,19 @@ $(document).on 'turbolinks:load', ->
     checked = $(this).prop('checked')
     if checked == true
       action = '/complete'
-      msg = 'Marked complete!'
     else
       action = '/un_complete'
-      msg = 'Removed completion.'
 
     taskId = $(this).siblings('.task_id').text().trim()
     location = '/tasks/' + taskId + action
     $.ajax(url: location).done (response) ->
-      # once the task is changed:
-      M.toast({html: msg})
-      # trigger the datatable AJAX so the changed task is removed from view
+      M.toast({html: response['status']})
       filter = $('a.active').attr('data-filter')
       table = $('#task_table').DataTable()
-      dttbAjaxTrigger(filter, table)
+      uri = '/tasks.json?filter=' + filter
+      table.ajax.url(uri).load( (json) ->
+        reInitTooltips()
+      )
       true
     true
   true

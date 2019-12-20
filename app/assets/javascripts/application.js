@@ -38,6 +38,14 @@ function actionMatches(actions_ary) {
   return actions_ary.indexOf(action) !== -1;
 }
 
+// Materialize global functions:
+function reInitTooltips() {
+  var tooltips = $('.tooltipped');
+  M.Tooltip.init(tooltips, {
+    'enterDelay': 800
+  });
+};
+
 // changeElementType plugin:
 (function($) {
     $.fn.changeElementType = function(newType, stripData = false) {

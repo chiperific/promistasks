@@ -9,35 +9,36 @@ class TasksController < ApplicationController
 
     @show_new = tasks.created_since(current_user.last_sign_in_at).count.positive?
 
-    case params[:filter]
-    when 'new'
-      @tasks = tasks.created_since(current_user.last_sign_in_at)
-      @empty_msg = 'No tasks created since you last signed in'
-    when 'past-due'
-      @tasks = tasks.past_due
-      @empty_msg = 'No tasks are over-due!'
-    when 'due-7'
-      @tasks = tasks.due_within(7)
-      @empty_msg = 'No tasks due in next 7 days!'
-    when 'due-14'
-      @tasks = tasks.due_within(14)
-      @empty_msg = 'No tasks due in next 14 days!'
-    when 'completed'
-      @tasks = tasks.complete
-      @empty_msg = 'No completed tasks'
-    when 'missing-info'
-      @tasks = tasks.needs_more_info
-      @empty_msg = 'No tasks missing info!'
-    when 'archived'
-      @tasks = Task.except_primary.archived
-      @empty_msg = 'No archived tasks'
-    when 'all'
-      @tasks = Task.except_primary
-      @empty_msg = 'No active tasks'
-    else # nil || 'active'
-      @tasks = tasks.in_process
-      @empty_msg = 'No active tasks'
-    end
+    # This is all useless given the Datatables AJAX
+    # case params[:filter]
+    # when 'new'
+    #   @tasks = tasks.created_since(current_user.last_sign_in_at)
+    #   @empty_msg = 'No tasks created since you last signed in'
+    # when 'past-due'
+    #   @tasks = tasks.past_due
+    #   @empty_msg = 'No tasks are over-due!'
+    # when 'due-7'
+    #   @tasks = tasks.due_within(7)
+    #   @empty_msg = 'No tasks due in next 7 days!'
+    # when 'due-14'
+    #   @tasks = tasks.due_within(14)
+    #   @empty_msg = 'No tasks due in next 14 days!'
+    # when 'completed'
+    #   @tasks = tasks.complete
+    #   @empty_msg = 'No completed tasks'
+    # when 'missing-info'
+    #   @tasks = tasks.needs_more_info
+    #   @empty_msg = 'No tasks missing info!'
+    # when 'archived'
+    #   @tasks = Task.except_primary.archived
+    #   @empty_msg = 'No archived tasks'
+    # when 'all'
+    #   @tasks = Task.except_primary
+    #   @empty_msg = 'No active tasks'
+    # else # nil || 'active'
+    #   @tasks = tasks.in_process
+    #   @empty_msg = 'No active tasks'
+    # end
 
     respond_to do |format|
       format.json
@@ -214,16 +215,22 @@ class TasksController < ApplicationController
 
   def complete
     authorize @task = Task.find(params[:id])
-    @task.update(completed_at: Time.now)
-    status = @task.reload.completed_at.blank? ? 'inProcess' : 'completed'
-    render json: { id: @task.id.to_s, status: status }
+    if @task.update(completed_at: Time.now)
+      status = @task.reload.completed_at.present? ? "#{@task.title} completed!" : 'Removed completion.'
+      render json: { id: @task.id.to_s, status: status }
+    else
+      render json: { id: @task.id.to_s, status: 'Experienced an error.' }
+    end
   end
 
   def un_complete
     authorize @task = Task.find(params[:id])
-    @task.update(completed_at: nil)
-    status = @task.reload.completed_at.blank? ? 'inProcess' : 'completed'
-    render json: { id: @task.id.to_s, status: status }
+    if @task.update(completed_at: nil)
+      status = @task.reload.completed_at.present? ? 'Marked Complete!' : 'Removed completion.'
+      render json: { id: @task.id.to_s, status: status }
+    else
+      render json: { id: @task.id.to_s, status: 'Experienced an error.' }
+    end
   end
 
   def task_enum

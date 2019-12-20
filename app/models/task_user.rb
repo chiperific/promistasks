@@ -16,7 +16,7 @@ class TaskUser < ApplicationRecord
   before_destroy    :api_delete
   before_create     :api_insert,              if: -> { user.present? && task.present? && google_id.blank? }
   after_update      :relocate,                if: -> { saved_change_to_tasklist_gid? }
-  after_save        :elevate_completeness,    if: -> { completed_at.present? && task.completed_at.nil? }
+  after_save        :elevate_completeness,    if: -> { saved_change_to_completed_at? && task.completed_at.nil? }
 
   BASE_URI = 'https://www.googleapis.com/tasks/v1/lists/'
 

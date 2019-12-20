@@ -18,7 +18,7 @@
     <% end %>
   </td>
   <td class="truncate">
-    <%= tasks_table.title %>
+    <%= tasks_table.snipped_title(30) %>
   </td>
   <td>
     <% if current_user.staff? %>
