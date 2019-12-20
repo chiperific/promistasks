@@ -4,7 +4,6 @@
 0. Javascript:
 - syncing not visible when on `/properties/:id`?
 -- And links are not replaced?
-- M_Tabs issue
 
 1. Property#tasks with $$
 -- Report: show cost of associated tasks
@@ -15,6 +14,8 @@
 - TasklistClient#handle_tasklist
 - TasksClient#handle_task
 - TasksClient#create_task
+
+4. User#refresh_token! should return a custom error when OAuth fails.
 
 5. Make sure tasks are archiving, not deleting
 6. Views:
@@ -30,13 +31,9 @@
 
 ## Decisions
 - Footer: Anyone logged in can create a task
-- Archiving property in app (when no open tasks) removes from GT.
-  -- right now, for everybody (through the mode.l)
-  -- Tasks only archive for the user that clicks it (through controller)
-  -- Seth should choose
 
 ## FUTURE
-1. Use the Google Ruby API instead of HTTParty
+1. Use the Google Ruby API instead of HTTParty https://developers.google.com/tasks/quickstart/ruby
 2. Application model: client && property
 3. Maintenance request model: client && property public form with limited options for types of errors
   - Looks up property by client

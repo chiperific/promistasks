@@ -1,26 +1,28 @@
+tabRowVisibility = ->
+  chooser = $('#tab_switch').prop('checked')
+
+  if chooser == false #Tasks
+    $('#properties_status').hide()
+    $('#properties_tasks').show()
+
+    taskTabEl = document.getElementById('properties_tasks')
+    taskTab = M.Tabs.getInstance(taskTabEl)
+    taskTab.updateTabIndicator()
+  else
+    $('#properties_tasks').hide()
+    $('#properties_status').show()
+
+    statusTabEl = $('#properties_status')
+    statusTab = M.Tabs.getInstance(statusTabEl)
+    statusTab.updateTabIndicator()
+  true
+
 $(document).on 'turbolinks:load', ->
-  return unless controllerMatches(['properties', 'parks']) && actionMatches(['list', 'show'])
-
-  tabRowVisibility = ->
-    chooser = $('#tab_switch').prop('checked')
-    if chooser == false #Tasks
-      $('#properties_status').hide()
-      $('#properties_tasks').show()
-      taskTab.updateTabIndicator()
-    else
-      $('#properties_tasks').hide()
-      $('#properties_status').show()
-      statusTab.updateTabIndicator()
-    true
-
-  tabs = $('.tabs')
-  M.Tabs.init(tabs)
-
-  taskTabEl = $('#properties_tasks')
-  taskTab = M.Tabs.getInstance(taskTabEl)
-
-  statusTabEl = $('#properties_status')
-  statusTab = M.Tabs.getInstance(statusTabEl)
+  return unless (
+    controllerMatches(['properties']) && actionMatches(['list'])
+  ) || (
+    controllerMatches(['parks']) && actionMatches(['show'])
+  )
 
   tabRowVisibility()
 
@@ -28,7 +30,7 @@ $(document).on 'turbolinks:load', ->
     tabRowVisibility()
     true
 
-  # properties#list && parks#show AJAX property stage updates
+  # properties#list && parks#show AJAX property#stage updates
   # have to bubble up from document after AJAXing tabs
   $(document).on 'change', 'select.stage-select', ->
     id = $(this).attr('data-finder')

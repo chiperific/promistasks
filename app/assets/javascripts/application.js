@@ -15,6 +15,7 @@
 //= require turbolinks
 //= require materialize
 //= require datatables
+//= require tabs_and_complete_booleans
 //= require_tree .
 
 function getParameterByName(name, url) {

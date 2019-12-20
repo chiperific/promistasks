@@ -109,7 +109,7 @@ class TaskUser < ApplicationRecord
   end
 
   def api_headers
-    { 'Authorization': 'OAuth ' + user.oauth_token,
+    { 'Authorization': 'OAuth ' + user.oauth_token.to_s,
       'Content-type': 'application/json' }
   end
 

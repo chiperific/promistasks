@@ -16,28 +16,33 @@ setActiveTab = (target, scope) ->
   $(targetID).addClass('active')
 
 $(document).on 'turbolinks:load', ->
-  return unless controllerMatches(['tasks', 'properties', 'users', 'connections', 'parks']) &&
-  actionMatches(['show', 'index', 'tasks', 'list'])
-
-  if getParameterByName('filter') != null
-    target = document.location.search.replace('?filter=','')
-    scope = $('ul.tabs').attr('name')
-    setActiveTab(target, scope)
+  return unless controllerMatches(
+    ['tasks', 'properties', 'users', 'connections', 'parks']
+  ) && actionMatches(
+    ['show', 'index', 'tasks', 'list']
+  )
 
   # Don't initiate this in global
   # because then the JS indicator (non-CSS bottom border)
   # appears on the initial active element
   tabs = $('.tabs')
   M.Tabs.init(tabs)
+  # $('.tabs').tabs()
 
+  if getParameterByName('filter') != null
+    target = document.location.search.replace('?filter=','')
+    scope = $('ul.tabs').attr('name')
+    setActiveTab(target, scope)
+
+  # AJAX to auto-complete or un-complete a task
   $('#task_table_body').on 'click', 'input.complete_bool', ->
-    taskId = $(this).siblings('.task_id').text().trim()
     checked = $(this).prop('checked')
     if checked == true
       action = '/complete'
     else
       action = '/un_complete'
 
+    taskId = $(this).siblings('.task_id').text().trim()
     location = '/tasks/' + taskId + action
     $.ajax(url: location).done (response) ->
       filter = $('a.active').attr('id')

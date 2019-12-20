@@ -9,8 +9,10 @@ rackup      DefaultRackup
 # the maximum value specified for Puma. Default is set to 5 threads for minimum
 # and maximum; this matches the default thread size of Active Record.
 #
-threads_count = ENV.fetch('RAILS_MAX_THREADS') { 16 }
-threads threads_count, threads_count
+min_count = 1
+max_count = 5
+# ENV.fetch('RAILS_MAX_THREADS') { 16 }
+threads min_count, max_count
 
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
 #

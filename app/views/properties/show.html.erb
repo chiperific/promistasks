@@ -109,7 +109,7 @@
           <%= render partial: 'tasks/tasks_table_header' %>
         </thead>
         <tbody id='task_table_body'>
-          <%= render partial: 'tasks/tasks_table', locals: { tasks: @tasks } %>
+          <%= render partial: 'tasks/tasks_table', collection: @tasks %>
         </tbody>
       </table>
     </div>

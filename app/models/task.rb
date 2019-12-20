@@ -143,6 +143,7 @@ class Task < ApplicationRecord
                         creator == user ? 'creator' : 'owner'
                       end
 
+    # updated_at is getting set as nil??
     task_user.save
     task_user.reload
   end
