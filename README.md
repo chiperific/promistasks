@@ -18,10 +18,11 @@
 4. User#refresh_token! should return a custom error when OAuth fails.
 
 5. Make sure tasks are archiving, not deleting
+
 6. Views:
-  - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX instead of Rails
+  - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX && Rails `.json.jbuilder` files
     -- Done for Tasks#index
-    -- Where are the rest?
+    -- Where are the rest? (search for `$.ajax` calls)
   - Vol / Contractor can't get past the homepage / task view
   - Lookup fields are still buggy (on tabbing?)
   - Suppress auto-fill: Connections#new / #edit

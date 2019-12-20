@@ -1,19 +1,14 @@
-refreshTasks = (target, checked) ->
-  $.ajax(url: target).done (response) ->
-    if checked == true
-      msg = 'Marked complete!'
-    else
-      msg = 'Removed completion.'
-    M.toast({html: msg})
-    true
-  true
+dttbAjaxTrigger = (filter, table) ->
+  uri = '/tasks.json?filter=' + filter
+  table.ajax.url(uri).load( (json) ->
+    reInitTooltips()
+  )
 
-setActiveTab = (target, scope) ->
-  attrSelector = 'ul[name="' + scope + '"]'
-  anchors = $(attrSelector).find('a')
-  anchors.removeClass('active')
-  targetID = 'a#' + scope + '_' + target
-  $(targetID).addClass('active')
+reInitTooltips = ->
+  tooltips = $('.tooltipped')
+  M.Tooltip.init(tooltips, {
+  'enterDelay': 800
+  })
 
 $(document).on 'turbolinks:load', ->
   return unless controllerMatches(
@@ -27,28 +22,36 @@ $(document).on 'turbolinks:load', ->
   # appears on the initial active element
   tabs = $('.tabs')
   M.Tabs.init(tabs)
-  # $('.tabs').tabs()
 
+  # This allows for `/tasks?filter=all` redirects, e.g. from notifications
   if getParameterByName('filter') != null
     target = document.location.search.replace('?filter=','')
     scope = $('ul.tabs').attr('name')
-    setActiveTab(target, scope)
+    attrSelector = 'ul[name="' + scope + '"]'
+    anchors = $(attrSelector).find('a')
+    anchors.removeClass('active')
+    targetID = 'a#' + scope + '_' + target
+    $(targetID).addClass('active')
 
   # AJAX to auto-complete or un-complete a task
   $('#task_table_body').on 'click', 'input.complete_bool', ->
     checked = $(this).prop('checked')
     if checked == true
       action = '/complete'
+      msg = 'Marked complete!'
     else
       action = '/un_complete'
+      msg = 'Removed completion.'
 
     taskId = $(this).siblings('.task_id').text().trim()
     location = '/tasks/' + taskId + action
     $.ajax(url: location).done (response) ->
-      filter = $('a.active').attr('id')
-      link = '#' + filter
-      target = $(link).attr('href')
-      refreshTasks(target, checked)
+      # once the task is changed:
+      M.toast({html: msg})
+      # trigger the datatable AJAX so the changed task is removed from view
+      filter = $('a.active').attr('data-filter')
+      table = $('#task_table').DataTable()
+      dttbAjaxTrigger(filter, table)
       true
     true
   true
