@@ -5,9 +5,9 @@ class TasksController < ApplicationController
 
   def index
     authorize Task
-    tasks = Task.except_primary.visible_to(current_user)
+    @tasks = Task.except_primary.visible_to(current_user)
 
-    @show_new = tasks.created_since(current_user.last_sign_in_at).count.positive?
+    @show_new = @tasks.created_since(current_user.last_sign_in_at).count.positive?
 
     ###### This is all useless given the Datatables AJAX
     # case params[:filter]

@@ -12,7 +12,7 @@ class TasksClient
   def self.fetch_with_tasklist_gid_and_user(google_id, user)
     return false unless user.oauth_token.present?
 
-    connect
+    user.refresh_token!
     api_header = { 'Authorization': 'OAuth ' + user.oauth_token,
                    'Content-type': 'application/json' }.as_json
 
