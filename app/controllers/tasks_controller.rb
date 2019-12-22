@@ -9,7 +9,7 @@ class TasksController < ApplicationController
 
     @show_new = tasks.created_since(current_user.last_sign_in_at).count.positive?
 
-    # This is all useless given the Datatables AJAX
+    ###### This is all useless given the Datatables AJAX
     # case params[:filter]
     # when 'new'
     #   @tasks = tasks.created_since(current_user.last_sign_in_at)

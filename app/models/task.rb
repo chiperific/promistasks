@@ -127,18 +127,20 @@ class Task < ApplicationRecord
     return false if user.oauth_id.nil?
 
     task_user = task_users.where(user: user).first_or_initialize
-    # return task_user unless task_user.new_record? || task_user.google_id.blank?
 
     if task_user.new_record? || task_user.google_id.blank?
       tasklist = property.tasklists.where(user: user).first_or_initialize
-      tasklist.save!
+      tasklist.save
       tasklist.reload
+
+      # existing Tasklist records should already have a google_id
+      # new Tasklist records  tasklist.save will trigger tasklist.api_insert
       return false if tasklist.google_id.blank?
 
+      task_user.tasklist_gid = tasklist.google_id
     end
 
     # need to set overlapping fields that might have changed on the task:
-    task_user.tasklist_gid = tasklist.google_id
     task_user.scope = if creator == owner
                         'both'
                       else
