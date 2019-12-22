@@ -11,8 +11,8 @@ class TasksClient
 
   def self.fetch_with_tasklist_gid_and_user(google_id, user)
     return false unless user.oauth_token.present?
-    user.refresh_token!
 
+    user.refresh_token!
     api_header = { 'Authorization': 'OAuth ' + user.oauth_token,
                    'Content-type': 'application/json' }.as_json
 
@@ -37,6 +37,9 @@ class TasksClient
   end
 
   def create_task(task_json)
+    # TODO: this should mimic TasklistsClient#create_property
+    # task = Task.where(title: task_json['title']) # and what else determines uniqueness??
+    # the above will affect Task#assign_from_api_fields
     task = Task.create.tap do |t|
       t.creator_id = @user.id
       t.owner_id = @user.id
@@ -53,6 +56,8 @@ class TasksClient
   end
 
   def handle_task(task_json)
+    # TODO: expect the same issue as TasklistsClient#handle_tasklist
+
     task_user = TaskUser.where(google_id: task_json['id']).first_or_initialize
     if task_user.new_record?
       # This assumes the task doesn't exist just because the taskuser doesn't exist.
@@ -79,6 +84,7 @@ class TasksClient
   def push
     pushable = not_in_api
     return false unless pushable.present?
+
     pushable.each(&:api_insert)
   end
 
@@ -90,6 +96,7 @@ class TasksClient
 
     tasks_json['items'].each do |task_json|
       next if task_json['title'] == ''
+
       handle_task(task_json)
     end
   end

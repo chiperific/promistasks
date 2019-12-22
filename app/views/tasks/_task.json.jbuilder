@@ -6,7 +6,7 @@ if task.priority.present?
 else
   json.priority '<p class="small-text">not set</p>'
 end
-json.title task.title
+json.title task.snipped_title(30)
 json.assigned_to current_user.staff? ? link_to(task.owner.name, user_path(task.owner)) : task.owner.name
 unless controller_name == 'properties'
   json.property task.property.visible_to?(current_user) ? link_to(task.property.name, property_path(task.property)) : task.property.name

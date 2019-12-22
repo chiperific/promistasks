@@ -50,9 +50,9 @@ class TasklistsClient
       tasklist.property = create_property(tasklist_json['title'], default)
 
       tasklist.valid?
-      if tasklist.errors[:property].include? "has already been taken"
+      if tasklist.errors[:property].include? 'has already been taken'
         # Error: @messages={:property=>["has already been taken"]}
-        # Situation: Tasklist exists that matches user and property, but :google_id is blank
+        # Situation: A tasklist exists that matches user and property, but :google_id is blank
         tl = Tasklist.where(user: @user, property: tasklist.property).first
         tl.google_id = tasklist_json['id']
         tl.save

@@ -20,22 +20,11 @@ findPropertyByName = (elem, targetString) ->
       $(targetString).val(response)
       highlightField(elem, response)
 
-reInitTooltips = ->
-  tooltips = $('.tooltipped')
-  M.Tooltip.init(tooltips, {
-  'enterDelay': 800
-  })
-
-dttbAjaxTrigger = (filter, table) ->
-  uri = '/tasks.json?filter=' + filter
-  table.ajax.url(uri).load( (json) ->
-    reInitTooltips()
-  )
-
 $(document).on 'turbolinks:load', ->
   return unless controllerMatches(['tasks']) &&
   actionMatches(['create', 'edit', 'new', 'index'])
 
+  # form field lookups and dropdowns
   highlightField('#property_lkup', $('#task_property_id').val())
   highlightField('#owner_lkup', $('#task_owner_id').val())
   highlightField('#subject_lkup', $('#task_subject_id').val())
@@ -121,11 +110,12 @@ $(document).on 'turbolinks:load', ->
       reInitTooltips()
   } )
 
+  # Task#index ajaxing on tab clicks
   $('a.dttb-ajax-link').on 'click', ->
     filter = $(this).attr('data-filter')
     table = $('#task_table').DataTable()
-    dttbAjaxTrigger(filter, table)
-    event.preventDefault
-    false
-
+    uri = '/tasks.json?filter=' + filter
+    table.ajax.url(uri).load( (json) ->
+      reInitTooltips()
+    )
 

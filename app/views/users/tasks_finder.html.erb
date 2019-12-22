@@ -23,7 +23,7 @@
   </thead>
   <tbody id='task_table_body'>
     <% if @tasks.count.positive? %>
-      <%= render partial: 'tasks/tasks_table', locals: { tasks: @tasks } %>
+      <%= render partial: 'tasks/tasks_table', collection: @tasks %>
     <% else %>
       <tr>
         <td colspan="8" class="center-align">

@@ -15,6 +15,7 @@
 //= require turbolinks
 //= require materialize
 //= require datatables
+//= require tabs_and_complete_booleans
 //= require_tree .
 
 function getParameterByName(name, url) {
@@ -36,6 +37,14 @@ function actionMatches(actions_ary) {
   var action = $('body').data('action');
   return actions_ary.indexOf(action) !== -1;
 }
+
+// Materialize global functions:
+function reInitTooltips() {
+  var tooltips = $('.tooltipped');
+  M.Tooltip.init(tooltips, {
+    'enterDelay': 800
+  });
+};
 
 // changeElementType plugin:
 (function($) {

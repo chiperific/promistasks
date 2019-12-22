@@ -9,9 +9,9 @@
   </div>
 </div>
 
-<div class="row">
+<div class="row fat">
   <div class="col s12">
-    <ul class="tabs z-depth-1" name="tasks">
+    <ul class="tabs z-depth-1" name="tasks" id="table">
       <% if @show_new %>
         <li class="tab">
           <%= link_to 'New', '#', id: 'tasks_new', class: 'dttb-ajax-link', data: { filter: 'new'} %>

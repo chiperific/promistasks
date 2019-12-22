@@ -2,34 +2,50 @@
 
 ## To do:
 0. Javascript:
-- syncing only visible when on `/properties`?
-- M_Tabs issue
+- Check if links are replaced when `?syncing=true`
+- `/tasks?filter=all` not working because Datatable is AJAXING itself
+-- I believe `/properties?filter=all` is also a thing
 
 1. Property#tasks with $$
 -- Report: show cost of associated tasks
-2. Not syncing: make new Task in GT on existing list, click sync in app
 
-5. Make sure tasks are archiving, not deleting
+2. Not syncing:
+- make new Task in GT on existing list, click sync in app
+- reassign a task from one user to another in PT, should show up on save in GT
+
+3. Are a hot mess:
+- TasklistClient#handle_tasklist
+- TasksClient#handle_task
+- TasksClient#create_task
+
+4. User#refresh_token! should return a custom error when OAuth fails.
+
+5. Make sure tasks are archiving, not deleting. Deleting a task deletes:
+- Payments
+- SkillTasks - good!
+- TaskUsers - triggers task_user.api_delete
+
 6. Views:
-  - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX instead of Rails
-    -- Done for Tasks#index
-    -- Where are the rest?
+  - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX && Rails `.json.jbuilder` files
+    -- `_admin_contact` partial is based on initial page load, doesn't disappear when Datatables ajaxes in actual records.
+    --- Could use JS to detect 'No data available in table' and show partial then? Or just remove it entirely.
+    -- Done for Tasks#index (NOT REALLY!!)
+    -- Where are the rest? (search for `$.ajax` calls in coffee files)
+    -- This change is deep. Requires a lot of overhaul
   - Vol / Contractor can't get past the homepage / task view
   - Lookup fields are still buggy (on tabbing?)
   - Suppress auto-fill: Connections#new / #edit
 
-4. Controllers:
+7. Controllers:
   - Contractors can't pick jobs (must be assigned as owner by a staff user)
+
+8. Task#professional && Skill#license_required does nothing
 
 ## Decisions
 - Footer: Anyone logged in can create a task
-- Archiving property in app (when no open tasks) removes from GT.
-  -- right now, for everybody (through the mode.l)
-  -- Tasks only archive for the user that clicks it (through controller)
-  -- Seth should choose
 
 ## FUTURE
-1. Use the Google Ruby API instead of HTTParty
+1. Use the Google Ruby API instead of HTTParty https://developers.google.com/tasks/quickstart/ruby
 2. Application model: client && property
 3. Maintenance request model: client && property public form with limited options for types of errors
   - Looks up property by client

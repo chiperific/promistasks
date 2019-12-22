@@ -53,6 +53,7 @@ addSyncToAllLinks = (link) ->
 
 $(document).on 'turbolinks:load', ->
   if getParameterByName('syncing') == 'true'
+    $('#sync_box').show()
     $('#sync_bar_indeterminate').show()
     $('#refresh_button').addClass('prevent_default')
     jobId = $('#job_id').attr('value')
