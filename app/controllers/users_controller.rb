@@ -156,6 +156,12 @@ class UsersController < ApplicationController
 
     @user.write_type(user_params[:register_as])
 
+    if @user.not_staff? && user_params[:password].blank?
+      pw = Devise.friendly_token[0, 20]
+      @user.password = pw
+      @user.password_confirmation = pw
+    end
+
     if @user.save
       redirect_to @return_path, notice: 'Person created'
     else

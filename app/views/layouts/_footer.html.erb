@@ -21,6 +21,11 @@
         <% end %>
       </li>
       <li>
+        <%= link_to new_user_path, class: 'btn-floating orange darken-2 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Person', id: 'footer_link_user' do %>
+          <i class="material-icons">perm_identity</i>
+        <% end %>
+      </li>
+      <li>
         <%= link_to new_park_path, class: 'btn-floating red darken-3 tooltipped', 'data-turbolinks'=> 'false', 'data-position' => 'left', 'data-tooltip' => 'New Park', id: 'footer_link_park' do %>
           <i class="material-icons">store_mall_directory</i>
         <% end %>

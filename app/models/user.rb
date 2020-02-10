@@ -61,7 +61,6 @@ class User < ActiveRecord::Base
 
   monetize :rate_cents, allow_nil: true, allow_blank: true
 
-  before_validation :only_staff_need_passwords, if: -> { client? || volunteer? || contractor? }
   before_save :admin_are_staff,      if: -> { admin? && !staff? }
   after_create :propegate_tasklists, if: -> { oauth_id.present? && discarded_at.blank? }
   after_save :discard_connections,   if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
