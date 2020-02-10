@@ -41,7 +41,7 @@
 
     <div class="col s12 m6 l4 stage_field">
       <div class="input-field">
-        <%= select_tag 'property_stage', options_for_select(Constant::Property::STAGES, connection.property.stage), include_blank: true %>
+        <%= select_tag 'property_stage', options_for_select(Constant::Property::STAGES, connection.property&.stage), include_blank: true %>
         <label for='property_stage'>Property's stage</label>
       </div>
     </div>

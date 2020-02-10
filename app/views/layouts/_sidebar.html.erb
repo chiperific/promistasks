@@ -68,6 +68,14 @@
     </li>
 
     <li>
+      <%= link_to users_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_users' do %>
+        <i class="material-icons">perm_identity</i>
+        <span>People</span>
+      <% end %>
+    </li>
+
+
+    <li>
       <%= link_to parks_path, 'data-turbolinks'=> 'false', id: 'sidebar_link_parks' do %>
         <i class="material-icons">store_mall_directory</i>
         <span>Parks</span>

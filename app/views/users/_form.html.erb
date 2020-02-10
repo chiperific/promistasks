@@ -8,7 +8,7 @@
         <%= f.text_field :name, disabled: true %>
       <% else %>
         <%= f.text_field :name %>
-        <label for="user_name">Name</label>
+        <label for="user_name">Name (required)</label>
       <% end %>
     </div>
     <div class="input-field col s12">
@@ -20,36 +20,19 @@
         </div>
       <% else %>
         <%= f.text_field :email %>
-        <label for="user_email">email@example.com</label>
+        <label for="user_email">email@example.com (required)</label>
       <% end %>
     </div>
   </div>
 
-  <% unless user.oauth? %>
-    <div class="row form-inputs">
-      <div class="input-field col m6">
-        <i class="material-icons prefix">vpn_key</i>
-        <%= f.password_field :password %>
-        <label for="user_password">password</label>
-        <% unless user.new_record? %>
-          <i class="small-text">Leave blank to keep it as-is</i>
-        <% end %>
-      </div>
-      <div class="input-field col m6">
-        <i class="material-icons prefix">vpn_key</i>
-        <%= f.password_field :password_confirmation %>
-        <label for="user_password_confirmation">password again</label>
-      </div>
-    </div>
-  <% end %>
 
   <div class="row form-inputs">
-    <div class="input-field col m6">
+    <div class="input-field col s12 m6">
       <i class="material-icons prefix">phone</i>
       <%= f.phone_field :phone %>
-      <label for="user_phone">Phone</label>
+      <label for="user_phone">Phone (required)</label>
     </div>
-    <div class="input-field col m6">
+    <div class="input-field col s12 m6">
       <i class="material-icons prefix">feedback</i>
       <%= f.text_field :title %>
       <label for="user_title">Title <i>(optional)</i></label>
@@ -72,6 +55,31 @@
         <label for="user_register_as">Account type</label>
       </div>
     <% end %>
+  <% end %>
+
+  <% unless user.oauth? %>
+    <div class="row">
+      <br>
+      <hr>
+      <p>Set a password for Contractors and Volunteers that will need to log in to the system. Leave blank for clients or anyone that won't need access to the system.</p>
+    </div>
+    <div class="row form-inputs">
+      <div class="input-field col s12 m6">
+        <i class="material-icons prefix">vpn_key</i>
+        <%= f.password_field :password %>
+        <label for="user_password">password</label>
+        <% unless user.new_record? %>
+          <i class="small-text">Leave blank to keep it as-is</i>
+        <% end %>
+      </div>
+      <div class="input-field col s12 m6">
+        <i class="material-icons prefix">vpn_key</i>
+        <%= f.password_field :password_confirmation %>
+        <label for="user_password_confirmation">password again</label>
+      </div>
+    </div>
+    <div class="row">
+    </div>
   <% end %>
 
   <div class="row scale-transition <%= @hide_rate %> center-align" id="rate_div">

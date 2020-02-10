@@ -51,7 +51,9 @@ class User < ActiveRecord::Base
 
   validates :name, :email, uniqueness: true, presence: true
   validates :oauth_id, :oauth_token, uniqueness: true, allow_blank: true
+
   validates_presence_of  :phone, :rate_cents, :adults, :children
+
   validates_inclusion_of :staff, :client, :volunteer, :contractor,
                          :admin, in: [true, false]
   validate :must_have_type
