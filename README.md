@@ -1,5 +1,8 @@
 # Task and Resource Manager with Google Tasks API Extension for Family Promise GR
 
+## Jamie
+- Properties#form -- park select not working
+
 ## To do:
 0. Javascript:
 - Check if links are replaced when `?syncing=true`
