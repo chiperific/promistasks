@@ -51,7 +51,9 @@ class User < ActiveRecord::Base
 
   validates :name, :email, uniqueness: true, presence: true
   validates :oauth_id, :oauth_token, uniqueness: true, allow_blank: true
+
   validates_presence_of  :phone, :rate_cents, :adults, :children
+
   validates_inclusion_of :staff, :client, :volunteer, :contractor,
                          :admin, in: [true, false]
   validate :must_have_type
@@ -59,6 +61,7 @@ class User < ActiveRecord::Base
 
   monetize :rate_cents, allow_nil: true, allow_blank: true
 
+  before_validation :only_staff_need_passwords, if: -> { client? || volunteer? || contractor? }
   before_save :admin_are_staff,      if: -> { admin? && !staff? }
   after_create :propegate_tasklists, if: -> { oauth_id.present? && discarded_at.blank? }
   after_save :discard_connections,   if: -> { discarded_at.present? && discarded_at_before_last_save.nil? }
