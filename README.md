@@ -1,65 +1,17 @@
-# Task and Resource Manager with Google Tasks API Extension for Family Promise GR
+# Task Manager with Google Tasks API Extension for Family Promise GR
 
-## To do:
-0. Javascript:
-- Check if links are replaced when `?syncing=true`
-- `/tasks?filter=all` not working because Datatable is AJAXING itself
--- I believe `/properties?filter=all` is also a thing
-
-1. Property#tasks with $$
--- Report: show cost of associated tasks
-
-2. Not syncing:
-- make new Task in GT on existing list, click sync in app
-- reassign a task from one user to another in PT, should show up on save in GT
-
-3. Are a hot mess:
-- TasklistClient#handle_tasklist
-- TasksClient#handle_task
-- TasksClient#create_task
-
-4. User#refresh_token! should return a custom error when OAuth fails.
-
-5. Make sure tasks are archiving, not deleting. Deleting a task deletes:
-- Payments
-- SkillTasks - good!
-- TaskUsers - triggers task_user.api_delete
-
-6. Views:
-  - Datatables doesn't play well with AJAXED tables. Use Datatable's AJAX && Rails `.json.jbuilder` files
-    -- `_admin_contact` partial is based on initial page load, doesn't disappear when Datatables ajaxes in actual records.
-    --- Could use JS to detect 'No data available in table' and show partial then? Or just remove it entirely.
-    -- Done for Tasks#index (NOT REALLY!!)
-    -- Where are the rest? (search for `$.ajax` calls in coffee files)
-    -- This change is deep. Requires a lot of overhaul
-  - Vol / Contractor can't get past the homepage / task view
-  - Lookup fields are still buggy (on tabbing?)
-  - Suppress auto-fill: Connections#new / #edit
-
-7. Controllers:
-  - Contractors can't pick jobs (must be assigned as owner by a staff user)
-
-8. Task#professional && Skill#license_required does nothing
-
-## Decisions
-- Footer: Anyone logged in can create a task
-
-## FUTURE
-1. Use the Google Ruby API instead of HTTParty https://developers.google.com/tasks/quickstart/ruby
-2. Application model: client && property
-3. Maintenance request model: client && property public form with limited options for types of errors
-  - Looks up property by client
-  - creates a task for property.connections.where(relationship: 'staff contact').last || Organization.maintenance_contact
-  - Sends an email alert to the owner.
-5. Services:
-  - How to ignore duplicate tasks (same tasklist) from API?
-6. Property#show
-  - Could do a progress bar on property show, related to Property#occupancy_status: *--*--*--*
-7. Private Properties
-  - must take self.tasks.map(&:owners &:creators) into account before removing
-8. Public features:
-  - Task#public_index gets a slider for individual, group, both filtering
-  - Task#public_index gets a filter-by-skill function
+## Wrecking ball
+- Routes have been wrecked
+- RSpec is deleted (do a find-all)
+- Reinitialize testunit
+- Models
+- Controllers
+- Views
+- dB
+- application_helper
+- CONSTANTS is initiated somehwere
+- jobs
+- Use a new activejob queue adaptor: Resque or SideKiq
 
 ## Remind myself
 1. rails credentials:edit

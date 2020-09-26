@@ -29,16 +29,12 @@ module Promisetasks
       g.test_framework :rspec
     end
 
-    config.active_job.queue_adapter = :delayed_job
-    Delayed::Worker.max_attempts = 3
-    Delayed::Worker.destroy_failed_jobs = true
-    Delayed::Worker.max_run_time = 10.minutes
-    Delayed::Worker.delay_jobs = !Rails.env.test?
+    config.active_job.queue_adapter = :delayed_job #TODO Change
 
     config.action_mailer.preview_path = "#{Rails.root}/spec/mailers/previews"
 
     if Rails.env.production?
-      config.action_mailer.default_url_options = { host: 'tasks.familypromisegr.org' }
+      config.action_mailer.default_url_options = { host: 'pihtasks.familypromisegr.org' }
     else
       config.action_mailer.default_url_options = { host: 'localhost:3000' }
     end
