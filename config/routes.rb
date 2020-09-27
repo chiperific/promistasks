@@ -1,18 +1,24 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  root to: 'users#show'
+  root to: '/canvas'
 
+  get '/canvas', to: 'users#show'
 
-  resources :tasklists do
-    resources :tasks
+  resources :users, only: [:show, :destroy] do
+    get 'in', on: :collection
+    get 'oauth', on: :collection
+    get 'out', on: :member
   end
 
-  devise_for :users, path: '', controllers: {
-    omniauth_callbacks: 'omniauth_callbacks',
-    registrations: 'registrations',
-    sessions: 'sessions'
-  }
+  resources :auto_tasks, only: [:create, :update, :destroy]
+  resources :tasklists, only: [:create, :destroy]
 
-  resources :users
+  # devise_for :users, path: '', controllers: {
+  #   omniauth_callbacks: 'omniauth_callbacks',
+  #   registrations: 'registrations',
+  #   sessions: 'sessions'
+  # }
+
+  get '/auth/:provider/callback', to: 'users#oauth'
 end

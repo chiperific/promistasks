@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-class TaskPolicy < ApplicationPolicy
+class TasklistPolicy < ApplicationPolicy
   attr_reader :user, :record
 
   def create?
     user
-  end
-
-  def update?
-    show
   end
 
   def destroy?

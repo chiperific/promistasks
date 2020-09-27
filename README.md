@@ -4,17 +4,17 @@
 - Routes have been wrecked
 - matches tempapp: ~/; ~/vendor; ~/tmp; ~/test; ~/script; ~/public; ~/log; ~/lib; ~/config; ~/bin
 - RSpec is deleted (do a find-all)
-- Reinitialize testunit
-- Models
-- Controllers
-- Views
-- dB
-- application_helper
-- CONSTANTS is initiated somehwere
-- jobs
+- Reinitialized testunit
+- Eliminate Devise. Just use OmniAuth
+- Models have been wrecked
+- Policies have been wrecked
+- Controllers have been wrecked
+- Views have been wrecked
+- dB has been wrecked
+- jobs have been wrecked
 - Use a new activejob queue adaptor: Resque or SideKiq
 - Mailgun still has settings.
-- Ensure all credentials are present, find Rails.application.credentials
+- Use HAML instead of ERB, as long as can compat with MaterializeSCSS
 
 ## Whiteboard:
 1. User can login with Google Oauth
@@ -38,6 +38,7 @@
 --`pg_restore --verbose --clean --no-acl --no-owner -h localhost -d promisetasks_dev latest.dump`
 3. "Your branch is n commits behind master" - git fetch origin
 4. git remote prune origin --dry-run
+5. API Console: https://console.developers.google.com/apis/credentials?project=pihtasks
 5. Tasks API: https://developers.google.com/tasks/v1/reference/
 6. OAuth2 Developer Playground: https://developers.google.com/oauthplayground
 7. API auth:

@@ -8,9 +8,9 @@ ruby '2.7.0'
 gem 'bootsnap', '>= 1.4.2', require: false
 gem 'bcrypt', '~> 3.1.7'
 gem 'coffee-rails'
-gem 'devise'
+# gem 'devise'
 gem 'google-api-client'
-# gem 'jbuilder'
+gem 'haml'
 gem 'jquery-rails'
 gem 'materialize-sass'
 gem 'omniauth-google-oauth2'
@@ -18,6 +18,7 @@ gem 'omniauth-rails_csrf_protection', '~> 0.1'
 gem 'pg'
 gem 'puma'
 gem 'rails', '>= 6.0'
+gem 'spring'
 gem 'sass-rails'
 gem 'turbolinks'
 gem 'webpacker', '~> 4.0'
@@ -31,7 +32,6 @@ end
 
 group :development do
   gem 'listen', '~> 3.2'
-  gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
   gem 'web-console', '>= 3.3.0'
 end
