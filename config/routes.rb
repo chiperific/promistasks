@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  root to: '/canvas'
+  root to: 'users#show'
 
-  get '/canvas', to: 'users#show'
+  get '/canvas', to: 'users#show', as: '/canvas'
 
   resources :users, only: [:show, :destroy] do
     get 'in', on: :collection
