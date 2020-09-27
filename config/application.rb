@@ -25,11 +25,7 @@ module Promisetasks
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
 
-    config.generators do |g|
-      g.test_framework :rspec
-    end
-
-    config.active_job.queue_adapter = :delayed_job #TODO Change
+    # config.active_job.queue_adapter = :delayed_job #TODO Change
 
     config.action_mailer.preview_path = "#{Rails.root}/spec/mailers/previews"
 

@@ -2,6 +2,7 @@
 
 ## Wrecking ball
 - Routes have been wrecked
+- matches tempapp: ~/; ~/vendor; ~/tmp; ~/test; ~/script; ~/public; ~/log; ~/lib; ~/config; ~/bin
 - RSpec is deleted (do a find-all)
 - Reinitialize testunit
 - Models
@@ -12,6 +13,20 @@
 - CONSTANTS is initiated somehwere
 - jobs
 - Use a new activejob queue adaptor: Resque or SideKiq
+- Mailgun still has settings.
+- Ensure all credentials are present, find Rails.application.credentials
+
+## Whiteboard:
+1. User can login with Google Oauth
+2. Google API Client controls access to Tasks API
+3. dB stores as little info as possible
+4. User can set tasks to be automatically added to any new tasklist
+5. User can set due dates ( + days in the future ) for auto-tasks
+6. User can re-arrange the order of auto-tasks
+  - Which live-updates Google Tasks
+7. Auto-tasks default to the top of the tasklist (then in order per #6)
+8. A cron job checks for new tasklists every 1 hour during business hours
+
 
 ## Remind myself
 1. rails credentials:edit
