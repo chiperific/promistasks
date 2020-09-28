@@ -1,0 +1,45 @@
+-# frozen_string_literal: true
+
+.row
+  .col.l8.s12.spread-out-on-m
+    .row
+      %h4.center Auto Tasks
+      %p.center When you create a new Tasklist, the Tasks listed below will be automatically added to the top of the list, in the order shown. Tasks will be set as due a certain number of days after they are created.
+    .row
+      %table
+        %thead
+          %tr
+            %th Title
+            %th Due
+            %th
+        %tbody
+          - @auto_tasks.each do |task|
+            %tr
+              %td= task.title
+              %td= pluralize(task.days_until_due, 'days')
+              %td.center [Edit, Delete]
+            %tr
+              %td
+                %i Note:
+              %td{colspan: 2}= task.notes
+    .row
+      = link_to 'Add', '#', class: 'right waves-effect waves-light btn tooltipped', data: { position: 'bottom', tooltip: 'Add a new auto-task' }
+
+  .col.l4.s12.spread-out-on-m
+    .row
+      %h4.center Your Tasklists
+      %p.center Click "Push" to add all Auto Tasks to the Tasklist
+    .row
+      %table
+        %thead
+          %tr
+            %th Title
+            %th.center Auto-tasked?
+            %th
+        %tbody
+          - @tasklists.each do |tasklist|
+            %tr
+              %td= tasklist.title
+              %td.center= human_boolean tasklist.auto_tasks_created
+              %td.center= link_to 'Push', '#', class: 'waves-effect waves-light btn tooltipped', data: { position: 'bottom', tooltip: 'Add all auto-tasks to this tasklist' }
+

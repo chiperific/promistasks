@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class AutoTask < ApplicationRecord
-  belongs_to :user, inverse_of: :tasks
+  belongs_to :user, inverse_of: :auto_tasks
   validates :title, presence: true
 
   scope :ordered, -> { order(:position) }

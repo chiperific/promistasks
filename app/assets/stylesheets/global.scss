@@ -9,98 +9,25 @@ body {
   background-color: #fcfcfc;
 }
 
+nav, footer {
+  padding: 0 2rem;
+}
+
+nav .brand-logo.fixed {
+    left: 0%;
+    transform: inherit;
+}
+
 main {
   flex: 1 0 auto;
-
-  .white-links {
-    a {
-      color: white;
-      text-decoration: underline;
-    }
-  }
-
-  p.big-p {
-    font-size: 1.175em;
-  }
-
-  .small-text {
-    font-size: .75em;
-  }
 
   .hidden {
     display: none;
   }
-
-  @media (min-width: 993px) {
-    div.full-row {
-      width: 140%;
-      margin-left: -20%;
-    }
-  }
-
-  // Task#public, Task#show card styling to mimic sticky notes
-  .card {
-    border-bottom-right-radius: 24px;
-
-    .card-content {
-      min-height: 92px;
-
-      &.public {
-        padding: 24px 24px 0px 24px;
-      }
-
-      .card-title {
-        font-size: 20px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .clipped {
-        overflow: hidden;
-        position: relative;
-        line-height: 1.2em;
-        max-height: 3.6em;
-        text-align: justify;
-        margin-right: -1em;
-        padding-right: 1em;
-      }
-
-      .clipped:before {
-        content: '...';
-        position: absolute;
-        right: 0;
-        bottom: 0;
-      }
-
-      .clipped:after {
-        content: '';
-        position: absolute;
-        right: 0;
-        width: 1em;
-        height: 1em;
-        margin-top: 0.2em;
-        background: #ffc107;
-      }
-    }
-
-    .card-action {
-      border-bottom-right-radius: 24px !important;
-      text-transform: uppercase;
-    }
-  }
 }
 
-@media (min-width: 993px) {
-  .container {
-    .row.fat {
-      width: 130%;
-      margin-left: -15%;
-    }
-  }
-}
 
-// materialize doesn't play well with Rail adding divs around errored fields.
+// materialize doesn't play well with Rails adding divs around errored fields.
 // So I adjusted application.rb to add the field_with_errors directly to the form field.
 form {
   #error_explanation > div.col {
@@ -118,34 +45,10 @@ form {
   .field_with_errors {
       background-color: rgba(229, 57, 53, .3) !important;
   }
-
-  // ajax fields turn green when a match is found!
-  .found_match {
-    background-color: #e8f5e9 !important;
-    border-top-left-radius: 4px !important;
-    border-top-right-radius: 4px !important;
-  }
 }
 
 .scale-transition.scale-out {
   height: 0px;
-}
-
-// match modal links to the surrounding text (almost black)
-a.modal-trigger {
-  color: rgba(0,0,0,0.87);
-
-  i {
-    margin-top: -8px;
-  }
-}
-
-// allow modals to have bullet points
-.modal {
-  li {
-    list-style-type: circle !important;
-    margin-left: 2em;
-  }
 }
 
 .field_with_errors {
@@ -156,57 +59,13 @@ a.modal-trigger {
   cursor: context-menu;
 }
 
-// table tweaks
-@media (max-width: 992px) {
-  th.hide-on-small-only, td.hide-on-small-only {
-    display: none !important;
+@media only screen and (min-width: 992px) {
+  .spread-out-on-m:first-child {
+    margin-right: 12px !important;
+    margin-left: -12px !important;
   }
-}
-
-table {
-  th {
-    padding: 5px 5px !important;
-    height: 46px;
-  }
-
-  td {
-    padding-top: 5px !important;
-    padding-bottom: 5px !important;
-    height: 46px;
-
-    &.truncate {
-      width: 200px;
-      margin-top: 15px;
-      max-width: 147px;
-    }
-    &.slim {
-      width: 43px;
-    }
-  }
-}
-
-// button extensions
-.fake_btn {
-  cursor: text !important;
-}
-
-.btn-slim {
-  padding: 0 8px !important;
-}
-
-#empty_graphic {
-  #empty_cloud {
-    color: #e0e0e0;
-    font-size: 30px;
-    position: relative;
-    z-index: 1;
-    top: -48px;
-  }
-  #empty_terrain {
-    color: #455a64;
-    font-size: 76px;
-    z-index: 0;
-    position: relative;
-    right: 26px;
+  .spread-out-on-m:last-child {
+    margin-right: -12px !important;
+    margin-left: 12px !important;
   }
 }

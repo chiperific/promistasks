@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 class TasksClient
-  attr_reader :tasklist
-  attr_reader :user
+  attr_reader :tasklist, :user
 
   def initialize(tasklist)
     @tasklist = tasklist

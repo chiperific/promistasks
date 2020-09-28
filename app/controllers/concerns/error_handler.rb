@@ -9,17 +9,11 @@ module ErrorHandler
   end
 
   def render_forbidden
-    if current_user
-      flash[:alert] = 'You do not have permission'
-      redirect_to @return_path
-    else
-      flash[:alert] = 'You need to sign in first'
-      redirect_to new_user_session_path(return_to: request.env['PATH_INFO'])
-    end
+    redirect_to in_path
   end
 
   def record_not_found
     flash[:alert] = 'Nothing was found'
-    redirect_to @return_path
+    redirect_to root_path
   end
 end
