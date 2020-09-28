@@ -6,6 +6,7 @@ class UsersController < ApplicationController
 
     @tasklists = current_user.tasklists.alphabetical
     @auto_tasks = current_user.auto_tasks.ordered
+    @new_task = AutoTask.new
   end
 
   def destroy

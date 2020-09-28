@@ -1,0 +1,3 @@
+$("#auto_tasks tr#<%= @auto_task.id %>-bottom").remove();
+$("#auto_tasks tr#<%= @auto_task.id %>-top").replaceWith("<%= j render partial: @auto_task %>");
+M.toast({html: 'Auto Task Updated!'});

@@ -7,7 +7,7 @@ Rails.application.routes.draw do
     get 'tasklists', on: :member
   end
 
-  resources :auto_tasks, only: %i[create update destroy]
+  resources :auto_tasks, except: %i[index show]
   resources :tasklists, only: %i[create destroy]
 
   # devise_for :users, path: '', controllers: {

@@ -1,0 +1,13 @@
+%tr{ id: "#{task.id}-top" }
+  %td= task.title
+  %td= pluralize(task.days_until_due, 'days')
+  %td
+    .row
+      .col.s6
+        = link_to edit_auto_task_path(task), remote: true, class: 'blue waves-effect waves-light btn-small', data: { position: 'bottom', tooltip: 'Edit' } do
+          %i.material-icons create
+      .col.s6
+        = link_to auto_task_path(task), method: :delete, remote: true, class: 'red waves-effect waves-light btn-small', data: { position: 'bottom', tooltip: 'Delete', confirm: 'Are you sure?' } do
+          %i.material-icons delete
+%tr{ id: "#{task.id}-bottom" }
+  %td{colspan: 3}= task.notes

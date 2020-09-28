@@ -1,17 +1,21 @@
 # frozen_string_literal: true
 
-class TaskPolicy < ApplicationPolicy
+class AutoTaskPolicy < ApplicationPolicy
   attr_reader :user, :record
 
   def create?
     user
   end
 
+  def edit?
+    user == record.user
+  end
+
   def update?
-    show
+    edit?
   end
 
   def destroy?
-    show
+    edit?
   end
 end

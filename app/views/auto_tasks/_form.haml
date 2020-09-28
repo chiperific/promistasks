@@ -1,0 +1,18 @@
+%h5 Auto Task:
+= form_with model: task, id: '#auto_task_form' do |f|
+  .row
+    .col.s12.m6.input-field
+      = f.text_field :title, placeholder: 'Title'
+    .col.s12.m6
+      Due in
+      .input-field.inline
+        = f.number_field :days_until_due, class: 'center'
+      days. (0 for no due date.)
+  .input-field
+    = f.text_area :notes, placeholder: 'Notes section', class: 'materialize-textarea'
+  .row
+    .col.s12
+      = link_to 'Cancel', '#', class: 'red right btn-small modal-close prevent_default'
+      = f.submit 'Submit', class: 'btn-small modal-close'
+
+
