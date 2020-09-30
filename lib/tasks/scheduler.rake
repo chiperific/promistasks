@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-# TODO re-write
+desc 'Scheduling Daemon'
+task sync_tasklists: :environment do
+  puts 'Starting the sync job'
+  SyncJob.perform_async
+end
 
 # desc 'Scheduling Daemon'
 # task send_reminders: :environment do

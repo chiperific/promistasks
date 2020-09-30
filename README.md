@@ -1,9 +1,11 @@
 # Task Manager with Google Tasks API Extension for Family Promise GR
 
 ## Construction Crew
-- Use a new activejob queue adaptor: Resque or SideKiq
+- Scenario: Tasklist deleted in Google, still exists in app.
 
 - Mailgun still has settings
+
+- Bother writing tests?
 
 ## Whiteboard:
 4. √ User can set tasks to be automatically added to any new tasklist

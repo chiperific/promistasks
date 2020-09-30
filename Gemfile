@@ -8,7 +8,6 @@ ruby '2.7.0'
 gem 'bcrypt', '~> 3.1.7'
 gem 'bootsnap', '>= 1.4.2', require: false
 gem 'coffee-rails'
-# gem 'devise'
 gem 'google-api-client'
 gem 'haml'
 gem 'jquery-rails'
@@ -29,7 +28,6 @@ gem 'webpacker', '~> 4.0'
 group :development, :test do
   gem 'better_errors'
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
-  gem 'foreman'
   gem 'rubocop'
 end
 
