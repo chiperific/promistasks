@@ -1,0 +1,8 @@
+%tr{id: "tl-#{tasklist.id}"}
+  %td= tasklist.title
+  %td{class: "center #{'bold' if tasklist.auto_tasks_created?}"}
+    = human_boolean tasklist.auto_tasks_created
+  - if tasklist.auto_tasks_created?
+    %td.center= link_to 'Again', push_tasklist_path(tasklist), remote: true, class: "red waves-effect waves-light btn tooltipped", data: { position: 'bottom', tooltip: 'Add all auto-tasks to this tasklist', confirm: 'Are you sure? This could duplicate tasks on the list.', disable_with: 'Pushing...' }
+  - else
+    %td.center= link_to 'Push', push_tasklist_path(tasklist), remote: true, class: "waves-effect waves-light btn tooltipped", data: { position: 'bottom', tooltip: 'Add all auto-tasks to this tasklist', disable_with: 'Pushing...' }

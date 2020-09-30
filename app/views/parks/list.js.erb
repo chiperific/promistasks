@@ -1,5 +1,0 @@
-<% if @parks.length.positive? %>
-  $("#park_table_body").html("<%= escape_javascript(render partial: 'parks', collection: @parks) %>");
-<% else %>
-  $("#park_table_body").html("<tr><td colspan='<%= @colspan %>' class='center-align'><%= @empty_msg %></td></tr>");
-<% end %>

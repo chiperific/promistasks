@@ -1,90 +1,37 @@
 # frozen_string_literal: true
 
 class Tasklist < ApplicationRecord
-  include HTTParty
-  BASE_URI = 'https://www.googleapis.com/tasks/v1/users/@me/lists/'
-
   belongs_to :user,     inverse_of: :tasklists
-  belongs_to :property, inverse_of: :tasklists
 
-  validates :property, presence: true, uniqueness: { scope: :user }
-  validates_uniqueness_of :google_id, allow_nil: true, allow_blank: true
+  validates_presence_of :title, :google_id
+  validates_uniqueness_of :google_id
 
-  before_destroy :api_delete
-  before_create  :api_insert, unless: -> { google_id.present? }
+  scope :alphabetical, -> { order(:title) }
+  scope :unsynced, -> { where(auto_tasks_created: false) }
 
-  def api_delete
-    return false unless user.oauth_id.present? && google_id.present?
+  def active_on_google?
+    response = user.tasks_service.list_tasklists(fields: 'items(id)')
 
-    user.refresh_token!
-    response = HTTParty.delete(BASE_URI + google_id, headers: api_headers)
-
-    return false unless response.present?
-
-    response
+    response.items.map(&:id).include? google_id
   end
 
-  def api_get
-    return false unless user.oauth_id.present? && google_id.present?
-
-    user.refresh_token!
-    response = HTTParty.get(BASE_URI + google_id, headers: api_headers)
-    return false unless response.present?
-
-    response
+  def push_auto_task!(task)
+    user.tasks_service.insert_task(
+      google_id,
+      task.as_google_object,
+      options: {
+        authorization: user.authorization
+      }
+    )
   end
 
-  def api_insert
-    #                                       this keeps api_insert from duplicating the tasklist for the creator
-    return false if user.oauth_id.blank? || (property.created_from_api? && user == property.creator)
+  def push_auto_tasks!(check_first: false)
+    return if check_first && !active_on_google?
 
-    user.refresh_token!
-    body = { title: property.name }.to_json
-    response = HTTParty.post(BASE_URI, { headers: api_headers, body: body })
+    user.auto_tasks.reversed.each do |task|
+      push_auto_task!(task)
+    end
 
-    return false unless response.present?
-
-    response['id'] = sequence_google_id(response['id']) if Rails.env.test?
-
-    # update_columns(google_id: response['id'])
-    self.google_id = response['id']
-    response
-  end
-
-  def api_update
-    return false unless user.oauth_id.present? && google_id.present?
-
-    user.refresh_token!
-    body = { title: property.name }.to_json
-    response = HTTParty.patch(BASE_URI + google_id, { headers: api_headers, body: body })
-
-    return false unless response.present?
-
-    update_columns(updated_at: response['updated'])
-    response
-  end
-
-  def list_api_tasks
-    return false unless user.oauth_token.present?
-
-    user.refresh_token!
-    response = HTTParty.get('https://www.googleapis.com/tasks/v1/lists/' + google_id + '/tasks/', headers: api_headers)
-    return false unless response.present?
-
-    response
-  end
-
-  private
-
-  def sequence_google_id(response_id)
-    return response_id if property&.name == 'validate'
-
-    number = Tasklist.count.positive? ? Tasklist.last.id + 1 : 1
-    response_id + number.to_s + Random.rand(0...3000).to_s
-  end
-
-  def api_headers
-    { 'Authorization': 'OAuth ' + user.oauth_token.to_s,
-      'Content-type': 'application/json' }.as_json
+    update(auto_tasks_created: true)
   end
 end

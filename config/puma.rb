@@ -60,3 +60,10 @@ end
 
 # Allow puma to be restarted by `rails restart` command.
 plugin :tmp_restart
+
+# Code to run in the master after a worker has been started. The worker's
+# index is passed as an argument
+after_worker_fork do |index|
+  # The first worker is assigned to the SyncJob
+  SyncJob.perform_async if index.zero?
+end

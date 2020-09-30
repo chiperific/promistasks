@@ -2,22 +2,40 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-.table-profile-pic {
-  padding: 4px 0px 0px 0px;
-  a {
-    color: rgba(0,0,0,0.87);
+// Auto Task partial styling
+.task_li {
+  .handle i.material-icons {
+    cursor: grab;
 
-    img {
-      max-height: 46px;
+    &:active, &:focus {
+      cursor: grabbing;
     }
+  }
 
-    i {
-      font-size: 32pt;
+  .task_title {
+    font-weight: bold;
+  }
+
+  .task_buttons {
+    .btn-flat {
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
     }
+  }
+
+  .task_notes {
+    font-size: 12px
+  }
+
+  .task_due {
+    font-size: 10px;
+    font-weight: bold;
+    padding: 0 !important;
   }
 }
 
-// user/#/tasks
-ul.user-tasks-tabs li.tab a {
-  font-size: .7em;
+// Modal form styling
+#auto_task_days_until_due {
+  width: 3rem;
 }
