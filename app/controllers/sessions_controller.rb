@@ -2,7 +2,7 @@
 
 class SessionsController < ApplicationController
   def new
-    redirect_to user_path(current_user) if current_user
+    redirect_to root_path if current_user
   end
 
   def create
@@ -20,7 +20,7 @@ class SessionsController < ApplicationController
 
   def destroy
     reset_session
-    flash[:notice] = 'Signed out.'
+    flash[:notice] = 'You logged out.'
     redirect_to in_path
   end
 
@@ -28,5 +28,4 @@ class SessionsController < ApplicationController
     flash[:alert] = "Authentication error: #{params[:message].humanize}"
     redirect_to in_path
   end
-
 end

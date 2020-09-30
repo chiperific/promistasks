@@ -22,6 +22,7 @@ gem 'pundit'
 gem 'rails', '>= 6.0'
 gem 'sass-rails'
 gem 'spring'
+gem 'sucker_punch'
 gem 'turbolinks'
 gem 'webpacker', '~> 4.0'
 

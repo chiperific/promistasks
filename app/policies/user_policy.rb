@@ -4,10 +4,14 @@ class UserPolicy < ApplicationPolicy
   attr_reader :user, :record
 
   def show?
-    user.present?
+    user == record
   end
 
   def destroy?
-    user
+    show?
+  end
+
+  def authorization?
+    show?
   end
 end

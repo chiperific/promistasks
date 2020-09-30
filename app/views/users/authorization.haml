@@ -1,0 +1,21 @@
+.row
+  .col.s12
+    %h3 The connection with Google Tasks failed
+    %p Don't worry, this happens sometimes. Google is very security-conscious, which is a good thing.
+
+.row
+  .col.s12
+    %h5 Quick reset:
+    %p In most cases, you only need to log out and log back in to fix permission issues.
+
+.row
+  .col.s12
+    %h5 Full reset:
+  .col.s12
+    %ol
+      %li= "Visit #{ link_to 'Your Google Account Permissions page', 'https://myaccount.google.com/permissions', target: '_blank' }".html_safe
+      %li Click on 'PromiseTasks' from the list of Third-party apps with account access.
+      %li Click 'Remove Access'
+      %li= "#{link_to "Log out", out_path} of this site.".html_safe
+      %li Sign into this site again
+      %li When you click 'Allow', your credentials will be reset

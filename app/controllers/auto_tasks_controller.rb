@@ -70,6 +70,8 @@ class AutoTasksController < ApplicationController
 
   def reposition
     positions = position_params[:positions].split(',')
+    authorize positions, policy_class: AutoTaskPolicy
+
     AutoTask.reposition(positions)
 
     respond_to do |format|

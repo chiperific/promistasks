@@ -16,7 +16,7 @@
         - if current_user
           %ul#nav_mobile.right
             %li
-              = current_user.name
+              = "#{current_user.name} (#{current_user.email})"
             %li
               = link_to out_path, class: 'waves-effect waves-light btn tooltipped', data: { position: 'bottom', tooltip: 'Logout' } do
                 %i.material-icons login

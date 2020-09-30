@@ -18,4 +18,8 @@ class AutoTaskPolicy < ApplicationPolicy
   def destroy?
     edit?
   end
+
+  def reposition?
+    AutoTask.where(id: record).pluck(:user_id).uniq[0] == user.id
+  end
 end

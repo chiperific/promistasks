@@ -3,7 +3,9 @@
 Rails.application.routes.draw do
   root to: 'users#show'
 
-  resources :users, only: %i[show destroy]
+  resources :users, only: %i[show destroy] do
+    get 'authorization', on: :member
+  end
 
   resources :auto_tasks, except: %i[index show] do
     post 'reposition', on: :collection

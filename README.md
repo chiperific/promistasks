@@ -6,10 +6,10 @@
 - Mailgun still has settings
 
 ## Whiteboard:
-4. User can set tasks to be automatically added to any new tasklist
-5. User can set due dates ( + days in the future ) for auto-tasks
-6. User can re-arrange the order of auto-tasks
-7. Auto-tasks default to the top of the tasklist (then in order per #6)
+4. √ User can set tasks to be automatically added to any new tasklist
+5. √ User can set due dates ( + days in the future ) for auto-tasks
+6. √ User can re-arrange the order of auto-tasks
+7. √ Auto-tasks default to the top of the tasklist (then in order per #6)
 8. A cron job handles new Tasklists every hour during work days
 
 

@@ -17,7 +17,6 @@ class CreateUsers < ActiveRecord::Migration[6.0]
 
       t.index :oauth_token, unique: true
       t.index :oauth_id,    unique: true
-      t.index :name,        unique: true
       t.index :email,       unique: true
     end
   end

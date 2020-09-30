@@ -22,7 +22,7 @@ class User < ActiveRecord::Base
   end
 
   def authorization
-    secrets = Google::APIClient::ClientSecrets.new(
+    Google::APIClient::ClientSecrets.new(
       {
         'web' =>
           {
@@ -56,6 +56,10 @@ class User < ActiveRecord::Base
     service
   end
 
+  def check_tasklists
+    tasks_service.list_tasklists(fields: 'items(id,title)')
+  end
+
   def import_tasklists!
     response = tasks_service.list_tasklists(fields: 'items(id,title)')
 
@@ -68,4 +72,6 @@ class User < ActiveRecord::Base
       end
     end
   end
+
+  private
 end
