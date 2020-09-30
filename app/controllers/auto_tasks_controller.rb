@@ -66,10 +66,23 @@ class AutoTasksController < ApplicationController
     end
   end
 
+  def reposition
+    positions = position_params[:positions].split(',')
+    AutoTask.reposition(positions)
+
+    respond_to do |format|
+      format.json { head :no_content, status: :ok }
+    end
+  end
+
   private
 
   def task_params
     params.require(:auto_task).permit(:title, :notes, :days_until_due)
+  end
+
+  def position_params
+    params.require(:auto_task).permit(:positions)
   end
 
   def set_auto_task

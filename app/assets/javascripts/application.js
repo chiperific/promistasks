@@ -11,6 +11,7 @@
 // about supported directives.
 //
 //= require jquery
+//= require jquery-ui/widgets/sortable
 //= require rails-ujs
 //= require turbolinks
 //= require materialize

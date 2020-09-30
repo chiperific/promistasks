@@ -1,12 +1,21 @@
-# $(document).on 'turbolinks:load', ->
-#   # clear out the modal form on close
-#   elem = document.querySelector('#task_modal')
-#   M.Modal.init(elem, {
-#     'preventScrolling': true,
-#     'dismissable': false,
-#     'onCloseEnd': ->
-#        $('input#auto_task_title').val('')
-#        $('textarea#auto_task_notes').val('')
-#        $('input#auto_task_days_until_due').val('0')
-#        document.getElementById("#auto_task_form").setAttribute('action', '/auto_tasks')
-#     })
+trackPosition = (event) ->
+  idsInOrder = $('.sortable').sortable('toArray')
+  positions = 'auto_task[positions]=' + idsInOrder
+  console.log(positions)
+  # ajax this to /auto_tasks/reposition
+  Rails.ajax({
+    url: '/auto_tasks/reposition',
+    type: 'POST',
+    data: new URLSearchParams(positions).toString()
+  })
+
+$(document).on 'turbolinks:load', ->
+  $('.sortable').sortable({
+    axis: 'y',
+    handle: '.handle',
+    update: (event, ui)-> trackPosition(event),
+    classes: {
+        "ui-sortable": "highlight",
+        "ui-sortable-helper": "highlight"
+      }
+    })

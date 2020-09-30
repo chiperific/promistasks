@@ -2,17 +2,12 @@
 
 ## Construction Crew
 - Build Google:Apis functionality into tasklist.rb and auto_task.rb
-- Auto Tasks on users#show:
--- Should be edited in a modal
--- should be all remote:true triggers
--- should be rearrangeable
-
-- Tasklists on users#wshow:
--- shows if they have been auto-tasked
+- Tasklists on users#show:
 -- should allow a user to trigger the autotask creation
-
 - Tasklists get auto_tasks_created? set
+
 - Use a new activejob queue adaptor: Resque or SideKiq
+
 - Mailgun still has settings
 
 ## Whiteboard:

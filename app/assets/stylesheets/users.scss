@@ -2,6 +2,40 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
+// Auto Task partial styling
+.task_li {
+  .handle i.material-icons {
+    cursor: grab;
+
+    &:active, &:focus {
+      cursor: grabbing;
+    }
+  }
+
+  .task_title {
+    font-weight: bold;
+  }
+
+  .task_buttons {
+    .btn-flat {
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+    }
+  }
+
+  .task_notes {
+    font-size: 12px
+  }
+
+  .task_due {
+    font-size: 10px;
+    font-weight: bold;
+    padding: 0 !important;
+  }
+}
+
+// Modal form styling
 #auto_task_days_until_due {
   width: 3rem;
 }

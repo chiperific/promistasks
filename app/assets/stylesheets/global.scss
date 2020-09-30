@@ -26,6 +26,32 @@ main {
   }
 }
 
+.btn-tiny {
+  height: 20px;
+  line-height: 20px;
+  font-size: 12px;
+  text-decoration: none;
+  color: #fff;
+  background-color: #26a69a;
+  text-align: center;
+  letter-spacing: .5px;
+  transition: background-color .2s ease-out;
+  cursor: pointer;
+  outline: 0;
+  border: none;
+  border-radius: 2px;
+  display: inline-block;
+  padding: 3px 8px;
+  text-transform: uppercase;
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+
+  .material-icons {
+    font-size: 12px;
+  }
+}
+
 
 // materialize doesn't play well with Rails adding divs around errored fields.
 // So I adjusted application.rb to add the field_with_errors directly to the form field.
@@ -59,13 +85,17 @@ form {
   cursor: context-menu;
 }
 
+.no-bottom-margin {
+  margin-bottom: 0px !important;
+}
+
 @media only screen and (min-width: 992px) {
   .spread-out-on-m:first-child {
-    margin-right: 12px !important;
-    margin-left: -12px !important;
+    margin-right: 48px !important;
+    margin-left: -48px !important;
   }
   .spread-out-on-m:last-child {
-    margin-right: -12px !important;
-    margin-left: 12px !important;
+    margin-right: -48px !important;
+    margin-left: 48px !important;
   }
 }

@@ -3,12 +3,15 @@
 Rails.application.routes.draw do
   root to: 'users#show'
 
-  resources :users, only: %i[show destroy] do
-    get 'tasklists', on: :member
+  resources :users, only: %i[show destroy]
+
+  resources :auto_tasks, except: %i[index show] do
+    post 'reposition', on: :collection
   end
 
-  resources :auto_tasks, except: %i[index show]
-  resources :tasklists, only: %i[create destroy]
+  resources :tasklists, only: %i[create destroy] do
+    get 'push', on: :member
+  end
 
   # devise_for :users, path: '', controllers: {
   #   omniauth_callbacks: 'omniauth_callbacks',

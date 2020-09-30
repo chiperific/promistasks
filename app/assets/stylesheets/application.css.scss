@@ -12,5 +12,10 @@
  *
  *= require_tree .
  *= require_self
+ *= require jquery-ui/core
+ *= require jquery-ui/theme
+ *= require jquery-ui/sortable
+ *= require jquery-ui/draggable
+ *= require jquery-ui/selectable
+ *= require materialize
  */
-@import "materialize";

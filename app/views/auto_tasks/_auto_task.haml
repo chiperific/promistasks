@@ -1,13 +1,20 @@
-%tr{ id: "#{task.id}-top" }
-  %td= task.title
-  %td= pluralize(task.days_until_due, 'days')
-  %td
-    .row
-      .col.s6
-        = link_to edit_auto_task_path(task), remote: true, class: 'blue waves-effect waves-light btn-small', data: { position: 'bottom', tooltip: 'Edit' } do
-          %i.material-icons create
-      .col.s6
-        = link_to auto_task_path(task), method: :delete, remote: true, class: 'red waves-effect waves-light btn-small', data: { position: 'bottom', tooltip: 'Delete', confirm: 'Are you sure?' } do
-          %i.material-icons delete
-%tr{ id: "#{task.id}-bottom" }
-  %td{colspan: 3}= task.notes
+%li.task_li{id: "#{auto_task.id}"}
+  .row.no-bottom-margin
+    .col.s12
+      .row.card.valign-wrapper
+        .col.s1.handle
+          %i.material-icons menu
+        .col.s11
+          .row
+            .col.s9.task_title
+              = auto_task.title
+            .col.s3.task_buttons
+              .row.right.no-bottom-margin
+                = link_to edit_auto_task_path(auto_task), remote: true, class: 'btn-flat', data: { position: 'bottom', tooltip: 'Edit' } do
+                  %i.material-icons.grey-text.text-darken-1 create
+                = link_to auto_task_path(auto_task), method: :delete, remote: true, class: 'btn-flat', data: { position: 'bottom', tooltip: 'Delete', confirm: 'Are you sure you want to delete this Auto Task?' } do
+                  %i.material-icons.grey-text.text-darken-1 delete
+            .col.s10.task_notes
+              = auto_task.notes
+            .col.s2.task_due
+              = "Due in #{pluralize(auto_task.days_until_due, 'days')}"
