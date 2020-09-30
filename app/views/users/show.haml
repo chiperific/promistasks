@@ -3,10 +3,10 @@
   .col.l8.s12.spread-out-on-m
     .row
       %h4.center Auto Tasks
-      %p.center When you create a new Tasklist, the Tasks listed below will be automatically added to the top of the list, in the order shown. Tasks will be set as due a certain number of days after they are created.
+      %p.center When you create a new Tasklist, the Tasks listed below will be automatically added to the top of the list within 1 hour, in the order shown. Rearrange tasks to set a different order.
     .row
       %ul#auto_task_list.sortable
-        = render partial: 'task', collection: @auto_tasks
+        = render partial: 'auto_tasks/auto_task', collection: @auto_tasks
 
     .row
       = link_to 'Add', new_auto_task_path, remote: true, class: 'right waves-effect waves-light btn tooltipped modal-trigger', data: { position: 'bottom', tooltip: 'Add a new auto-task' }
@@ -14,15 +14,14 @@
   .col.l4.s12.spread-out-on-m
     .row
       %h4.center Your Tasklists
-      %p.center Click "Push" to add all Auto Tasks to the Tasklist
+      %p.center During week days, the system checks every hour for new Tasklists and automatically adds all Auto Tasks. You can click "Push" to add all Auto Tasks to a Tasklist manually.
     .row
       %table#tasklists
         %thead
           %tr
             %th Title
-            %th.center Auto-tasked?
-            %th
+            %th.center{colspan: 2} Auto-tasked?
         %tbody
-          = render partial: 'tasklist', collection: @tasklists
+          = render partial: 'tasklists/tasklist', collection: @tasklists
 
 = render partial: 'modal', locals: { task: @new_task }

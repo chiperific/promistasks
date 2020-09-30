@@ -3,11 +3,7 @@
 class TasklistPolicy < ApplicationPolicy
   attr_reader :user, :record
 
-  def create?
-    user
-  end
-
-  def destroy?
-    show
+  def push?
+    user == record.user
   end
 end

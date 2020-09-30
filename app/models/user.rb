@@ -21,11 +21,7 @@ class User < ActiveRecord::Base
     @user.reload
   end
 
-  def fname
-    name.split(' ')[0].capitalize
-  end
-
-  def tasks_service
+  def authorization
     secrets = Google::APIClient::ClientSecrets.new(
       {
         'web' =>
@@ -36,10 +32,40 @@ class User < ActiveRecord::Base
             'client_secret' => Rails.application.credentials.google_client_secret
           }
       }
-    )
+    ).to_authorization
+  end
+
+  def fname
+    name.split(' ')[0].capitalize
+  end
+
+  def oauth_expired?
+    oauth_expires_at < Time.now
+  end
+
+  def tasks_service
     service = Google::Apis::TasksV1::TasksService.new
-    service.authorization = secrets.to_authorization
+    service.authorization = authorization
+
+    if oauth_expired?
+      response = service.authorization.refresh!
+      new_expiry = Time.now + response['expires_in']
+      update_column(:oauth_expires_at, new_expiry)
+    end
 
     service
+  end
+
+  def import_tasklists!
+    response = tasks_service.list_tasklists(fields: 'items(id,title)')
+
+    response.items.each do |item|
+      next if item.title == 'Primary'
+
+      Tasklist.where(google_id: item.id, user: self).first_or_initialize.tap do |tl|
+        tl.title = item.title
+        tl.save
+      end
+    end
   end
 end

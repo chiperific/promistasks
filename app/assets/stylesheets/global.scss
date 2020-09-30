@@ -52,6 +52,16 @@ main {
   }
 }
 
+// take over the Google sign-in button
+.g-logo {
+  margin-bottom: -12px;
+  margin-right: 12px;
+}
+
+.bold {
+  font-weight: bold;
+}
+
 
 // materialize doesn't play well with Rails adding divs around errored fields.
 // So I adjusted application.rb to add the field_with_errors directly to the form field.

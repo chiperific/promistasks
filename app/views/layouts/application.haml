@@ -13,16 +13,18 @@
     %nav.blue.nav-extended
       .nav-wrapper
         = link_to 'PromiseTasks', root_path, class: "brand-logo fixed"
-        %ul#nav_mobile.right
-          %li
-            = current_user.name
-          %li
-            = link_to out_path, class: 'waves-effect waves-light btn tooltipped', data: { position: 'bottom', tooltip: 'Logout' } do
-              %i.material-icons login
+        - if current_user
+          %ul#nav_mobile.right
+            %li
+              = current_user.name
+            %li
+              = link_to out_path, class: 'waves-effect waves-light btn tooltipped', data: { position: 'bottom', tooltip: 'Logout' } do
+                %i.material-icons login
     %main.container
       = yield
     %footer.page-footer.purple.lighten-1
-      = link_to user_path(current_user), method: :delete, class: 'waves-effect waves-light btn tooltipped right red accent-4', data: { position: 'top', tooltip: 'Delete account.', confirm: 'Are you sure? This will delete your Auto Tasks. It will not delete your Tasklists.' } do
-        %i.material-icons delete_forever
+      - if current_user
+        = link_to user_path(current_user), method: :delete, class: 'waves-effect waves-light btn tooltipped right red accent-4', data: { position: 'top', tooltip: 'Delete account.', confirm: 'Are you sure? This will delete your Auto Tasks. It will not delete your Tasklists.' } do
+          %i.material-icons delete_forever
   - flash.each do |message_type, message|
     = javascript_tag "M.toast({html: '#{message}'})"

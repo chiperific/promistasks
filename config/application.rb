@@ -16,7 +16,7 @@ require 'action_cable/engine'
 require 'sprockets/railtie'
 require 'rails/test_unit/railtie'
 require 'google/apis/tasks_v1'
-require 'google/api_client/client_secrets.rb'
+require 'google/api_client/client_secrets'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.

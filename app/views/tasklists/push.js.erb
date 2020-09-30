@@ -1,0 +1,2 @@
+$("#tasklists tbody tr#tl-<%= @tasklist.id %>").replaceWith("<%= j render partial: @tasklist %>")
+M.toast({html: 'Auto Tasks Pushed!'});

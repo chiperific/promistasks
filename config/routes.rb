@@ -9,15 +9,9 @@ Rails.application.routes.draw do
     post 'reposition', on: :collection
   end
 
-  resources :tasklists, only: %i[create destroy] do
+  resources :tasklists, only: %i[] do
     get 'push', on: :member
   end
-
-  # devise_for :users, path: '', controllers: {
-  #   omniauth_callbacks: 'omniauth_callbacks',
-  #   registrations: 'registrations',
-  #   sessions: 'sessions'
-  # }
 
   get '/auth/:provider/callback', to: 'sessions#create'
   get '/in', to: 'sessions#new', as: :in

@@ -1,9 +1,17 @@
 # frozen_string_literal: true
 
 class TasklistsController < ApplicationController
-  def create; end
+  layout 'blank'
 
-  def destroy; end
+  def push
+    authorize @tasklist = Tasklist.find(params[:id])
+
+    @tasklist.push_auto_tasks!
+
+    respond_to do |format|
+      format.js {}
+    end
+  end
 
   private
 

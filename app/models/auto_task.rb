@@ -12,6 +12,16 @@ class AutoTask < ApplicationRecord
 
   before_create :increment_position
 
+  def as_google_object
+    Google::Apis::TasksV1::Task.new(title: title, notes: notes, due: due)
+  end
+
+  def due
+    return nil if days_until_due.zero?
+
+    (DateTime.now + days_until_due.days).rfc3339
+  end
+
   def self.reposition(positions)
     AutoTask.update_all(position: nil)
 

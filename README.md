@@ -1,11 +1,6 @@
 # Task Manager with Google Tasks API Extension for Family Promise GR
 
 ## Construction Crew
-- Build Google:Apis functionality into tasklist.rb and auto_task.rb
-- Tasklists on users#show:
--- should allow a user to trigger the autotask creation
-- Tasklists get auto_tasks_created? set
-
 - Use a new activejob queue adaptor: Resque or SideKiq
 
 - Mailgun still has settings

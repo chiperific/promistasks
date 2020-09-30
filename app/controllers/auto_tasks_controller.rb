@@ -61,8 +61,10 @@ class AutoTasksController < ApplicationController
   def destroy
     authorize @auto_task
 
+    @auto_task.destroy!
+
     respond_to do |format|
-      format.js
+      format.js {}
     end
   end
 

@@ -4,7 +4,6 @@ class ApplicationController < ActionController::Base
   include Pundit
   include ErrorHandler
   include ApplicationHelper
-  require 'google/apis/tasks_v1'
 
   protect_from_forgery with: :exception
 
