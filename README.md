@@ -1,7 +1,8 @@
 # Task Manager with Google Tasks API Extension for Family Promise GR
 
 ## Construction Crew
-- Scenario: Tasklist deleted in Google, still exists in app.
+- Scenario: Tasklist deleted in Google, still exists in app:
+-- Needs to be removed from app
 
 - Mailgun still has settings
 

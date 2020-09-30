@@ -6,7 +6,7 @@ class TasklistsController < ApplicationController
   def push
     authorize @tasklist = Tasklist.find(params[:id])
 
-    @tasklist.push_auto_tasks!
+    @tasklist.push_auto_tasks!(check_first: true)
 
     respond_to do |format|
       format.js {}

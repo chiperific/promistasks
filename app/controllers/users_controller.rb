@@ -20,8 +20,6 @@ class UsersController < ApplicationController
   def authorization
     authorize @user
 
-    # respond_to :html
-
     respond_to do |format|
       format.html
       format.js { render 'authorization', layout: 'blank' }

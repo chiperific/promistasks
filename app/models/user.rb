@@ -59,10 +59,14 @@ class User < ActiveRecord::Base
   def import_tasklists!
     response = tasks_service.list_tasklists(fields: 'items(id,title)')
 
+    # Delete tasklists that no longer exist in Google
+    tasklists.where.not(google_id: response.items.map(&:id)).destroy_all
+
     response.items.each do |item|
       next if item.title == 'Primary'
 
-      Tasklist.where(google_id: item.id, user: self).first_or_initialize.tap do |tl|
+      # Create / update tasklists from Google
+      tasklists.where(google_id: item.id, user: self).first_or_initialize.tap do |tl|
         tl.title = item.title
         tl.save
       end
