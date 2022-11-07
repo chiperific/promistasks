@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+User.create(
+  [
+    { name: 'Seth C.', email: 'seth@familypromisegr.org' }
+  ]
+)
+
 AutoTask.create(
   [
     { title: 'Get the title', notes: 'Call Karen at the County: 616-256-7711', days_until_due: 10, user_id: 1 },

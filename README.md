@@ -1,25 +1,24 @@
 # Task Manager with Google Tasks API Extension for Family Promise GR
 
-## Construction Crew
-- Scenario: Tasklist deleted in Google, still exists in app:
--- Needs to be removed from app
+## Overview
+This organization uses Google Tasks to manage project tasks related to their mission of housing homeless families.
 
-- Mailgun still has settings
+Many of the tasks are the same for every project.
+So this app allows a user to create "auto tasks" that will automatically be added to any new Tasklist created in this app.
 
-- Bother writing tests?
+E.g.:
+When Family Promise purchases a mobile home, they always need to take certain steps: perform an inspection, secure the title papers, check on the lot fees, setup utilties, etc.
 
-## Whiteboard:
-4. √ User can set tasks to be automatically added to any new tasklist
-5. √ User can set due dates ( + days in the future ) for auto-tasks
-6. √ User can re-arrange the order of auto-tasks
-7. √ Auto-tasks default to the top of the tasklist (then in order per #6)
-8. A cron job handles new Tasklists every hour during work days
+By creating a Tasklist when a new property is aquired, this app can populate that Tasklist with the created "auto tasks".
 
+This helps ensure all steps are taken everytime and saves on the hassle of having to manually recreate all these tasks on every tasklist.
 
-## Remind myself
-2. production backup / development restore-from production
-3. "Your branch is n commits behind master" - git fetch origin
-4. git remote prune origin --dry-run
-5. API Console: https://console.developers.google.com/apis/credentials?project=pihtasks
-5. Tasks API: https://googleapis.dev/ruby/google-api-client/latest/Google/Apis/TasksV1.html
-6. Materialize: https://materializecss.com/
+## Capabilities:
+1. User can sync this app to their Google Tasks
+2. User can manage their Google Tasks in this app and have changes synced with Google
+3. User can create new tasks in this app and have them pushed to Google
+4. User can create "auto-tasks" to be automatically added to any new tasklist
+5. User can set due dates ( + days in the future ) for auto-tasks
+6. User can re-arrange the order of auto-tasks
+7. Auto-tasks default to the top of the tasklist (then in order per #6)
+8. A cron job handles syncing new Tasklists every hour during work days (since Google Tasks doesn't have any webhooks)
