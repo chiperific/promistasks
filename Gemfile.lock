@@ -188,6 +188,8 @@ GEM
     nio4r (2.5.8)
     nokogiri (1.13.9-x86_64-darwin)
       racc (~> 1.4)
+    nokogiri (1.13.9-x86_64-linux)
+      racc (~> 1.4)
     oauth2 (2.0.9)
       faraday (>= 0.17.3, < 3.0)
       jwt (>= 1.0, < 3.0)
@@ -221,7 +223,7 @@ GEM
     pundit (2.2.0)
       activesupport (>= 3.0.0)
     racc (1.6.0)
-    rack (2.2.4)
+    rack (2.2.6.2)
     rack-protection (3.0.2)
       rack
     rack-proxy (0.7.4)
@@ -354,6 +356,7 @@ GEM
 
 PLATFORMS
   x86_64-darwin-21
+  x86_64-linux
 
 DEPENDENCIES
   bcrypt (~> 3.1.7)
